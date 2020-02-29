@@ -1,0 +1,26 @@
+{
+  "name": "node-web-mvc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Beven91/node-mvc.git"
+  },
+  "keywords": [
+    "mvc",
+    "node"
+  ],
+  "author": "beven",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Beven91/node-mvc/issues"
+  },
+  "homepage": "https://github.com/Beven91/node-mvc#readme"
+}
