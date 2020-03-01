@@ -6,6 +6,10 @@
 
 class Controller {
 
+  get isController(){
+    return true;
+  }
+
   /**
    * 获取当前ImcommingMessage (Request)对象
    */

@@ -29,7 +29,7 @@ class ControllerFactory {
   }
 
   // 设置默认控制器
-  static set defaultFactory(value){
+  static set defaultFactory(value) {
     defaultFactoryController = value;
   }
 
@@ -37,7 +37,7 @@ class ControllerFactory {
    * 判断传入类是否为一个Controller
    */
   static isController(controllerClass) {
-    return controllerClass && controllerClass.prototype instanceof Controller;
+    return controllerClass && controllerClass.prototype.isController === true;
   }
 
   /**
@@ -137,8 +137,8 @@ class ControllerFactory {
     const findContext = {};
     const pathContext = Routes.match(req.path);
     const areaContext = {
-      areaName: pathContext.area,
-      controllerName: pathContext.controller,
+      areaName: pathContext.area || '',
+      controllerName: pathContext.controller || '',
       actionName: pathContext.action
     }
     const areaRegisterControllers = ControllerFactory.getAreaControllers(areaContext.areaName) || {};
@@ -152,8 +152,9 @@ class ControllerFactory {
    */
   executeController(controllerContext) {
     const { Controller, controllerName, actionName } = controllerContext;
+    const handleContext = controllerContext.handleContext;
     if (!Controller) {
-      return next();
+      return handleContext.next();
     } else if (!ControllerFactory.isController(Controller)) {
       logger.debug(`Cannot find Controller from: ${controllerName}/${actionName}`)
       logger.warn(`Invalid Controller:${controllerName},Please check it extends Controller`)
@@ -161,29 +162,29 @@ class ControllerFactory {
     }
     const controller = this.createController(controllerContext);
     const action = actionName.toLowerCase()
-    const keys = Reflect.ownKeys(findController.prototype);
+    const keys = Reflect.ownKeys(Controller.prototype);
     const actionHandleName = keys.find((m) => (m.toLowerCase()) == action);
     const actionHandle = controller[actionHandleName];
     if (typeof actionHandle !== 'function') {
       logger.debug(`Cannot find Controller from: ${controllerName}/${actionName}`)
       next();
     } else {
-      return actionHandle.apply(controller, arguments);
+      return actionHandle.call(controller, handleContext.request, handleContext.response, handleContext.next);
     }
   }
 
   createController(controllerContext) {
     const { Controller } = controllerContext;
     // 查找改controller是否已初始化
-    let controller = this.controllers.filter((controller) => {
-      return controller instanceof Controller;
-    }).pop();
-    if (!controller) {
-      controller = new Controller();
-    }
+    // let controller = this.controllers.filter((controller) => {
+    //   return controller instanceof Controller;
+    // }).pop();
+    // if (!controller) {
+    const controller = new Controller();
+    // }
     //定义只读参数context
     Object.defineProperty(controller, '_Context', {
-      value: context,
+      value: controllerContext.handleContext,
       writable: false,
       enumerable: true,
       configurable: true
