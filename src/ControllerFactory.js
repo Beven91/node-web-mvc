@@ -8,6 +8,7 @@ const path = require('path');
 const logger = console;
 const Controller = require('./controller');
 const Routes = require('./RouteCollection');
+const ControllerManagement = require('./ControllerManagement');
 
 //默认mvc域名
 const defaultArea = "";
@@ -25,6 +26,9 @@ class ControllerFactory {
 
   // 设置默认的控制器
   static get defaultFactory() {
+    if (!defaultFactoryController) {
+      defaultFactoryController = new ControllerFactory();
+    }
     return defaultFactoryController;
   }
 
@@ -47,6 +51,7 @@ class ControllerFactory {
    * @param {Boolean} ensure 当ensure为true时：当获取不到对应的域会自动创建域
    */
   static getAreaControllers(area, ensure) {
+    area = area || '';
     let areaRegisterControllers = registedAreaControllers[area];
     if (ensure && !areaRegisterControllers) {
       areaRegisterControllers = registedAreaControllers[area] = {};
@@ -130,24 +135,6 @@ class ControllerFactory {
   }
 
   /**
-   * 根据当前路由配置，查找对应的controller
-   * @param {String} pathname 当前url.path
-   */
-  getController(req) {
-    const findContext = {};
-    const pathContext = Routes.match(req.path);
-    const areaContext = {
-      areaName: pathContext.area || '',
-      controllerName: pathContext.controller || '',
-      actionName: pathContext.action
-    }
-    const areaRegisterControllers = ControllerFactory.getAreaControllers(areaContext.areaName) || {};
-    findContext.Controller = areaRegisterControllers[(areaContext.controllerName || '').toLowerCase()];
-    findContext.actionName = areaContext.actionName;
-    return findContext || {};
-  }
-
-  /**
    * 根据传入context执行控制器
    */
   executeController(controllerContext) {
@@ -155,12 +142,8 @@ class ControllerFactory {
     const handleContext = controllerContext.handleContext;
     if (!Controller) {
       return handleContext.next();
-    } else if (!ControllerFactory.isController(Controller)) {
-      logger.debug(`Cannot find Controller from: ${controllerName}/${actionName}`)
-      logger.warn(`Invalid Controller:${controllerName},Please check it extends Controller`)
-      return next();
     }
-    const controller = this.createController(controllerContext);
+    const controller = ControllerManagement.createController(controllerContext);
     const action = actionName.toLowerCase()
     const keys = Reflect.ownKeys(Controller.prototype);
     const actionHandleName = keys.find((m) => (m.toLowerCase()) == action);
@@ -173,25 +156,6 @@ class ControllerFactory {
     }
   }
 
-  createController(controllerContext) {
-    const { Controller } = controllerContext;
-    // 查找改controller是否已初始化
-    // let controller = this.controllers.filter((controller) => {
-    //   return controller instanceof Controller;
-    // }).pop();
-    // if (!controller) {
-    const controller = new Controller();
-    // }
-    //定义只读参数context
-    Object.defineProperty(controller, '_Context', {
-      value: controllerContext.handleContext,
-      writable: false,
-      enumerable: true,
-      configurable: true
-    })
-    return controller;
-  }
-
   /**
    * 根据请求动态构建controller，
    * 以及执行对应的controller.action 
@@ -200,17 +164,21 @@ class ControllerFactory {
    * @param {Function} next 转交给下个express中间件
    */
   handle(req, resp, next, context) {
-    const controllerContext = this.getController(req);
-    const context2 = context || {};
-    context2.request = context2.request || req;
-    context2.response = context2.response || resp;
-    context2.next = context2.next || next;
-    controllerContext.handleContext = context2;
-    return this.executeController(controllerContext)
+    context = context || {};
+    const request = context.request || req;
+    const pathContext = Routes.match(req.path, req.method);
+    const areaRegisterControllers = ControllerFactory.getAreaControllers(pathContext.area) || {};
+    request.params = pathContext.params || {};
+    return this.executeController({
+      Controller: pathContext.Controller || areaRegisterControllers[(pathContext.controller || '').toLowerCase()],
+      actionName: pathContext.action,
+      handleContext: {
+        request: request,
+        response: context.response || resp,
+        next: context.next || next,
+      }
+    })
   }
 }
-
-// 创建默认工厂
-defaultFactoryController = new ControllerFactory();
 
 module.exports = ControllerFactory;

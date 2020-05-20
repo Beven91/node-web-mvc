@@ -22,5 +22,8 @@
   "bugs": {
     "url": "https://github.com/Beven91/node-mvc/issues"
   },
-  "homepage": "https://github.com/Beven91/node-mvc#readme"
+  "homepage": "https://github.com/Beven91/node-mvc#readme",
+  "dependencies": {
+    "path-to-regexp": "^6.1.0"
+  }
 }

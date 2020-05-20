@@ -2,12 +2,12 @@
  * MVC 路由集合类
  * 基于express路由
  */
+const matcher = require("path-to-regexp");
 
 class RouteCollection {
 
   /**
    * 添加一个动态路由 
-   * @static
    * @param {String} exp 路由表达式 例如 {controller}/{action}
    * @param {String} defaultOptions 默认路由配置项 例如： {controller:'Home',action:'index'}
    */
@@ -21,9 +21,59 @@ class RouteCollection {
   }
 
   /**
+   * 添加路由映射
+   * @param {String} exp 路由表达式 例如 user/find
+   * @param {String} controller 控制器名称
+   * @param {String} action 函数名
+   * @param {Object} allowMethods 
+   */
+  static mapRule(exp, controller, action, allowMethods) {
+    if (exp === '' || controller === '' || action === '') {
+      throw new Error('exp controller action 都不能为空')
+    }
+    exp = exp[0] === '/' ? exp.slice(1) : exp;
+    this.rules = this.rules || [];
+    this.rules.push({
+      match: matcher.match(exp),
+      url: exp,
+      allow: allowMethods || {},
+      options: { controller: controller, action: action }
+    });
+  }
+
+  /**
    * 根据路由匹配出
    */
-  static match(path) {
+  static match(path, method) {
+    return this.ruleMatch(path, method) || this.basicMatch(path);
+  }
+
+
+  /**
+   * rule match
+   */
+  static ruleMatch(path, method) {
+    const rules = this.rules || [];
+    for (let i = 0, k = rules.length; i < k; i++) {
+      const rule = rules[i];
+      const options = rule.options;
+      const result = rule.match(path);
+      if (result && options.allow[method]) {
+        return {
+          Controller: options.controller,
+          action: options.action,
+          params: result.params || {}
+        }
+      }
+    }
+  }
+
+
+  /**
+   * basic match
+   * @param {*} path 
+   */
+  static basicMatch(path) {
     path = path[0] === '/' ? path.slice(1) : path;
     const parts = path.split('/');
     const routes = this.routes;
