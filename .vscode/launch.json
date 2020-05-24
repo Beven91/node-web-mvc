@@ -12,6 +12,16 @@
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}\\test\\index.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "调试测试服务",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}\\test\\www.js",
+      "cwd": "${workspaceFolder}\\test"
     }
   ]
 }

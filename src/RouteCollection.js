@@ -2,8 +2,6 @@
  * MVC 路由集合类
  * 基于express路由
  */
-const matcher = require("path-to-regexp");
-
 class RouteCollection {
 
   /**
@@ -27,47 +25,37 @@ class RouteCollection {
    * @param {String} action 函数名
    * @param {Object} allowMethods 
    */
-  static mapRule(exp, controller, action, allowMethods) {
-    if (exp === '' || controller === '' || action === '') {
-      throw new Error('exp controller action 都不能为空')
+  static mapRule(rule) {
+    if (rule) {
+      this.rules = this.rules || [];
+      this.rules.push(rule);
     }
-    exp = exp[0] === '/' ? exp.slice(1) : exp;
-    this.rules = this.rules || [];
-    this.rules.push({
-      match: matcher.match(exp),
-      url: exp,
-      allow: allowMethods || {},
-      options: { controller: controller, action: action }
-    });
   }
 
   /**
    * 根据路由匹配出
    */
-  static match(path, method) {
-    return this.ruleMatch(path, method) || this.basicMatch(path);
+  static match(req) {
+    return this.ruleMatch(req) || this.basicMatch(req.path);
   }
-
 
   /**
    * rule match
    */
-  static ruleMatch(path, method) {
+  static ruleMatch(req) {
     const rules = this.rules || [];
     for (let i = 0, k = rules.length; i < k; i++) {
       const rule = rules[i];
-      const options = rule.options;
-      const result = rule.match(path);
-      if (result && options.allow[method]) {
+      const result = rule.match(req);
+      if (result) {
         return {
-          Controller: options.controller,
-          action: options.action,
+          controllerClass: result.controller,
+          action: result.action,
           params: result.params || {}
         }
       }
     }
   }
-
 
   /**
    * basic match
@@ -76,7 +64,7 @@ class RouteCollection {
   static basicMatch(path) {
     path = path[0] === '/' ? path.slice(1) : path;
     const parts = path.split('/');
-    const routes = this.routes;
+    const routes = this.routes || [];
     for (let i = 0, k = routes.length; i < k; i++) {
       const matchRoute = {};
       const route = routes[i];
@@ -122,20 +110,6 @@ function bindActionMiddlewares(exp, middlewares, controller, action, area) {
   middlewares = middlewares || [];
   middlewares.push(onAction({ controller, action, area }))
   return middlewares;
-}
-
-/**
- * 处理路由表达式  {}
- * @param exp 匹配规则  
- * @memberof RouteCollection
- */
-function expAction(exp) {
-  const route = (exp || '')
-    .replace(/\s/g, '')
-    .replace('{area}', ':_area')
-    .replace('{controller}', ':_controller')
-    .replace('{action}', ':_action')
-  return route[0] == '/' ? route : '/' + route;
 }
 
 /**

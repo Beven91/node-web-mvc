@@ -9,6 +9,7 @@ const logger = console;
 const Controller = require('./controller');
 const Routes = require('./RouteCollection');
 const ControllerManagement = require('./ControllerManagement');
+const ControllerActionProduces = require('./producers/ControllerActionProduces');
 
 //默认mvc域名
 const defaultArea = "";
@@ -41,7 +42,7 @@ class ControllerFactory {
    * 判断传入类是否为一个Controller
    */
   static isController(controllerClass) {
-    return controllerClass && controllerClass.prototype.isController === true;
+    return controllerClass && controllerClass.prototype && controllerClass.prototype.isController === true;
   }
 
   /**
@@ -136,48 +137,49 @@ class ControllerFactory {
 
   /**
    * 根据传入context执行控制器
+   * @param {ControllerContext} controllerContext 控制器执行上下文
    */
   executeController(controllerContext) {
-    const { Controller, controllerName, actionName } = controllerContext;
-    const handleContext = controllerContext.handleContext;
-    if (!Controller) {
-      return handleContext.next();
+    const { controller, controllerName, action } = controllerContext;
+    if (!controller) {
+      return controllerContext.next();
     }
-    const controller = ControllerManagement.createController(controllerContext);
     const action = actionName.toLowerCase()
-    const keys = Reflect.ownKeys(Controller.prototype);
-    const actionHandleName = keys.find((m) => (m.toLowerCase()) == action);
-    const actionHandle = controller[actionHandleName];
-    if (typeof actionHandle !== 'function') {
+    const keys = Reflect.ownKeys(controllerContext.controllerClass.prototype);
+    const functionName = keys.find((m) => (m.toLowerCase()) == action);
+    const actionFunction = controller[functionName];
+    if (typeof actionFunction !== 'function') {
       logger.debug(`Cannot find Controller from: ${controllerName}/${actionName}`)
-      next();
+      controllerContext.next();
     } else {
-      return actionHandle.call(controller, handleContext.request, handleContext.response, handleContext.next);
+      const { request, response, params } = controllerContext;
+      // 参数赋值到request上
+      request.params = params;
+      const producer = new ControllerActionProduces(controllerContext, functionName);
+      const result = actionFunction.call(controller, request, response);
+      return producer.produce(result);
     }
   }
 
   /**
    * 根据请求动态构建controller，
    * 以及执行对应的controller.action 
-   * @param {IcomminigMessage} req 请求对象(request)
-   * @param {ServerResponse} resp 服务器响应对象(response)   
-   * @param {Function} next 转交给下个express中间件
+   * @param {ControllerContext} controllerContext 控制器执行上下文
    */
-  handle(req, resp, next, context) {
-    context = context || {};
-    const request = context.request || req;
-    const pathContext = Routes.match(req.path, req.method);
+  handle(controllerContext) {
+    const pathContext = Routes.match(controllerContext);
     const areaRegisterControllers = ControllerFactory.getAreaControllers(pathContext.area) || {};
-    request.params = pathContext.params || {};
-    return this.executeController({
-      Controller: pathContext.Controller || areaRegisterControllers[(pathContext.controller || '').toLowerCase()],
-      actionName: pathContext.action,
-      handleContext: {
-        request: request,
-        response: context.response || resp,
-        next: context.next || next,
-      }
-    })
+    const controllerName = (pathContext.controller || '').toLowerCase();
+    // 设置匹配到的控制器
+    controllerContext.controllerClass = pathContext.controllerClass || areaRegisterControllers[controllerName];
+    // 设置匹配到的action
+    controllerContext.action = pathContext.action;
+    // 创建控制器
+    controllerContext.controller = ControllerManagement.createController(controllerContext);
+    // 设置从路径中解析出来的参数
+    controllerContext.params = pathContext.params || {};
+    // 开始执行
+    return this.executeController(controllerContext);
   }
 }
 
