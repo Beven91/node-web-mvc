@@ -8,6 +8,7 @@ const ControllerManagement = require('../ControllerManagement');
  */
 module.exports = function scopeAnnotation(scope) {
   return function (Controller) {
-    ControllerManagement.setControllerAttribute('scope', scope, Controller)
+    const attributes = ControllerManagement.getControllerAttributes(Controller);
+    attributes.scope = scope;
   }
 }

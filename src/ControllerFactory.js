@@ -140,23 +140,19 @@ class ControllerFactory {
    * @param {ControllerContext} controllerContext 控制器执行上下文
    */
   executeController(controllerContext) {
-    const { controller, controllerName, action } = controllerContext;
+    const { controller, controllerName, actionName, action } = controllerContext;
     if (!controller) {
       return controllerContext.next();
     }
-    const action = actionName.toLowerCase()
-    const keys = Reflect.ownKeys(controllerContext.controllerClass.prototype);
-    const functionName = keys.find((m) => (m.toLowerCase()) == action);
-    const actionFunction = controller[functionName];
-    if (typeof actionFunction !== 'function') {
+    if (typeof action !== 'function') {
       logger.debug(`Cannot find Controller from: ${controllerName}/${actionName}`)
       controllerContext.next();
     } else {
       const { request, response, params } = controllerContext;
       // 参数赋值到request上
       request.params = params;
-      const producer = new ControllerActionProduces(controllerContext, functionName);
-      const result = actionFunction.call(controller, request, response);
+      const producer = new ControllerActionProduces(controllerContext, actionName);
+      const result = action.call(controller, request, response);
       return producer.produce(result);
     }
   }
@@ -172,10 +168,12 @@ class ControllerFactory {
     const controllerName = (pathContext.controller || '').toLowerCase();
     // 设置匹配到的控制器
     controllerContext.controllerClass = pathContext.controllerClass || areaRegisterControllers[controllerName];
-    // 设置匹配到的action
-    controllerContext.action = pathContext.action;
     // 创建控制器
     controllerContext.controller = ControllerManagement.createController(controllerContext);
+    // 设置actionName
+    controllerContext.actionName = pathContext.action;
+    // 设置匹配到的action
+    controllerContext.action = ControllerManagement.creatAction(controllerContext.controller, pathContext.action)
     // 设置从路径中解析出来的参数
     controllerContext.params = pathContext.params || {};
     // 开始执行

@@ -12,13 +12,18 @@ class ContextInterface {
     this.requestParams = '';
   }
 
+  // 当前匹配到的控制器的名字
+  get controllerName() {
+    return this.controllerClass ? this.controllerClass.name : '';
+  }
+
   // 获取当前请求的路径
-  get path(){
+  get path() {
     throw new Error('Please implements path property');
   }
 
   // 获取当前请求方法
-  get method(){
+  get method() {
     throw new Error('Please implements path property');
   }
 }

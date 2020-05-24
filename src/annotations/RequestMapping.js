@@ -74,6 +74,8 @@ function requestMappingAction(target, action, descriptor, mapping) {
   attributes.actions[action] = actionMapping;
   RouteCollection.mapRule({
     match: (req) => matchRoute(req, target, descriptor.value, actionMapping),
+    action: action,
+    controller: target,
   });
 }
 
@@ -111,14 +113,16 @@ function matchRoute(req, target, action, actionMapping) {
 
 // 创建一条路由匹配规则
 function createRules(target, actionPaths) {
-  const controllerMapping = ControllerManagement.getControllerAttributes(target);
+  const attributes = ControllerManagement.getControllerAttributes(target);
+  const controllerMapping = attributes.mapping || {};
   const controllerPaths = controllerMapping.value || [''];
   const rules = [];
   controllerPaths.forEach((controllerPath) => {
     actionPaths.forEach((actionPath) => {
       const exp = (controllerPath + '/' + actionPath).replace(/\/{2,3}/, '/').replace(/\{/g, ':').replace(/\}/g, '')
       rules.push({
-        match: matcher.match(exp)
+        match: matcher.match(exp),
+        exp: exp
       });
     })
   });

@@ -22,7 +22,7 @@ ControllerFactory.registerControllers(path.resolve('./controllers'));
 
 //设置默认路由
 //推荐：最好把以下代码放到所有路由配置的最后，以降低其优先级，防止吞掉其他指定的路由
-// Routes.mapRoute('{controller}/{action}', { controller: 'Home', action: 'index' });
+Routes.mapRoute('{controller}/{action}', { controller: 'Home', action: 'index' });
 
 // 启动Mvc  
 app.use(Registry.launch({ mode: 'express' }));

@@ -9,6 +9,14 @@ const scopeControllers = {
   'prototype': null
 }
 
+/**
+ * 禁用的属性
+ */
+const forbiddenKeys = Reflect.ownKeys({}.__proto__).reduce((map, k) => {
+  map[k] = true;
+  return map;
+}, {})
+
 // 控制器特征属性
 const controllerAttributes = [];
 
@@ -50,14 +58,46 @@ class ControllerManagement {
       return null;
     }
     const Controller = controllerClass;
-    const feature = controllerAttributes.find((feature) => feature.ctor === Controller) || {};
-    const container = scopeControllers[feature.scope] || [];
+    const attributes = controllerAttributes.find((feature) => feature.ctor === Controller) || {};
+    const scope = attributes.scope || 'singleton';
+    const container = scopeControllers[scope] || [];
     let controller = container.find((instance) => instance.constructor === Controller);
     if (!controller) {
       controller = new Controller();
-      this.addScopeController(feature.scope, controller);
+      this.addScopeController(scope, controller);
     }
     return controller;
+  }
+
+  /**
+   * 创建当前controller对应的action
+   * @param {*} controller 
+   * @param {*} actionName 
+   */
+  static creatAction(controller, actionName) {
+    if (!controller) {
+      return null;
+    } else if (typeof actionName === 'function') {
+      return actionName;
+    } else {
+      const actions = this.initializeControllerActions(controller);
+      return (actions[actionName] || {}).value;
+    }
+  }
+
+  static initializeControllerActions(controller) {
+    const Controller = controller.constructor;
+    const attributes = ControllerManagement.getControllerAttributes(Controller);
+    if (!attributes.actions) {
+      const actions = attributes.actions = {};
+      const actionNames = Reflect.ownKeys(controller.__proto__).filter((key) => !forbiddenKeys[key]);
+      actionNames.forEach((key) => {
+        actions[key] = {
+          value: Controller.prototype[key]
+        }
+      })
+    }
+    return attributes.actions;
   }
 }
 
