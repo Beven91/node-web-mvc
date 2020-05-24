@@ -27,7 +27,7 @@ yarn add node-web-mvc
 > main.js
 
 ```js
-const { Registry, ControllerFactory,AreaRegistration,Routes } = require('node-mvc');
+import { Registry, ControllerFactory,AreaRegistration,Routes } from 'node-web-mvc';
 
 //注册api/controllers目录下的所有controller
 ControllerFactory.registerControllers(path.resolve('api/controllers'));
@@ -65,7 +65,7 @@ export default class HomeController extends Controller {
 > 启动配置
 
 ```js
-import { Registry } from 'node-mvc';
+import { Registry } from 'node-web-mvc';
 
 //注册api/controllers目录下的所有controller
 Registry.registerControllers(path.resolve('api/controllers'));
@@ -78,7 +78,7 @@ app.use(Registry.launch({ mode:'express' }));
 > HomeController
 
 ```js
-import { RequestMapping, PostMapping } from 'node-mvc';
+import { RequestMapping, PostMapping } from 'node-web-mvc';
 
 @Scope('prototype')
 @RequestMapping('/user')
