@@ -16,6 +16,15 @@ class Registry {
   }
 
   /**
+   * 根据指定目录统一注册Controller
+   * @static
+   * @param {String} dir 目录地址
+   */
+  static registerControllers(dir) {
+    return ControllerFactory.registerControllers(dir);
+  }
+
+  /**
    * 启动mvc
    * @param {Express} app express实例 
    */

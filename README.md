@@ -18,10 +18,13 @@ yarn add node-web-mvc
 
 ```
 
+## 2.0内容
 
-### 使用
+### 默认使用方式
 
-> express
+> 传统方式
+
+> main.js
 
 ```js
 const { Registry, ControllerFactory,AreaRegistration,Routes } = require('node-mvc');
@@ -38,30 +41,59 @@ AreaRegistration.registerAllAreas(path.resolve('api/areas'));
 //推荐：最好把以下代码放到所有路由配置的最后，以降低其优先级，防止吞掉其他指定的路由
 Routes.mapRoute('{controller}/{action}', { controller: 'Home', action: 'index' });
 
-// 启动Mvc  
-app.use(Registry.launch());
+// 启动Mvc   mode 目前可以设置成 express 或者 koa
+app.use(Registry.launch({ mode:'express' }));
 
 ```
 
-
-> koa
+> controller.js
 
 ```js
-const { Registry, ControllerFactory,AreaRegistration,Routes } = require('node-mvc');
+const { Controller } = require('node-mvc');
+
+export default class HomeController extends Controller {
+
+  index(request,response){
+    return '返回内容';
+  }
+}
+
+```
+
+### SpringMvc 使用方式
+
+> 启动配置
+
+```js
+import { Registry } from 'node-mvc';
 
 //注册api/controllers目录下的所有controller
-ControllerFactory.registerControllers(path.resolve('api/controllers'));
-//注册所有MVC域(Area)
-AreaRegistration.registerAllAreas(path.resolve('api/areas'));
+Registry.registerControllers(path.resolve('api/controllers'));
 
-// 或者可以设置自定义的控制器工厂
-// ControllerFactory.defaultFactory = new ControllerFactory();
+// 启动Mvc   mode 目前可以设置成 express 或者 koa
+app.use(Registry.launch({ mode:'express' }));
 
-//设置默认路由
-//推荐：最好把以下代码放到所有路由配置的最后，以降低其优先级，防止吞掉其他指定的路由
-Routes.mapRoute('{controller}/{action}', { controller: 'Home', action: 'index' });
+```
 
-// 启动Mvc  
-app.use(Registry.launchKoa());
+> HomeController
 
+```js
+import { RequestMapping, PostMapping } from 'node-mvc';
+
+@Scope('prototype')
+@RequestMapping('/user')
+export default class UserController {
+
+  @PostMapping('/addUser')
+  addUser(req, resp) {
+    return 'aaa';
+  }
+
+  @RequestMapping('/getUser', 'get')
+  getUser() {
+    return JSON.stringify({
+      name: '李白'
+    })
+  }
+}
 ```
