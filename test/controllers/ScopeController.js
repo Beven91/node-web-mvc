@@ -14,4 +14,9 @@ export default class ScopeController {
     this.scopeData = request.query.id;
     return 'ok';
   }
+
+  @RequestMapping('/business')
+  doBusiness() {
+    throw new Error('出错啦');
+  }
 }

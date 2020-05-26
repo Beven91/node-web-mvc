@@ -6,11 +6,12 @@ const ControllerManagement = require('../ControllerManagement');
 
 class ControllerActionProduces {
 
-  constructor(controllerContext,action) {
+  constructor(controllerContext) {
+    const actionName = controllerContext.actionName;
     const Controller = controllerContext.controllerClass;
     const attributes = ControllerManagement.getControllerAttributes(Controller);
     this.controllerContext = controllerContext;
-    this.actionMapping = attributes.actions[action] || {};
+    this.actionMapping = attributes.actions[actionName] || {};
   }
 
   /**

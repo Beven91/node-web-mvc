@@ -1,4 +1,4 @@
-import { RequestMapping, PostMapping } from '../../index';
+import { RequestMapping, PostMapping, ExceptionHandler } from '../../index';
 
 @RequestMapping('/user')
 export default class UserController {
@@ -22,4 +22,15 @@ export default class UserController {
       name: '李白'
     })
   }
+
+  @RequestMapping('/business')
+  doBusiness() {
+    throw new Error('出错啦');
+  }
+
+  @ExceptionHandler()
+  handleException(ex) {
+    return JSON.stringify({ code: -99, message: ex.message })
+  }
+
 }

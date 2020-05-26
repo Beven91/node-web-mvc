@@ -2,11 +2,18 @@
  * @module ControllerManagement
  * @description 控制器scope管理
  */
-const scopeControllers = {
-  // 单例控制器实例
-  singleton: [],
-  // 多例控制器实例，多例控制器不做存储
-  'prototype': null
+const runtime = {
+  // 控制器作用域控制存储器
+  scopeControllers: {
+    // 单例控制器实例
+    singleton: [],
+    // 多例控制器实例，多例控制器不做存储
+    'prototype': null
+  },
+  // 控制器特征属性
+  controllerAttributes: [],
+  // 当前设定的全局控制器处理实例
+  controllerAdviceInstance: null,
 }
 
 /**
@@ -17,16 +24,28 @@ const forbiddenKeys = Reflect.ownKeys({}.__proto__).reduce((map, k) => {
   return map;
 }, {})
 
-// 控制器特征属性
-const controllerAttributes = [];
-
 class ControllerManagement {
+
+  // 设定全局控制器处理实例
+  static set controllerAdviceInstance(value) {
+    const instance = runtime.controllerAdviceInstance;
+    if (instance) {
+      throw new Error('There has multiple @ControllerAdvice @' + instance.constructor.name + ' @' + value.constructor.name);
+    }
+    runtime.controllerAdviceInstance = value;
+  }
+
+  // 获取设置的controlleradvice
+  static get controllerAdviceInstance(){
+    return runtime.controllerAdviceInstance;
+  }
 
   /**
    * 获取控制器的所有特征属性
    * @param {ControllerClass} ctor 
    */
   static getControllerAttributes(ctor) {
+    const controllerAttributes = runtime.controllerAttributes;
     let attributes = controllerAttributes.find((attr) => attr.ctor === ctor);
     if (!attributes) {
       attributes = { ctor: ctor };
@@ -41,7 +60,7 @@ class ControllerManagement {
    * @param {Controller} instance 控制器实例 
    */
   static addScopeController(scope, controller) {
-    const container = scopeControllers[scope];
+    const container = runtime.scopeControllers[scope];
     if (container) {
       const addable = !container.find((instance) => instance === controller);
       addable ? container.push(controller) : undefined;
@@ -57,10 +76,11 @@ class ControllerManagement {
     if (!controllerClass) {
       return null;
     }
+    const controllerAttributes = runtime.controllerAttributes;
     const Controller = controllerClass;
     const attributes = controllerAttributes.find((feature) => feature.ctor === Controller) || {};
     const scope = attributes.scope || 'singleton';
-    const container = scopeControllers[scope] || [];
+    const container = runtime.scopeControllers[scope] || [];
     let controller = container.find((instance) => instance.constructor === Controller);
     if (!controller) {
       controller = new Controller();
