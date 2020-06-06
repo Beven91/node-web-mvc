@@ -2,10 +2,14 @@ import ServletExpressContext from './servlets/ServletExpressContext';
 import ServletKoaContext from './servlets/ServletKoaContext';
 import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/ServletContext';
+import InterceptorRegistry from './interceptor/InterceptorRegistry'
+import swagger from './swagger';
 
 interface LaunchOptions {
   // 当前类型
-  mode: string
+  mode: string,
+  // 注册拦截器
+  addInterceptors: (registry: InterceptorRegistry) => void
 }
 
 // 已经注册执行上下文
@@ -46,7 +50,10 @@ export default class Registry {
         Registry.register('${options.mode}',ContextClass)
       `);
     }
-
+    // 注册拦截器
+    if (options.addInterceptors) {
+      options.addInterceptors(InterceptorRegistry.getInstance());
+    }
     return ControllerContext.launch((request, response, next) => {
       const context: ServletContext = new ControllerContext(request, response, next);
       ControllerFactory.defaultFactory.handle(context);

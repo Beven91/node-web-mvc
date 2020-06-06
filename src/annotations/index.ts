@@ -4,10 +4,10 @@ import PostMapping from './PostMapping';
 import ControllerAdvice from './ControllerAdvice';
 import ExceptionHandler from './ExceptionHandler';
 
-export default {
-  Scope: Scope,
-  PostMapping: PostMapping,
-  RequestMapping: RequestMapping,
-  ControllerAdvice: ControllerAdvice,
-  ExceptionHandler: ExceptionHandler
+export {
+  Scope,
+  PostMapping,
+  RequestMapping,
+  ControllerAdvice,
+  ExceptionHandler
 }

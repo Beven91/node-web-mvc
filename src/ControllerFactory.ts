@@ -11,6 +11,9 @@ import ServletContext from './servlets/ServletContext';
 import ControllerManagement from './ControllerManagement';
 import ControllerActionProduces from './producers/ControllerActionProduces';
 import ControllerAdviceAdapter from './ControllerAdviceAdapter';
+import InterceptorRegistry from './interceptor/InterceptorRegistry';
+import ServletModel from './models/ServletModel';
+import InterruptModel from './models/InterruptModel';
 
 const logger = console;
 
@@ -140,25 +143,33 @@ export default class ControllerFactory {
    * 根据传入context执行控制器
    * @param {ControllerContext} servletContext 控制器执行上下文
    */
-  executeController(servletContext: ServletContext) {
+  executeController(servletContext: ServletContext): Promise<ServletModel> {
     return new Promise((resolve, reject) => {
+      const inteceptors = InterceptorRegistry.getInstance();
       // 创建控制器
       const { controller, action } = this.createController(servletContext);
       if (!controller) {
-        resolve({});
+        resolve(new InterruptModel());
       } else if (typeof action !== 'function') {
         logger.debug(`Cannot find Controller from: ${servletContext.controllerName}/${servletContext.actionName}`)
-        resolve({});
+        resolve(new InterruptModel());
       } else {
-        const { request, response, params } = servletContext;
-        // 参数赋值到request上
-        request.params = params;
-        const result = action.call(controller, request, response);
-        // 执行action
-        resolve({
-          called: true,
-          result: result
-        });
+        inteceptors
+          // 拦截器: preHandle
+          .preHandle(servletContext)
+          // 执行action
+          .then((isKeeping) => {
+            const { request, response, params } = servletContext;
+            // 参数赋值到request上
+            request.params = params;
+            // 如果拦截器中断了本次请求，则返回 null 否则执行action
+            return isKeeping ? new ServletModel(action.call(controller, request, response)) : new InterruptModel();
+          })
+          // 拦截器: postHandle
+          .then((result) => inteceptors.postHandle(servletContext, result))
+          // 执行返回
+          .then((result: ServletModel) => resolve(result))
+          .catch(reject);
       }
     })
   }
@@ -189,24 +200,28 @@ export default class ControllerFactory {
    * @param {ControllerContext} servletContext 控制器执行上下文
    */
   handle(servletContext: ServletContext) {
+    const runtime = { error: null };
     return this
       // 执行控制器
       .executeController(servletContext)
       // 这里捕获执行控制器发生的错误，通过全局异常处理接管
       .catch((ex) => ControllerAdviceAdapter.handleException(ex, servletContext))
-      .then((actionResult: { called: boolean, result: any }) => {
-        if (actionResult.called) {
-          // 处理返回
-          return (new ControllerActionProduces(servletContext)).produce(actionResult.result);
-        } else {
+      .then((model: ServletModel) => {
+        if (model instanceof InterruptModel) {
           // 如果没有执行action,跳转到下一个
           servletContext.next()
+        } else {
+          // 处理返回
+          return (new ControllerActionProduces(servletContext)).produce(model);
         }
       })
       .catch((ex) => {
+        runtime.error = ex;
         // 如果出现意外异常
         console.error(ex);
         servletContext.next(ex);
-      });
+      })
+      // 拦截器:afterCompletion
+      .then(() => InterceptorRegistry.getInstance().afterCompletion(servletContext, runtime.error));
   }
 }

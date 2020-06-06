@@ -4,6 +4,8 @@
  */
 import ServletContext from './servlets/ServletContext';
 import ControllerManagement from './ControllerManagement';
+import ServletModel from './models/ServletModel';
+import InterruptModel from './models/InterruptModel';
 
 export default class ControllerAdviceAdapter {
 
@@ -12,7 +14,7 @@ export default class ControllerAdviceAdapter {
    * @param { Error } error 异常信息
    * @param {ControllerContext} servletContext 请求上下文
    */
-  static handleException(error, servletContext: ServletContext): Promise<any> {
+  static handleException(error, servletContext: ServletContext): Promise<ServletModel> {
     const { controllerClass, controller } = servletContext;
     const advice = ControllerManagement.controllerAdviceInstance;
     const controllerAttributes = ControllerManagement.getControllerAttributes(controllerClass);
@@ -22,16 +24,12 @@ export default class ControllerAdviceAdapter {
     }
     if (controllerAttributes.exceptionHandler) {
       // 优先处理：如果存在控制器本身设置的exceptionhandler
-      return Promise.resolve({
-        called: true,
-        result: controllerAttributes.exceptionHandler.call(controller, error)
-      });
+      const res = controllerAttributes.exceptionHandler.call(controller, error);
+      return Promise.resolve(new ServletModel(res));
     } else if (adviceAttributes.exceptionHandler) {
       // 全局异常处理:
-      return Promise.resolve({
-        called: true,
-        result: adviceAttributes.exceptionHandler.call(advice, error),
-      });
+      const res = adviceAttributes.exceptionHandler.call(advice, error);
+      return Promise.resolve(new ServletModel(res));
     } else {
       // 如果没有定义异常处理
       return Promise.reject(error);

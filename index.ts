@@ -21,5 +21,5 @@ export {
   PostMapping,
   RequestMapping,
   ControllerAdvice,
-  ExceptionHandler
+  ExceptionHandler,
 }

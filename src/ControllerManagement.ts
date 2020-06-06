@@ -2,7 +2,7 @@
  * @module ControllerManagement
  * @description 控制器scope管理
  */
-import Javascript from './interface/javascript';
+import Javascript from './interface/Javascript';
 import ServletContext from './servlets/ServletContext';
 
 const runtime = {
