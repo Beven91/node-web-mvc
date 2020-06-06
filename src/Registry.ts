@@ -1,17 +1,23 @@
-const ExpressControllerContext = require('./interface/ExpressControllerContext');
-const KoaControllerContext = require('./interface/KoaControllerContext');
-const ControllerFactory = require('./ControllerFactory');
+import ServletExpressContext from './servlets/ServletExpressContext';
+import ServletKoaContext from './servlets/ServletKoaContext';
+import ControllerFactory from './ControllerFactory';
+import ServletContext from './servlets/ServletContext';
+
+interface LaunchOptions {
+  // 当前类型
+  mode: string
+}
 
 // 已经注册执行上下文
-const registration = {}
+const registration: Map<string, typeof ServletContext> = ({}) as Map<string, typeof ServletContext>
 
-class Registry {
+export default class Registry {
   /**
    * 注册一个控制器上下文
    * @param {String} name 平台类型名
    * @param {Class} contextClass 控制器上下文类
    */
-  static register(name, contextClass) {
+  static register(name: string, contextClass: typeof ServletContext) {
     registration[name] = contextClass;
   }
 
@@ -20,7 +26,7 @@ class Registry {
    * @static
    * @param {String} dir 目录地址
    */
-  static registerControllers(dir) {
+  static registerControllers(dir: string) {
     return ControllerFactory.registerControllers(dir);
   }
 
@@ -28,7 +34,7 @@ class Registry {
    * 启动mvc
    * @param {Express} app express实例 
    */
-  static launch(options) {
+  static launch(options: LaunchOptions) {
     if (!options) {
       throw new Error('请设置options属性,例如:' + JSON.stringify({ mode: 'express|koa' }));
     }
@@ -40,16 +46,15 @@ class Registry {
         Registry.register('${options.mode}',ContextClass)
       `);
     }
+
     return ControllerContext.launch((request, response, next) => {
-      const context = new ControllerContext(request, response, next);
+      const context: ServletContext = new ControllerContext(request, response, next);
       ControllerFactory.defaultFactory.handle(context);
     });
   }
 }
 
 // 注册express实现
-Registry.register('express', ExpressControllerContext);
+Registry.register('express', ServletExpressContext);
 // 注册koa实现
-Registry.register('koa', KoaControllerContext);
-
-module.exports = Registry;
+Registry.register('koa', ServletKoaContext);

@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset=utf-8>
+  <meta name=viewport content="width=device-width,initial-scale=1,user-scalable=0,viewport-fit=cover">
+  <link rel=stylesheet type=text/css href=https://res.wx.qq.com/open/libs/weui/2.0.0/weui.min.css />
+  <style>
+    body,
+    html {
+      height: 100%
+    }
+
+    ul {
+      list-style-type: none
+    }
+
+    .weui-msg__desc_meta-list {
+      position: relative;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: left;
+      margin-top: 40px;
+      padding-top: 30px
+    }
+
+    .weui-msg__desc_meta-list:before {
+      content: " ";
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      border-top: 1px solid #d9d9d9;
+      -webkit-transform-origin: 0 100%;
+      transform-origin: 0 100%;
+      -webkit-transform: scaleY(.5);
+      transform: scaleY(.5)
+    }
+
+    .weui-msg__desc_meta-list li {
+      overflow: hidden;
+      padding-bottom: .34em
+    }
+
+    .weui-msg__desc_meta-list label {
+      float: left;
+      width: 5em;
+      color: rgba(0, 0, 0, .5)
+    }
+
+    .weui-msg__desc_meta-list p {
+      overflow: hidden;
+      color: #000
+    }
+
+    .weui-btn-tips {
+      color: #999;
+      padding-left: 15px;
+      padding-right: 15px;
+      font-size: 14px;
+      text-align: center
+    }
+
+    .radius_avatar {
+      display: inline-block;
+      width: 75px;
+      height: 75px;
+      background-color: #fff;
+      padding: 3px;
+      -webkit-border-radius: 50%;
+      border-radius: 50%;
+      overflow: hidden;
+      vertical-align: middle
+    }
+
+    .radius_avatar img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      -webkit-border-radius: 50%;
+      border-radius: 50%;
+      background-color: #eee
+    }
+
+    .status_tag {
+      line-height: 1.7;
+      padding: 0 .3em;
+      color: #4993ca;
+      font-style: normal;
+      display: inline-block;
+      font-size: 16px;
+      -webkit-border-radius: 3px;
+      border-radius: 3px
+    }
+  </style>
+</head>
+
+<body>
+  <div class=weui-msg>
+    <div class=weui-msg__icon-area><span class=radius_avatar><img
+          src=http://mmbiz.qpic.cn/mmbiz_png/f9RYic2vTM4m3BQrxfWUl9vowQ1uMgA0AGasVociaEK3xZibqBGddGWB6m3vtHVOSbkIZBpiawrmkfdewbxM349aNw/640?wx_fmt=png&amp;wxfrom=200/0></span>
+    </div>
+    <div class=weui-msg__text-area>
+      <h2 class=weui-msg__title>平安好医生</h2>
+      <p class=weui-msg__desc> <i class=status_tag>体验版</i> </p>
+      <ul class="weui-msg__desc weui-msg__desc_meta-list">
+        <li> <label>开发人员</label>
+          <p>渺年华</p>
+        </li>
+        <li> <label>版本号</label>
+          <p>pre</p>
+        </li>
+        <li> <label>提交时间</label>
+          <p id=updatetime></p>
+        </li>
+        <li> <label>描述</label>
+          <p>渺年华 在 2020年5月13日下午2点09分 提交上传</p>
+        </li>
+      </ul>
+    </div>
+    <div class=weui-msg__opr-area>
+      <p class=weui-btn-area> <a href=javascript:test(); class="weui-btn weui-btn_primary weui-btn_disabled"
+          id=expbtn>前往体验版</a> </p>
+    </div>
+    <div class=weui-msg__tips-area>
+      <p class=weui-msg__tips id=warning>请更新到微信6.5.2版本</p>
+      <p class=weui-msg__tips>可将此页面分享给其他体验者，或添加收藏</p>
+    </div>
+  </div>
+  <script>var dummy = 1589350211, now = new Date(1e3 * parseInt(dummy)); now = (now.toLocaleDateString() + " " + now.toTimeString()).replace(/年|月/g, "-").replace(/日/g, " ").replace(/\sGMT\+0800\s/g, " ").replace(/\//g, "-").replace(/中国标准时间/g, "").replace(/\(/, "").replace(/\)/, "").replace(/CST/, ""), document.getElementById("updatetime").innerHTML = now; var ua = navigator.userAgent.toLowerCase(), versionrequired = 369426944; -1 != ua.indexOf("android") && (versionrequired = 637862704, document.getElementById("warning").innerHTML = "请更新到微信6.5.3版本"); var version = parseInt(385877283); versionrequired <= version && (console.log("version is: " + version), document.getElementById("expbtn").setAttribute("class", "weui-btn weui-btn_primary"), document.getElementById("warning").style.display = "none")</script>
+  <script src=https://res.wx.qq.com/open/js/jweixin-1.0.0.js></script>
+  <script>function onBridgeReady(e) { "undefined" != typeof WeixinJSBridge ? e() : document.addEventListener("WeixinJSBridgeReady", e, !1) } onBridgeReady(function () {alert('sss'); wx.checkJsApi({ jsApiList: ["onMenuShareAppMessage", "onMenuShareTimeline"], success: function (e) { console.log("wx.ready.success" + JSON.stringify(e)) } }), wx.onMenuShareAppMessage({ title: "【平安好医生】体验版", desc: "点击可访问小程序体验版，仅小程序管理员和体验者可访问。", link: "https://open.weixin.qq.com/sns/getexpappinfo?appid=wxd0fc9fb3d9378a73&amp;path=pages/home/index.html#wechat-redirect", imgUrl: "http://mmbiz.qpic.cn/mmbiz_png/f9RYic2vTM4m3BQrxfWUl9vowQ1uMgA0AGasVociaEK3xZibqBGddGWB6m3vtHVOSbkIZBpiawrmkfdewbxM349aNw/640?wx_fmt=png&amp;wxfrom=200/0", trigger: function (e) { console.log("用户点击发送给朋友") }, success: function (e) { console.log("已分享") }, cancel: function (e) { console.log("已取消") }, fail: function (e) { console.log(JSON.stringify(e)) } }), wx.hideMenuItems({ menuList: ["menuItem:share:timeline", "menuItem:share:qq", "menuItem:share:QZone", "menuItem:share:email", "menuItem:openWithSafari"], success: function (e) { console.log("hide share timeline") }, fail: function (e) { console.log(JSON.stringify(e)) } }) })</script>
+  <script>
+
+String.prototype.html = function (e) {
+      var o = ["&#39;", "'", "&quot;", '"', "&nbsp;", " ", "&gt;", ">", "&lt;", "<", "&amp;", "&", "&yen;", "¥"];
+      e && o.reverse();
+      for (var n = 0, s = this; n < o.length; n += 2) s = s.replace(new RegExp(o[n], "g"), o[n + 1]);
+      return s
+  };
+  var test = function (e) {
+      var o = new XMLHttpRequest;
+      o.open("GET", "https://open.weixin.qq.com/sns/launchapp?appid=wxd0fc9fb3d9378a73&amp;uin=MjM1ODgxMzM4MQ==&amp;key=ea7fa7cf38c30c20e91625529f963caac2ca05dc96b9eeeb3d0d66c7333ccfedc7766bcfb2fd980f0f8c4a7524a9b1bc439d49eeebe5d9d08af149b55615a564bcd8fe07efd90cebd75db5081fa70d16&amp;pass_ticket=ttngGvHd0I+Bf0yJ5Kw0aaPd+pfXjchusoI3vcSXLnO2ZIXmYgt5Be2I6gcssFLv".html(!1), !0), o.onload = function () {
+          if (200 <= this.status && this.status < 400) {
+              console.log(o.responseText);
+              var e = JSON.parse(o.responseText);
+              console.log(e.userName), console.log(e.appId), console.log(e.scene), console.log(e.downloadURL), console.log(e.openType), console.log(e.checkSumMd5), console.log(e.extJsonInfo);
+              0 == e.retcode && version >= versionrequired ? WeixinJSBridge.invoke("openWeApp", {
+                  userName: e.userName,
+                  appId: e.appId,
+                  downloadURL: e.downloadURL,
+                  openType: e.openType,
+                  checkSumMd5: e.checkSumMd5,
+                  appVersion: 0,
+                  scene: 1017,
+                  relativeURL: "pages/home/index.html".html(!1),
+                  extJsonInfo: e.extJsonInfo
+              }) : console.log("获取启动参数失败")
+          }
+      }, o.onerror = function () {}, o.send()
+  }  
+  </script>
+  <script>!function (e) { function i(s) { if (t[s]) return t[s].exports; var n = t[s] = { exports: {}, id: s, loaded: !1 }; return e[s].call(n.exports, n, n.exports, i), n.loaded = !0, n.exports } var t = {}; return i.m = e, i.c = t, i.p = "//res.wx.qq.com/a/wxg-mp/mmbizsns-web/res", i(0) }([function (e, i) { e.exports = "" }]);</script>
+</body>
+
+</html>

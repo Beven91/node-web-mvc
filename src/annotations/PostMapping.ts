@@ -1,4 +1,4 @@
-const RequestMapping = require('./RequestMapping');
+import RequestMapping from './RequestMapping';
 
 /**
  * 配置一个POST请求映射
@@ -14,6 +14,6 @@ const RequestMapping = require('./RequestMapping');
  * @param {Array} params 当前必要的参数 [ "userId","userName"  ]
  * @param {Array} header 当前必须要带的请求头 [ 'content-type=application/json' ]
  */
-module.exports = function (value, produces, params, headers) {
+export default function (value, produces?, params?, headers?) {
   return RequestMapping(value, 'POST', produces, params, headers);
 }

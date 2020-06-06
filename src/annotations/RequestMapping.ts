@@ -1,6 +1,6 @@
-const RouteCollection = require('../RouteCollection');
-const ControllerManagement = require('../ControllerManagement');
-const matcher = require("path-to-regexp");
+import RouteCollection from '../routes/RouteCollection';
+import ControllerManagement from '../ControllerManagement';
+import * as matcher from "path-to-regexp";
 
 /**
  * 映射指定控制器以及控制器下的函数的请求路径
@@ -16,9 +16,9 @@ const matcher = require("path-to-regexp");
  * @param {Array} params 当前必要的参数 [ "userId","userName"  ]
  * @param {Array} header 当前必须要带的请求头 [ 'content-type=application/json' ]
  */
-module.exports = function requestMappingAnnotation(value, method, produces, params, headers) {
+export default function requestMappingAnnotation(value, method?, produces?, params?, headers?): any {
   return function (target, name, descriptor) {
-    options = createMapping(value, method, produces, params, headers);
+    const options = createMapping(value, method, produces, params, headers);
     if (arguments.length > 1) {
       return requestMappingAction(target.constructor, name, descriptor, options);
     } else {

@@ -3,31 +3,28 @@
  * 不另设api，零学习成本，每个controller.action都是一个express的中间件，
  */
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import Routes from './routes/RouteCollection';
+import Controller from './Controller'
+import ServletContext from './servlets/ServletContext';
+import ControllerManagement from './ControllerManagement';
+import ControllerActionProduces from './producers/ControllerActionProduces';
+import ControllerAdviceAdapter from './ControllerAdviceAdapter';
+
 const logger = console;
-const Controller = require('./controller');
-const Routes = require('./RouteCollection');
-const ControllerManagement = require('./ControllerManagement');
-const ControllerActionProduces = require('./producers/ControllerActionProduces');
-const ControllerAdviceAdapter = require('./ControllerAdviceAdapter');
 
 //默认mvc域名
 const defaultArea = "";
 //全局注册controller
-const registedAreaControllers = {};
+const registedAreaControllers: Map<String, Controller> = ({}) as Map<String, Controller>;
 //全局控制器工厂实例
 let defaultFactoryController = null;
 
-class ControllerFactory {
-
-  constructor() {
-    // 已经初始化完成的controller实例
-    this.controllers = [];
-  }
+export default class ControllerFactory {
 
   // 设置默认的控制器
-  static get defaultFactory() {
+  static get defaultFactory(): ControllerFactory {
     if (!defaultFactoryController) {
       defaultFactoryController = new ControllerFactory();
     }
@@ -35,14 +32,14 @@ class ControllerFactory {
   }
 
   // 设置默认控制器
-  static set defaultFactory(value) {
+  static set defaultFactory(value: ControllerFactory) {
     defaultFactoryController = value;
   }
 
   /**
    * 判断传入类是否为一个Controller
    */
-  static isController(controllerClass) {
+  static isController(controllerClass): boolean {
     return controllerClass && controllerClass.prototype && controllerClass.prototype.isController === true;
   }
 
@@ -52,7 +49,7 @@ class ControllerFactory {
    * @param {String} area 域名称
    * @param {Boolean} ensure 当ensure为true时：当获取不到对应的域会自动创建域
    */
-  static getAreaControllers(area, ensure) {
+  static getAreaControllers(area: string, ensure?: boolean): Map<String, Controller> {
     area = area || '';
     let areaRegisterControllers = registedAreaControllers[area];
     if (ensure && !areaRegisterControllers) {
@@ -67,7 +64,7 @@ class ControllerFactory {
    * @param {Controller} 继承于Controller的类
    * @param {String} areaName MVC域名
    */
-  static registerController(controllerClass, areaName) {
+  static registerController(controllerClass: typeof Controller, areaName: string) {
     if (areaName === null || areaName === undefined) {
       throw new Error("areaName Cannot be null or undefined");
     }
@@ -82,9 +79,9 @@ class ControllerFactory {
       areaRegisterControllers[controllerName] = controllerClass;
     } else {
       logger.warn('Find a Controller but it`not extends Controller or module.exports is not set')
-      if (controllerClass) {
-        logger.warn(`Controller file: ${controllerClass.__file}`)
-      }
+      // if (controllerClass) {
+      //   logger.warn(`Controller file: ${controllerClass.__file}`)
+      // }
     }
   }
 
@@ -93,8 +90,11 @@ class ControllerFactory {
    * @static
    * @param {String} dir 目录地址
    */
-  static registerControllers(dir) {
-    const files = fs.readdirSync(dir).filter((name) => path.extname(name) === '.js');
+  static registerControllers(dir: string) {
+    const files = fs.readdirSync(dir).filter((name) => {
+      const ext = path.extname(name);
+      return ext === '.js' || ext === '.ts';
+    });
     files.forEach((name) => {
       const file = path.join(dir, name);
       const controllerClass = require(file) || {};
@@ -108,7 +108,7 @@ class ControllerFactory {
    * @param {String} areaName 域名称
    * @param {String} dir 目录地址
    */
-  static registerAreaControllers(areaName, dir) {
+  static registerAreaControllers(areaName: string, dir: string) {
     if (areaName === null || areaName === undefined) {
       throw new Error("areaName Cannot be null or undefined");
     }
@@ -125,12 +125,12 @@ class ControllerFactory {
    * 手动传入controllerContext调用对应的controller
    * @static
    */
-  static executeController(req, resp, next, controllerContext) {
+  static executeController(req, resp, next, servletContext: ServletContext) {
     if (defaultFactoryController) {
-      const name = (controllerContext.controllerName || '').toLowerCase()
-      const areaRegisterControllers = registedAreaControllers[controllerContext.area || ""];
-      controllerContext.findController = areaRegisterControllers[name]
-      return defaultFactoryController.executeController(req, resp, next, controllerContext);
+      const name = (servletContext.controllerName || '').toLowerCase()
+      const areaRegisterControllers = registedAreaControllers[servletContext.areaName || ""];
+      servletContext.controller = areaRegisterControllers[name]
+      return defaultFactoryController.executeController(req, resp, next, servletContext);
     } else {
       next();
     }
@@ -138,25 +138,26 @@ class ControllerFactory {
 
   /**
    * 根据传入context执行控制器
-   * @param {ControllerContext} controllerContext 控制器执行上下文
+   * @param {ControllerContext} servletContext 控制器执行上下文
    */
-  executeController(controllerContext) {
+  executeController(servletContext: ServletContext) {
     return new Promise((resolve, reject) => {
       // 创建控制器
-      const { controller, action } = this.createController(controllerContext);
+      const { controller, action } = this.createController(servletContext);
       if (!controller) {
         resolve({});
       } else if (typeof action !== 'function') {
-        logger.debug(`Cannot find Controller from: ${controllerContext.controllerName}/${controllerContext.actionName}`)
+        logger.debug(`Cannot find Controller from: ${servletContext.controllerName}/${servletContext.actionName}`)
         resolve({});
       } else {
-        const { request, response, params } = controllerContext;
+        const { request, response, params } = servletContext;
         // 参数赋值到request上
         request.params = params;
+        const result = action.call(controller, request, response);
         // 执行action
         resolve({
           called: true,
-          result: action.call(controller, request, response)
+          result: result
         });
       }
     })
@@ -165,49 +166,47 @@ class ControllerFactory {
   /**
    * 根据controllerContext 来匹配且创建控制器信息
    */
-  createController(controllerContext) {
-    const pathContext = Routes.match(controllerContext);
+  createController(servletContext: ServletContext) {
+    const pathContext = Routes.match(servletContext);
     const areaRegisterControllers = ControllerFactory.getAreaControllers(pathContext.area) || {};
     const controllerName = (pathContext.controller || '').toLowerCase();
     // 设置匹配到的控制器
-    controllerContext.controllerClass = pathContext.controllerClass || areaRegisterControllers[controllerName];
+    servletContext.controllerClass = pathContext.controllerClass || areaRegisterControllers[controllerName];
     // 创建控制器
-    controllerContext.controller = ControllerManagement.createController(controllerContext);
+    servletContext.controller = ControllerManagement.createController(servletContext);
     // 设置actionName
-    controllerContext.actionName = pathContext.action;
+    servletContext.actionName = pathContext.action;
     // 设置匹配到的action
-    controllerContext.action = ControllerManagement.creatAction(controllerContext.controller, pathContext.action)
+    servletContext.action = ControllerManagement.creatAction(servletContext.controller, pathContext.action)
     // 设置从路径中解析出来的参数
-    controllerContext.params = pathContext.params || {};
-    return controllerContext;
+    servletContext.params = pathContext.params || {};
+    return servletContext;
   }
 
   /**
    * 根据请求动态构建controller，
    * 以及执行对应的controller.action 
-   * @param {ControllerContext} controllerContext 控制器执行上下文
+   * @param {ControllerContext} servletContext 控制器执行上下文
    */
-  handle(controllerContext) {
+  handle(servletContext: ServletContext) {
     return this
       // 执行控制器
-      .executeController(controllerContext)
+      .executeController(servletContext)
       // 这里捕获执行控制器发生的错误，通过全局异常处理接管
-      .catch((ex) => ControllerAdviceAdapter.handleException(ex, controllerContext))
-      .then((actionResult) => {
+      .catch((ex) => ControllerAdviceAdapter.handleException(ex, servletContext))
+      .then((actionResult: { called: boolean, result: any }) => {
         if (actionResult.called) {
           // 处理返回
-          return (new ControllerActionProduces(controllerContext)).produce(actionResult.result);
+          return (new ControllerActionProduces(servletContext)).produce(actionResult.result);
         } else {
           // 如果没有执行action,跳转到下一个
-          controllerContext.next()
+          servletContext.next()
         }
       })
       .catch((ex) => {
         // 如果出现意外异常
         console.error(ex);
-        controllerContext.next(ex);
+        servletContext.next(ex);
       });
   }
 }
-
-module.exports = ControllerFactory;

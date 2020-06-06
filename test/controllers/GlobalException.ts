@@ -7,5 +7,4 @@ export default class GlobalException {
   handleException(ex) {
     return JSON.stringify({ code: 99, message: ex.message, reason: 'global handle' })
   }
-  
 }

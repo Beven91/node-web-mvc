@@ -2,14 +2,19 @@
  * 名称：mvc域支持(Area)
  * 描述：提供一个registerAllAreas函数来注册指定目录下所有的域(Area)
  */
-const path = require('path');
-const fs = require('fs');
-const AreaRegistrationContext = require('./AreaRegistrationContext');
-const ControllerFactory = require('./ControllerFactory');
-const RouteCollection = require('./RouteCollection');
+import path from 'path';
+import fs from 'fs';
+import AreaRegistrationContext from './AreaRegistrationContext';
+import ControllerFactory from './ControllerFactory';
+
 const logger = console;
 
-class AreaRegistration {
+export default abstract class AreaRegistration {
+
+  /**
+   * 获取或者设置当前控制器域目录
+   */
+  static areaDir = ''
 
   /**
    * 获取指定目录下所有area目录
@@ -17,7 +22,7 @@ class AreaRegistration {
    * @param {String} areasRoot 指定所有域(Area)的存放目录
    * @memberof AreaRegistration
    */
-  static getAllAreaRegistrations(areasRoot) {
+  static getAllAreaRegistrations(areasRoot: string) {
     const registrations = [];
     if (!fs.existsSync(areasRoot)) {
       return [];
@@ -27,7 +32,7 @@ class AreaRegistration {
       if (!fs.existsSync(file)) {
         return;
       }
-      const maybeRegistration = require(file);
+      const maybeRegistration: typeof AreaRegistration = require(file);
       if (maybeRegistration && maybeRegistration.prototype instanceof AreaRegistration) {
         maybeRegistration.areaDir = path.dirname(file);
         registrations.push(maybeRegistration);
@@ -44,7 +49,7 @@ class AreaRegistration {
    * @param {String} areasRoot 指定所有域(Area)的存放目录
    * @memberof AreaRegistration
    */
-  static registerAllAreas(areasRoot) {
+  static registerAllAreas(areasRoot: string) {
     const registrations = this.getAllAreaRegistrations(areasRoot);
     registrations.forEach((Registration) => {
       const registration = new Registration();
@@ -66,10 +71,10 @@ class AreaRegistration {
    * @memberof AreaRegistration
    */
   static registerAreaViews(areasRoot) {
-    const { app } = RouteCollection;
-    const views = app.get('views') || [];
-    views.concat(areasRoot);
-    app.set('views', views);
+    // const { app } = RouteCollection;
+    // const views = app.get('views') || [];
+    // views.concat(areasRoot);
+    // app.set('views', views);
   }
 
   /**
@@ -77,18 +82,12 @@ class AreaRegistration {
    * @readonly
    * @memberof AreaRegistration
    */
-  get areaName() {
-    throw new Error('please implenments areaName');
-  }
+  abstract get areaName(): string
 
   /**
    * 注册(Area)域
    * @param {RegistrationContext}
    * @memberof AreaRegistration
    */
-  registerArea() {
-    throw new Error('please implenments registerArea');
-  }
+  abstract registerArea(context: AreaRegistrationContext)
 }
-
-module.exports = AreaRegistration;

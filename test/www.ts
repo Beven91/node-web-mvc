@@ -1,21 +1,14 @@
-const express = require('express');
-const path = require('path');
-const { Registry, ControllerFactory, Routes } = require('../index');
+import express from 'express';
+import path from 'path';
+import { Registry, ControllerFactory, Routes } from '../index';
 
 const port = 9800;
 const app = express();
 
-require('@babel/register')({
-  presets: [
-    "module:metro-react-native-babel-preset"
-  ],
-  plugins: [
-    ['@babel/plugin-proposal-decorators', { legacy: true }],
-  ]
-})
+app.use(express.static(path.resolve('')))
 
 //注册api/controllers目录下的所有controller
-ControllerFactory.registerControllers(path.resolve('./controllers'));
+ControllerFactory.registerControllers(path.resolve('./test/controllers'));
 
 // 或者可以设置自定义的控制器工厂
 // ControllerFactory.defaultFactory = new ControllerFactory();

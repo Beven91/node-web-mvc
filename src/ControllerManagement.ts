@@ -2,6 +2,9 @@
  * @module ControllerManagement
  * @description 控制器scope管理
  */
+import Javascript from './interface/javascript';
+import ServletContext from './servlets/ServletContext';
+
 const runtime = {
   // 控制器作用域控制存储器
   scopeControllers: {
@@ -16,15 +19,7 @@ const runtime = {
   controllerAdviceInstance: null,
 }
 
-/**
- * 禁用的属性
- */
-const forbiddenKeys = Reflect.ownKeys({}.__proto__).reduce((map, k) => {
-  map[k] = true;
-  return map;
-}, {})
-
-class ControllerManagement {
+export default class ControllerManagement {
 
   // 设定全局控制器处理实例
   static set controllerAdviceInstance(value) {
@@ -36,7 +31,7 @@ class ControllerManagement {
   }
 
   // 获取设置的controlleradvice
-  static get controllerAdviceInstance(){
+  static get controllerAdviceInstance() {
     return runtime.controllerAdviceInstance;
   }
 
@@ -69,10 +64,10 @@ class ControllerManagement {
 
   /**
    * 创建一个控制器实例
-   * @param {ControllerContext} controllerContext 创建上下文参数
+   * @param {ControllerContext} servletContext 创建上下文参数
    */
-  static createController(controllerContext) {
-    const { controllerClass } = controllerContext;
+  static createController(servletContext: ServletContext) {
+    const { controllerClass } = servletContext;
     if (!controllerClass) {
       return null;
     }
@@ -110,7 +105,7 @@ class ControllerManagement {
     const attributes = ControllerManagement.getControllerAttributes(Controller);
     if (!attributes.actions) {
       const actions = attributes.actions = {};
-      const actionNames = Reflect.ownKeys(controller.__proto__).filter((key) => !forbiddenKeys[key]);
+      const actionNames = Reflect.ownKeys(controller.__proto__).filter((key) => !Javascript.protoKeys[key]);
       actionNames.forEach((key) => {
         actions[key] = {
           value: Controller.prototype[key]
@@ -120,5 +115,3 @@ class ControllerManagement {
     return attributes.actions;
   }
 }
-
-module.exports = ControllerManagement;

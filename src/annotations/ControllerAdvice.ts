@@ -5,9 +5,9 @@
  *    1. 全局处理运行异常
  *    2. 暂不实现 : 全局数据绑定
  */
-const ControllerManagement = require('../ControllerManagement');
+import ControllerManagement from '../ControllerManagement';
 
-module.exports = function ControllerAdvice(ControllerAdivce) {
+export default function ControllerAdvice(ControllerAdivce) {
   const instance = new ControllerAdivce();
   ControllerManagement.controllerAdviceInstance = instance;
 }

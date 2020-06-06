@@ -1,0 +1,104 @@
+/**
+ * @module ServletContext
+ * @description 请求上下文
+ */
+
+export default abstract class ServletContext {
+
+  /**
+   * 当前正在处理的请求实例
+   */
+  public request;
+
+  /**
+   * 当前正在处理的请求的返回实例
+   */
+  public response;
+
+  /**
+   * 跳转到下一个请求处理器
+   */
+  public next;
+
+  /**
+   * 当前正在处理的请求匹配到的控制器类
+   */
+  public controllerClass;
+
+  /**
+   * 当前正在处理的请求从路由中匹配到的参数信息
+   */
+  public params;
+
+  /**
+   * 当前路由匹配的控制器域名称
+   */
+  public areaName;
+
+  /**
+   * 当前正在处理的请求根据路由匹配到的执行函数
+   */
+  public action;
+
+  /**
+   * 当前正在处理的请求根据路由匹配到的执行函数名称
+   */
+  public actionName;
+
+  /**
+   * 当前正在处理的请求根据路由匹配到的控制器实例
+   */
+  public controller;
+
+  /**
+   * 当前正在处理的请求根据路由匹配到的控制器名称
+   */
+  get controllerName() {
+    return this.controllerClass ? this.controllerClass.name : '';
+  }
+
+  /**
+   * 当前请求的path 例如: order/list
+   */
+  abstract get path();
+
+  /**
+   * 当前请求的谓词，例如: GET POST PUT DELETE等
+   */
+  abstract get method();
+
+  /**
+   * 返回内容到客户端
+   * @param {any} data 要返回的数据
+   * @param {String} procudes 当前返回的内容类型
+   */
+  abstract end(data, procudes);
+
+  /**
+   * 构造一个上下文实例
+   * @param request 当前正在处理的请求实例
+   * @param response 当前正在处理的请求的返回实例
+   * @param next 跳转到下一个请求处理器
+   */
+  constructor(request, response, next) {
+    this.request = request;
+    this.response = response;
+    this.next = next;
+    // 当前匹配到的控制器类
+    this.controllerClass = null;
+    // 当前匹配到的动作名称
+    this.actionName = '';
+    // 当前请求提取出来的参数
+    this.params = '';
+  }
+
+  /**
+   * 用于接入要实现的目标平台的启动入口，主要用于
+   * 返回一个启动中间件函数，通过返回的来获取到 request response next
+   * 然后调用 callback(request,response,next) 即可
+   * @param callback 
+   */
+  static launch(callback): (request, response, next) => any {
+    return (request, response, next) => callback(request, response, next);
+  }
+}

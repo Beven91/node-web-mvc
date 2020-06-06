@@ -3,11 +3,15 @@
  * 描述：用于提供给AreaRegistraction.registerArea的context
  */
 
-const RouteCollection = require('./routeCollection');
+import RouteCollection, { DefaultOption } from './routes/RouteCollection';
 
-class AreaRegistractionContext {
+export default class AreaRegistractionContext {
+  /**
+   * 当前注册区域名
+   */
+  public areaName: string
 
-  constructor(areaName) {
+  constructor(areaName: string) {
     this.areaName = areaName;
   }
 
@@ -17,11 +21,9 @@ class AreaRegistractionContext {
    * @param options 路由配置项 例如： {controller:'Home',action:'index'}
    * @memberof AreaRegistractionContext
    */
-  mapRoute(exp, options) {
-    options = options || {};
+  mapRoute(exp: string, options: DefaultOption) {
+    options = options || { controller: '', action: '' };
     options.area = this.areaName;
     RouteCollection.mapRoute(exp, options);
   }
 }
-
-module.exports = AreaRegistractionContext;

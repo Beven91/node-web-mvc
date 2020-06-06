@@ -3,13 +3,15 @@ import { RequestMapping, PostMapping, ExceptionHandler } from '../../index';
 @RequestMapping('/user')
 export default class UserController {
 
+  private user = null
+
   @PostMapping('/addUser')
   addUser(req, resp) {
     return 'aaa';
   }
 
   @RequestMapping('/setUser')
-  addUser(req, resp) {
+  setUser(req, resp) {
     this.user = {
       name: req.query.name
     }
