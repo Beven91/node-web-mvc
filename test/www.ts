@@ -1,6 +1,9 @@
 import express from 'express';
 import path from 'path';
 import { Registry, ControllerFactory, Routes } from '../index';
+import AdminInterceptor from './interceptor/AdminInterceptor';
+import EncodeInterceptor from './interceptor/EncodeInterceptor';
+
 
 const port = 9800;
 const app = express();
@@ -18,7 +21,13 @@ ControllerFactory.registerControllers(path.resolve('./test/controllers'));
 Routes.mapRoute('{controller}/{action}', { controller: 'Home', action: 'index' });
 
 // 启动Mvc  
-app.use(Registry.launch({ mode: 'express' }));
+app.use(Registry.launch({
+  mode: 'express',
+  addInterceptors: (registry) => {
+    registry.addInterceptor(new AdminInterceptor());
+    registry.addInterceptor(new EncodeInterceptor());
+  }
+}));
 
 app.listen(port, () => {
   console.log(`

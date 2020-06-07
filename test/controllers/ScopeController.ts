@@ -21,6 +21,11 @@ export default class ScopeController {
   doBusiness() {
     throw new Error('出错啦');
   }
+
+  @RequestMapping('/admin')
+  admin(){
+
+  }
 }
 
 /**

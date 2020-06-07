@@ -9,17 +9,22 @@ import RestController from './src/annotations/RestController';
 import Scope from './src/annotations/Scope';
 import ControllerAdvice from './src/annotations/ControllerAdvice';
 import ExceptionHandler from './src/annotations/ExceptionHandler';
+import HandlerInteceptor from './src/interceptor/HandlerInteceptor';
+import HandlerInterceptorAdapter from './src/interceptor/HandlerInterceptorAdapter';
+
 
 export {
+  Scope,
+  Routes,
   Registry,
   Controller,
-  ControllerFactory,
-  AreaRegistration,
-  Routes,
-  RestController,
-  Scope,
   PostMapping,
+  RestController,
   RequestMapping,
+  AreaRegistration,
   ControllerAdvice,
   ExceptionHandler,
+  ControllerFactory,
+  HandlerInteceptor,
+  HandlerInterceptorAdapter
 }
