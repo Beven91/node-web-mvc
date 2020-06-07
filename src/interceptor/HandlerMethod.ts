@@ -4,6 +4,8 @@
  */
 import ServletContext from '../servlets/ServletContext';
 import ControllerManagement from '../ControllerManagement';
+import ServletModel from '../models/ServletModel';
+import InterruptModel from '../models/InterruptModel';
 
 export default class HandlerMethod {
 
@@ -63,13 +65,17 @@ export default class HandlerMethod {
    */
   invoke() {
     const { controller, request, response, action } = this.servletContext;
-    const res = action.call(controller, request, response);
+    let runtime = null;
+    const next = (error) => (runtime = { error });
+    const res = action.call(controller, request, response, next);
     return Promise.resolve(res).then((data) => {
+      if (runtime) {
+        return runtime.error ? Promise.reject(runtime.error) : new InterruptModel();
+      }
       // 设置返回状态
       this.evaluateResponseStatus();
       // 返回数据
-      return data;
+      return data instanceof ServletModel ? data : new ServletModel(data);
     })
   }
-
 }

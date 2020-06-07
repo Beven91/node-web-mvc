@@ -40,7 +40,7 @@ export default abstract class ServletContext {
   /**
    * 当前正在处理的请求根据路由匹配到的执行函数
    */
-  public action: (request, response) => Promise<ServletModel>;
+  public action: (request, response, next) => Promise<ServletModel>;
 
   /**
    * 当前正在处理的请求根据路由匹配到的执行函数名称

@@ -8,6 +8,7 @@ module.exports = {
     commonjs: true,
   },
   rules: {
+    'new-cap':0,
     'no-console': 0,
     'require-jsdoc': 0,
     'no-debugger': 0,

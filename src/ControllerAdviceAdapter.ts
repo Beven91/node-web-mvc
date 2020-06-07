@@ -20,7 +20,8 @@ export default class ControllerAdviceAdapter {
     const controllerAttributes = ControllerManagement.getControllerAttributes(controllerClass);
     const adviceAttributes = advice ? ControllerManagement.getControllerAttributes(advice.constructor) : null;
     if (error) {
-      console.error('Node-Mvc', 'execute Controller error', error)
+      console.error('Node-Mvc', 'execute Controller error:');
+      console.error(error.stack || error);
     }
     if (controllerAttributes.exceptionHandler) {
       // 优先处理：如果存在控制器本身设置的exceptionhandler

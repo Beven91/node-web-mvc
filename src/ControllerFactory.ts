@@ -166,7 +166,7 @@ export default class ControllerFactory {
             // 参数赋值到request上
             request.params = params;
             // 如果拦截器中断了本次请求，则返回 InterruptModel 否则执行action
-            return isKeeping ? new ServletModel(handlerMethod.invoke()) : new InterruptModel();
+            return isKeeping ? handlerMethod.invoke() : new InterruptModel();
           })
           // 拦截器: postHandle 如果preHandle返回了false 则跳过postHandle
           .then((result) => runtime.isKeeping ? inteceptors.postHandle(servletContext, result) : result)

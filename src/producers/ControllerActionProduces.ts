@@ -36,7 +36,7 @@ export default class ControllerActionProduces {
    * 通过servletContext来处理对应平台下的返回结果
    */
   private handleProduces(data) {
-    const { responseStatus } = this.servletContext.handlerMethod;
+    const { responseStatus } = this.servletContext.handlerMethod || {};
     const useStatus = !(responseStatus === null || responseStatus === undefined)
     const status = useStatus ? responseStatus : 200;
     return this.servletContext.end(data, status, this.actionMapping.produces)

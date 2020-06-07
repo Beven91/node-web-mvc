@@ -16,6 +16,9 @@ export default class ServletModel {
    * @param type 标志当前结果类型
    */
   constructor(data) {
+    if (data instanceof ServletModel) {
+      return data;
+    }
     this.data = data;
   }
 }

@@ -3,11 +3,12 @@ import ServletKoaContext from './servlets/ServletKoaContext';
 import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/ServletContext';
 import InterceptorRegistry from './interceptor/InterceptorRegistry'
-import swagger from './swagger';
 
 interface LaunchOptions {
   // 当前类型
   mode: string,
+  // 是否开启swagger文档
+  swagger?: boolean,
   // 注册拦截器
   addInterceptors?: (registry: InterceptorRegistry) => void
 }
@@ -49,6 +50,10 @@ export default class Registry {
         您可以通过Registry.register来注册对应的执行上下文
         Registry.register('${options.mode}',ContextClass)
       `);
+    }
+    if (options.swagger !== false) {
+      // 如果使用swagger
+      require('./swagger/index.ts');
     }
     // 注册拦截器
     if (options.addInterceptors) {
