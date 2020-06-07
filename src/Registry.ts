@@ -9,7 +9,7 @@ interface LaunchOptions {
   // 当前类型
   mode: string,
   // 注册拦截器
-  addInterceptors: (registry: InterceptorRegistry) => void
+  addInterceptors?: (registry: InterceptorRegistry) => void
 }
 
 // 已经注册执行上下文

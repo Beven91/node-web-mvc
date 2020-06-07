@@ -14,6 +14,7 @@ import ControllerAdviceAdapter from './ControllerAdviceAdapter';
 import InterceptorRegistry from './interceptor/InterceptorRegistry';
 import ServletModel from './models/ServletModel';
 import InterruptModel from './models/InterruptModel';
+import HandlerMethod from './interceptor/HandlerMethod';
 
 const logger = console;
 
@@ -161,11 +162,11 @@ export default class ControllerFactory {
           // 执行action
           .then((isKeeping) => {
             runtime.isKeeping = isKeeping;
-            const { request, response, params } = servletContext;
+            const { request, params, handlerMethod } = servletContext;
             // 参数赋值到request上
             request.params = params;
             // 如果拦截器中断了本次请求，则返回 InterruptModel 否则执行action
-            return isKeeping ? new ServletModel(action.call(controller, request, response)) : new InterruptModel();
+            return isKeeping ? new ServletModel(handlerMethod.invoke()) : new InterruptModel();
           })
           // 拦截器: postHandle 如果preHandle返回了false 则跳过postHandle
           .then((result) => runtime.isKeeping ? inteceptors.postHandle(servletContext, result) : result)
@@ -193,6 +194,8 @@ export default class ControllerFactory {
     servletContext.action = ControllerManagement.creatAction(servletContext.controller, pathContext.action)
     // 设置从路径中解析出来的参数
     servletContext.params = pathContext.params || {};
+    // 设置handlerMethod
+    servletContext.handlerMethod = new HandlerMethod(servletContext);
     return servletContext;
   }
 
@@ -213,7 +216,7 @@ export default class ControllerFactory {
           // 如果没有执行action,跳转到下一个
           servletContext.next()
         } else {
-          // 处理返回
+          // 处理视图渲染或者数据返回
           return (new ControllerActionProduces(servletContext)).produce(model);
         }
       })
@@ -224,6 +227,11 @@ export default class ControllerFactory {
         servletContext.next(ex);
       })
       // 拦截器:afterCompletion
-      .then(() => InterceptorRegistry.getInstance().afterCompletion(servletContext, runtime.error));
+      .then(() => {
+        if (servletContext.action) {
+          // 如果路由没有匹配上，则不进行处理
+          return InterceptorRegistry.getInstance().afterCompletion(servletContext, runtime.error)
+        }
+      });
   }
 }

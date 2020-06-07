@@ -4,6 +4,7 @@
  */
 import HandlerInteceptor from './HandlerInteceptor';
 import ServletContext from '../servlets/ServletContext';
+import HandlerMethod from './HandlerMethod';
 
 let singleInstance: InterceptorRegistry = null
 
@@ -47,15 +48,17 @@ export default class InterceptorRegistry {
   preHandle(servletContext: ServletContext): Promise<boolean> {
     const interceptors = this.interceptors;
     let promise = Promise.resolve(true);
-    interceptors.forEach((interceptor) => {
+    interceptors.forEach((interceptor, i) => {
       promise = promise.then((result) => {
         // 如果上一个拦截器返回false 则表示中断后续执行，且需要终止整个请求
         if (result === false) {
           return result;
+        } else {
+          servletContext.interceptorIndex = i;
         }
-        const { request, response, action } = servletContext;
+        const { request, response, handlerMethod } = servletContext;
         // 执行拦截器preHandle
-        return interceptor.preHandle(request, response, action);
+        return interceptor.preHandle(request, response, handlerMethod);
       });
     });
     return promise;
@@ -70,12 +73,13 @@ export default class InterceptorRegistry {
     const interceptors = this.interceptors;
     let promise: Promise<any> = Promise.resolve();
     // 以倒序的顺序执行拦截器postHandle
-    interceptors.reverse().forEach((interceptor) => {
+    for (let i = interceptors.length - 1; i > -1; i--) {
+      const interceptor = interceptors[i];
       promise = promise.then(() => {
-        const { request, response, action } = servletContext;
-        return interceptor.postHandle(request, response, action, result);
+        const { request, response, handlerMethod } = servletContext;
+        return interceptor.postHandle(request, response, handlerMethod, result);
       });
-    });
+    }
     return promise.then((r) => (r || result))
   }
 
@@ -89,12 +93,13 @@ export default class InterceptorRegistry {
     const interceptors = this.interceptors;
     let promise = Promise.resolve();
     // 以倒序的顺序执行拦截器afterCompletion
-    interceptors.reverse().forEach((interceptor) => {
+    for (let i = servletContext.interceptorIndex; i > -1; i--) {
+      const interceptor = interceptors[i];
       promise = promise.then(() => {
-        const { request, response, action } = servletContext;
-        return interceptor.afterCompletion(request, response, action, ex)
+        const { request, response, handlerMethod } = servletContext;
+        return interceptor.afterCompletion(request, response, handlerMethod, ex)
       });
-    });
+    }
     return promise;
   }
 }

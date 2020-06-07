@@ -4,6 +4,7 @@
  */
 import ServletContext from '../servlets/ServletContext';
 import ControllerManagement from '../ControllerManagement';
+import ServletModel from '../models/ServletModel';
 
 export default class ControllerActionProduces {
 
@@ -22,11 +23,11 @@ export default class ControllerActionProduces {
 
   /**
    * 生产返回结果
-   * @param {any} res 控制器动作返回的结果
+   * @param {any} model 控制器动作返回的结果
    */
-  produce(res) {
+  produce(model: ServletModel) {
     return Promise
-      .resolve(res)
+      .resolve(model.data)
       .then((data) => this.handleProduces(data))
       .catch((ex) => this.servletContext.next(ex))
   }
@@ -35,6 +36,6 @@ export default class ControllerActionProduces {
    * 通过servletContext来处理对应平台下的返回结果
    */
   private handleProduces(data) {
-    this.servletContext.end(data, this.actionMapping.produces)
+    return this.servletContext.end(data, this.actionMapping.produces)
   }
 }

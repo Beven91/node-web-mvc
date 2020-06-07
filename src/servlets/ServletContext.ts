@@ -2,6 +2,8 @@
  * @module ServletContext
  * @description 请求上下文
  */
+import HandlerMethod from '../interceptor/HandlerMethod';
+import ServletModel from '../models/ServletModel';
 
 export default abstract class ServletContext {
 
@@ -18,7 +20,7 @@ export default abstract class ServletContext {
   /**
    * 跳转到下一个请求处理器
    */
-  public next;
+  public next: (error?) => void;
 
   /**
    * 当前正在处理的请求匹配到的控制器类
@@ -28,22 +30,22 @@ export default abstract class ServletContext {
   /**
    * 当前正在处理的请求从路由中匹配到的参数信息
    */
-  public params;
+  public params: Map<string, any>;
 
   /**
    * 当前路由匹配的控制器域名称
    */
-  public areaName;
+  public areaName: string;
 
   /**
    * 当前正在处理的请求根据路由匹配到的执行函数
    */
-  public action;
+  public action: (request, response) => Promise<ServletModel>;
 
   /**
    * 当前正在处理的请求根据路由匹配到的执行函数名称
    */
-  public actionName;
+  public actionName: string;
 
   /**
    * 当前正在处理的请求根据路由匹配到的控制器实例
@@ -58,21 +60,31 @@ export default abstract class ServletContext {
   }
 
   /**
+   * 当前匹配的action的执行器
+   */
+  public handlerMethod: HandlerMethod;
+
+  /**
+   * interceptor终端时的拦截器下标
+   */
+  public interceptorIndex: number
+
+  /**
    * 当前请求的path 例如: order/list
    */
-  abstract get path();
+  abstract get path(): string;
 
   /**
    * 当前请求的谓词，例如: GET POST PUT DELETE等
    */
-  abstract get method();
+  abstract get method(): string;
 
   /**
    * 返回内容到客户端
    * @param {any} data 要返回的数据
    * @param {String} procudes 当前返回的内容类型
    */
-  abstract end(data, procudes);
+  abstract end(data: any, procudes: string);
 
   /**
    * 构造一个上下文实例
@@ -89,7 +101,7 @@ export default abstract class ServletContext {
     // 当前匹配到的动作名称
     this.actionName = '';
     // 当前请求提取出来的参数
-    this.params = '';
+    this.params = ({}) as Map<string, any>;
   }
 
   /**
