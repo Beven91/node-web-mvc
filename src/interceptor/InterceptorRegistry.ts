@@ -69,8 +69,8 @@ export default class InterceptorRegistry {
   postHandle(servletContext: ServletContext, result): Promise<any> {
     const interceptors = this.interceptors;
     let promise: Promise<any> = Promise.resolve();
-    // 按照先后顺序执行拦截器
-    interceptors.forEach((interceptor) => {
+    // 以倒序的顺序执行拦截器postHandle
+    interceptors.reverse().forEach((interceptor) => {
       promise = promise.then(() => {
         const { request, response, action } = servletContext;
         return interceptor.postHandle(request, response, action, result);
@@ -88,8 +88,8 @@ export default class InterceptorRegistry {
   afterCompletion(servletContext: ServletContext, ex) {
     const interceptors = this.interceptors;
     let promise = Promise.resolve();
-    // 按照先后顺序执行拦截器
-    interceptors.forEach((interceptor) => {
+    // 以倒序的顺序执行拦截器afterCompletion
+    interceptors.reverse().forEach((interceptor) => {
       promise = promise.then(() => {
         const { request, response, action } = servletContext;
         return interceptor.afterCompletion(request, response, action, ex)

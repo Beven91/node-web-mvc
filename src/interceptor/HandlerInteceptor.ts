@@ -19,9 +19,9 @@ export default interface HandlerInterceptor {
    * @param { HttpRequest } request 当前请求对象
    * @param { HttpResponse } response 当前响应对象
    * @param { ControllerContext } handler  当前拦截待执行的函数相关信息
-   * @param { any } result 执行action返回的结果
+   * @param { any } modelAndView 执行action返回的结果
    */
-  postHandle(request, response, handler, result) : void;
+  postHandle(request, response, handler, modelAndView) : void;
 
   /**
    * 在请求结束后的拦截器 （无论成功还是失败都会执行此拦截函数)
