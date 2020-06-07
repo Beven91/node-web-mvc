@@ -146,6 +146,7 @@ export default class ControllerFactory {
   executeController(servletContext: ServletContext): Promise<ServletModel> {
     return new Promise((resolve, reject) => {
       const inteceptors = InterceptorRegistry.getInstance();
+      const runtime = { isKeeping: true }
       // 创建控制器
       const { controller, action } = this.createController(servletContext);
       if (!controller) {
@@ -159,16 +160,17 @@ export default class ControllerFactory {
           .preHandle(servletContext)
           // 执行action
           .then((isKeeping) => {
+            runtime.isKeeping = isKeeping;
             const { request, response, params } = servletContext;
             // 参数赋值到request上
             request.params = params;
-            // 如果拦截器中断了本次请求，则返回 null 否则执行action
+            // 如果拦截器中断了本次请求，则返回 InterruptModel 否则执行action
             return isKeeping ? new ServletModel(action.call(controller, request, response)) : new InterruptModel();
           })
-          // 拦截器: postHandle
-          .then((result) => inteceptors.postHandle(servletContext, result))
+          // 拦截器: postHandle 如果preHandle返回了false 则跳过postHandle
+          .then((result) => runtime.isKeeping ? inteceptors.postHandle(servletContext, result) : result)
           // 执行返回
-          .then((result: ServletModel) => resolve(result))
+          .then((result) => resolve(result))
           .catch(reject);
       }
     })

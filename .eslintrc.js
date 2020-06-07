@@ -11,6 +11,8 @@ module.exports = {
     'no-console': 0,
     'require-jsdoc': 0,
     'no-debugger': 0,
+    "array-bracket-spacing": ["error", "always"],
+    "object-curly-spacing": ["error", "always"],
     'import/no-extraneous-dependencies': 0,
     semi: ['error', 'always'],
     'no-cond-assign': ['error', 'always'],
