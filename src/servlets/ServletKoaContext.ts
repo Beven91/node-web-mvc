@@ -12,9 +12,9 @@ export default class ServletKoaContext extends ServletContext {
     return this.request.path;
   }
 
-   /**
-   * 当前请求的谓词，例如: GET POST PUT DELETE等
-   */
+  /**
+  * 当前请求的谓词，例如: GET POST PUT DELETE等
+  */
   get method() {
     return this.request.method;
   }
@@ -22,14 +22,15 @@ export default class ServletKoaContext extends ServletContext {
   /**
    * 返回内容到客户端
    * @param {any} data 要返回的数据
+   * @param {number} status 当前设置的返回状态码
    * @param {String} procudes 当前返回的内容类型
    */
-  end(data, procudes) {
+  end(data, status, procudes) {
     const response = this.response;
     if (procudes) {
       response.set('Content-Type', procudes);
     }
-    response.status = 200;
+    response.status = status;
     response.body = data;
   }
 

@@ -82,9 +82,10 @@ export default abstract class ServletContext {
   /**
    * 返回内容到客户端
    * @param {any} data 要返回的数据
+   * @param {number} status 当前设置的返回状态码
    * @param {String} procudes 当前返回的内容类型
    */
-  abstract end(data: any, procudes: string);
+  abstract end(data: any, status: number, procudes: string, );
 
   /**
    * 构造一个上下文实例

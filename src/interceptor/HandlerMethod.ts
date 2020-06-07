@@ -22,7 +22,7 @@ export default class HandlerMethod {
   /**
    * 当前请求返回的状态码
    */
-  public responseStatus: string
+  public responseStatus: number
 
   /**
    * 当前状态码产生的原因，
