@@ -3,8 +3,12 @@ import AreaRegistration from './src/areaRegistration';
 import Routes from './src/routes/RouteCollection';
 import ControllerFactory from './src/ControllerFactory';
 import Registry from './src/Registry';
-import RequestMapping from './src/annotations/RequestMapping';
-import PostMapping from './src/annotations/PostMapping';
+import RequestMapping from './src/annotations/mapping/RequestMapping';
+import PostMapping from './src/annotations/mapping/PostMapping';
+import GetMapping from './src/annotations/mapping/GetMapping';
+import PutMapping from './src/annotations/mapping/PutMapping';
+import PatchMapping from './src/annotations/mapping/PatchMapping';
+import DeleteMapping from './src/annotations/mapping/DeleteMapping';
 import RestController from './src/annotations/RestController';
 import Scope from './src/annotations/Scope';
 import ControllerAdvice from './src/annotations/ControllerAdvice';
@@ -18,7 +22,11 @@ export {
   Routes,
   Registry,
   Controller,
+  GetMapping,
   PostMapping,
+  DeleteMapping,
+  PatchMapping,
+  PutMapping,
   RestController,
   RequestMapping,
   AreaRegistration,

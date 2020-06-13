@@ -1,5 +1,7 @@
 import SwaggerController from './controllers/SwaggerController';
+import OpenApi from './openapi/index';
 
-export {
-  SwaggerController
+export default function () {
+  OpenApi.initialize();
+  return SwaggerController;
 }

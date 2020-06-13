@@ -2,13 +2,16 @@ import ServletExpressContext from './servlets/ServletExpressContext';
 import ServletKoaContext from './servlets/ServletKoaContext';
 import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/ServletContext';
-import InterceptorRegistry from './interceptor/InterceptorRegistry'
+import InterceptorRegistry from './interceptor/InterceptorRegistry';
+import RouteCollection from './routes/RouteCollection';
 
 interface LaunchOptions {
   // 当前类型
   mode: string,
   // 是否开启swagger文档
   swagger?: boolean,
+  // 基础路径
+  base?: string,
   // 注册拦截器
   addInterceptors?: (registry: InterceptorRegistry) => void
 }
@@ -53,12 +56,15 @@ export default class Registry {
     }
     if (options.swagger !== false) {
       // 如果使用swagger
-      require('./swagger/index.ts');
+      require('./swagger/index.ts').default();
     }
     // 注册拦截器
     if (options.addInterceptors) {
       options.addInterceptors(InterceptorRegistry.getInstance());
     }
+    // 设置基础路由路径
+    RouteCollection.base = options.base;
+    // 返回中间件
     return ControllerContext.launch((request, response, next) => {
       const context: ServletContext = new ControllerContext(request, response, next);
       ControllerFactory.defaultFactory.handle(context);

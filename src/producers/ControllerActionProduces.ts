@@ -3,22 +3,24 @@
  * @description 用于处理控制器返回的结果
  */
 import ServletContext from '../servlets/ServletContext';
-import ControllerManagement from '../ControllerManagement';
+import ControllerManagement, { ActionDescriptors } from '../ControllerManagement';
 import ServletModel from '../models/ServletModel';
+import RouteMapping from '../routes/RouteMapping';
 
 export default class ControllerActionProduces {
 
   private servletContext: ServletContext = null
 
-  private actionMapping = null
+  private actionMapping: RouteMapping = null
 
   constructor(servletContext: ServletContext) {
     const actionName = servletContext.actionName;
-    const Controller = servletContext.controllerClass;
-    const attributes = ControllerManagement.getControllerAttributes(Controller) || {};
-    const actions = attributes.actions || {};
+    const Controller = servletContext.Controller;
+    const descriptor = ControllerManagement.getControllerDescriptor(Controller);
+    const actions = descriptor.actions;
+    const action = (actions[actionName] || {}) as ActionDescriptors;
     this.servletContext = servletContext;
-    this.actionMapping = actions[actionName] || {};
+    this.actionMapping = (action.mapping || {}) as RouteMapping;
   }
 
   /**

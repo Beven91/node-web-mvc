@@ -4,7 +4,6 @@
  */
 import HandlerInteceptor from './HandlerInteceptor';
 import ServletContext from '../servlets/ServletContext';
-import HandlerMethod from './HandlerMethod';
 
 let singleInstance: InterceptorRegistry = null
 

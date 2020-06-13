@@ -25,7 +25,7 @@ export default abstract class ServletContext {
   /**
    * 当前正在处理的请求匹配到的控制器类
    */
-  public controllerClass;
+  public Controller;
 
   /**
    * 当前正在处理的请求从路由中匹配到的参数信息
@@ -45,19 +45,17 @@ export default abstract class ServletContext {
   /**
    * 当前正在处理的请求根据路由匹配到的执行函数名称
    */
-  public actionName: string;
+  public actionName: string
 
   /**
-   * 当前正在处理的请求根据路由匹配到的控制器实例
+   * 当前正在处理的控制器实例
    */
-  public controller;
+  public controller
 
   /**
    * 当前正在处理的请求根据路由匹配到的控制器名称
    */
-  get controllerName() {
-    return this.controllerClass ? this.controllerClass.name : '';
-  }
+  public controllerName: string
 
   /**
    * 当前匹配的action的执行器
@@ -98,9 +96,7 @@ export default abstract class ServletContext {
     this.response = response;
     this.next = next;
     // 当前匹配到的控制器类
-    this.controllerClass = null;
-    // 当前匹配到的动作名称
-    this.actionName = '';
+    this.Controller = null;
     // 当前请求提取出来的参数
     this.params = ({}) as Map<string, any>;
   }

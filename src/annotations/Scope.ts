@@ -8,7 +8,7 @@ import ControllerManagement from '../ControllerManagement';
  */
 export default function scopeAnnotation(scope) {
   return function (Controller) {
-    const attributes = ControllerManagement.getControllerAttributes(Controller);
-    attributes.scope = scope;
+    const descriptor = ControllerManagement.getControllerDescriptor(Controller);
+    descriptor.scope = scope;
   }
 }

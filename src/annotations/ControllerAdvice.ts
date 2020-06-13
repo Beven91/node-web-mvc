@@ -8,6 +8,5 @@
 import ControllerManagement from '../ControllerManagement';
 
 export default function ControllerAdvice(ControllerAdivce) {
-  const instance = new ControllerAdivce();
-  ControllerManagement.controllerAdviceInstance = instance;
+  ControllerManagement.controllerAdviceInstance = new ControllerAdivce();
 }

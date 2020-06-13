@@ -15,15 +15,16 @@ export interface Route {
 }
 
 export interface MatchResult {
-  controllerClass?: any,
   controller?: string,
+  controllerName?: any,
   action?: string,
+  actionName?: string,
   area?: string,
   params?: any,
 }
 
 export interface Rule {
-  match: (req) => MatchResult
+  match: (req, base) => MatchResult
 }
 
 export default class RouteCollection {
@@ -37,6 +38,9 @@ export default class RouteCollection {
    * 注册的所有路由匹配规则
    */
   private static rules: Array<Rule> = []
+
+  // 基础路径
+  public static base: string = ''
 
   /**
    * 添加一个动态路由 
@@ -76,13 +80,19 @@ export default class RouteCollection {
    */
   static rulesMatch(req) {
     const rules = this.rules || [];
+    const request = {
+      method: req.method,
+      path: this.base ? req.path.replace(new RegExp('^' + this.base), '') : req.path
+    }
     for (let i = 0, k = rules.length; i < k; i++) {
       const rule = rules[i];
-      const result = rule.match(req);
+      const result = rule.match(request, this.base);
       if (result) {
         return {
-          controllerClass: result.controller,
+          controller: result.controller,
           action: result.action,
+          controllerName: result.controllerName,
+          actionName: result.actionName,
           params: result.params || {}
         }
       }
@@ -94,6 +104,7 @@ export default class RouteCollection {
    * @param {String} path 当前请求路径 
    */
   static basicMatch(path) {
+    path = this.base ? path.replace(new RegExp('^' + this.base), '') : path;
     path = path[0] === '/' ? path.slice(1) : path;
     const parts = path.split('/');
     const routes = this.routes || [];
@@ -114,8 +125,8 @@ export default class RouteCollection {
         return rule !== parts[index];
       }).length < 1;
       if (matched) {
-        matchRoute.controller = matchRoute.controller || defaultOptions.controller || '';
-        matchRoute.action = matchRoute.action || defaultOptions.action || '';
+        matchRoute.controllerName = matchRoute.controller || defaultOptions.controller || '';
+        matchRoute.actionName = matchRoute.action || defaultOptions.action || '';
         return matchRoute;
       }
     }

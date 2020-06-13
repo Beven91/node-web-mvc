@@ -44,8 +44,8 @@ export default class HandlerMethod {
    * 从 ResponseStatus 获取当前action设定的返回状态，如果没有获取到则使用默认的
    */
   private evaluateResponseStatus(): void {
-    const attrs = this.getMethodAnnotation();
-    const annotation = attrs.responseStatus;
+    const actionDescriptor = this.getMethodAnnotations();
+    const annotation = actionDescriptor.responseStatus;
     if (annotation != null) {
       this.responseStatus = annotation.code;
       this.responseStatusReason = annotation.reason;
@@ -56,8 +56,9 @@ export default class HandlerMethod {
    * 获取当前action设定的标注信息
    * 由于Javascript没有反射，所以这里仅返回控制器的所有标记属性
    */
-  public getMethodAnnotation() {
-    return ControllerManagement.getControllerAttributes(this.servletContext.controllerClass);
+  public getMethodAnnotations() {
+    const descriptor = ControllerManagement.getControllerDescriptor(this.servletContext.Controller);
+    return descriptor.actions[this.servletContext.actionName];
   }
 
   /**

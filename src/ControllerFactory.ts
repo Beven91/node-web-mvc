@@ -23,7 +23,7 @@ const defaultArea = "";
 //全局注册controller
 const registedAreaControllers: Map<String, Controller> = ({}) as Map<String, Controller>;
 //全局控制器工厂实例
-let defaultFactoryController = null;
+let defaultFactoryController: ControllerFactory = null;
 
 export default class ControllerFactory {
 
@@ -126,21 +126,6 @@ export default class ControllerFactory {
   }
 
   /**
-   * 手动传入controllerContext调用对应的controller
-   * @static
-   */
-  static executeController(req, resp, next, servletContext: ServletContext) {
-    if (defaultFactoryController) {
-      const name = (servletContext.controllerName || '').toLowerCase()
-      const areaRegisterControllers = registedAreaControllers[servletContext.areaName || ""];
-      servletContext.controller = areaRegisterControllers[name]
-      return defaultFactoryController.executeController(req, resp, next, servletContext);
-    } else {
-      next();
-    }
-  }
-
-  /**
    * 根据传入context执行控制器
    * @param {ControllerContext} servletContext 控制器执行上下文
    */
@@ -149,10 +134,10 @@ export default class ControllerFactory {
       const inteceptors = InterceptorRegistry.getInstance();
       const runtime = { isKeeping: true }
       // 创建控制器
-      const { controller, action } = this.createController(servletContext);
-      if (!controller) {
+      this.createController(servletContext);
+      if (!servletContext.controller) {
         resolve(new InterruptModel());
-      } else if (typeof action !== 'function') {
+      } else if (typeof servletContext.action !== 'function') {
         logger.debug(`Cannot find Controller from: ${servletContext.controllerName}/${servletContext.actionName}`)
         resolve(new InterruptModel());
       } else {
@@ -183,15 +168,17 @@ export default class ControllerFactory {
   createController(servletContext: ServletContext) {
     const pathContext = Routes.match(servletContext);
     const areaRegisterControllers = ControllerFactory.getAreaControllers(pathContext.area) || {};
-    const controllerName = (pathContext.controller || '').toLowerCase();
+    const controllerName = (pathContext.controllerName || '').toLowerCase();
     // 设置匹配到的控制器
-    servletContext.controllerClass = pathContext.controllerClass || areaRegisterControllers[controllerName];
+    servletContext.Controller = pathContext.controller || areaRegisterControllers[controllerName];
+    // 设置控制器名称
+    servletContext.controllerName = pathContext.controllerName;
     // 创建控制器
     servletContext.controller = ControllerManagement.createController(servletContext);
-    // 设置actionName
-    servletContext.actionName = pathContext.action;
     // 设置匹配到的action
-    servletContext.action = ControllerManagement.creatAction(servletContext.controller, pathContext.action)
+    servletContext.action = ControllerManagement.creatAction(servletContext.controllerName, pathContext.action || pathContext.actionName);
+    // 设置actionName
+    servletContext.actionName = pathContext.actionName;
     // 设置从路径中解析出来的参数
     servletContext.params = pathContext.params || {};
     // 设置handlerMethod

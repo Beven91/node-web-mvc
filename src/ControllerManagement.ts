@@ -4,6 +4,36 @@
  */
 import Javascript from './interface/Javascript';
 import ServletContext from './servlets/ServletContext';
+import RouteMapping from './routes/RouteMapping';
+
+// 动作字典
+export declare class ActionsMap {
+  [propName: string]: ActionDescriptors
+}
+
+// 动作描述
+export declare class ActionDescriptors {
+  // 动作函数
+  value: Function
+  // 配置在控制器上的映射
+  mapping: RouteMapping
+  // 当前action设置的返回状态
+  responseStatus?: { reason: string, code: number }
+}
+
+// 控制器描述
+export declare class ControllerDescriptors {
+  // 对应的控制器类
+  ctor: any
+  // 配置在控制器上的映射
+  mapping: RouteMapping
+  // 所有接口的路由映射配置
+  actions: ActionsMap
+  // 当前控制器自定义的异常处理函数
+  exceptionHandler: Function
+  // 当前控制器的作用域
+  scope: string
+}
 
 const runtime = {
   // 控制器作用域控制存储器
@@ -14,7 +44,7 @@ const runtime = {
     'prototype': null
   },
   // 控制器特征属性
-  controllerAttributes: [],
+  allControllerDescriptors: ([]) as Array<ControllerDescriptors>,
   // 当前设定的全局控制器处理实例
   controllerAdviceInstance: null,
 }
@@ -39,14 +69,14 @@ export default class ControllerManagement {
    * 获取控制器的所有特征属性
    * @param {ControllerClass} ctor 
    */
-  static getControllerAttributes(ctor) {
-    const controllerAttributes = runtime.controllerAttributes;
-    let attributes = controllerAttributes.find((attr) => attr.ctor === ctor);
-    if (!attributes) {
-      attributes = { ctor: ctor };
-      controllerAttributes.push(attributes);
+  static getControllerDescriptor(ctor) {
+    const allControllerDescriptors = runtime.allControllerDescriptors;
+    let controllerDescriptors = allControllerDescriptors.find((attr) => attr.ctor === ctor);
+    if (!controllerDescriptors) {
+      controllerDescriptors = { ctor: ctor, actions: {} } as ControllerDescriptors;
+      allControllerDescriptors.push(controllerDescriptors);
     }
-    return attributes;
+    return controllerDescriptors;
   }
 
   /**
@@ -67,14 +97,12 @@ export default class ControllerManagement {
    * @param {ControllerContext} servletContext 创建上下文参数
    */
   static createController(servletContext: ServletContext) {
-    const { controllerClass } = servletContext;
-    if (!controllerClass) {
+    const { Controller } = servletContext;
+    if (!Controller) {
       return null;
     }
-    const controllerAttributes = runtime.controllerAttributes;
-    const Controller = controllerClass;
-    const attributes = controllerAttributes.find((feature) => feature.ctor === Controller) || {};
-    const scope = attributes.scope || 'singleton';
+    const descriptor = this.getControllerDescriptor(Controller);
+    const scope = descriptor.scope || 'singleton';
     const container = runtime.scopeControllers[scope] || [];
     let controller = container.find((instance) => instance.constructor === Controller);
     if (!controller) {
@@ -102,16 +130,17 @@ export default class ControllerManagement {
 
   static initializeControllerActions(controller) {
     const Controller = controller.constructor;
-    const attributes = ControllerManagement.getControllerAttributes(Controller);
-    if (!attributes.actions) {
-      const actions = attributes.actions = {};
+    const descriptor = ControllerManagement.getControllerDescriptor(Controller);
+    if (!descriptor.actions) {
+      const actions = descriptor.actions = {} as ActionsMap;
       const actionNames = Reflect.ownKeys(controller.__proto__).filter((key) => !Javascript.protoKeys[key]);
-      actionNames.forEach((key) => {
+      actionNames.forEach((key: string) => {
         actions[key] = {
-          value: Controller.prototype[key]
-        }
+          value: Controller.prototype[key],
+          mapping: new RouteMapping(Controller.name + '/' + key, '', null, null, null),
+        } as ActionDescriptors
       })
     }
-    return attributes.actions;
+    return descriptor.actions;
   }
 }
