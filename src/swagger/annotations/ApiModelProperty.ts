@@ -10,7 +10,9 @@ import { ApiModelPropertyOptions } from '../openapi/declare';
  * @param {ApiOperationOptions} options 属性配置 
  */
 export default function ApiModelProperty(options: ApiModelPropertyOptions) {
-  return (model, name, descriptor) => {
-    OpenApi.addModelProperty(options, model, name);
+  return (target, name, descriptor) => {
+    process.nextTick(() => {
+      OpenApi.addModelProperty(options, target.constructor, name);
+    });
   }
 }

@@ -33,6 +33,8 @@ export declare class ControllerDescriptors {
   exceptionHandler: Function
   // 当前控制器的作用域
   scope: string
+  // swagger配置
+  swagger:any
 }
 
 const runtime = {

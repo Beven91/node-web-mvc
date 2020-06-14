@@ -10,10 +10,10 @@ import { ApiOperationOptions } from '../openapi/declare';
  * @param {ApiOperationOptions} operation 接口方法配置 
  */
 export default function ApiOperation(operation: ApiOperationOptions) {
-  return (controller, name, descriptor) => {
+  return (target, name, descriptor) => {
     // 保证注解执行时，其他注解已执行完毕，这里主要时等待@RequestMapping之类的注解
     process.nextTick(() => {
-      OpenApi.addOperation(operation, controller, name);
+      OpenApi.addOperation(operation, target.constructor, name);
     });
   }
 }

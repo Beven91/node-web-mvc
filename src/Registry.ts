@@ -4,6 +4,7 @@ import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/ServletContext';
 import InterceptorRegistry from './interceptor/InterceptorRegistry';
 import RouteCollection from './routes/RouteCollection';
+import swagger from './swagger';
 
 interface LaunchOptions {
   // 当前类型
@@ -56,7 +57,7 @@ export default class Registry {
     }
     if (options.swagger !== false) {
       // 如果使用swagger
-      require('./swagger/index.ts').default();
+      swagger.OpenApi.initialize();
     }
     // 注册拦截器
     if (options.addInterceptors) {

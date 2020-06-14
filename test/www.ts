@@ -4,7 +4,6 @@ import { Registry, ControllerFactory, Routes } from '../index';
 import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
 
-
 const port = 9800;
 const app = express();
 

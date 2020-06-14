@@ -11,8 +11,8 @@ const testPaths = [
   { path: '/', result: { controller: 'home', action: 'index' } },
   { path: '/member', result: { controller: 'member', action: 'index' } },
   { path: '/member/hello/index', result: { controller: '', action: 'index' } },
-  { path: '/member/hello/index/aa', result: {  } },
-]
+  { path: '/member/hello/index/aa', result: { } },
+];
 
 testPaths.forEach((r) => {
   const res = Routes.match(r.path);
@@ -21,8 +21,8 @@ testPaths.forEach((r) => {
       [
         '测试规则不匹配' + r.path,
         '预期' + JSON.stringify(r.result),
-        '实际:' + JSON.stringify(res)
+        '实际:' + JSON.stringify(res),
       ].join('\n')
     );
   }
-})
+});

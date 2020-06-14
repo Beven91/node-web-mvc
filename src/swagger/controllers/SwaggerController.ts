@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { RequestMapping } from '../../annotations';
+import OpenApi from '../openapi/index';
 
 // 设置常见内容文件返回mime
 const producers = {
@@ -16,7 +17,7 @@ export default class SwaggerController {
    */
   @RequestMapping('/swagger/openapi.json')
   openapi() {
-
+    return OpenApi.toJSON();
   }
 
   /**
@@ -32,8 +33,10 @@ export default class SwaggerController {
       // 如果文件按不存在，则移交给其他执行器
       return next();
     }
-    // 设置返回内容类型
-    response.setHeader('Content-Type', producers[ext]);
+    if (producers[ext]) {
+      // 设置返回内容类型
+      response.setHeader('Content-Type', producers[ext]);
+    }
     // 返回文件内容
     return fs.readFileSync(file);
   }

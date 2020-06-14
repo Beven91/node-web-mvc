@@ -15,10 +15,21 @@ import ControllerAdvice from './src/annotations/ControllerAdvice';
 import ExceptionHandler from './src/annotations/ExceptionHandler';
 import HandlerInteceptor from './src/interceptor/HandlerInteceptor';
 import HandlerInterceptorAdapter from './src/interceptor/HandlerInterceptorAdapter';
+import Api from './src/swagger/annotations/Api';
+import ApiOperation from './src/swagger/annotations/ApiOperation';
+import ApiModel from './src/swagger/annotations/ApiModel';
+import ApiModelProperty from './src/swagger/annotations/ApiModelProperty';
+import ApiImplicitParams from './src/swagger/annotations/ApiImplicitParams';
 
+import swagger from './src/swagger';
 
 export {
   Scope,
+  Api,
+  ApiOperation,
+  ApiModel,
+  ApiModelProperty,
+  ApiImplicitParams,
   Routes,
   Registry,
   Controller,

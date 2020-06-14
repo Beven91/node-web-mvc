@@ -10,7 +10,9 @@ import { ApiImplicitParamOptions } from '../openapi/declare';
  * @param {ApiOptions} options 
  */
 export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>) {
-  return (controller, name, descriptor) => {
-    OpenApi.addOperationParams(params, controller, name);
+  return (target, name, descriptor) => {
+    setTimeout(() => {
+      OpenApi.addOperationParams(params, target.constructor, name);
+    }, 0)
   }
 }
