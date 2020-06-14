@@ -14,8 +14,7 @@ import RouteMapping from '../../routes/RouteMapping';
  */
 export default function requestMappingAnnotation(value: RouteMapping | string): any {
   return function (target, name, descriptor) {
-    const data = (typeof value === 'string' ? { value: value } : value || {}) as RouteMapping;
-    const mapping = new RouteMapping(data.value, data.method, data.produces, data.params, data.headers, data.consumes);
+    const mapping = RouteMapping.create(value, null);
     if (arguments.length > 1) {
       return requestMappingAction(target.constructor, name, descriptor, mapping);
     } else {

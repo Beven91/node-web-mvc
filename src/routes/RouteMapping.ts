@@ -49,6 +49,9 @@ export default class RouteMapping {
    * 标准化传入的信息
    */
   static create(value, method): RouteMapping {
+    if (value instanceof RouteMapping) {
+      return value;
+    }
     const data = (typeof value === 'string' ? { value: value } : value || {}) as RouteMapping;
     data.method = method || data.method;
     return new RouteMapping(data.value, data.method, data.produces, data.params, data.headers, data.consumes);
