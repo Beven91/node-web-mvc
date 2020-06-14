@@ -104,15 +104,30 @@ export default class OpenApiModel {
     const mainMapping = descriptor.mapping;
     const swagger = descriptor.swagger;
     const mapping = actionDescriptor.mapping;
+    const schemas = documentation.definitions;
+    const code = 'code' in operation ? operation.code : '200';
+    const model = schemas[operation.dataType];
     const operationDoc = {
-      consumes: mainMapping.consumes || ["**/*"],
+      consumes: mainMapping.consumes || undefined,
       deprecated: false,
       operationId: name,
       tags: swagger.tags,
       summary: operation.value,
       description: operation.notes,
       parameters: {},
-      responses: {}
+      responses: {
+        "201": { "description": "Created" },
+        "401": { "description": "Unauthorized" },
+        "403": { "description": "Forbidden" },
+        "404": { "description": "Not Found" }
+      }
+    }
+    operationDoc.responses[code] = {
+      "description": "OK",
+      "schema": {
+        type: model ? undefined : operation.dataType,
+        $ref: model ? '#/definitions/' + operation.dataType : undefined
+      }
     }
     swagger[name] = operationDoc;
     mainMapping.value.forEach((m) => {
@@ -147,7 +162,7 @@ export default class OpenApiModel {
         in: param.paramType,
         schema: {
           type: model ? undefined : param.dataType || 'string',
-          $ref: '#/definitions/' + param.dataType
+          $ref: model ? '#/definitions/' + param.dataType : undefined,
         }
       })
     })

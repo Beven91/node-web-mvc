@@ -33,6 +33,9 @@ export declare class ApiOperationOptions {
    */
   httpMethod?
 
+  // 返回数据类型
+  dataType?
+
   /**
    * 返回http结果类型
    */
