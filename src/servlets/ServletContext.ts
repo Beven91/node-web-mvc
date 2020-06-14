@@ -2,7 +2,6 @@
  * @module ServletContext
  * @description 请求上下文
  */
-import HandlerMethod from '../interceptor/HandlerMethod';
 import ServletModel from '../models/ServletModel';
 
 export default abstract class ServletContext {
@@ -56,11 +55,6 @@ export default abstract class ServletContext {
    * 当前正在处理的请求根据路由匹配到的控制器名称
    */
   public controllerName: string
-
-  /**
-   * 当前匹配的action的执行器
-   */
-  public handlerMethod: HandlerMethod;
 
   /**
    * interceptor终端时的拦截器下标

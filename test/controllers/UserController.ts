@@ -1,5 +1,6 @@
 import { RequestMapping, PostMapping, ExceptionHandler } from '../../index';
 import ApiOperation from '../../src/swagger/annotations/ApiOperation';
+import GetMapping from '../../src/annotations/mapping/GetMapping';
 
 @RequestMapping('/user')
 export default class UserController {
@@ -20,7 +21,7 @@ export default class UserController {
     return 'aaa';
   }
 
-  @RequestMapping('/getUser', 'get')
+  @GetMapping('/getUser')
   getUser() {
     return JSON.stringify(this.user || {
       name: '李白'

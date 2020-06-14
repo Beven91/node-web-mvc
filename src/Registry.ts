@@ -2,7 +2,7 @@ import ServletExpressContext from './servlets/ServletExpressContext';
 import ServletKoaContext from './servlets/ServletKoaContext';
 import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/ServletContext';
-import InterceptorRegistry from './interceptor/InterceptorRegistry';
+import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
 import RouteCollection from './routes/RouteCollection';
 import swagger from './swagger';
 
@@ -14,7 +14,7 @@ interface LaunchOptions {
   // 基础路径
   base?: string,
   // 注册拦截器
-  addInterceptors?: (registry: InterceptorRegistry) => void
+  addInterceptors?: (registry: HandlerInteceptorRegistry) => void
 }
 
 // 已经注册执行上下文
@@ -61,7 +61,7 @@ export default class Registry {
     }
     // 注册拦截器
     if (options.addInterceptors) {
-      options.addInterceptors(InterceptorRegistry.getInstance());
+      options.addInterceptors(HandlerInteceptorRegistry);
     }
     // 设置基础路由路径
     RouteCollection.base = options.base;

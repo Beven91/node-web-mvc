@@ -10,11 +10,9 @@ import Controller from './Controller'
 import ServletContext from './servlets/ServletContext';
 import ControllerManagement from './ControllerManagement';
 import ControllerActionProduces from './producers/ControllerActionProduces';
-import ControllerAdviceAdapter from './ControllerAdviceAdapter';
-import InterceptorRegistry from './interceptor/InterceptorRegistry';
 import ServletModel from './models/ServletModel';
 import InterruptModel from './models/InterruptModel';
-import HandlerMethod from './interceptor/HandlerMethod';
+import DispatchServlet from './servlets/DispatcherServlet';
 
 const logger = console;
 
@@ -131,8 +129,6 @@ export default class ControllerFactory {
    */
   executeController(servletContext: ServletContext): Promise<ServletModel> {
     return new Promise((resolve, reject) => {
-      const inteceptors = InterceptorRegistry.getInstance();
-      const runtime = { isKeeping: true }
       // 创建控制器
       this.createController(servletContext);
       if (!servletContext.controller) {
@@ -141,23 +137,7 @@ export default class ControllerFactory {
         logger.debug(`Cannot find Controller from: ${servletContext.controllerName}/${servletContext.actionName}`)
         resolve(new InterruptModel());
       } else {
-        inteceptors
-          // 拦截器: preHandle
-          .preHandle(servletContext)
-          // 执行action
-          .then((isKeeping) => {
-            runtime.isKeeping = isKeeping;
-            const { request, params, handlerMethod } = servletContext;
-            // 参数赋值到request上
-            request.params = params;
-            // 如果拦截器中断了本次请求，则返回 InterruptModel 否则执行action
-            return isKeeping ? handlerMethod.invoke() : new InterruptModel();
-          })
-          // 拦截器: postHandle 如果preHandle返回了false 则跳过postHandle
-          .then((result) => runtime.isKeeping ? inteceptors.postHandle(servletContext, result) : result)
-          // 执行返回
-          .then((result) => resolve(result))
-          .catch(reject);
+        return (new DispatchServlet()).doService(servletContext).then(resolve, reject)
       }
     })
   }
@@ -181,8 +161,8 @@ export default class ControllerFactory {
     servletContext.actionName = pathContext.actionName;
     // 设置从路径中解析出来的参数
     servletContext.params = pathContext.params || {};
-    // 设置handlerMethod
-    servletContext.handlerMethod = new HandlerMethod(servletContext);
+    // 设置params参数
+    servletContext.request.params = servletContext.params;
     return servletContext;
   }
 
@@ -196,8 +176,6 @@ export default class ControllerFactory {
     return this
       // 执行控制器
       .executeController(servletContext)
-      // 这里捕获执行控制器发生的错误，通过全局异常处理接管
-      .catch((ex) => ControllerAdviceAdapter.handleException(ex, servletContext))
       .then((model: ServletModel) => {
         if (model instanceof InterruptModel) {
           // 如果没有执行action,跳转到下一个
@@ -213,12 +191,5 @@ export default class ControllerFactory {
         console.error(ex);
         servletContext.next(ex);
       })
-      // 拦截器:afterCompletion
-      .then(() => {
-        if (servletContext.action) {
-          // 如果路由没有匹配上，则不进行处理
-          return InterceptorRegistry.getInstance().afterCompletion(servletContext, runtime.error)
-        }
-      });
   }
 }

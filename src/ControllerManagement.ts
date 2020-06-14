@@ -34,7 +34,7 @@ export declare class ControllerDescriptors {
   // 当前控制器的作用域
   scope: string
   // swagger配置
-  swagger:any
+  swagger: any
 }
 
 const runtime = {
@@ -100,7 +100,7 @@ export default class ControllerManagement {
    */
   static createController(servletContext: ServletContext) {
     const { Controller } = servletContext;
-    if (!Controller) {
+    if (typeof Controller !== 'function') {
       return null;
     }
     const descriptor = this.getControllerDescriptor(Controller);
@@ -139,7 +139,7 @@ export default class ControllerManagement {
       actionNames.forEach((key: string) => {
         actions[key] = {
           value: Controller.prototype[key],
-          mapping: new RouteMapping(Controller.name + '/' + key, '', null, null, null),
+          mapping: new RouteMapping(Controller.name + '/' + key, '', null, null, null, null),
         } as ActionDescriptors
       })
     }

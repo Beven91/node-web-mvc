@@ -34,7 +34,7 @@ app.listen(port, () => {
   ====> Start node-mvc
   ====> Enviroment: development
   ====> Listening: port ${port}
-  ====> Url: http://localhost:${port}
+  ====> Url: http://localhost:${port}/swagger/index.html
   -------------------------------------
   `)
 })

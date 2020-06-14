@@ -15,12 +15,12 @@ export default class ScopeController {
     return this.scopeData || '没有设置值';
   }
 
-  @ApiOperation({ value: '设置数据' })
+  @ApiOperation({ value: '设置数据', dataType: 'UserInfo' })
   @ApiImplicitParams([
     { name: 'user', paramType: 'body', value: '用户信息', required: true, dataType: 'UserInfo' },
   ])
   @PostMapping('/set')
-  setObj(request) {
+  setObj(user) {
     this.scopeData = UserInfo.from(request.body);
     return this.scopeData;
   }
@@ -34,6 +34,5 @@ export default class ScopeController {
   @ApiOperation({ value: '管理员入口' })
   @GetMapping('/admin')
   admin() {
-
   }
 }

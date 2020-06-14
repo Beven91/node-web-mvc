@@ -2,10 +2,10 @@
  * @module HandlerMethod
  * @description action执行器
  */
-import ServletContext from '../servlets/ServletContext';
-import ControllerManagement from '../ControllerManagement';
-import ServletModel from '../models/ServletModel';
-import InterruptModel from '../models/InterruptModel';
+import ServletContext from '../ServletContext';
+import ControllerManagement from '../../ControllerManagement';
+import ServletModel from '../../models/ServletModel';
+import InterruptModel from '../../models/InterruptModel';
 
 export default class HandlerMethod {
 
@@ -14,6 +14,12 @@ export default class HandlerMethod {
    */
   private servletContext: ServletContext;
 
+  /**
+   * 对应的action
+   */
+  public get method() {
+    return this.servletContext.action;
+  }
 
   /**
    * 当前action定义的参数
@@ -62,9 +68,9 @@ export default class HandlerMethod {
   }
 
   /**
-   * 执行action
+   * 执行方法
    */
-  invoke() {
+  public invoke() {
     const { controller, request, response, action } = this.servletContext;
     let runtime = null;
     const next = (error) => (runtime = { error });
@@ -76,7 +82,7 @@ export default class HandlerMethod {
       // 设置返回状态
       this.evaluateResponseStatus();
       // 返回数据
-      return data instanceof ServletModel ? data : new ServletModel(data);
+      return new ServletModel(data);
     })
   }
 }
