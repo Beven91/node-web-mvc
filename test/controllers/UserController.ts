@@ -1,10 +1,12 @@
 import { RequestMapping, PostMapping, ExceptionHandler } from '../../index';
+import ApiOperation from '../../src/swagger/annotations/ApiOperation';
 
 @RequestMapping('/user')
 export default class UserController {
 
   private user = null
 
+  @ApiOperation({ value: '新增用户' })
   @PostMapping('/addUser')
   addUser(req, resp) {
     return 'aaa';

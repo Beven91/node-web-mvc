@@ -18,8 +18,8 @@ const documentation = {
   //   schemas: {}
   // },
   // openapi: '3.0.1',
-  definitions:{},
-  swagger:'2.0',
+  definitions: {},
+  swagger: '2.0',
 };
 
 export default class OpenApiModel {
@@ -97,6 +97,9 @@ export default class OpenApiModel {
     const actionDescriptor = descriptor.actions[name];
     if (!actionDescriptor) {
       return;
+    }
+    if (!descriptor.swagger) {
+      this.addApi({}, ctor)
     }
     const mainMapping = descriptor.mapping;
     const swagger = descriptor.swagger;
