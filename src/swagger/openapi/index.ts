@@ -105,7 +105,7 @@ export default class OpenApiModel {
     const swagger = descriptor.swagger;
     const mapping = actionDescriptor.mapping;
     const operationDoc = {
-      consumes: ["application/json"],
+      consumes: mainMapping.consumes || ["**/*"],
       deprecated: false,
       operationId: name,
       tags: swagger.tags,

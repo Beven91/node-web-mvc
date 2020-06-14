@@ -1,4 +1,5 @@
 import RequestMapping from './RequestMapping';
+import RouteMapping from '../../routes/RouteMapping';
 
 /**
  * 配置一个Patch请求映射
@@ -14,6 +15,6 @@ import RequestMapping from './RequestMapping';
  * @param {Array} params 当前必要的参数 [ "userId","userName"  ]
  * @param {Array} header 当前必须要带的请求头 [ 'content-type=application/json' ]
  */
-export default function (value, produces?, params?, headers?) {
-  return RequestMapping(value, 'Patch', produces, params, headers);
+export default function (value: RouteMapping | string) {
+  return RequestMapping(RouteMapping.create(value, 'PATCH'));
 }

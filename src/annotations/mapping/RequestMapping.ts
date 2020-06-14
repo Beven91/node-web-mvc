@@ -11,14 +11,11 @@ import RouteMapping from '../../routes/RouteMapping';
  *    @RequestMapping('/user','POST','application/json')
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
- * @param {String/Array} method 可以接受的请求方式
- * @param {String} produces 允许的返回类型 'application/json'
- * @param {Array} params 当前必要的参数 [ "userId","userName"  ]
- * @param {Array} header 当前必须要带的请求头 [ 'content-type=application/json' ]
  */
-export default function requestMappingAnnotation(value, method?, produces?, params?, headers?): any {
+export default function requestMappingAnnotation(value: RouteMapping | string): any {
   return function (target, name, descriptor) {
-    const mapping = new RouteMapping(value, method, produces, params, headers);
+    const data = (typeof value === 'string' ? { value: value } : value || {}) as RouteMapping;
+    const mapping = new RouteMapping(data.value, data.method, data.produces, data.params, data.headers, data.consumes);
     if (arguments.length > 1) {
       return requestMappingAction(target.constructor, name, descriptor, mapping);
     } else {
