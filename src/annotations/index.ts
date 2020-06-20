@@ -7,6 +7,7 @@ import DeleteMapping from './mapping/DeleteMapping';
 import PatchMapping from './mapping/PatchMapping';
 import ControllerAdvice from './ControllerAdvice';
 import ExceptionHandler from './ExceptionHandler';
+import RequestImplicitParams from './params/RequestImplicitParams';
 
 export {
   Scope,
@@ -17,5 +18,6 @@ export {
   DeleteMapping,
   RequestMapping,
   ControllerAdvice,
-  ExceptionHandler
+  ExceptionHandler,
+  RequestImplicitParams
 }

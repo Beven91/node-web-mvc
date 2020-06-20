@@ -1,6 +1,7 @@
 import RouteCollection from '../../routes/RouteCollection';
-import ControllerManagement, { ActionDescriptors } from '../../ControllerManagement';
-import RouteMapping from '../../routes/RouteMapping';
+import ControllerManagement from '../../ControllerManagement';
+import { ActionDescriptors } from '../../interface/declare';
+import RouteMapping, { RouteMappingOptions } from '../../routes/RouteMapping';
 
 /**
  * 映射指定控制器以及控制器下的函数的请求路径
@@ -12,7 +13,7 @@ import RouteMapping from '../../routes/RouteMapping';
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default function requestMappingAnnotation(value: RouteMapping | string): any {
+export default function requestMappingAnnotation(value: RouteMappingOptions | string): any {
   return function (target, name, descriptor) {
     const mapping = RouteMapping.create(value, null);
     if (arguments.length > 1) {
@@ -28,9 +29,9 @@ export default function requestMappingAnnotation(value: RouteMapping | string): 
  * @param {*} target  当前控制器类
  * @param {*} mapping 配置的映射
  */
-function requestMappingController(target, mapping: RouteMapping) {
+function requestMappingController(target, mapping: RouteMappingOptions) {
   const descriptor = ControllerManagement.getControllerDescriptor(target);
-  descriptor.mapping = mapping;
+  descriptor.mapping = RouteMapping.create(mapping, null);
 }
 
 /**
