@@ -9,7 +9,6 @@ import Routes from './routes/RouteCollection';
 import Controller from './Controller'
 import ServletContext from './servlets/ServletContext';
 import ControllerManagement from './ControllerManagement';
-import ControllerActionProduces from './producers/ControllerActionProduces';
 import ServletModel from './models/ServletModel';
 import InterruptModel from './models/InterruptModel';
 import DispatchServlet from './servlets/DispatcherServlet';
@@ -180,9 +179,6 @@ export default class ControllerFactory {
         if (model instanceof InterruptModel) {
           // 如果没有执行action,跳转到下一个
           servletContext.next()
-        } else {
-          // 处理视图渲染或者数据返回
-          return (new ControllerActionProduces(servletContext)).produce(model);
         }
       })
       .catch((ex) => {

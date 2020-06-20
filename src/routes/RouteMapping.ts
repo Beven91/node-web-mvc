@@ -5,8 +5,39 @@
 import ControllerManagement from '../ControllerManagement';
 import * as matcher from "path-to-regexp";
 
-
 const ensureArrayPaths = (value) => value instanceof Array ? value : [value];
+
+export declare class RouteMappingOptions {
+  /**
+   * 当前路由路径值
+   */
+  value: string | Array<string>
+
+  /**string
+   * 当前路由能处理的Http请求类型
+   */
+  method?: Map<string, boolean>
+
+  /**
+   * 当前路由设置的返回内容类型
+   */
+  produces?: string
+
+  /**
+   * 当前路由能接受的内容类型
+   */
+  consumes?: Array<string>
+
+  /**
+   * 当前路由需要的请求头信息
+   */
+  headers?: Map<string, string>
+
+  /**
+   * 当前路由需要的请求参数
+   */
+  params?: Map<string, any>
+}
 
 export default class RouteMapping {
 
@@ -15,7 +46,7 @@ export default class RouteMapping {
    */
   public value: Array<string>
 
-  /**
+  /**string
    * 当前路由能处理的Http请求类型
    */
   public method: Map<string, boolean>

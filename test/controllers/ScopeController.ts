@@ -1,4 +1,5 @@
-import { RequestMapping, GetMapping, Scope, Api, ApiOperation, ApiImplicitParams } from '../../index';
+import { RequestMapping, GetMapping, Scope } from '../../index';
+import { Api, ApiOperation, RequestBody, RequestParam, ApiImplicitParams } from '../../index';
 import UserInfo from '../models/UserInfo';
 import { PostMapping } from '../../src/annotations';
 
@@ -17,11 +18,12 @@ export default class ScopeController {
 
   @ApiOperation({ value: '设置数据', dataType: 'UserInfo' })
   @ApiImplicitParams([
-    { name: 'user', paramType: 'body', value: '用户信息', required: true, dataType: 'UserInfo' },
+    RequestBody({ value: 'user', desc: '用户信息', required: true, dataType: UserInfo }),
+    RequestParam({ value: 'id', desc: '用户id', required: true })
   ])
-  @PostMapping('/set')
-  setObj(user) {
-    this.scopeData = UserInfo.from(request.body);
+  @PostMapping({ value: '/set', produces: 'application/json' })
+  setObj(user: UserInfo, id) {
+    this.scopeData = user;
     return this.scopeData;
   }
 

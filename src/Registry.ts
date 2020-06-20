@@ -1,5 +1,6 @@
 import ServletExpressContext from './servlets/ServletExpressContext';
 import ServletKoaContext from './servlets/ServletKoaContext';
+import ServletNodeContext from './servlets/ServletNodeContext';
 import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/ServletContext';
 import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
@@ -7,6 +8,8 @@ import RouteCollection from './routes/RouteCollection';
 import swagger from './swagger';
 
 interface LaunchOptions {
+  // 端口
+  port?: number,
   // 当前类型
   mode: string,
   // 是否开启swagger文档
@@ -14,7 +17,7 @@ interface LaunchOptions {
   // 基础路径
   base?: string,
   // 注册拦截器
-  addInterceptors?: (registry: HandlerInteceptorRegistry) => void
+  addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
 }
 
 // 已经注册执行上下文
@@ -69,7 +72,7 @@ export default class Registry {
     return ControllerContext.launch((request, response, next) => {
       const context: ServletContext = new ControllerContext(request, response, next);
       ControllerFactory.defaultFactory.handle(context);
-    });
+    }, options);
   }
 }
 
@@ -77,3 +80,5 @@ export default class Registry {
 Registry.register('express', ServletExpressContext);
 // 注册koa实现
 Registry.register('koa', ServletKoaContext);
+// 注册node实现
+Registry.register('node', ServletNodeContext);

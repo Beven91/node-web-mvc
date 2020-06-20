@@ -5,9 +5,9 @@ import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
 
 const port = 9800;
-const app = express();
+// const app = express();
 
-app.use(express.static(path.resolve('')))
+// app.use(express.static(path.resolve('')))
 
 //注册api/controllers目录下的所有controller
 ControllerFactory.registerControllers(path.resolve('./test/controllers'));
@@ -20,21 +20,22 @@ ControllerFactory.registerControllers(path.resolve('./test/controllers'));
 Routes.mapRoute('{controller}/{action}', { controller: 'Home', action: 'index' });
 
 // 启动Mvc  
-app.use(Registry.launch({
-  mode: 'express',
+Registry.launch({
+  mode: 'node',
+  port: port,
   addInterceptors: (registry) => {
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());
   }
-}));
+});
 
-app.listen(port, () => {
-  console.log(`
-  -------------------------------------
-  ====> Start node-mvc
-  ====> Enviroment: development
-  ====> Listening: port ${port}
-  ====> Url: http://localhost:${port}/swagger/index.html
-  -------------------------------------
-  `)
-})
+// app.listen(port, () => {
+//   console.log(`
+//   -------------------------------------
+//   ====> Start node-mvc
+//   ====> Enviroment: development
+//   ====> Listening: port ${port}
+//   ====> Url: http://localhost:${port}/swagger/index.html
+//   -------------------------------------
+//   `)
+// })

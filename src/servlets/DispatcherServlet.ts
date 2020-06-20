@@ -7,9 +7,9 @@ import ServletModel from '../models/ServletModel';
 import HandlerAdapter from './method/HandlerAdapter';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 import RequestMappingHandlerAdapter from './method/RequestMappingHandlerAdapter';
+import HttpResponseProduces from './producers/HttpResponseProduces';
 import InterruptModel from '../models/InterruptModel';
 import ControllerManagement from '../ControllerManagement';
-
 
 export default class DispatcherServlet {
 
@@ -17,7 +17,11 @@ export default class DispatcherServlet {
     return new HandlerExecutionChain(servletContext)
   }
 
-  getHandlerAdapter(): HandlerAdapter {
+  /**
+   * 根据当前处理的handler获取对应的处理适配器
+   * @param handler 
+   */
+  getHandlerAdapter(handler): HandlerAdapter {
     //TODO: 这先临时固定为 RequestMappingHandlerAdapter,待后续完善
     return new RequestMappingHandlerAdapter();
   }
@@ -42,7 +46,7 @@ export default class DispatcherServlet {
       }
       try {
         // 获取handler当前执行适配器
-        const ha = this.getHandlerAdapter();
+        const ha = this.getHandlerAdapter(mappedHandler.getHandler());
         // 开始执行handler
         runtime.res = await ha.handle(servletContext, mappedHandler.getHandler());
       } catch (ex) {
@@ -51,6 +55,8 @@ export default class DispatcherServlet {
       }
       // 执行拦截器:postHandler
       runtime.res = await mappedHandler.applyPostHandle(runtime.res);
+      // 处理视图渲染或者数据返回
+      return (new HttpResponseProduces(servletContext)).produce(runtime.res, mappedHandler.getHandler());
     } catch (ex) {
       runtime.error = ex;
     }
@@ -58,8 +64,7 @@ export default class DispatcherServlet {
       // 执行拦截器: afterCompletion
       mappedHandler.applyAfterCompletion(runtime.error);
     });
-    // 返回结果
-    return runtime.res;
+    return runtime.error ? Promise.reject(runtime.error) : runtime.res;
   }
 
   /**

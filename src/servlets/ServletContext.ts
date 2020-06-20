@@ -57,11 +57,6 @@ export default abstract class ServletContext {
   public controllerName: string
 
   /**
-   * interceptor终端时的拦截器下标
-   */
-  public interceptorIndex: number
-
-  /**
    * 当前请求的path 例如: order/list
    */
   abstract get path(): string;
@@ -77,7 +72,7 @@ export default abstract class ServletContext {
    * @param {number} status 当前设置的返回状态码
    * @param {String} procudes 当前返回的内容类型
    */
-  abstract end(data: any, status: number, procudes: string, );
+  abstract end(data: any, status: number, procudes: string,);
 
   /**
    * 构造一个上下文实例
@@ -101,7 +96,7 @@ export default abstract class ServletContext {
    * 然后调用 callback(request,response,next) 即可
    * @param callback 
    */
-  static launch(callback): (request, response, next) => any {
+  static launch(callback: Function, options?): (request, response, next) => any {
     return (request, response, next) => callback(request, response, next);
   }
 }

@@ -14,6 +14,11 @@ export default class HandlerExecutionChain {
   private handler;
 
   /**
+   * interceptor终端时的拦截器下标
+   */
+  private interceptorIndex: number
+
+  /**
    * 构造一个拦截器注册器
    */
   constructor(servletContext: ServletContext) {
@@ -30,7 +35,7 @@ export default class HandlerExecutionChain {
   /**
    * 获取当前handler
    */
-  getHandler() {
+  getHandler(): HandlerMethod {
     return this.handler;
   }
 
@@ -49,7 +54,7 @@ export default class HandlerExecutionChain {
         if (result === false) {
           return result;
         } else {
-          servletContext.interceptorIndex = i;
+          this.interceptorIndex = i;
         }
         const { request, response } = servletContext;
         // 执行拦截器preHandle
@@ -88,7 +93,7 @@ export default class HandlerExecutionChain {
     const interceptors = this.interceptors;
     let promise = Promise.resolve();
     // 以倒序的顺序执行拦截器afterCompletion
-    for (let i = servletContext.interceptorIndex; i > -1; i--) {
+    for (let i = this.interceptorIndex; i > -1; i--) {
       const interceptor = interceptors[i];
       promise = promise.then(() => {
         const { request, response } = servletContext;

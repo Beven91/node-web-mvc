@@ -160,8 +160,8 @@ export default class OpenApiModel {
         required: param.required,
         description: param.value,
         in: param.paramType,
+        type: model ? undefined : param.dataType || 'string',
         schema: {
-          type: model ? undefined : param.dataType || 'string',
           $ref: model ? '#/definitions/' + param.dataType : undefined,
         }
       })

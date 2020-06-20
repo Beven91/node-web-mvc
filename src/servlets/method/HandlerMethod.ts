@@ -6,6 +6,7 @@ import ServletContext from '../ServletContext';
 import ControllerManagement from '../../ControllerManagement';
 import ServletModel from '../../models/ServletModel';
 import InterruptModel from '../../models/InterruptModel';
+import { ActionDescriptors } from '../../interface/declare';
 
 export default class HandlerMethod {
 
@@ -22,10 +23,20 @@ export default class HandlerMethod {
   }
 
   /**
-   * 当前action定义的参数
-   * TODO: 这里在js环境没法获取参数类型，先暂时不实现
+   * 对应controller实例
    */
-  public parameters: Array<any>;
+  public get controller() {
+    return this.servletContext.controller;
+  }
+
+  /**
+   * 当前action定义的参数
+   */
+  public get parameters() {
+    const descriptor = ControllerManagement.getControllerDescriptor(this.servletContext.Controller);
+    const action = (descriptor.actions[this.servletContext.actionName] || {}) as ActionDescriptors
+    return action.params || [];
+  }
 
   /**
    * 当前请求返回的状态码
@@ -70,19 +81,12 @@ export default class HandlerMethod {
   /**
    * 执行方法
    */
-  public invoke() {
+  public invoke(...args) {
     const { controller, request, response, action } = this.servletContext;
-    let runtime = null;
-    const next = (error) => (runtime = { error });
-    const res = action.call(controller, request, response, next);
-    return Promise.resolve(res).then((data) => {
-      if (runtime) {
-        return runtime.error ? Promise.reject(runtime.error) : new InterruptModel();
-      }
-      // 设置返回状态
-      this.evaluateResponseStatus();
-      // 返回数据
-      return new ServletModel(data);
-    })
+    const data = action.call(controller, ...args, request, response);
+    // 设置返回状态
+    this.evaluateResponseStatus();
+    // 返回结果
+    return new ServletModel(data);
   }
 }

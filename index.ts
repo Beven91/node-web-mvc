@@ -20,8 +20,9 @@ import ApiOperation from './src/swagger/annotations/ApiOperation';
 import ApiModel from './src/swagger/annotations/ApiModel';
 import ApiModelProperty from './src/swagger/annotations/ApiModelProperty';
 import ApiImplicitParams from './src/swagger/annotations/ApiImplicitParams';
-
-import swagger from './src/swagger';
+import RequestBody from './src/annotations/params/RequestBody';
+import RequestParam from './src/annotations/params/RequestParam';
+import RequestImplicitParams from './src/annotations/params/RequestImplicitParams';
 
 export {
   Scope,
@@ -45,5 +46,8 @@ export {
   ExceptionHandler,
   ControllerFactory,
   HandlerInteceptor,
-  HandlerInterceptorAdapter
+  HandlerInterceptorAdapter,
+  RequestBody,
+  RequestParam,
+  RequestImplicitParams
 }
