@@ -1,7 +1,7 @@
 {
   "name": "node-web-mvc",
   "version": "1.0.5",
-  "description": "",
+  "description": "node spring mvc",
   "main": "index.js",
   "directories": {
     "test": "test"

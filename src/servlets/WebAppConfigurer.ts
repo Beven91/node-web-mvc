@@ -103,10 +103,6 @@ export default class WebAppConfigurer {
    * @param options 
    */
   initialize(options: WebAppConfigurerOptions) {
-    if (options.swagger !== false) {
-      // 如果使用swagger
-      swagger.OpenApi.initialize();
-    }
     // 注册拦截器
     if (options.addInterceptors) {
       options.addInterceptors(HandlerInteceptorRegistry);
@@ -118,6 +114,10 @@ export default class WebAppConfigurer {
     // 注册参数解析器
     if (options.addArgumentResolvers) {
       options.addArgumentResolvers(ArgumentsResolvers);
+    }
+    if (options.swagger !== false) {
+      // 如果使用swagger
+      swagger.OpenApi.initialize();
     }
     this.options = options;
     // 初始化请求大小限制
