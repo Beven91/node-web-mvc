@@ -10,7 +10,8 @@ import MessageConverter from '../../http/converts/MessageConverter';
 export default class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    return paramater.paramType === 'query';
+    const paramType = paramater.paramType;
+    return paramType === 'query' || paramType === 'formData' || paramType === 'form';
   }
 
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext): Promise<any> {

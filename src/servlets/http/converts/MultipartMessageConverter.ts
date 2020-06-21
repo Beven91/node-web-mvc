@@ -6,6 +6,7 @@ import Busboy from 'busboy';
 import HttpMessageConverter from './HttpMessageConverter';
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
+import MultipartFile from '../MultipartFile';
 
 export default class JsonMessageConverter implements HttpMessageConverter {
 
@@ -18,24 +19,24 @@ export default class JsonMessageConverter implements HttpMessageConverter {
   }
 
   read(servletContext: ServletContext, mediaType: MediaType) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
+      const form = {};
       const busboy = new Busboy({ headers: servletContext.request.headers }) as any;
+      // 提取文件
       busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
-        console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
-        file.on('data', function (data) {
-          console.log('File [' + fieldname + '] got ' + data.length + ' bytes');
-        });
-        file.on('end', function () {
-          console.log('File [' + fieldname + '] Finished');
-        });
+        form[fieldname] = new MultipartFile(filename, file, encoding, mimetype);
       });
+      // 提取字段
       busboy.on('field', function (fieldname, val, fieldnameTruncated, valTruncated, encoding, mimetype) {
-        console.log('Field [' + fieldname + ']: value: ' + inspect(val));
+        form[fieldname] = val;
       });
-      busboy.on('finish', resolve);
+      // 读取完毕
+      busboy.on('finish', () => resolve(form));
+      servletContext.request.pipe(busboy);
     });
   }
 
   write(data, mediaType: MediaType, servletContext: ServletContext) {
+    // 暂不实现写出
   }
 }

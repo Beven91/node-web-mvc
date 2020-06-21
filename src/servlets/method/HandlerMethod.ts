@@ -80,9 +80,9 @@ export default class HandlerMethod {
   /**
    * 执行方法
    */
-  public invoke(...args) {
+  public async invoke(...args) {
     const { controller, request, response, action } = this.servletContext;
-    const data = action.call(controller, ...args, request, response);
+    const data = await action.call(controller, ...args, request, response);
     // 设置返回状态
     this.evaluateResponseStatus();
     // 返回结果

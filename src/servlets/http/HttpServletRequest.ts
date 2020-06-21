@@ -72,6 +72,13 @@ export default class HttpServletRequest {
    */
   public body: any
 
+  /**
+  * 将可读流输送传入写出流
+  */
+  pipe(writeStream, options?) {
+    this.nativeRequest.pipe(writeStream, options);
+  }
+
   constructor(request: IncomingMessage) {
     const protocol = (request.connection as any).encrypted ? 'https' : 'http';
     const url = new URL(request.url, `${protocol}://${request.headers.host}`);

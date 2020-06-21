@@ -18,7 +18,7 @@ export default class ServletNodeContext extends ServletContext {
       Object.defineProperty(req, 'path', { value: req.url });
       callback(req, res, (err) => {
         if (err) {
-          console.error(err);
+          console.error(err.stack || err);
           res.writeHead(500).end('internal error');
         } else {
           res.writeHead(404).end();

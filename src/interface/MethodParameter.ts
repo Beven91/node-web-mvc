@@ -34,6 +34,12 @@ export default class MethodParameter {
    */
   public paramType?: string
 
+  /**
+   * 
+   * @param options 
+   * @param paramType 
+   */
+
   constructor(options, paramType?: string) {
     if (options instanceof MethodParameter) {
       return options;
@@ -45,7 +51,8 @@ export default class MethodParameter {
       this.required = options.required;
       this.dataType = options.dataType;
       this.defaultValue = options.defaultValue;
+      this.paramType = options.paramType;
     }
-    this.paramType = paramType || this.paramType;
+    this.paramType = this.paramType || paramType;
   }
 }

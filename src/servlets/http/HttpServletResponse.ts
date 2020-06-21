@@ -70,7 +70,7 @@ export default class HttpServletResponse {
    * @param response 
    */
   write(chunk, encoding?, callback?) {
-    this.nativeResponse.write(chunk, encoding, callback);
+    this.nativeResponse.write(chunk === undefined ? '' : chunk, encoding, callback);
   }
 
   /**

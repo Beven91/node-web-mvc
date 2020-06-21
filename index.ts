@@ -24,7 +24,7 @@ import RequestBody from './src/servlets/annotations/params/RequestBody';
 import RequestParam from './src/servlets/annotations/params/RequestParam';
 import PathVariable from './src/servlets/annotations/params/PathVariable';
 import RequestHeader from './src/servlets/annotations/params/RequestHeader';
-import RequestImplicitParams from './src/servlets/annotations/params/RequestImplicitParams';
+import MultipartFile from './src/servlets/http/MultipartFile';
 
 export {
   Scope,
@@ -53,5 +53,5 @@ export {
   RequestParam,
   PathVariable,
   RequestHeader,
-  RequestImplicitParams
+  MultipartFile
 }

@@ -65,7 +65,7 @@ export declare class ApiImplicitParamOptions {
   /**
    * 参数传入类型 可选的值有path, query, body, header or form
    */
-  paramType?: string
+  paramType?: 'path' | 'query' | 'body' | 'header' | 'form' | 'formData'
 }
 
 export declare class ApiModelOptions {

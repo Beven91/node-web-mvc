@@ -5,6 +5,8 @@ import ApiModelProperty from './annotations/ApiModelProperty';
 import ApiImplicitParams from './annotations/ApiImplicitParams';
 import OpenApi from './openapi/index';
 
+// http://petstore.swagger.io/v2/swagger.json
+
 export default {
   Api,
   ApiOperation,

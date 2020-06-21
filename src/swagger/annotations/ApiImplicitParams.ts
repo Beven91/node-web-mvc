@@ -5,24 +5,28 @@
 import OpenApi from '../openapi/index';
 import MethodParameter from '../../interface/MethodParameter';
 import { ApiImplicitParamOptions } from '../openapi/declare';
-
-declare function RequestAnnotation(target, name, descriptor): MethodParameter
+import { MultipartFile } from '../../..';
 
 /**
  * 用于标注指定controller为接口类
  * @param {ApiOptions} options 
  */
-export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions | typeof RequestAnnotation>) {
+export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>) {
   return (target, name, descriptor) => {
     params = params.map((param) => {
       if (typeof param === 'function') {
-        const options = param(target, name, descriptor);
+        const fun = param as Function;
+        const options = fun(target, name, descriptor);
+        let dataType = options.dataType || { name: undefined };
+        if (dataType === MultipartFile) {
+          dataType = { name: 'file' }
+        }
         return {
           name: options.value,
           value: options.desc,
           required: options.required,
           paramType: options.paramType,
-          dataType: options.dataType ? options.dataType.name : undefined,
+          dataType: dataType.name,
         }
       }
       return param;

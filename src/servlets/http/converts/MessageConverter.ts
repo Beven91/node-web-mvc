@@ -7,9 +7,11 @@ import ServletContext from '../ServletContext';
 import HttpMessageConverter from './HttpMessageConverter';
 import JsonMessageConverter from './JsonMessageConverter';
 import DefaultMessageConverter from './DefaultMessageConverter';
+import MultipartMessageConverter from './MultipartMessageConverter';
 
 const registerConverters: Array<HttpMessageConverter> = [
   new JsonMessageConverter(),
+  new MultipartMessageConverter(),
   new DefaultMessageConverter()
 ]
 

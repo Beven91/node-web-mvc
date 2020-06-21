@@ -152,14 +152,18 @@ export default class OpenApiModel {
     const swagger = descriptor.swagger;
     const operationDoc = swagger[name];
     const schemas = documentation.definitions;
+    const mapping = descriptor.mapping;
     operationDoc.parameters = [];
     params.forEach((param) => {
       const model = schemas[param.dataType];
+      if (param.dataType === 'file' && !operationDoc.consumes) {
+        operationDoc.consumes = ['multipart/form-data'];
+      }
       operationDoc.parameters.push({
         name: param.name,
         required: param.required,
         description: param.value,
-        in: param.paramType,
+        in: param.dataType === 'file' ? 'formData' : param.paramType,
         type: model ? undefined : param.dataType || 'string',
         schema: {
           $ref: model ? '#/definitions/' + param.dataType : undefined,
