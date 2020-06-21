@@ -3,26 +3,28 @@ import AreaRegistration from './src/areaRegistration';
 import Routes from './src/routes/RouteCollection';
 import ControllerFactory from './src/ControllerFactory';
 import Registry from './src/Registry';
-import RequestMapping from './src/annotations/mapping/RequestMapping';
-import PostMapping from './src/annotations/mapping/PostMapping';
-import GetMapping from './src/annotations/mapping/GetMapping';
-import PutMapping from './src/annotations/mapping/PutMapping';
-import PatchMapping from './src/annotations/mapping/PatchMapping';
-import DeleteMapping from './src/annotations/mapping/DeleteMapping';
-import RestController from './src/annotations/RestController';
-import Scope from './src/annotations/Scope';
-import ControllerAdvice from './src/annotations/ControllerAdvice';
-import ExceptionHandler from './src/annotations/ExceptionHandler';
-import HandlerInteceptor from './src/interceptor/HandlerInteceptor';
-import HandlerInterceptorAdapter from './src/interceptor/HandlerInterceptorAdapter';
+import RequestMapping from './src/servlets/annotations/mapping/RequestMapping';
+import PostMapping from './src/servlets/annotations/mapping/PostMapping';
+import GetMapping from './src/servlets/annotations/mapping/GetMapping';
+import PutMapping from './src/servlets/annotations/mapping/PutMapping';
+import PatchMapping from './src/servlets/annotations/mapping/PatchMapping';
+import DeleteMapping from './src/servlets/annotations/mapping/DeleteMapping';
+import RestController from './src/servlets/annotations/RestController';
+import Scope from './src/servlets/annotations/Scope';
+import ControllerAdvice from './src/servlets/annotations/ControllerAdvice';
+import ExceptionHandler from './src/servlets/annotations/ExceptionHandler';
+import HandlerInteceptor from './src/servlets/interceptor/HandlerInteceptor';
+import HandlerInterceptorAdapter from './src/servlets/interceptor/HandlerInterceptorAdapter';
 import Api from './src/swagger/annotations/Api';
 import ApiOperation from './src/swagger/annotations/ApiOperation';
 import ApiModel from './src/swagger/annotations/ApiModel';
 import ApiModelProperty from './src/swagger/annotations/ApiModelProperty';
 import ApiImplicitParams from './src/swagger/annotations/ApiImplicitParams';
-import RequestBody from './src/annotations/params/RequestBody';
-import RequestParam from './src/annotations/params/RequestParam';
-import RequestImplicitParams from './src/annotations/params/RequestImplicitParams';
+import RequestBody from './src/servlets/annotations/params/RequestBody';
+import RequestParam from './src/servlets/annotations/params/RequestParam';
+import PathVariable from './src/servlets/annotations/params/PathVariable';
+import RequestHeader from './src/servlets/annotations/params/RequestHeader';
+import RequestImplicitParams from './src/servlets/annotations/params/RequestImplicitParams';
 
 export {
   Scope,
@@ -49,5 +51,7 @@ export {
   HandlerInterceptorAdapter,
   RequestBody,
   RequestParam,
+  PathVariable,
+  RequestHeader,
   RequestImplicitParams
 }

@@ -4,7 +4,7 @@
  */
 import HandlerMethod from './HandlerMethod';
 import HandlerAdapter from './HandlerAdapter';
-import ServletContext from '../ServletContext';
+import ServletContext from '../http/ServletContext';
 
 export default abstract class AbstractHandlerMethodAdapter implements HandlerAdapter {
 

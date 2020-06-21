@@ -2,10 +2,9 @@
  * @module HandlerMethod
  * @description action执行器
  */
-import ServletContext from '../ServletContext';
+import ServletContext from '../http/ServletContext';
 import ControllerManagement from '../../ControllerManagement';
-import ServletModel from '../../models/ServletModel';
-import InterruptModel from '../../models/InterruptModel';
+import ServletModel from '../models/ServletModel';
 import { ActionDescriptors } from '../../interface/declare';
 
 export default class HandlerMethod {

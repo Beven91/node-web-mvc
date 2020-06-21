@@ -2,13 +2,13 @@
  * @module DispatcherServlet
  * @description controller请求执行入口
  */
-import ServletContext from './ServletContext';
-import ServletModel from '../models/ServletModel';
+import ServletContext from './http/ServletContext';
+import ServletModel from './models/ServletModel';
 import HandlerAdapter from './method/HandlerAdapter';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 import RequestMappingHandlerAdapter from './method/RequestMappingHandlerAdapter';
 import HttpResponseProduces from './producers/HttpResponseProduces';
-import InterruptModel from '../models/InterruptModel';
+import InterruptModel from './models/InterruptModel';
 import ControllerManagement from '../ControllerManagement';
 
 export default class DispatcherServlet {

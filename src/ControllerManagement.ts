@@ -3,7 +3,7 @@
  * @description 控制器scope管理
  */
 import Javascript from './interface/Javascript';
-import ServletContext from './servlets/ServletContext';
+import ServletContext from './servlets/http/ServletContext';
 import RouteMapping from './routes/RouteMapping';
 import { ControllerDescriptors, ActionsMap, ActionDescriptors } from './interface/declare';
 

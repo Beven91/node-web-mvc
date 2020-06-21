@@ -4,9 +4,10 @@
  */
 import AbstractHandlerMethodAdapter from './AbstractHandlerMethodAdapter';
 import HandlerMethod from './HandlerMethod';
-import ServletContext from '../ServletContext';
-import ServletModel from '../../models/ServletModel';
-import ArgumentsResolvers from '../argument/ArgumentsResolvers';
+import ServletContext from '../http/ServletContext';
+import ServletModel from '../models/ServletModel';
+import ArgumentsResolvers from './argument/ArgumentsResolvers';
+import ParameterRequiredError from '../../errors/ParameterRequiredError';
 
 export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter {
 
@@ -27,14 +28,21 @@ export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodA
   /**
    * 获取要执行函数的参数值信息
    */
-  getMethodArgumentValues(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
+  async getMethodArgumentValues(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
     const parameters = handler.parameters;
-    // 开始解析方法参数值
-    return Promise.all(
-      parameters
-        .map((parameter) => {
-          return ArgumentsResolvers.resolveArgument(parameter, servletContext)
-        })
-    );
+    const args = [];
+    for (let i = 0, k = parameters.length; i < k; i++) {
+      const parameter = parameters[i];
+      const value = await ArgumentsResolvers.resolveArgument(parameter, servletContext);
+      const hasResolved = (value !== undefined && value !== null);
+      const finalValue = hasResolved ? value : parameter.defaultValue;
+      if (parameter.required && (finalValue === null || finalValue === undefined)) {
+        // 如果缺少参数
+        return Promise.reject(new ParameterRequiredError(parameter, servletContext));
+      }
+      // 设置参数值
+      args[i] = finalValue;
+    }
+    return args;
   }
 }

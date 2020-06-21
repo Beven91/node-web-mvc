@@ -2,14 +2,14 @@
  * @module ControllerActionProduces
  * @description 用于处理控制器返回的结果
  */
-import ServletContext from '../ServletContext';
+import ServletContext from '../http/ServletContext';
 import ControllerManagement from '../../ControllerManagement';
 import { ActionDescriptors } from '../../interface/declare';
-import ServletModel from '../../models/ServletModel';
+import ServletModel from '../models/ServletModel';
 import RouteMapping from '../../routes/RouteMapping';
 import HandlerMethod from '../method/HandlerMethod';
-import MessageConverter from '../converts/MessageConverter';
-import MediaType from '../MediaType';
+import MessageConverter from '../http/converts/MessageConverter';
+import MediaType from '../http/MediaType';
 
 export default class HttpResponseProduces {
 
@@ -42,7 +42,7 @@ export default class HttpResponseProduces {
    * 通过servletContext来处理对应平台下的返回结果
    */
   private handleProduces(data, handler: HandlerMethod) {
-    const { responseStatus } = handler;
+    const { responseStatus, responseStatusReason } = handler;
     const { actionMapping, servletContext } = this;
     const { produces } = actionMapping;
     const useStatus = !(responseStatus === null || responseStatus === undefined)
@@ -52,10 +52,11 @@ export default class HttpResponseProduces {
       this.servletContext.response.setHeader('Content-Type', produces);
     }
     // 设置返回状态
-    this.servletContext.response.writeHead(status);
+    this.servletContext.response.setStatus(status, responseStatusReason);
     // 根据对应的转换器来写出内容到客户端
     return MessageConverter
       .write(data, new MediaType(produces), servletContext)
       .then(() => servletContext.response.end())
+      .then(() => data);
   }
 }

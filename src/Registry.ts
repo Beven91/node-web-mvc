@@ -1,9 +1,9 @@
-import ServletExpressContext from './servlets/ServletExpressContext';
-import ServletKoaContext from './servlets/ServletKoaContext';
-import ServletNodeContext from './servlets/ServletNodeContext';
+import ServletExpressContext from './servlets/platforms/ServletExpressContext';
+import ServletKoaContext from './servlets/platforms/ServletKoaContext';
+import ServletNodeContext from './servlets/platforms/ServletNodeContext';
 import ControllerFactory from './ControllerFactory';
-import ServletContext from './servlets/ServletContext';
-import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
+import ServletContext from './servlets/http/ServletContext';
+import HandlerInteceptorRegistry from './servlets/interceptor/HandlerInteceptorRegistry';
 import RouteCollection from './routes/RouteCollection';
 import swagger from './swagger';
 

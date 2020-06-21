@@ -7,10 +7,10 @@ import fs from 'fs';
 import path from 'path';
 import Routes from './routes/RouteCollection';
 import Controller from './Controller'
-import ServletContext from './servlets/ServletContext';
+import ServletContext from './servlets/http/ServletContext';
 import ControllerManagement from './ControllerManagement';
-import ServletModel from './models/ServletModel';
-import InterruptModel from './models/InterruptModel';
+import ServletModel from './servlets/models/ServletModel';
+import InterruptModel from './servlets/models/InterruptModel';
 import DispatchServlet from './servlets/DispatcherServlet';
 
 const logger = console;
@@ -79,7 +79,7 @@ export default class ControllerFactory {
       logger.info(`Register Controller: ${controllerName}(Area:${areaName || 'default'})`)
       areaRegisterControllers[controllerName] = controllerClass;
     } else {
-      logger.warn('Find a Controller but it`not extends Controller or module.exports is not set')
+      // logger.warn('Find a Controller but it`not extends Controller or module.exports is not set')
       // if (controllerClass) {
       //   logger.warn(`Controller file: ${controllerClass.__file}`)
       // }
@@ -145,7 +145,7 @@ export default class ControllerFactory {
    * 根据controllerContext 来匹配且创建控制器信息
    */
   createController(servletContext: ServletContext) {
-    const pathContext = Routes.match(servletContext);
+    const pathContext = Routes.match(servletContext.request);
     const areaRegisterControllers = ControllerFactory.getAreaControllers(pathContext.area) || {};
     const controllerName = (pathContext.controllerName || '').toLowerCase();
     // 设置匹配到的控制器
@@ -161,7 +161,7 @@ export default class ControllerFactory {
     // 设置从路径中解析出来的参数
     servletContext.params = pathContext.params || {};
     // 设置params参数
-    servletContext.request.params = servletContext.params;
+    servletContext.request.pathVariables = servletContext.params;
     return servletContext;
   }
 

@@ -44,6 +44,7 @@
     "eslint-plugin-import": "^2.8.0",
     "eslint-plugin-node": "^5.2.1",
     "express": "^4.17.1",
+    "koa": "^2.12.1",
     "metro-react-native-babel-preset": "^0.59.0"
   }
 }
