@@ -8,9 +8,12 @@ import HttpMessageConverter from './HttpMessageConverter';
 import JsonMessageConverter from './JsonMessageConverter';
 import DefaultMessageConverter from './DefaultMessageConverter';
 import MultipartMessageConverter from './MultipartMessageConverter';
+import UrlencodedMessageConverter from './UrlencodedMessageConverter';
+import EntityTooLargeError from '../../../errors/EntityTooLargeError';
 
 const registerConverters: Array<HttpMessageConverter> = [
   new JsonMessageConverter(),
+  new UrlencodedMessageConverter(),
   new MultipartMessageConverter(),
   new DefaultMessageConverter()
 ]
@@ -30,6 +33,12 @@ export default class MessageConverter {
    */
   static read(servletContext: ServletContext): Promise<any> {
     const request = servletContext.request;
+    const configurer = servletContext.configurer;
+    const length = parseFloat(request.headers['content-length']);
+    if (length > configurer.multipart.maxRequestSize) {
+      // 如果请求超出限制
+      return Promise.reject(new EntityTooLargeError());
+    }
     if (request.body) {
       // 如果body已经读取，或者正在读取中
       return Promise.resolve(request.body);

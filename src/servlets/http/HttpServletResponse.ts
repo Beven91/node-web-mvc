@@ -4,20 +4,12 @@
  */
 import { ServerResponse } from 'http';
 
-declare class Query {
-  [propName: string]: any
-}
-
 export default class HttpServletResponse {
-
-  private response: ServerResponse
 
   /**
    * nodejs原生ServerResponse
    */
-  public get nativeResponse(): ServerResponse {
-    return this.response;
-  }
+  public readonly nativeResponse: ServerResponse
 
   /**
    * 判断返回头是否已经发送
@@ -82,6 +74,6 @@ export default class HttpServletResponse {
   }
 
   constructor(response: ServerResponse) {
-    this.response = response;
+    this.nativeResponse = response;
   }
 }

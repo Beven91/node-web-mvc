@@ -6,8 +6,14 @@ import { IncomingMessage } from 'http';
 import ServletModel from '../models/ServletModel';
 import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
+import WebAppConfigurer from '../WebAppConfigurer';
 
 export default abstract class ServletContext {
+
+  /**
+   * 当前网站的全局配置
+   */
+  public readonly configurer: WebAppConfigurer;
 
   /**
    * 当前正在处理的请求实例
@@ -65,9 +71,10 @@ export default abstract class ServletContext {
    * @param response 当前正在处理的请求的返回实例
    * @param next 跳转到下一个请求处理器
    */
-  constructor(request: IncomingMessage, response, next) {
+  constructor(configurer: WebAppConfigurer, request: IncomingMessage, response, next) {
     this.request = new HttpServletRequest(request);
     this.response = new HttpServletResponse(response);
+    this.configurer = configurer;
     this.next = next;
     // 当前匹配到的控制器类
     this.Controller = null;
@@ -81,7 +88,7 @@ export default abstract class ServletContext {
    * 然后调用 callback(request,response,next) 即可
    * @param callback 
    */
-  static launch(callback: Function, options?): (request, response, next) => any {
+  static launch(callback: Function): (request, response, next) => any {
     return (request, response, next) => callback(request, response, next);
   }
 }

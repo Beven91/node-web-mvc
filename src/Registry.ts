@@ -3,25 +3,15 @@ import ServletKoaContext from './servlets/platforms/ServletKoaContext';
 import ServletNodeContext from './servlets/platforms/ServletNodeContext';
 import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/http/ServletContext';
-import HandlerInteceptorRegistry from './servlets/interceptor/HandlerInteceptorRegistry';
 import RouteCollection from './routes/RouteCollection';
-import swagger from './swagger';
+import WebAppConfigurer, { WebAppConfigurerOptions } from './servlets/WebAppConfigurer';
 
-interface LaunchOptions {
-  // 端口
-  port?: number,
-  // 当前类型
-  mode: string,
-  // 是否开启swagger文档
-  swagger?: boolean,
-  // 基础路径
-  base?: string,
-  // 注册拦截器
-  addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
+declare class ContextRegistration {
+  [propName: string]: typeof ServletContext
 }
 
 // 已经注册执行上下文
-const registration: Map<string, typeof ServletContext> = ({}) as Map<string, typeof ServletContext>
+const registration: ContextRegistration = {}
 
 export default class Registry {
   /**
@@ -46,33 +36,31 @@ export default class Registry {
    * 启动mvc
    * @param {Express} app express实例 
    */
-  static launch(options: LaunchOptions) {
+  static launch(options: WebAppConfigurerOptions) {
     if (!options) {
       throw new Error('请设置options属性,例如:' + JSON.stringify({ mode: 'express|koa' }));
     }
-    const ControllerContext = registration[options.mode];
-    if (!ControllerContext) {
+    // 初始化全局配置
+    const configure = WebAppConfigurer.configurer.initialize(options);
+    // 获取当前中间件上下文
+    const HttpContext = registration[configure.mode];
+    if (!HttpContext) {
       throw new Error(`
         当前${options.mode}模式不支持,
         您可以通过Registry.register来注册对应的执行上下文
         Registry.register('${options.mode}',ContextClass)
       `);
     }
-    if (options.swagger !== false) {
-      // 如果使用swagger
-      swagger.OpenApi.initialize();
-    }
-    // 注册拦截器
-    if (options.addInterceptors) {
-      options.addInterceptors(HandlerInteceptorRegistry);
-    }
+    // 全局配置
+    WebAppConfigurer.configurer.initialize(options);
     // 设置基础路由路径
-    RouteCollection.base = options.base;
+    RouteCollection.base = configure.contextPath;
     // 返回中间件
-    return ControllerContext.launch((request, response, next) => {
-      const context: ServletContext = new ControllerContext(request, response, next);
+    return HttpContext.launch((request, response, next) => {
+      const HttpServletContext = HttpContext as any;
+      const context: ServletContext = new HttpServletContext(configure, request, response, next);
       ControllerFactory.defaultFactory.handle(context);
-    }, options);
+    });
   }
 }
 

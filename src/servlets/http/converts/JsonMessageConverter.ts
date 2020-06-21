@@ -1,6 +1,6 @@
 /**
  * @module JsonMessageConverter
- * @description 一个用于处理http请求json内容的处理器
+ * @description 一个用于处理http请求格式json的处理器
  */
 import HttpMessageConverter from './HttpMessageConverter';
 import ServletContext from '../ServletContext';
@@ -19,7 +19,7 @@ export default class JsonMessageConverter implements HttpMessageConverter {
 
   read(servletContext: ServletContext, mediaType: MediaType) {
     return new Promise((resolve, reject) => {
-      const { request, response } = servletContext;
+      const { request, response, configurer } = servletContext;
       parser.json()(request.nativeRequest, response.nativeResponse, (err) => {
         err ? reject(err) : resolve((request.nativeRequest as any).body)
       });

@@ -2,8 +2,9 @@
  * @module ServletNodeContext
  * @description node原生框架接入上下文实现
  */
-import ServletContext from '../http/ServletContext';
 import http from 'http';
+import ServletContext from '../http/ServletContext';
+import WebAppConfigurer from '../WebAppConfigurer';
 
 export default class ServletNodeContext extends ServletContext {
   /**
@@ -12,8 +13,9 @@ export default class ServletNodeContext extends ServletContext {
    * 然后调用 callback(request,response,next) 即可
    * @param callback 
    */
-  static launch(callback, options) {
-    const port = options.port;
+  static launch(callback) {
+    const configurer = WebAppConfigurer.configurer;
+    const port = configurer.port;
     const server = http.createServer((req, res) => {
       Object.defineProperty(req, 'path', { value: req.url });
       callback(req, res, (err) => {
