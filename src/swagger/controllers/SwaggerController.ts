@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { RequestMapping } from '../../annotations';
+import { RequestMapping } from '../../servlets/annotations';
 import OpenApi from '../openapi/index';
 
 // 设置常见内容文件返回mime

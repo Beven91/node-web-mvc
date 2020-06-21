@@ -1,6 +1,6 @@
 import { RequestMapping } from '../../index';
 import { Api, ApiOperation, ApiImplicitParams } from '../../index';
-import { PostMapping } from '../../src/annotations';
+import { PostMapping } from '../../index';
 
 @Api({ description: 'multipart控制器' })
 @RequestMapping('/multipart')

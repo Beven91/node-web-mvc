@@ -1,6 +1,4 @@
-import { RequestMapping, PostMapping, ExceptionHandler } from '../../index';
-import ApiOperation from '../../src/swagger/annotations/ApiOperation';
-import GetMapping from '../../src/annotations/mapping/GetMapping';
+import { RequestMapping, PostMapping, ExceptionHandler, ApiOperation, GetMapping } from '../../index';
 
 @RequestMapping('/user')
 export default class UserController {
