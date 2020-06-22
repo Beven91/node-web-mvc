@@ -11,7 +11,7 @@ import { ActionDescriptors } from '../../../interface/declare';
  * 从query请求参数中，提取指定名称的参数值
  * 在执行接口函数时作为实参传入。
  */
-export default function RequestParam(value: MethodParameter | string) {
+export default function RequestParam(value: MethodParameterOptions | string) {
   return (target, name): MethodParameter => {
     const descriptor = ControllerManagement.getControllerDescriptor(target.constructor);
     const action = descriptor.actions[name] = descriptor.actions[name] || ({} as ActionDescriptors);
