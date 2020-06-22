@@ -4,7 +4,7 @@
  * @description 提取query请求参数值
  */
 import ControllerManagement from '../../../ControllerManagement';
-import MethodParameter from '../../../interface/MethodParameter';
+import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
 import { ActionDescriptors } from '../../../interface/declare';
 
 /**

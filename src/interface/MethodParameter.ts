@@ -3,13 +3,10 @@
  * @description 请求参数配置类
  */
 
-export default class MethodParameter {
-
-  private annotations: Array<Function>
-
+export declare class MethodParameterOptions {
   /**
-   * 需要从请求中提取的参数名称
-   */
+     * 需要从请求中提取的参数名称
+     */
   public value: string
 
   /**
@@ -36,6 +33,16 @@ export default class MethodParameter {
    * 参数传入类型 可选的值有path, query, body, header or form
    */
   public paramType?: string
+}
+
+export default class MethodParameter extends MethodParameterOptions {
+
+  private annotations?: Array<Function>
+
+  /**
+   * 参数传入类型 可选的值有path, query, body, header or form
+   */
+  public paramType?: string
 
   /**
    * 判断当前参数是否存在指定注解
@@ -51,6 +58,7 @@ export default class MethodParameter {
    */
 
   constructor(options, paramType?: string, annotation?: Function) {
+    super();
     if (options instanceof MethodParameter) {
       return options;
     } else if (typeof options === 'string') {
