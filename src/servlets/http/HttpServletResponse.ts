@@ -47,6 +47,7 @@ export default class HttpServletResponse {
    */
   setStatus(status, statusMessage?) {
     this.nativeResponse.writeHead(status, statusMessage);
+    return this;
   }
 
   /**

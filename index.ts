@@ -25,6 +25,11 @@ import RequestParam from './src/servlets/annotations/params/RequestParam';
 import PathVariable from './src/servlets/annotations/params/PathVariable';
 import RequestHeader from './src/servlets/annotations/params/RequestHeader';
 import MultipartFile from './src/servlets/http/MultipartFile';
+import HttpMessageConverter from './src/servlets/http/converts/HttpMessageConverter';
+import HandlerMethodArgumentResolver from './src/servlets/method/argument/HandlerMethodArgumentResolver';
+import View from './src/servlets/view/View';
+import ViewResolver from './src/servlets/view/ViewResolver';
+
 
 export {
   Scope,
@@ -53,5 +58,9 @@ export {
   RequestParam,
   PathVariable,
   RequestHeader,
-  MultipartFile
+  MultipartFile,
+  HttpMessageConverter,
+  HandlerMethodArgumentResolver,
+  View,
+  ViewResolver
 }

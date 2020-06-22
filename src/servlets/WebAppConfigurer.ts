@@ -7,6 +7,7 @@ import swagger from '../swagger';
 import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
 import MessageConverter from './http/converts/MessageConverter';
 import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
+import ViewResolverRegistry from './view/ViewResolverRegistry';
 
 const runtime = {
   configurer: null
@@ -40,6 +41,8 @@ export declare class WebAppConfigurerOptions {
   addMessageConverters?: (converters: MessageConverter) => void
   // 添加参数解析器
   addArgumentResolvers?: (resolvers: ArgumentsResolvers) => void
+  // 添加视图解析器
+  addViewResolvers?: (registry: ViewResolverRegistry) => void
 }
 
 export default class WebAppConfigurer {
@@ -114,6 +117,10 @@ export default class WebAppConfigurer {
     // 注册参数解析器
     if (options.addArgumentResolvers) {
       options.addArgumentResolvers(ArgumentsResolvers);
+    }
+    // 注册视图解析器
+    if (options.addViewResolvers) {
+      options.addViewResolvers(ViewResolverRegistry);
     }
     if (options.swagger !== false) {
       // 如果使用swagger

@@ -84,7 +84,7 @@ export default class MultipartFile {
   /**
    * 将上传的文件保存到指定位置
    */
-  async saveAs(dest) {
+  async transferTo(dest) {
     await Promise.resolve(this.awaiting);
     // 写出文件
     fs.ensureDir(path.dirname(dest));

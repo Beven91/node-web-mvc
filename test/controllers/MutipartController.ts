@@ -14,6 +14,6 @@ export default class MultipartController {
   ])
   @PostMapping('/upload')
   upload(file: MultipartFile, desc, id) {
-    return file.saveAs('app_data/images/' + file.name);
+    return file.transferTo('app_data/images/' + file.name);
   }
 }
