@@ -22,7 +22,11 @@ export default class DefaultMessageConverter implements HttpMessageConverter {
 
   write(data, mediaType: MediaType, servletContext: ServletContext) {
     return new Promise((resolve) => {
-      servletContext.response.write(data, resolve);
+      if (data instanceof Buffer || typeof data === 'string') {
+        servletContext.response.write(data, resolve);
+      } else {
+        servletContext.response.write(JSON.stringify(data), resolve);
+      }
     })
   }
 }

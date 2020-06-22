@@ -3,7 +3,7 @@
  * @description 请求参数配置类
  */
 
-export declare class MethodParameterOptions {
+export class MethodParameterOptions {
   /**
      * 需要从请求中提取的参数名称
      */
