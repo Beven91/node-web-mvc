@@ -5,11 +5,12 @@
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
+import RequestHeader from '../../annotations/params/RequestHeader';
 
 export default class RequestHeaderMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    return paramater.paramType === 'header';
+    return paramater.hasParameterAnnotation(RequestHeader)
   }
 
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {

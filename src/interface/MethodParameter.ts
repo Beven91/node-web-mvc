@@ -4,6 +4,9 @@
  */
 
 export default class MethodParameter {
+
+  private annotations: Array<Function>
+
   /**
    * 需要从请求中提取的参数名称
    */
@@ -35,12 +38,19 @@ export default class MethodParameter {
   public paramType?: string
 
   /**
+   * 判断当前参数是否存在指定注解
+   */
+  public hasParameterAnnotation(annotation): boolean {
+    return !!this.annotations.find((a) => a === annotation);
+  }
+
+  /**
    * 
    * @param options 
    * @param paramType 
    */
 
-  constructor(options, paramType?: string) {
+  constructor(options, paramType?: string, annotation?: Function) {
     if (options instanceof MethodParameter) {
       return options;
     } else if (typeof options === 'string') {
@@ -53,6 +63,7 @@ export default class MethodParameter {
       this.defaultValue = options.defaultValue;
       this.paramType = options.paramType;
     }
+    this.annotations = [annotation]
     this.paramType = this.paramType || paramType;
   }
 }

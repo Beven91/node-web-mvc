@@ -6,12 +6,12 @@ import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 import MessageConverter from '../../http/converts/MessageConverter';
+import RequestParam from '../../annotations/params/RequestParam';
 
 export default class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    const paramType = paramater.paramType;
-    return paramType === 'query' || paramType === 'formData' || paramType === 'form';
+    return paramater.hasParameterAnnotation(RequestParam);
   }
 
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext): Promise<any> {

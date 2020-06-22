@@ -18,7 +18,7 @@ export default function RequestHeader(value: MethodParameter | string) {
     if (!action.params) {
       action.params = [];
     }
-    const param = new MethodParameter(value,'header');
+    const param = new MethodParameter(value, 'header', RequestHeader);
     action.params.push(param);
     return param;
   }

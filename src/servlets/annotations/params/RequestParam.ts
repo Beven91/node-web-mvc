@@ -18,7 +18,7 @@ export default function RequestParam(value: MethodParameter | string) {
     if (!action.params) {
       action.params = [];
     }
-    const param = new MethodParameter(value,'query');
+    const param = new MethodParameter(value, 'query', RequestParam);
     action.params.push(param);
     return param;
   }

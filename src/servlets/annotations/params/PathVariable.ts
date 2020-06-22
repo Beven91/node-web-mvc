@@ -18,7 +18,7 @@ export default function PathVariable(value: MethodParameter | string) {
     if (!action.params) {
       action.params = [];
     }
-    const param = new MethodParameter(value,'path');
+    const param = new MethodParameter(value, 'path', PathVariable);
     action.params.push(param);
     return param;
   }

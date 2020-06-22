@@ -17,7 +17,7 @@ export default function RequestBody(value: MethodParameter | string) {
     if (!action.params) {
       action.params = [];
     }
-    const param = new MethodParameter(value, 'body');
+    const param = new MethodParameter(value, 'body', RequestBody);
     action.params.push(param);
     return param;
   }
