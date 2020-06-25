@@ -27,8 +27,8 @@ import RequestHeader from './src/servlets/annotations/params/RequestHeader';
 import MultipartFile from './src/servlets/http/MultipartFile';
 import HttpMessageConverter from './src/servlets/http/converts/HttpMessageConverter';
 import HandlerMethodArgumentResolver from './src/servlets/method/argument/HandlerMethodArgumentResolver';
+import ViewResolver from './src/servlets/view/resolvers/ViewResolver';
 import View from './src/servlets/view/View';
-import ViewResolver from './src/servlets/view/ViewResolver';
 
 
 export {

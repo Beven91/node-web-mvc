@@ -11,6 +11,11 @@ import WebAppConfigurer from '../WebAppConfigurer';
 export default abstract class ServletContext {
 
   /**
+   * forward栈
+   */
+  public forwardStacks: Array<string>
+
+  /**
    * 当前网站的全局配置
    */
   public readonly configurer: WebAppConfigurer;
@@ -72,10 +77,11 @@ export default abstract class ServletContext {
    * @param next 跳转到下一个请求处理器
    */
   constructor(configurer: WebAppConfigurer, request: IncomingMessage, response, next) {
-    this.request = new HttpServletRequest(request);
-    this.response = new HttpServletResponse(response);
+    this.request = new HttpServletRequest(request, this);
+    this.response = new HttpServletResponse(response, this);
     this.configurer = configurer;
     this.next = next;
+    this.forwardStacks = [];
     // 当前匹配到的控制器类
     this.Controller = null;
     // 当前请求提取出来的参数

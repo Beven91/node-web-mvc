@@ -6,6 +6,7 @@ import querystring from 'querystring';
 import { IncomingMessage, IncomingHttpHeaders } from 'http';
 import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
+import ServletContext from './ServletContext';
 
 declare class Query {
   [propName: string]: any
@@ -16,10 +17,37 @@ export default class HttpServletRequest {
   private request: IncomingMessage
 
   /**
+   * 当前请求上下文
+   */
+  public servletContext: ServletContext
+
+  /**
    * 获取当前node原生请求对象
    */
   public get nativeRequest(): IncomingMessage {
     return this.request;
+  }
+
+  /**
+   * 获取完整协议域名
+   */
+  public get fdomain() {
+    const port = (this.port ? ':' + this.port : this.port);
+    return this.protocol + '//' + this.host + port;
+  }
+
+  /**
+   * 获取完整的url
+   */
+  public get url() {
+    return this.nativeRequest.url;
+  }
+
+  /**
+   * 获取当前请求完整path 不包含参数
+   */
+  public get baseUrl() {
+    return this.fdomain + this.path;
   }
 
   /**
@@ -79,7 +107,7 @@ export default class HttpServletRequest {
     this.nativeRequest.pipe(writeStream, options);
   }
 
-  constructor(request: IncomingMessage) {
+  constructor(request: IncomingMessage, servletContext: ServletContext) {
     const protocol = (request.connection as any).encrypted ? 'https' : 'http';
     const url = new URL(request.url, `${protocol}://${request.headers.host}`);
     this.headers = request.headers;
@@ -91,5 +119,6 @@ export default class HttpServletRequest {
     this.port = url.port;
     this.path = url.pathname;
     this.mediaType = new MediaType(this.headers['content-type']);
+    this.servletContext = servletContext;
   }
 }

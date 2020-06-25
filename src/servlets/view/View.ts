@@ -13,5 +13,5 @@ export default interface View {
    * @param request 当前视图
    * @param response 
    */
-  render(model, request: HttpServletRequest, response: HttpServletResponse): Promise<string> 
+  render(model, request: HttpServletRequest, response: HttpServletResponse): Promise<any> 
 }

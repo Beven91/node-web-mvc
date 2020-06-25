@@ -3,13 +3,27 @@
  * @description Http信息返回类
  */
 import { ServerResponse } from 'http';
+import HttpServletRequest from './HttpServletRequest';
+import ServletContext from './ServletContext';
 
 export default class HttpServletResponse {
+
+  /**
+   * 当前请求对象
+   */
+  public get request() {
+    return this.servletContext.request;
+  }
 
   /**
    * nodejs原生ServerResponse
    */
   public readonly nativeResponse: ServerResponse
+
+  /**
+   * 当前请求上下文
+   */
+  public readonly servletContext: ServletContext
 
   /**
    * 判断返回头是否已经发送
@@ -74,7 +88,20 @@ export default class HttpServletResponse {
     this.nativeResponse.end(data, encoding, callback);
   }
 
-  constructor(response: ServerResponse) {
+  /**
+   * 执行http重定向
+   * @param response 
+   */
+  sendRedirect(url, status = 302) {
+    const request = this.request;
+    const isAbs = /^(http|https):/.test(url);
+    const isRoot = /^\//.test(url);
+    const redirectUrl = isAbs ? url : isRoot ? request.fdomain + '/' + url : request.baseUrl + url;
+    this.nativeResponse.writeHead(status, { 'Location': redirectUrl })
+  }
+
+  constructor(response: ServerResponse, servletContext: ServletContext) {
     this.nativeResponse = response;
+    this.servletContext = servletContext;
   }
 }

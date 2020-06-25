@@ -3,7 +3,7 @@
  * @description 用于根据viewName去获取对应的View
  */
 
-import ViewResolver from './ViewResolver';
+import ViewResolver from './resolvers/ViewResolver';
 
 const registerResolvers: Array<ViewResolver> = [];
 
@@ -15,7 +15,6 @@ export default class ViewResolverRegistry {
   static get viewResolvers() {
     return registerResolvers;
   }
-
 
   /**
    * 添加一个视图解析器
