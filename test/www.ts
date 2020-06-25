@@ -1,8 +1,9 @@
-import express from 'express';
+// import express from 'express';
 import path from 'path';
 import { Registry, ControllerFactory, Routes } from '../index';
 import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
+import EjsViewResolver from './resolvers/EjsViewResolver';
 
 const port = 9800;
 // const app = express();
@@ -26,6 +27,9 @@ Registry.launch({
   addInterceptors: (registry) => {
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());
+  },
+  addViewResolvers(registry){
+    registry.addViewResolver(new EjsViewResolver('test/WEB-INF/','.ejs'))
   }
 });
 

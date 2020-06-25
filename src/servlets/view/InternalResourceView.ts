@@ -3,22 +3,14 @@
  * @description 重定向视图
  */
 import querystring from 'querystring';
-import { View, ControllerFactory } from "../../..";
+import View from './View';
+import ControllerFactory from '../../ControllerFactory';
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
 import DispatcherServlet from '../DispatcherServlet';
 import ForwardEndlessLoopError from '../../errors/ForwardEndlessLoopError';
 
-export default class InternalResourceView implements View {
-
-  /**
-   * 重定向的目标url
-   */
-  private url: string
-
-  constructor(url) {
-    this.url = url;
-  }
+export default class InternalResourceView extends View {
 
   render(model, request: HttpServletRequest, response: HttpServletResponse) {
     const url = new URL(this.url);

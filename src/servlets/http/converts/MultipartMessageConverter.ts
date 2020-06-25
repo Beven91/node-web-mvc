@@ -31,7 +31,15 @@ export default class MultipartMessageConverter implements HttpMessageConverter {
   createMultipartFile(form, fieldname, file, filename, encoding, mimetype): Promise<any> {
     return new Promise((resolve, reject) => {
       // 将数据添加form上
-      form[fieldname] = new MultipartFile(filename, file, encoding, mimetype);
+      const value = form[fieldname];
+      if (value) {
+        form[fieldname] = [
+          value,
+          new MultipartFile(filename, file, encoding, mimetype)
+        ];
+      } else {
+        form[fieldname] = new MultipartFile(filename, file, encoding, mimetype);
+      }
       // 如果超过最大限制，则抛出异常
       file.on('limit', () => reject(new EntityTooLargeError()));
       // 常规读取文件完毕
@@ -47,7 +55,7 @@ export default class MultipartMessageConverter implements HttpMessageConverter {
       const busboy: any = new Busboy({
         headers: servletContext.request.headers,
         limits: {
-          fileSize: configurer.multipart.maxFileSize
+          fileSize: configurer.multipart.maxFileSize as number
         }
       });
       busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {

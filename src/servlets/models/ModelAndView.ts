@@ -39,7 +39,7 @@ export default class ModelAndView {
    * @param view 视图名称
    * @param model 视图数据
    */
-  constructor(view: string, model: any) {
+  constructor(view: string, model?: any) {
     this.view = view;
     this.model = model;
   }

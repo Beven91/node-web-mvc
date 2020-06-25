@@ -1,7 +1,5 @@
-const path = require('path');
-
 require('@babel/register')({
-  'extensions': ['.ts', '.js', '.mjs'],
+  'extensions': [ '.ts', '.js', '.mjs' ],
   'ignore': [
     (filepath) => /node_modules/.test(filepath),
   ],
@@ -9,7 +7,7 @@ require('@babel/register')({
     'module:metro-react-native-babel-preset',
   ],
   'plugins': [
-    ['@babel/plugin-proposal-decorators', {legacy: true}],
+    [ '@babel/plugin-proposal-decorators', { legacy: true } ],
   ],
   'sourceMaps': true,
   'retainLines': true,

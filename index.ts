@@ -28,6 +28,7 @@ import MultipartFile from './src/servlets/http/MultipartFile';
 import HttpMessageConverter from './src/servlets/http/converts/HttpMessageConverter';
 import HandlerMethodArgumentResolver from './src/servlets/method/argument/HandlerMethodArgumentResolver';
 import ViewResolver from './src/servlets/view/resolvers/ViewResolver';
+import UrlBasedViewResolver from './src/servlets/view/resolvers/UrlBasedViewResolver';
 import View from './src/servlets/view/View';
 
 
@@ -62,5 +63,6 @@ export {
   HttpMessageConverter,
   HandlerMethodArgumentResolver,
   View,
-  ViewResolver
+  ViewResolver,
+  UrlBasedViewResolver,
 }

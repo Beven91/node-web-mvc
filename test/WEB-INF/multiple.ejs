@@ -1,0 +1,19 @@
+<html>
+  <head>
+    批量上传
+  </head>
+  <body>
+    <form enctype="multipart/form-data" method="POST" action="/multipart/upload2">
+      <div>
+        <input type="file" name="files" />
+      </div>
+      <div>
+        <input type="file" name="files" />
+      </div>
+      <input type="text" name="name" value="<%=name%>" />
+      <div>
+        <input type="submit" value="提交">
+      </div>
+    </form>
+  </body>
+</html>

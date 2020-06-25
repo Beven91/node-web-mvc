@@ -5,7 +5,15 @@
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
 
-export default interface View {
+export default abstract class View {
+  /**
+   * 当前视图文件绝对地址
+   */
+  public url: string
+
+  constructor(url) {
+    this.url = url;
+  }
 
   /**
    * 进行视图渲染
@@ -13,5 +21,5 @@ export default interface View {
    * @param request 当前视图
    * @param response 
    */
-  render(model, request: HttpServletRequest, response: HttpServletResponse): Promise<any> 
+  abstract render(model, request: HttpServletRequest, response: HttpServletResponse)
 }

@@ -35,16 +35,14 @@ export declare class WebAppConfigurerOptions {
   base?: string
   // 配置请求内容大小
   multipart?: Multipart
-  // 视图文件目录
-  views?: string
   // 注册拦截器
   addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
   // 添加http消息转换器
-  addMessageConverters?: (converters: MessageConverter) => void
+  addMessageConverters?: (converters: typeof MessageConverter) => void
   // 添加参数解析器
-  addArgumentResolvers?: (resolvers: ArgumentsResolvers) => void
+  addArgumentResolvers?: (resolvers: typeof ArgumentsResolvers) => void
   // 添加视图解析器
-  addViewResolvers?: (registry: ViewResolverRegistry) => void
+  addViewResolvers?: (registry: typeof ViewResolverRegistry) => void
 }
 
 export default class WebAppConfigurer {
@@ -83,13 +81,6 @@ export default class WebAppConfigurer {
    */
   public get contextPath() {
     return this.options.base;
-  }
-
-  /**
-   * 获取当前视图模板存放目录
-   */
-  public get views() {
-    return this.options.views;
   }
 
   /**
