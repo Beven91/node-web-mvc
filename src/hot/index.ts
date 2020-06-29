@@ -80,7 +80,7 @@ export default class HotReload {
       return;
     }
     const start = Date.now();
-    console.log(`        Hot reload: ${id} ...`);
+    console.log(`Hot reload: ${id} ...`);
     // 获取旧的模块实例
     const old = require.cache[id] as NodeHotModule;
     const hot = old.hot;
@@ -99,9 +99,9 @@ export default class HotReload {
     // 执行hooks.accept
     hot.invokeHook('accept', {}, now, old);
     const end = new Date();
-    console.log(`        Time: ${end.getTime() - start}ms`);
-    console.log(`        Built at: ${end.toLocaleDateString()} ${end.toLocaleTimeString()}`);
-    console.log(`        Hot reload successfully`);
+    console.log(`Time: ${end.getTime() - start}ms`);
+    console.log(`Built at: ${end.toLocaleDateString()} ${end.toLocaleTimeString()}`);
+    console.log(`Hot reload successfully`);
   }
 
   /**
