@@ -75,6 +75,10 @@ export default class HotReload {
    * 重载模块
    */
   reload(id) {
+    if (!require.cache[id]) {
+      // 如果模块已删除，则直接掠过
+      return;
+    }
     const start = Date.now();
     console.log(`        Hot reload: ${id} ...`);
     // 获取旧的模块实例
