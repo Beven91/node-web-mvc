@@ -4,14 +4,14 @@ import { PostMapping } from '../../index';
 import ModelAndView from '../../src/servlets/models/ModelAndView';
 import GetMapping from '../../src/servlets/annotations/mapping/GetMapping';
 
-@Api({ description: 'multipart控制器66' })
+@Api({ description: 'multipart控制器' })
 @RequestMapping('/multipart')
 export default class MultipartController {
 
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @ApiImplicitParams([
     RequestParam({ value: 'file', desc: '证书', required: true, dataType: MultipartFile }),
-    RequestParam({ value: 'desc', desc: '证书', required: true, paramType: 'formData' }),
+    RequestParam({ value: 'desc', desc: '描述', required: true, paramType: 'formData' }),
     RequestParam({ value: 'id', desc: '用户id', required: true })
   ])
   @PostMapping('/upload')

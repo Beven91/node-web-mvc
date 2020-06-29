@@ -4,8 +4,18 @@
  */
 
 declare class Hooks {
+  /**
+   * 在更新后执行
+   */
   accept?: Function
+  /**
+   * 在执行accept前执行
+   */
   pre?: Function
+  /**
+   * 在执行完pre在accept之前执行
+   */
+  preend?: Function
 }
 
 export default class HotModule {
@@ -14,8 +24,6 @@ export default class HotModule {
    * 当前接受的accept
    */
   public hooks: Hooks
-
-  private invoked: boolean
 
   /**
    * 原始监听的属性列表
@@ -49,7 +57,6 @@ export default class HotModule {
     this.id = id;
     this.reason = [];
     this.hooks = {};
-    this.invoked = false;
     this.hotExports = {};
   }
 
@@ -65,10 +72,17 @@ export default class HotModule {
   }
 
   /**
-   * 添加预更新处理函数
+   * 监听预更新，在热更新前执行
    */
-  preReload(handler: (old) => void) {
+  preload(handler: (old) => void) {
     this.hooks.pre = handler;
+  }
+
+  /**
+   * 在pre钩子执行后执行
+   */
+  preend(handler: (old) => void) {
+    this.hooks.preend = handler;
   }
 
   /**
@@ -83,7 +97,6 @@ export default class HotModule {
     }
     // 标记成已执行
     invokes[this.id] = true;
-    this.invoked = true;
     // 执行依赖热更
     try {
       const mod = require.cache[this.id];

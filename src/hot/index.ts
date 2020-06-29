@@ -86,6 +86,8 @@ export default class HotReload {
     const hot = old.hot;
     // 执行hooks.pre
     hot.invokeHook('pre', {}, old);
+    // 执行hooks.preend
+    hot.invokeHook('preend', {}, old);
     // 将hot对象从旧的模块实例上分离
     delete old.hot;
     // 删除缓存

@@ -213,7 +213,7 @@ export default class OpenApiModel {
  */
 const mod = (module as NodeHotModule);
 mod.hot = new HotModule(mod.filename);
-mod.hot.preReload((old) => {
+mod.hot.preload((old) => {
   // 预更新时，判断当前模块是否为被修饰的类
   const info = old.exports.default || old.exports;
   const schemas = documentation.definitions;

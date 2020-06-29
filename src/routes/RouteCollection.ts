@@ -144,7 +144,7 @@ module.exports = RouteCollection;
 
 const mod = (module as NodeHotModule);
 mod.hot = new HotModule(mod.filename);
-mod.hot.preReload((old) => {
+mod.hot.preload((old) => {
   // 预更新时，清空当前控制器已注册路由
   const controllerClass = old.exports.default || old.exports;
   RouteCollection.rules = RouteCollection.rules.filter((rule) => {

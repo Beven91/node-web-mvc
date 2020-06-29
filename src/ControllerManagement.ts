@@ -124,11 +124,12 @@ export default class ControllerManagement {
  **/
 const mod = (module as NodeHotModule);
 mod.hot = new HotModule(mod.filename)
-mod.hot.preReload((old) => {
+mod.hot.preend((old) => {
   // 预更新时，判断当前控制器是否已注册，如果注册过，则进行删除
   const controllerClass = old.exports.default || old.exports;
   const descriptors = runtime.allControllerDescriptors;
-  const index = descriptors.indexOf(controllerClass);
+  const findItem = descriptors.find((s) => s.ctor === controllerClass);
+  const index = descriptors.indexOf(findItem);
   const scope = runtime.scopeControllers;
   if (index > -1) {
     // 移除控制器注册信息
