@@ -4,6 +4,8 @@
  */
 
 import HttpServletRequest from "../servlets/http/HttpServletRequest";
+import { NodeHotModule } from "../hot";
+import HotModule from "../hot/HotModule";
 
 export interface DefaultOption {
   controller: string,
@@ -27,6 +29,7 @@ export interface MatchResult {
 
 export interface Rule {
   match: (req, base) => MatchResult
+  controller: Function
 }
 
 export default class RouteCollection {
@@ -39,7 +42,8 @@ export default class RouteCollection {
   /**
    * 注册的所有路由匹配规则
    */
-  private static rules: Array<Rule> = []
+  static rules: Array<Rule> = []
+
 
   // 基础路径
   public static base: string = ''
@@ -137,3 +141,13 @@ export default class RouteCollection {
 }
 
 module.exports = RouteCollection;
+
+const mod = (module as NodeHotModule);
+mod.hot = new HotModule(mod.filename);
+mod.hot.preReload((old) => {
+  // 预更新时，清空当前控制器已注册路由
+  const controllerClass = old.exports.default || old.exports;
+  RouteCollection.rules = RouteCollection.rules.filter((rule) => {
+    return rule.controller !== controllerClass;
+  })
+});

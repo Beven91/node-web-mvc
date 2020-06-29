@@ -51,8 +51,6 @@ export default class Registry {
         Registry.register('${options.mode}',ContextClass)
       `);
     }
-    // 全局配置
-    WebAppConfigurer.configurer.initialize(options);
     // 设置基础路由路径
     RouteCollection.base = configure.contextPath;
     // 返回中间件

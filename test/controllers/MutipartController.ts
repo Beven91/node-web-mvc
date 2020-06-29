@@ -4,7 +4,7 @@ import { PostMapping } from '../../index';
 import ModelAndView from '../../src/servlets/models/ModelAndView';
 import GetMapping from '../../src/servlets/annotations/mapping/GetMapping';
 
-@Api({ description: 'multipart控制器' })
+@Api({ description: 'multipart控制器66' })
 @RequestMapping('/multipart')
 export default class MultipartController {
 
@@ -31,7 +31,6 @@ export default class MultipartController {
   ])
   @PostMapping('/upload2')
   async upload2(files: Array<MultipartFile>, name) {
-    debugger;
     for (let file of files) {
       await file.transferTo('app_data/images/' + file.name)
     }
@@ -40,5 +39,9 @@ export default class MultipartController {
       name:name,
       message: '上传成功'
     }
+  }
+
+  hello(){
+    return 'hello3'
   }
 }

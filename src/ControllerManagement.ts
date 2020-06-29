@@ -6,6 +6,8 @@ import Javascript from './interface/Javascript';
 import ServletContext from './servlets/http/ServletContext';
 import RouteMapping from './routes/RouteMapping';
 import { ControllerDescriptors, ActionsMap, ActionDescriptors } from './interface/declare';
+import { NodeHotModule } from './hot';
+import HotModule from './hot/HotModule';
 
 const runtime = {
   // 控制器作用域控制存储器
@@ -116,3 +118,27 @@ export default class ControllerManagement {
     return descriptor.actions;
   }
 }
+
+/**
+ * 内部热更新实现
+ **/
+const mod = (module as NodeHotModule);
+mod.hot = new HotModule(mod.filename)
+mod.hot.preReload((old) => {
+  // 预更新时，判断当前控制器是否已注册，如果注册过，则进行删除
+  const controllerClass = old.exports.default || old.exports;
+  const descriptors = runtime.allControllerDescriptors;
+  const index = descriptors.indexOf(controllerClass);
+  const scope = runtime.scopeControllers;
+  if (index > -1) {
+    // 移除控制器注册信息
+    descriptors.splice(index, 1);
+  }
+  Object.keys(scope).forEach((k) => {
+    const controllers = scope[k];
+    if (controllers) {
+      // 移除旧的实例
+      scope[k] = controllers.filter((c) => !(c instanceof controllerClass))
+    }
+  });
+})

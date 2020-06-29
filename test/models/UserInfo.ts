@@ -6,6 +6,7 @@ export default class UserInfo {
   static from(data) {
     const user = new UserInfo();
     user.userName = data.userName;
+    console.log('ss')
     return user;
   }
 

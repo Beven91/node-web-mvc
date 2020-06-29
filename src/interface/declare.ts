@@ -20,6 +20,22 @@ export declare class ActionDescriptors {
   params?: Array<MethodParameter>
 }
 
+export declare class DescriptorSwaggerMethods {
+  [propName: string]: DescriptorSwaggerMethod
+}
+
+export declare class DescriptorSwaggerMethod {
+  path: Array<string>
+  doc: any
+}
+
+export declare class DescriptorSwagger {
+  // 当前控制器描述，拥有的tags
+  tags: Array<string>
+  // 当前控制器的所有方法文档
+  methods: DescriptorSwaggerMethods
+}
+
 // 控制器描述
 export declare class ControllerDescriptors {
   // 对应的控制器类
@@ -33,5 +49,5 @@ export declare class ControllerDescriptors {
   // 当前控制器的作用域
   scope: string
   // swagger配置
-  swagger: any
+  swagger: DescriptorSwagger
 }

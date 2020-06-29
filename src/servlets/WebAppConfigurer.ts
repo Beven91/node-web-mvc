@@ -2,12 +2,15 @@
  * @module WebAppConfigurer
  * @description 服务全局配置
  */
+import fs from 'fs';
+import path from 'path';
 import bytes from 'bytes';
 import swagger from '../swagger';
 import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
 import MessageConverter from './http/converts/MessageConverter';
 import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './view/ViewResolverRegistry';
+import hot, { HotOptions } from '../hot';
 
 const runtime = {
   configurer: null
@@ -35,6 +38,10 @@ export declare class WebAppConfigurerOptions {
   base?: string
   // 配置请求内容大小
   multipart?: Multipart
+  // 存放控制器的根目录
+  cwd: string
+  // 热更新配置
+  hot?: HotOptions
   // 注册拦截器
   addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
   // 添加http消息转换器
@@ -49,7 +56,8 @@ export default class WebAppConfigurer {
 
   private constructor() {
     this.options = {
-      mode: 'node'
+      mode: 'node',
+      cwd: path.resolve('controllers'),
     }
   }
 
@@ -60,6 +68,13 @@ export default class WebAppConfigurer {
       runtime.configurer = new WebAppConfigurer();
     }
     return runtime.configurer;
+  }
+
+  /**
+   * 获取启动目录
+   */
+  public get cwd() {
+    return this.options.cwd;
   }
 
   /**
@@ -101,11 +116,25 @@ export default class WebAppConfigurer {
     return size == '' || isNaN(size) ? dv : size;
   }
 
+  private launchSpringMvc(dir) {
+    const files = fs.readdirSync(dir).filter((name) => {
+      const ext = path.extname(name);
+      return ext === '.js' || ext === '.ts';
+    });
+    files.forEach((name) => {
+      require(path.join(dir, name));
+    })
+  }
+
   /**
    * 初始化配置
    * @param options 
    */
   initialize(options: WebAppConfigurerOptions) {
+    // 热更新
+    if (options.hot) {
+      hot.run(options.hot);
+    }
     // 注册拦截器
     if (options.addInterceptors) {
       options.addInterceptors(HandlerInteceptorRegistry);
@@ -127,6 +156,8 @@ export default class WebAppConfigurer {
       swagger.OpenApi.initialize();
     }
     this.options = options;
+    // 加载mvc目录
+    this.launchSpringMvc(options.cwd);
     // 初始化请求大小限制
     this.options.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = this.sizeFormat(this.multipart.maxFileSize, bytes.parse('500kb'));

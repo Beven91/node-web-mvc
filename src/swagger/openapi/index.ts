@@ -7,6 +7,8 @@ import RouteCollection from '../../routes/RouteCollection';
 import ControllerManagement from '../../ControllerManagement';
 import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
+import { NodeHotModule } from '../../hot';
+import HotModule from '../../hot/HotModule';
 
 const documentation = {
   info: {} as any,
@@ -59,7 +61,7 @@ export default class OpenApiModel {
     const tags = documentation.tags;
     const name = this.clampName(controller.name);
     const values = (api.tags || [api.value || name]);
-    const swagger = descriptor.swagger = { tags: [] };
+    const swagger = descriptor.swagger = { tags: [], methods: {} };
     values
       .map((s) => s.trim())
       .filter((s) => !tags.find((t) => t.name === s))
@@ -68,21 +70,6 @@ export default class OpenApiModel {
         swagger.tags.push(s);
         return s;
       });
-  }
-
-  /**
-   * 驼峰命名转换成 - 符号链接
-   */
-  static clampName(name) {
-    const k = name.length;
-    let newName = '';
-    for (let i = 0; i < k; i++) {
-      const code = name.charCodeAt(i);
-      const isUpperCase = code >= 65 && code <= 90;
-      const joinChar = isUpperCase ? '-' : '';
-      newName = newName + joinChar + (name[i]).toLowerCase();
-    }
-    return newName.replace(/^-/, '');
   }
 
   /**
@@ -129,13 +116,14 @@ export default class OpenApiModel {
         $ref: model ? '#/definitions/' + operation.dataType : undefined
       }
     }
-    swagger[name] = operationDoc;
+    const desc = swagger.methods[name] = { path: [], doc: operationDoc };
     mainMapping.value.forEach((m) => {
       mapping.value.forEach((url) => {
         url = m + url;
         Object.keys(mapping.method).forEach((method) => {
           const path = (paths[url] = {}) as OperationPathMap;
           path[method.toLowerCase()] = operationDoc;
+          desc.path.push(url);
         });
       })
     })
@@ -150,9 +138,9 @@ export default class OpenApiModel {
   static addOperationParams(params: Array<ApiImplicitParamOptions>, ctor, name) {
     const descriptor = ControllerManagement.getControllerDescriptor(ctor);
     const swagger = descriptor.swagger;
-    const operationDoc = swagger[name];
+    const operationDoc = swagger.methods[name].doc;
     const schemas = documentation.definitions;
-    const mapping = descriptor.mapping;
+    // const mapping = descriptor.mapping;
     operationDoc.parameters = [];
     params.forEach((param) => {
       const model = schemas[param.dataType];
@@ -203,4 +191,46 @@ export default class OpenApiModel {
       type: typeof (propertyOptions.example || '')
     }
   }
+
+  /**
+   * 驼峰命名转换成 - 符号链接
+   */
+  static clampName(name) {
+    const k = name.length;
+    let newName = '';
+    for (let i = 0; i < k; i++) {
+      const code = name.charCodeAt(i);
+      const isUpperCase = code >= 65 && code <= 90;
+      const joinChar = isUpperCase ? '-' : '';
+      newName = newName + joinChar + (name[i]).toLowerCase();
+    }
+    return newName.replace(/^-/, '');
+  }
 }
+
+/**
+ * 内部热更新
+ */
+const mod = (module as NodeHotModule);
+mod.hot = new HotModule(mod.filename);
+mod.hot.preReload((old) => {
+  // 预更新时，判断当前模块是否为被修饰的类
+  const info = old.exports.default || old.exports;
+  const schemas = documentation.definitions;
+  const descriptor = ControllerManagement.getControllerDescriptor(info);
+  const swagger = descriptor.swagger;
+  if (swagger) {
+    const map = swagger.tags.reduce((map, k) => (map[k] = true, map), {});
+    // 移除掉旧的tags
+    documentation.tags = documentation.tags.filter((s) => !map[s.name]);
+    // 移除掉旧的方法文档
+    Object.keys(swagger.methods).forEach((k) => {
+      const method = swagger.methods[k];
+      method.path.forEach((url) => {
+        delete documentation.paths[url];
+      });
+    });
+  }
+  // 删除schema
+  delete schemas[info.name];
+})

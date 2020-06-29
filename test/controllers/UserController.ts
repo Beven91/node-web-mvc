@@ -1,6 +1,7 @@
 import { RequestMapping, PostMapping, ExceptionHandler, ApiOperation, GetMapping } from '../../index';
 import ApiImplicitParams from '../../src/swagger/annotations/ApiImplicitParams';
 import RequestParam from '../../src/servlets/annotations/params/RequestParam';
+import UserInfo from '../models/UserInfo';
 
 @RequestMapping('/user')
 export default class UserController {
@@ -41,6 +42,7 @@ export default class UserController {
 
   @ExceptionHandler()
   handleException(ex) {
+    console.log(UserInfo);
     return JSON.stringify({ code: -99, message: ex.message })
   }
 

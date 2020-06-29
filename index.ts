@@ -30,6 +30,7 @@ import HandlerMethodArgumentResolver from './src/servlets/method/argument/Handle
 import ViewResolver from './src/servlets/view/resolvers/ViewResolver';
 import UrlBasedViewResolver from './src/servlets/view/resolvers/UrlBasedViewResolver';
 import View from './src/servlets/view/View';
+import HotModule from './src/hot/HotModule';
 
 
 export {
@@ -66,3 +67,5 @@ export {
   ViewResolver,
   UrlBasedViewResolver,
 }
+
+(module as any).hot = new HotModule(module.filename);
