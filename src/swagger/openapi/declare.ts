@@ -89,7 +89,7 @@ export declare class ApiModelPropertyOptions {
   /**
    * 属性的示例值
    */
-  example?: string
+  example?: string | number | Date | boolean
 
   /**
    * 是否为必须值

@@ -21,7 +21,7 @@ export declare class HotOptions {
   reloadTimeout?: number
 }
 
-export default class HotReload {
+class HotReload {
   /**
    * 热更新配置
    */
@@ -37,24 +37,19 @@ export default class HotReload {
    */
   private reloadTimeout: number
 
-  /**
-   * 构造一个热更新实例
-   */
-  constructor(options: HotOptions) {
-    this.options = options;
-    this.reloadTimeout = options.reloadTimeout || 300;
+  constructor() {
     this.hotModules = new Map<string, HotModule>();
-    this.hotWrap();
-    // this.buildDependencies();
   }
 
   /**
    * 创建指定id的热更新模块，如果模块已存在，则直接返回
-   * @param id 模块id 
+   * @param {Module} mod 模块对象 
    */
-  private create(id): HotModule {
+  public create(mod): HotModule {
+    const id = mod.id;
     if (!this.hotModules.get(id)) {
-      this.hotModules.set(id, new HotModule(id));
+      mod.hot = new HotModule(id);
+      this.hotModules.set(id, mod.hot);
     }
     return this.hotModules.get(id);
   }
@@ -67,23 +62,41 @@ export default class HotReload {
     fs.watch(cwd, { recursive: true }, (type, filename) => {
       const id = path.join(cwd, filename);
       clearTimeout(runtime.timerId);
-      runtime.timerId = setTimeout(() => this.reload(id), this.reloadTimeout);
+      runtime.timerId = setTimeout(() => this.handleReload(id), this.reloadTimeout);
     });
+  }
+
+  /**
+   * 文件改动时，处理热更新
+   * @param id 
+   */
+  handleReload(id) {
+    if (!require.cache[id]) {
+      // 如果模块已删除，则直接掠过
+      return;
+    }
+    this.buildDependencies();
+    const start = Date.now();
+    this.reload(id, {});
+    const end = new Date();
+    this.buildDependencies();
+    console.log(`Time: ${end.getTime() - start}ms`);
+    console.log(`Built at: ${end.toLocaleDateString()} ${end.toLocaleTimeString()}`);
+    console.log(`Hot reload successfully`);
   }
 
   /**
    * 重载模块
    */
-  reload(id) {
-    if (!require.cache[id]) {
-      // 如果模块已删除，则直接掠过
+  reload(id, reloadeds) {
+    if (reloadeds[id] || !require.cache[id]) {
       return;
     }
-    const start = Date.now();
+    reloadeds[id] = true;
     console.log(`Hot reload: ${id} ...`);
     // 获取旧的模块实例
     const old = require.cache[id] as NodeHotModule;
-    const hot = old.hot;
+    const hot = old.hot as HotModule;
     // 执行hooks.pre
     hot.invokeHook('pre', {}, old);
     // 执行hooks.preend
@@ -96,12 +109,22 @@ export default class HotReload {
     require(id);
     // 获取当前更新后的模块实例
     const now = require.cache[id];
+    // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
+    const index = module.children.indexOf(now);
+    index > -1 ? module.children.splice(index, 1) : undefined;
     // 执行hooks.accept
-    hot.invokeHook('accept', {}, now, old);
-    const end = new Date();
-    console.log(`Time: ${end.getTime() - start}ms`);
-    console.log(`Built at: ${end.toLocaleDateString()} ${end.toLocaleTimeString()}`);
-    console.log(`Hot reload successfully`);
+    const reasons = hot.reasons;
+    reasons.forEach((reason) => {
+      if (reason.hooks.accept) {
+        // 如果父模块定义了accept 
+        reason.hooks.accept(now);
+      } else {
+        // 如果父模块没有定义accept 则重新载入父模块
+        this.reload(reason.id, reloadeds);
+      }
+    })
+    // 还原父依赖
+    now.parent = require.cache[old.parent.id];
   }
 
   /**
@@ -116,9 +139,8 @@ export default class HotReload {
           return handler(mod, id, ...others);
         }
         const anyModule = mod as any;
-        const parentId = mod.parent.filename;
-        const parent = this.create(parentId);
-        const hot = this.create(id);
+        const parent = this.create(mod.parent);
+        const hot = this.create(mod);
         // 附加 hot对象
         anyModule.hot = hot;
         if (module !== mod.parent) {
@@ -126,10 +148,8 @@ export default class HotReload {
         }
         // 执行模块初始化
         handler(mod, id, ...others);
-        // 进行热补丁
-        hot.createHot(mod);
         // 返回热更新模块的exports
-        return hot.hotExports;
+        return mod.exports;
       }
     });
   }
@@ -141,17 +161,25 @@ export default class HotReload {
     const cache = require.cache;
     Object.keys(cache).map((k) => {
       const mod = cache[k];
-      const hotModule = this.create(k);
-      mod.children.forEach((m) => this.create(m.filename).addReason(hotModule));
+      if (HotModule.isInclude(k)) {
+        const hotModule = this.create(mod);
+        mod.children.forEach((m) => {
+          this.create(m).addReason(hotModule)
+        });
+      }
     });
   }
 
   /**
    * 监听改变
    */
-  static run(options: HotOptions) {
-    const hot = new HotReload(options);
+  run(options: HotOptions) {
+    this.options = options;
+    this.reloadTimeout = options.reloadTimeout || 300;
+    this.hotWrap();
     // 监听文件改动
-    hot.watch(options.cwd);
+    this.watch(options.cwd);
   }
 }
+
+export default new HotReload();

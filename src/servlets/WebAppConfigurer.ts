@@ -10,7 +10,7 @@ import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
 import MessageConverter from './http/converts/MessageConverter';
 import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './view/ViewResolverRegistry';
-import hot, { HotOptions } from '../hot';
+import hot, { HotOptions, NodeHotModule } from '../hot';
 
 const runtime = {
   configurer: null
@@ -165,3 +165,7 @@ export default class WebAppConfigurer {
     return this;
   }
 }
+
+hot.create(module).accept(() => {
+  // 子模块更新到此结束
+});

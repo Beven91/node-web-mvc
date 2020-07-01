@@ -37,7 +37,7 @@ export default class HotModule {
     return require.cache[this.id].exports;
   }
 
-  public readonly hotExports: any
+  public hotExports: any
 
   /**
    * 模块的唯一id
@@ -47,7 +47,7 @@ export default class HotModule {
   /**
    * 当前模块被哪些模块依赖
    */
-  public reason: Array<HotModule>
+  public reasons: Array<HotModule>
 
   /**
    * 构建一个热更新模块
@@ -55,9 +55,8 @@ export default class HotModule {
    */
   constructor(id) {
     this.id = id;
-    this.reason = [];
+    this.reasons = [];
     this.hooks = {};
-    this.hotExports = {};
   }
 
   static isInclude(filename) {
@@ -103,9 +102,6 @@ export default class HotModule {
       const children = mod.children;
       children.forEach((child: any) => {
         if (HotModule.isInclude(child.filename)) {
-          if (/ServletModel/.test(child.filename)) {
-            var a = 10;
-          }
           child.hot = child.hot || new HotModule(child.filename);
         }
         if (child.hot) {
@@ -121,61 +117,8 @@ export default class HotModule {
    * 添加依赖源，标识当前模块被哪些模块依赖
    */
   addReason(hotModule: HotModule) {
-    if (this.reason.indexOf(hotModule) < 0) {
-      this.reason.push(hotModule);
+    if (this.reasons.indexOf(hotModule) < 0) {
+      this.reasons.push(hotModule);
     }
-  }
-
-  /**
-   * 尝试初始化一个hotExports
-   * 该exports用于取代node模块默认的exports，主要用于进行细粒度的引用热更
-   * @param {Module} mod 当前node模块实例
-   */
-  createHot(mod) {
-    const exports = mod.exports;
-    if (!this.nativeKeys) {
-      // 如果当前模块时第一次加载，则进行初始化
-      this.nativeKeys = Object.keys(exports);
-      this.nativeKeys.forEach((k) => this.createHotProperty(k));
-    } else {
-      // 如果是第二次，则表示为热更新
-      this.hotReload(exports);
-    }
-  }
-
-  /**
-   * 模块热更新
-   * @param exports 
-   */
-  hotReload(exports) {
-    const oldKeys = this.nativeKeys;
-    const nativeKeys = Object.keys(exports);
-    oldKeys.forEach((key) => {
-      if (!(key in exports)) {
-        // 删除掉不存在的key
-        delete this.hotExports[key];
-      }
-    });
-    // 附加新的keys
-    nativeKeys.forEach((k) => {
-      if (oldKeys.indexOf(k) < 0) {
-        this.createHotProperty(k);
-      }
-    });
-    // 设置新的nativeKeys
-    this.nativeKeys = nativeKeys;
-  }
-
-  /**
-   * 创建一个热更新属性
-   */
-  createHotProperty(key) {
-    const cache = require.cache;
-    Object.defineProperty(this.hotExports, key, {
-      get: () => this.nativeExports[key],
-      set: (value) => {
-        this.nativeExports[key] = value;
-      }
-    })
   }
 }

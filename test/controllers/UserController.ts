@@ -1,7 +1,7 @@
 import { RequestMapping, PostMapping, ExceptionHandler, ApiOperation, GetMapping } from '../../index';
 import ApiImplicitParams from '../../src/swagger/annotations/ApiImplicitParams';
 import RequestParam from '../../src/servlets/annotations/params/RequestParam';
-import UserInfo from '../models/UserInfo';
+import UserInfo, { score } from '../models/UserInfo';
 
 @RequestMapping('/user')
 export default class UserController {
@@ -30,6 +30,8 @@ export default class UserController {
   @GetMapping('/getUser')
   getUser() {
     return JSON.stringify(this.user || {
+      score: score,
+      desc: UserInfo.desc,
       name: '李白'
     })
   }

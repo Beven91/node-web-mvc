@@ -184,7 +184,6 @@ export default class ControllerFactory {
       .catch((ex) => {
         runtime.error = ex;
         // 如果出现意外异常
-        console.error(ex);
         servletContext.next(ex);
       })
   }

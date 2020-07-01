@@ -1,7 +1,11 @@
 import { ApiModel, ApiModelProperty } from '../../index';
 
+export const score = 121;
+
 @ApiModel({ value: '用户信息', description: '用户信息。。' })
 export default class UserInfo {
+
+  static desc = 'hellos38'
 
   static from(data) {
     const user = new UserInfo();

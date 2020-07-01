@@ -77,15 +77,11 @@ export default class DispatcherServlet {
     const advice = ControllerManagement.controllerAdviceInstance;
     const controllerDescriptors = ControllerManagement.getControllerDescriptor(Controller);
     const adviceDescriptors = advice ? ControllerManagement.getControllerDescriptor(advice.constructor) : null;
-    if (error) {
-      console.error('Node-Mvc', 'execute Controller error:');
-      console.error(error.stack || error);
-    }
     if (controllerDescriptors.exceptionHandler) {
       // 优先处理：如果存在控制器本身设置的exceptionhandler
       const res = controllerDescriptors.exceptionHandler.call(controller, error);
       return Promise.resolve(new ServletModel(res));
-    } else if (adviceDescriptors.exceptionHandler) {
+    } else if (adviceDescriptors && adviceDescriptors.exceptionHandler) {
       // 全局异常处理:
       const res = adviceDescriptors.exceptionHandler.call(advice, error);
       return Promise.resolve(new ServletModel(res));

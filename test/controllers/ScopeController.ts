@@ -27,7 +27,7 @@ export default class ScopeController {
     return this.scopeData;
   }
 
-  @ApiOperation({ value: '异常测试' })
+  @ApiOperation({ value: '全局异常测试' })
   @GetMapping('/business')
   doBusiness() {
     throw new Error('出错啦');

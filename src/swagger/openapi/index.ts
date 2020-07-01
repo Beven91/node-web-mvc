@@ -7,8 +7,7 @@ import RouteCollection from '../../routes/RouteCollection';
 import ControllerManagement from '../../ControllerManagement';
 import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
-import { NodeHotModule } from '../../hot';
-import HotModule from '../../hot/HotModule';
+import hot from '../../hot';
 
 const documentation = {
   info: {} as any,
@@ -211,11 +210,12 @@ export default class OpenApiModel {
 /**
  * 内部热更新
  */
-const mod = (module as NodeHotModule);
-mod.hot = new HotModule(mod.filename);
-mod.hot.preload((old) => {
+hot.create(module).preload((old) => {
   // 预更新时，判断当前模块是否为被修饰的类
   const info = old.exports.default || old.exports;
+  if (typeof info !== 'function') {
+    return;
+  }
   const schemas = documentation.definitions;
   const descriptor = ControllerManagement.getControllerDescriptor(info);
   const swagger = descriptor.swagger;

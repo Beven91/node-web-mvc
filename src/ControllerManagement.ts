@@ -6,8 +6,7 @@ import Javascript from './interface/Javascript';
 import ServletContext from './servlets/http/ServletContext';
 import RouteMapping from './routes/RouteMapping';
 import { ControllerDescriptors, ActionsMap, ActionDescriptors } from './interface/declare';
-import { NodeHotModule } from './hot';
-import HotModule from './hot/HotModule';
+import hot from './hot';
 
 const runtime = {
   // 控制器作用域控制存储器
@@ -122,11 +121,17 @@ export default class ControllerManagement {
 /**
  * 内部热更新实现
  **/
-const mod = (module as NodeHotModule);
-mod.hot = new HotModule(mod.filename)
-mod.hot.preend((old) => {
-  // 预更新时，判断当前控制器是否已注册，如果注册过，则进行删除
+hot.create(module).preend((old) => {
+  /**
+   * 预更新时：执行以下几件事情:
+   * 1. 如果当前热更新的模块是一个控制器，则删除该控制器以及对应scope实例。
+   * 2. 如果当前热更新的模块是一个advice,则删除advice
+   */
   const controllerClass = old.exports.default || old.exports;
+  if (typeof controllerClass !== 'function') {
+    return;
+  }
+  // 移除控制器注册信息
   const descriptors = runtime.allControllerDescriptors;
   const findItem = descriptors.find((s) => s.ctor === controllerClass);
   const index = descriptors.indexOf(findItem);
@@ -135,6 +140,7 @@ mod.hot.preend((old) => {
     // 移除控制器注册信息
     descriptors.splice(index, 1);
   }
+  // 移除scope实例
   Object.keys(scope).forEach((k) => {
     const controllers = scope[k];
     if (controllers) {
@@ -142,4 +148,8 @@ mod.hot.preend((old) => {
       scope[k] = controllers.filter((c) => !(c instanceof controllerClass))
     }
   });
+  // 如果当前热更新的是一个advice 
+  if (runtime.controllerAdviceInstance instanceof controllerClass) {
+    runtime.controllerAdviceInstance = null;
+  }
 })

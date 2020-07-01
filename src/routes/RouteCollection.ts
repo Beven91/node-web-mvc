@@ -4,8 +4,7 @@
  */
 
 import HttpServletRequest from "../servlets/http/HttpServletRequest";
-import { NodeHotModule } from "../hot";
-import HotModule from "../hot/HotModule";
+import hot from "../hot";
 
 export interface DefaultOption {
   controller: string,
@@ -142,11 +141,12 @@ export default class RouteCollection {
 
 module.exports = RouteCollection;
 
-const mod = (module as NodeHotModule);
-mod.hot = new HotModule(mod.filename);
-mod.hot.preload((old) => {
+hot.create(module).preload((old) => {
   // 预更新时，清空当前控制器已注册路由
   const controllerClass = old.exports.default || old.exports;
+  if (typeof controllerClass !== 'function') {
+    return;
+  }
   RouteCollection.rules = RouteCollection.rules.filter((rule) => {
     return rule.controller !== controllerClass;
   })
