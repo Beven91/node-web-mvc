@@ -1,6 +1,6 @@
-import { RequestMapping } from '../../index';
-import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../index';
-import { PostMapping } from '../../index';
+import { RequestMapping } from '../../src/index';
+import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../src/index';
+import { PostMapping } from '../../src/index';
 import ModelAndView from '../../src/servlets/models/ModelAndView';
 import GetMapping from '../../src/servlets/annotations/mapping/GetMapping';
 

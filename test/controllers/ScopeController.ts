@@ -1,7 +1,7 @@
-import { RequestMapping, GetMapping, Scope } from '../../index';
-import { Api, ApiOperation, RequestBody, RequestParam, ApiImplicitParams } from '../../index';
+import { RequestMapping, GetMapping, Scope } from '../../src/index';
+import { Api, ApiOperation, RequestBody, RequestParam, ApiImplicitParams } from '../../src/index';
 import UserInfo from '../models/UserInfo';
-import { PostMapping } from '../../index';
+import { PostMapping } from '../../src/index';
 
 @Api({ description: '作用域测试' })
 @Scope('prototype')

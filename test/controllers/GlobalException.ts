@@ -1,4 +1,4 @@
-import { ControllerAdvice, ExceptionHandler } from '../../index';
+import { ControllerAdvice, ExceptionHandler } from '../../src/index';
 
 @ControllerAdvice
 export default class GlobalException {

@@ -1,4 +1,4 @@
-import { RequestMapping, PostMapping, ExceptionHandler, ApiOperation, GetMapping } from '../../index';
+import { RequestMapping, PostMapping, ExceptionHandler, ApiOperation, GetMapping } from '../../src/index';
 import ApiImplicitParams from '../../src/swagger/annotations/ApiImplicitParams';
 import RequestParam from '../../src/servlets/annotations/params/RequestParam';
 import UserInfo, { score } from '../models/UserInfo';

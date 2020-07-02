@@ -1,4 +1,4 @@
-import { HandlerInterceptorAdapter } from '../../index';
+import { HandlerInterceptorAdapter } from '../../src/index';
 
 
 export default class AdminInterceptor extends HandlerInterceptorAdapter {

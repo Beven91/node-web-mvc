@@ -1,4 +1,4 @@
-import { ApiModel, ApiModelProperty } from '../../index';
+import { ApiModel, ApiModelProperty } from '../../src/index';
 
 export const score = 121;
 

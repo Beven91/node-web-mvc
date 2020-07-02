@@ -1,5 +1,5 @@
 
-import { Controller } from '../../index';
+import { Controller } from '../../src/index';
 
 export default class HomeController extends Controller {
 

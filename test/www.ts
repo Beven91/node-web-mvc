@@ -1,6 +1,6 @@
 // import express from 'express';
 import path from 'path';
-import { Registry } from '../index';
+import { Registry } from '../src/index';
 import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
 import EjsViewResolver from './resolvers/EjsViewResolver';
