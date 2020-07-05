@@ -73,7 +73,7 @@ export default class MultipartMessageConverter implements HttpMessageConverter {
     });
   }
 
-  write(data, mediaType: MediaType, servletContext: ServletContext) {
+  write(data: any, mediaType: MediaType, servletContext: ServletContext) {
     // 暂不实现写出
   }
 }

@@ -16,11 +16,11 @@ export default class DefaultMessageConverter implements HttpMessageConverter {
     return true;
   }
 
-  read(servletContext: ServletContext, mediaType: MediaType) {
+  read(servletContext: ServletContext, mediaType: MediaType): any {
     return null;
   }
 
-  write(data, mediaType: MediaType, servletContext: ServletContext) {
+  write(data: any, mediaType: MediaType, servletContext: ServletContext) {
     return new Promise((resolve) => {
       if (data instanceof Buffer || typeof data === 'string') {
         servletContext.response.write(data, resolve);

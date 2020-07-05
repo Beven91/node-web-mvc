@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
-import { RequestMapping } from '../../servlets/annotations';
+import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
+import ServletParam from '../../servlets/annotations/params/ServletParam';
 import OpenApi from '../openapi/index';
 
 // 设置常见内容文件返回mime
@@ -24,6 +25,9 @@ export default class SwaggerController {
    * 用于返回swagger-ui下的静态资源
    */
   @RequestMapping('/swagger/(.*)')
+  @ServletParam('request')
+  @ServletParam('response')
+  @ServletParam('next')
   static(request, response, next) {
     const name = request.path.split('/swagger/').slice(1).join('');
     const view = name || 'index.html';

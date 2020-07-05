@@ -3,9 +3,8 @@
  * 用于标注接口参数
  */
 import OpenApi from '../openapi/index';
-import MethodParameter from '../../interface/MethodParameter';
 import { ApiImplicitParamOptions } from '../openapi/declare';
-import { MultipartFile } from '../../..';
+import MultipartFile from '../../servlets/http/MultipartFile';
 
 /**
  * 用于标注指定controller为接口类
@@ -17,6 +16,9 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
       if (typeof param === 'function') {
         const fun = param as Function;
         const options = fun(target, name, descriptor);
+        if (!options) {
+          return null;
+        }
         let dataType = options.dataType || { name: undefined };
         if (dataType === MultipartFile) {
           dataType = { name: 'file' }

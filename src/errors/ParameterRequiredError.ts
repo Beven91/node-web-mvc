@@ -7,7 +7,7 @@ import MethodParameter from "../interface/MethodParameter";
 import ServletContext from "../servlets/http/ServletContext";
 
 export default class ParameterRequiredError extends Error {
-  constructor(parameter: MethodParameter, servletContext: ServletContext) {
-    super(`Required request parameter is missing:${parameter.value} @${servletContext.controllerName}.${servletContext.actionName}`)
+  constructor(parameter:string, servletContext: ServletContext) {
+    super(`Required request parameter: ${parameter} is missing @${servletContext.controllerName}.${servletContext.actionName}`)
   }
 }

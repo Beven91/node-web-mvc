@@ -5,7 +5,8 @@
 import fs from 'fs';
 import path from 'path';
 import EjsView from './EjsView';
-import { UrlBasedViewResolver, View } from "../..";
+import UrlBasedViewResolver from "../../src/servlets/view/resolvers/UrlBasedViewResolver";
+import View from "../../src/servlets/view/View";
 import HttpServletRequest from "../../src/servlets/http/HttpServletRequest";
 
 export default class EjsViewResolver extends UrlBasedViewResolver {

@@ -6,8 +6,19 @@ import ServletContext from '../http/ServletContext';
 import ControllerManagement from '../../ControllerManagement';
 import ServletModel from '../models/ServletModel';
 import { ActionDescriptors } from '../../interface/declare';
+import InterruptModel from '../models/InterruptModel';
+import MethodParameter from '../../interface/MethodParameter';
+
+declare class ParameterDictionary {
+  [propName: string]: MethodParameter
+}
 
 export default class HandlerMethod {
+
+  /**
+   * 参数map形式
+   */
+  private paramsDictionary: ParameterDictionary
 
   /**
    * 当前请求上下文
@@ -22,6 +33,23 @@ export default class HandlerMethod {
   }
 
   /**
+   * 获取指定名称的参数配置
+   * @param name 
+   */
+  public getResolveParameter(name: string): MethodParameter {
+    return this.paramsDictionary[name];
+  }
+
+  /**
+   * 获取要执行函数的方法签名列表
+   */
+  public get signParameters(): Array<string> {
+    const parts = this.method.toString().split('(')[1] || '';
+    const express = parts.split(')')[0] || '';
+    return express.split(',').map((s) => s.trim()).filter((s) => !!s)
+  }
+
+  /**
    * 对应controller实例
    */
   public get controller() {
@@ -29,9 +57,9 @@ export default class HandlerMethod {
   }
 
   /**
-   * 当前action定义的参数
+   * 当前action定义的可解析参数配置
    */
-  public get parameters() {
+  public get resolveParameters() {
     const descriptor = ControllerManagement.getControllerDescriptor(this.servletContext.Controller);
     const action = (descriptor.actions[this.servletContext.actionName] || {}) as ActionDescriptors
     return action.params || [];
@@ -54,6 +82,10 @@ export default class HandlerMethod {
    */
   constructor(servletContext: ServletContext) {
     this.servletContext = servletContext;
+    this.paramsDictionary = {};
+    this.resolveParameters.forEach((parameter) => {
+      this.paramsDictionary[parameter.value] = parameter;
+    });
   }
 
   /**
@@ -81,8 +113,11 @@ export default class HandlerMethod {
    * 执行方法
    */
   public async invoke(...args) {
-    const { controller, request, response, action } = this.servletContext;
-    const data = await action.call(controller, ...args, request, response);
+    const { controller, action } = this.servletContext;
+    const data = await action.call(controller, ...args);
+    if (this.servletContext.isNextInvoked && data === undefined) {
+      return new InterruptModel();
+    }
     // 设置返回状态
     this.evaluateResponseStatus();
     // 返回结果

@@ -1,4 +1,4 @@
-import { RequestMapping, GetMapping, Scope } from '../../src/index';
+import { RequestMapping, GetMapping, Scope, ServletParam } from '../../src/index';
 import { Api, ApiOperation, RequestBody, RequestParam, ApiImplicitParams } from '../../src/index';
 import UserInfo from '../models/UserInfo';
 import { PostMapping } from '../../src/index';
@@ -12,6 +12,8 @@ export default class ScopeController {
 
   @ApiOperation({ value: '获取设置的对象', notes: '获取通过/scope/set设置的值，当前会返回值应该返回空，因为当前控制器类作用域设置成prototype' })
   @GetMapping('/get')
+  @ServletParam('req', 'request')
+  @ServletParam('resp', 'response')
   getObj(req, resp) {
     return this.scopeData || '没有设置值';
   }

@@ -10,7 +10,7 @@ export default class UserController {
 
   @ApiOperation({ value: '新增用户' })
   @PostMapping('/addUser')
-  addUser(req, resp) {
+  addUser() {
     return 'aaa';
   }
 

@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
-    "module": "amd",
+    "module": "CommonJS",
     "target": "ES5",
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "removeComments": true,
+    "esModuleInterop":true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "experimentalDecorators":true,
     "outDir": "./dist/",
     "rootDir": "./"
   },

@@ -22,6 +22,7 @@ import ApiModelProperty from './swagger/annotations/ApiModelProperty';
 import ApiImplicitParams from './swagger/annotations/ApiImplicitParams';
 import RequestBody from './servlets/annotations/params/RequestBody';
 import RequestParam from './servlets/annotations/params/RequestParam';
+import ServletParam from './servlets/annotations/params/ServletParam';
 import PathVariable from './servlets/annotations/params/PathVariable';
 import RequestHeader from './servlets/annotations/params/RequestHeader';
 import MultipartFile from './servlets/http/MultipartFile';
@@ -59,6 +60,7 @@ export {
   RequestBody,
   RequestParam,
   PathVariable,
+  ServletParam,
   RequestHeader,
   MultipartFile,
   HttpMessageConverter,

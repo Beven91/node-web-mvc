@@ -41,17 +41,12 @@ function requestMappingController(target, mapping: RouteMappingOptions) {
  * @param {*} descriptor 当前属性描述
  * @param {*} mapping 配置的映射
  */
-function requestMappingAction(target, action: string, descriptor, mapping: RouteMapping) {
-  const controllerlDescriptor = ControllerManagement.getControllerDescriptor(target);
-  if (!controllerlDescriptor.actions[action]) {
-    controllerlDescriptor.actions[action] = {} as ActionDescriptors;
-  }
-  controllerlDescriptor.actions[action] = {
-    value: descriptor.value,
-    mapping: mapping
-  };
+function requestMappingAction(target, name: string, descriptor, mapping: RouteMapping) {
+  const action = ControllerManagement.getActionDescriptor(target, name);
+  action.value = descriptor.value;
+  action.mapping = mapping;
   RouteCollection.mapRule({
-    match: (req) => mapping.match(req, target, descriptor.value, action),
+    match: (req) => mapping.match(req, target, descriptor.value, name),
     action: action,
     controller: target,
   });

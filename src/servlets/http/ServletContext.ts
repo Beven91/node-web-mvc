@@ -11,6 +11,11 @@ import WebAppConfigurer from '../WebAppConfigurer';
 export default abstract class ServletContext {
 
   /**
+   * 是否next函数被调用
+   */
+  public isNextInvoked: boolean
+
+  /**
    * forward栈
    */
   public forwardStacks: Array<string>
@@ -33,7 +38,7 @@ export default abstract class ServletContext {
   /**
    * 跳转到下一个请求处理器
    */
-  public next: (error?) => void;
+  public readonly next: (error?) => void;
 
   /**
    * 当前正在处理的请求匹配到的控制器类
@@ -80,7 +85,10 @@ export default abstract class ServletContext {
     this.request = new HttpServletRequest(request, this);
     this.response = new HttpServletResponse(response, this);
     this.configurer = configurer;
-    this.next = next;
+    this.next = (...params) => {
+      next(...params);
+      this.isNextInvoked = true;
+    };
     this.forwardStacks = [];
     // 当前匹配到的控制器类
     this.Controller = null;

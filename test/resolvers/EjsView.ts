@@ -3,7 +3,7 @@
  * @description Razor视图
  */
 import ejs from 'ejs';
-import { View } from "../..";
+import View from "../../src/servlets/view/View";
 import HttpServletRequest from "../../src/servlets/http/HttpServletRequest";
 import HttpServletResponse from "../../src/servlets/http/HttpServletResponse";
 
@@ -18,7 +18,7 @@ export default class EjsView extends View {
   render(model, request: HttpServletRequest, response: HttpServletResponse) {
     return ejs.renderFile(this.url, model).then((html) => {
       response.setHeader('Content-Type', 'text/html');
-      response.setStatus(200).end(html,'utf8');
+      response.setStatus(200).end(html, 'utf8');
     })
 
   }

@@ -9,12 +9,16 @@ import HandlerMethodArgumentResolver from './HandlerMethodArgumentResolver';
 import RequestParamMapMethodArgumentResolver from './RequestParamMapMethodArgumentResolver';
 import RequestHeaderMapMethodArgumentResolver from './RequestHeaderMapMethodArgumentResolver';
 import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgumentResolver';
+import ServletContextMethodArgumentResolver from './ServletContextMethodArgumentResolver';
+import HandlerMethod from '../HandlerMethod';
+import ParameterRequiredError from '../../../errors/ParameterRequiredError';
 
 const registerResolvers: Array<HandlerMethodArgumentResolver> = [
   new PathVariableMapMethodArgumentResolver(),
   new RequestHeaderMapMethodArgumentResolver(),
   new RequestParamMapMethodArgumentResolver(),
-  new RequestResponseBodyMethodProcessor()
+  new RequestResponseBodyMethodProcessor(),
+  new ServletContextMethodArgumentResolver()
 ]
 
 export default class ArgumentsResolvers {
@@ -26,6 +30,32 @@ export default class ArgumentsResolvers {
    */
   static addArgumentResolvers(resolver: HandlerMethodArgumentResolver) {
     registerResolvers.push(resolver);
+  }
+
+  /**
+   * 获取要执行函数的参数值信息
+   */
+  static async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
+    const signParameters = handler.signParameters;
+    const args = [];
+    for (let i = 0, k = signParameters.length; i < k; i++) {
+      const name = signParameters[i];
+      const parameter = handler.getResolveParameter(name);
+      if (!parameter) {
+        // 如果缺少参数
+        return Promise.reject(new ParameterRequiredError(name, servletContext));
+      }
+      const value = await this.resolveArgument(parameter, servletContext);
+      const hasResolved = (value !== undefined && value !== null);
+      const finalValue = hasResolved ? value : parameter.defaultValue;
+      if (parameter.required && (finalValue === null || finalValue === undefined)) {
+        // 如果缺少参数
+        return Promise.reject(new ParameterRequiredError(name, servletContext));
+      }
+      // 设置参数值
+      args[i] = finalValue;
+    }
+    return args;
   }
 
   /**

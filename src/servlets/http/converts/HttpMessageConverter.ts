@@ -25,7 +25,7 @@ export default interface HttpMessageConverter {
    * 读取当前消息内容
    * @param servletRequest 
    */
-  read(servletContext: ServletContext, mediaType: MediaType);
+  read(servletContext: ServletContext, mediaType: MediaType): any;
 
   /**
    * 写出当前内容
@@ -33,5 +33,5 @@ export default interface HttpMessageConverter {
    * @param mediaType 当前内容类型
    * @param servletContext 当前请求上下文
    */
-  write(data, mediaType: MediaType, servletContext: ServletContext)
+  write(data: any, mediaType: MediaType, servletContext: ServletContext): void
 }

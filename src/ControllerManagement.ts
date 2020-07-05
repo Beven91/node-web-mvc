@@ -53,6 +53,23 @@ export default class ControllerManagement {
   }
 
   /**
+   * 获取指定控制器下指定名称的action描述信息
+   * @param {ControllerClass} ctor 
+   */
+  static getActionDescriptor(ctor, name): ActionDescriptors {
+    const descriptor = ControllerManagement.getControllerDescriptor(ctor);
+    const actions = descriptor.actions;
+    if (!actions[name]) {
+      actions[name] = ({ params: [] } as ActionDescriptors);
+    }
+    const action = actions[name];
+    if (!action.params) {
+      action.params = [];
+    }
+    return action;
+  }
+
+  /**
    * 存放scope控制器实例
    * @param {*} scope 作用域
    * @param {Controller} instance 控制器实例 

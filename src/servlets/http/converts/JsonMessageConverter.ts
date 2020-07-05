@@ -26,7 +26,7 @@ export default class JsonMessageConverter implements HttpMessageConverter {
     });
   }
 
-  write(data, mediaType: MediaType, servletContext: ServletContext) {
+  write(data: any, mediaType: MediaType, servletContext: ServletContext) {
     return new Promise((resolve) => {
       const out = typeof data === 'string' ? data : JSON.stringify(data);
       servletContext.response.write(out, resolve);
