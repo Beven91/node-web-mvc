@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import bytes from 'bytes';
-import swagger from '../swagger';
+import OpenApi from '../swagger/openapi';
 import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
 import MessageConverter from './http/converts/MessageConverter';
 import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
@@ -153,7 +153,7 @@ export default class WebAppConfigurer {
     }
     if (options.swagger !== false) {
       // 如果使用swagger
-      swagger.OpenApi.initialize();
+      OpenApi.initialize();
     }
     this.options = options;
     // 加载mvc目录

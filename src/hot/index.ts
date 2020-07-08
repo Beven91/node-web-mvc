@@ -124,7 +124,9 @@ class HotReload {
       }
     })
     // 还原父依赖
-    now.parent = require.cache[old.parent.id];
+    if (old.parent) {
+      now.parent = require.cache[old.parent.id];
+    }
   }
 
   /**

@@ -5,6 +5,7 @@ import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
 import EjsViewResolver from './resolvers/EjsViewResolver';
 
+
 const port = 9800;
 // const app = express();
 
@@ -37,7 +38,6 @@ Registry.launch({
   }
 });
 
-// app.listen(port, () => {
 //   console.log(`
 //   -------------------------------------
 //   ====> Start node-mvc

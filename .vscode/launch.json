@@ -4,7 +4,6 @@
   // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
   "version": "0.2.0",
   "configurations": [
-
     {
       "type": "node",
       "request": "launch",
@@ -13,16 +12,13 @@
         "<node_internals>/**"
       ],
       "sourceMaps": true,
-      "program": "${workspaceFolder}\\test\\index.js"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "pure",
-      "skipFiles": [
-        "<node_internals>/**"
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register"
       ],
-      "program": "${workspaceFolder}\\a.js",
-    }
+      "args": [
+        "${workspaceFolder}/test/www.ts"
+      ],
+    },
   ]
 }

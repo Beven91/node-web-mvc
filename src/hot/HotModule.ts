@@ -88,7 +88,7 @@ export default class HotModule {
    * 执行钩子
    */
   invokeHook(name, invokes, ...params) {
-    if (invokes[this.id]) {
+    if (invokes[this.id] || !require.cache[this.id]) {
       // 用于防止死循环
       return;
     } else if (this.hooks[name]) {

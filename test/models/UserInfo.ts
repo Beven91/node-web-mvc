@@ -1,4 +1,5 @@
-import { ApiModel, ApiModelProperty } from '../../src/index';
+import ApiModel  from '../../src/swagger/annotations/ApiModel';
+import ApiModelProperty  from '../../src/swagger/annotations/ApiModelProperty';
 
 export const score = 121;
 
