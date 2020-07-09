@@ -11,9 +11,6 @@ import { ApiOperationOptions } from '../openapi/declare';
  */
 export default function ApiOperation(operation: ApiOperationOptions) {
   return (target, name, descriptor) => {
-    // 保证注解执行时，其他注解已执行完毕，这里主要时等待@RequestMapping之类的注解
-    process.nextTick(() => {
-      OpenApi.addOperation(operation, target.constructor, name);
-    });
+    OpenApi.addOperation(operation, target.constructor, name);
   }
 }

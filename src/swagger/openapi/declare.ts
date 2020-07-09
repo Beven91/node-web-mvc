@@ -131,3 +131,64 @@ export declare class OperationPathMap {
 export declare class OperationsDoc {
   [propName: string]: OperationPathMap
 }
+
+export declare class ApiOperationParamMeta {
+  /**
+   * 参数名称
+   */
+  name: string
+  /**
+   * 参数是否必填
+   */
+  required: boolean
+  /**
+   * 参数描述
+   */
+  description: string
+  /**
+   * 参数来源类型
+   */
+  in: string
+  /**
+   * 参数值类型
+   */
+  type: string
+  /**
+   * 参数引用类型定义
+   */
+  schema: {
+    $ref: string,
+  }
+}
+
+export declare class ApiModelPropertyMetaMap {
+  [propName: string]: ApiModelPropertyMeta
+}
+
+export declare class ApiModelPropertyMeta {
+
+}
+
+export declare class ApiModelMeta {
+  title: string
+  description: string
+  properties: ApiModelPropertyMetaMap
+}
+
+export declare class ParameterMetaMap {
+  [propName: string]: ApiOperationParamMeta
+}
+
+export declare class ApiOperationMeta {
+  method: string
+  api: ApiMeta
+  consumes: Array<string>
+  option?: ApiOperationOptions
+  parameters: ParameterMetaMap
+}
+
+export declare class ApiMeta {
+  class: Function
+  option?: ApiOptions
+  operations: Array<ApiOperationMeta>
+}

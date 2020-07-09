@@ -18,7 +18,7 @@ export default class SwaggerController {
    */
   @RequestMapping('/swagger/openapi.json')
   openapi() {
-    return OpenApi.toJSON();
+    return OpenApi.build();
   }
 
   /**

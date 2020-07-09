@@ -33,8 +33,6 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
       }
       return param;
     })
-    setTimeout(() => {
-      OpenApi.addOperationParams(params, target.constructor, name);
-    }, 0)
+    OpenApi.addOperationParams(params, target.constructor, name);
   }
 }

@@ -8,6 +8,7 @@ import ServletModel from '../models/ServletModel';
 import { ActionDescriptors } from '../../interface/declare';
 import InterruptModel from '../models/InterruptModel';
 import MethodParameter from '../../interface/MethodParameter';
+import Javascript from '../../interface/Javascript';
 
 declare class ParameterDictionary {
   [propName: string]: MethodParameter
@@ -44,9 +45,7 @@ export default class HandlerMethod {
    * 获取要执行函数的方法签名列表
    */
   public get signParameters(): Array<string> {
-    const parts = this.method.toString().split('(')[1] || '';
-    const express = parts.split(')')[0] || '';
-    return express.split(',').map((s) => s.trim()).filter((s) => !!s)
+    return Javascript.resolveParameters(this.method)
   }
 
   /**

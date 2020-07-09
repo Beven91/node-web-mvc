@@ -11,8 +11,6 @@ import { ApiModelPropertyOptions } from '../openapi/declare';
  */
 export default function ApiModelProperty(options: ApiModelPropertyOptions): PropertyDecorator {
   return (target, name) => {
-    process.nextTick(() => {
-      OpenApi.addModelProperty(options, target.constructor, name);
-    });
+    OpenApi.addModelProperty(options, target.constructor, name);
   }
 }

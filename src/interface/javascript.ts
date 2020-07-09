@@ -5,6 +5,7 @@
 
 const empty: { __proto__?: object } = {};
 const protoKeys = Reflect.ownKeys(empty.__proto__).reduce((map, k) => (map[k] = true, map), {});
+const symbol = Symbol('@parameters');
 
 export default class Javascript {
   /**
@@ -12,5 +13,20 @@ export default class Javascript {
    */
   static get protoKeys() {
     return protoKeys;
+  }
+
+  /**
+   * 提取函数签名参数
+   */
+  static resolveParameters(handler) {
+    if (typeof handler !== 'function') {
+      return [];
+    }
+    if (!handler[symbol]) {
+      const parts = handler.toString().split('(')[1] || '';
+      const express = parts.split(')')[0] || '';
+      handler[symbol] = express.split(',').map((s) => s.trim()).filter((s) => !!s)
+    }
+    return handler[symbol];
   }
 }

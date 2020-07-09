@@ -5,174 +5,134 @@
 import path from 'path';
 import RouteCollection from '../../routes/RouteCollection';
 import ControllerManagement from '../../ControllerManagement';
-import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions } from './declare';
+import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiModelMeta, ApiMeta, ApiOperationMeta } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
 import hot from '../../hot';
 
-const documentation = {
-  info: {} as any,
-  tags: [],
-  paths: {} as OperationsDoc,
-  servers: {} as any,
-  // components: {
-  //   parameters: {},
-  //   schemas: {}
-  // },
-  // openapi: '3.0.1',
-  definitions: {},
-  swagger: '2.0',
-};
+// 获取当前工程的信息
+const pkg = require(path.resolve('package.json'));
+
+// 所有注册models
+const definitions = {} as { [propName: string]: ApiModelMeta };
+
+// 所有注册的接口
+const apiMetaList = [] as Array<ApiMeta>
 
 export default class OpenApiModel {
-
   /**
    * 初始化swagger文档配置
    */
   static initialize() {
     // 加载swagger-controller
     require('../controllers/SwaggerController');
-    // 获取当前工程的信息
-    const pkg = require(path.resolve('package.json'));
-    documentation.info.title = pkg.name;
-    documentation.info.version = pkg.version;
-    documentation.info.description = pkg.description || '';
-    // 初始化server 地址信息
-    documentation.servers = [
-      { url: RouteCollection.base || '/' }
-    ]
   }
 
   /**
-   * 获取完整的swaager openapi.json
+   * 获取或创建指定api定义
+   * @param ctor 
    */
-  static toJSON() {
-    return JSON.stringify(documentation);
+  private static createApi(ctor) {
+    let api = apiMetaList.find((api) => api.class === ctor);
+    if (!api) {
+      const name = this.clampName(ctor.name);
+      api = { class: ctor, operations: [], option: { tags: [name] } };
+      apiMetaList.push(api);
+    }
+    return api;
+  }
+
+  /**
+   * 获取或者创建一个api操作定义
+   */
+  private static createOperation(ctor, name, option: ApiOperationOptions) {
+    const api = this.createApi(ctor);
+    let operation = api.operations.find((operation) => operation.method === name);
+    if (!operation) {
+      operation = { api, consumes: null, method: name, option, parameters: {} };
+      api.operations.push(operation);
+    }
+    return operation;
+  }
+
+  /**
+   * 创建或者获取一个model定义
+   * @param ctor model构造函数 
+   */
+  private static createApiModel(ctor) {
+    const name = ctor.name;
+    if (!definitions[name]) {
+      definitions[name] = { title: '', description: '', properties: {} }
+    }
+    return definitions[name];
   }
 
   /**
    * 新增api
-   * @param { ApiOptions  } api 修饰的接口配置
+   * @param { ApiOptions  } option 修饰的接口配置
    * @param { Controller } controller 修饰的控制器
    */
-  static addApi(api: ApiOptions, controller) {
-    api = (api || {}) as ApiOptions;
-    const descriptor = ControllerManagement.getControllerDescriptor(controller);
-    const tags = documentation.tags;
+  static addApi(option: ApiOptions, controller) {
     const name = this.clampName(controller.name);
-    const values = (api.tags || [api.value || name]);
-    const swagger = descriptor.swagger = { tags: [], methods: {} };
-    values
-      .map((s) => s.trim())
-      .filter((s) => !tags.find((t) => t.name === s))
-      .forEach((s) => {
-        tags.push({ name: s, description: api.description });
-        swagger.tags.push(s);
-        return s;
-      });
+    const api = this.createApi(controller);
+    api.option = option;
+    api.option.tags = (option.tags || [option.value || name])
   }
 
   /**
-   * 添加操作
-   * @param { ApiOptions  } operation 修饰的接口方法配置
+   * 添加接口操作
+   * @param { ApiOptions  } option 修饰的接口方法配置
    * @param { Controller } ctor 修饰的控制器
    * @param { String } name 操作名称
    */
-  static addOperation(operation: ApiOperationOptions, ctor, name) {
-    const paths = documentation.paths;
-    const descriptor = ControllerManagement.getControllerDescriptor(ctor);
-    const actionDescriptor = descriptor.actions[name];
-    if (!actionDescriptor) {
-      return;
-    }
-    if (!descriptor.swagger) {
-      this.addApi({}, ctor)
-    }
-    const mainMapping = descriptor.mapping;
-    const swagger = descriptor.swagger;
-    const mapping = actionDescriptor.mapping;
-    const schemas = documentation.definitions;
-    const code = 'code' in operation ? operation.code : '200';
-    const model = schemas[operation.dataType];
-    const operationDoc = {
-      consumes: mainMapping.consumes || undefined,
-      deprecated: false,
-      operationId: name,
-      tags: swagger.tags,
-      summary: operation.value,
-      description: operation.notes,
-      parameters: {},
-      responses: {
-        "201": { "description": "Created" },
-        "401": { "description": "Unauthorized" },
-        "403": { "description": "Forbidden" },
-        "404": { "description": "Not Found" }
-      }
-    }
-    operationDoc.responses[code] = {
-      "description": "OK",
-      "schema": {
-        type: model ? undefined : operation.dataType,
-        $ref: model ? '#/definitions/' + operation.dataType : undefined
-      }
-    }
-    const desc = swagger.methods[name] = { path: [], doc: operationDoc };
-    mainMapping.value.forEach((m) => {
-      mapping.value.forEach((url) => {
-        url = m + url;
-        Object.keys(mapping.method).forEach((method) => {
-          const path = (paths[url] = {}) as OperationPathMap;
-          path[method.toLowerCase()] = operationDoc;
-          desc.path.push(url);
-        });
-      })
-    })
+  static addOperation(option: ApiOperationOptions, ctor, name) {
+    const operation = this.createOperation(ctor, name, option);
+    // option 强制使用当前配置的option
+    operation.option = option;
+    // operation.consumes = operation.consumes || 
   }
 
   /**
-   * 添加操作参数列表
+   * 添加接口操作参数定义
    * @param { ApiOptions  } params 修饰的接口方法的参数配置
    * @param { Controller } ctor 修饰的控制器
    * @param { String } name 操作名称
    */
   static addOperationParams(params: Array<ApiImplicitParamOptions>, ctor, name) {
-    const descriptor = ControllerManagement.getControllerDescriptor(ctor);
-    const swagger = descriptor.swagger;
-    const operationDoc = swagger.methods[name].doc;
-    const schemas = documentation.definitions;
-    // const mapping = descriptor.mapping;
-    operationDoc.parameters = [];
     params
       .filter((param) => !!param)
-      .forEach((param) => {
-        const model = schemas[param.dataType];
-        if (param.dataType === 'file' && !operationDoc.consumes) {
-          operationDoc.consumes = ['multipart/form-data'];
-        }
-        operationDoc.parameters.push({
-          name: param.name,
-          required: param.required,
-          description: param.value,
-          in: param.dataType === 'file' ? 'formData' : param.paramType,
-          type: model ? undefined : param.dataType || 'string',
-          schema: {
-            $ref: model ? '#/definitions/' + param.dataType : undefined,
-          }
-        })
-      })
+      .forEach((param) => this.addOperationParam(param, ctor, name))
+  }
+
+  /**
+   * 添加接口操作参数
+   * @param { ApiImplicitParamOptions  } param 修饰的接口方法的参数配置
+   * @param { Controller } ctor 修饰的控制器
+   * @param { String } name 操作名称
+   */
+  static addOperationParam(param: ApiImplicitParamOptions, ctor, name) {
+    const operation = this.createOperation(ctor, name, {});
+    operation.parameters[param.name] = {
+      name: param.name,
+      required: param.required,
+      description: param.value,
+      in: param.dataType === 'file' ? 'formData' : param.paramType,
+      type: param.dataType,
+      schema: {
+        $ref: null,
+      }
+    };
   }
 
   /**
    * 添加实体类
    * @param { ApiModelOptions } modelOptions 修饰的实体类配置
-   * @param { model } 修饰的实体类类
+   * @param { Constructor } ctor 修饰的实体类类
    */
-  static addModel(modelOptions: ApiModelOptions, model) {
-    const schemas = documentation.definitions;
-    schemas[model.name] = {
-      title: modelOptions.value || model.name,
-      description: modelOptions.description,
-      properties: {}
-    }
+  static addModel(modelOptions: ApiModelOptions, ctor) {
+    const model = this.createApiModel(ctor);
+    model.title = modelOptions.value || ctor.name;
+    model.description = modelOptions.description;
+    model.properties = {};
   }
 
   /**
@@ -181,11 +141,9 @@ export default class OpenApiModel {
    * @param { model } 修饰的实体类类
    * @param { Sting } name 修饰的属性名
    */
-  static addModelProperty(propertyOptions: ApiModelPropertyOptions, model, name) {
-    const schemas = documentation.definitions;
-    const schema = schemas[model.name];
-    const properties = schema.properties;
-    properties[name] = {
+  static addModelProperty(propertyOptions: ApiModelPropertyOptions, ctor, name) {
+    const model = this.createApiModel(ctor);
+    model.properties[name] = {
       description: propertyOptions.value,
       required: propertyOptions.required,
       example: propertyOptions.example,
@@ -207,6 +165,108 @@ export default class OpenApiModel {
     }
     return newName.replace(/^-/, '');
   }
+
+  /**
+   * 获取完整的swaager openapi.json
+   */
+  static build() {
+    console.log(apiMetaList);
+    const documentation = {
+      info: {
+        title: pkg.name,
+        version: pkg.version,
+        description: pkg.description || ''
+      },
+      tags: [],
+      paths: {} as OperationsDoc,
+      servers: [
+        { url: RouteCollection.base || '/' }
+      ],
+      // components: {
+      //   parameters: {},
+      //   schemas: {}
+      // },
+      // openapi: '3.0.1',
+      definitions: definitions,
+      swagger: '2.0',
+    };
+    apiMetaList.forEach((api) => {
+      const paths = documentation.paths;
+      // 构建tags
+      documentation.tags = documentation.tags.concat(api.option.tags || []);
+      // 构建paths
+      api.operations.forEach((operation) => this.buildOperation(paths, operation));
+    })
+    return documentation;
+  }
+
+  /**
+   * 创建api操作的所有paths
+   */
+  private static buildOperation(paths, operation: ApiOperationMeta) {
+    const option = operation.option;
+    const api = operation.api;
+    const descriptor = ControllerManagement.getControllerDescriptor(api.class);
+    const actionDescriptor = descriptor.actions[operation.method];
+    if (!actionDescriptor) {
+      return;
+    }
+    const mainMapping = descriptor.mapping;
+    const mapping = actionDescriptor.mapping;
+    const code = 'code' in option ? option.code : '200';
+    const model = definitions[option.dataType];
+    const operationDoc = {
+      consumes: mainMapping.consumes || operation.consumes,
+      deprecated: false,
+      operationId: operation.method,
+      tags: api.option.tags,
+      summary: option.value,
+      description: option.notes,
+      parameters: this.buildOperationParameters(operation),
+      responses: {
+        "201": { "description": "Created" },
+        "401": { "description": "Unauthorized" },
+        "403": { "description": "Forbidden" },
+        "404": { "description": "Not Found" },
+        [code]: {
+          "description": "OK",
+          "schema": {
+            type: model ? undefined : option.dataType,
+            $ref: model ? '#/definitions/' + option.dataType : undefined
+          }
+        }
+      }
+    }
+    mainMapping.value.forEach((m) => {
+      mapping.value.forEach((url) => {
+        url = m + url;
+        Object.keys(mapping.method).forEach((method) => {
+          const path = (paths[url] = {}) as OperationPathMap;
+          path[method.toLowerCase()] = operationDoc;
+        });
+      })
+    })
+  }
+
+  /**
+   * 构建api接口操作参数
+   * @param operation 
+   */
+  private static buildOperationParameters(operation: ApiOperationMeta) {
+    Object.keys(operation.parameters).forEach((k) => {
+      const parameter = operation.parameters[k];
+      const dataType = parameter.type;
+      const model = definitions[dataType];
+      if (dataType === 'file') {
+        operation.consumes = ['multipart/form-data'];
+      }
+      parameter.type = model ? undefined : dataType || 'string',
+        parameter.schema = {
+          $ref: model ? '#/definitions/' + dataType : undefined,
+        }
+    });
+    return operation.parameters;
+  }
 }
 
 /**
@@ -218,21 +278,11 @@ hot.create(module).preload((old) => {
   if (typeof info !== 'function') {
     return;
   }
-  const schemas = documentation.definitions;
-  const descriptor = ControllerManagement.getControllerDescriptor(info);
-  const swagger = descriptor.swagger;
-  if (swagger) {
-    const map = swagger.tags.reduce((map, k) => (map[k] = true, map), {});
-    // 移除掉旧的tags
-    documentation.tags = documentation.tags.filter((s) => !map[s.name]);
-    // 移除掉旧的方法文档
-    Object.keys(swagger.methods).forEach((k) => {
-      const method = swagger.methods[k];
-      method.path.forEach((url) => {
-        delete documentation.paths[url];
-      });
-    });
+  const api = apiMetaList.find((api) => api.class === info);
+  if (api) {
+    const index = apiMetaList.indexOf(api);
+    apiMetaList.splice(index, 1);
   }
   // 删除schema
-  delete schemas[info.name];
+  delete definitions[info.name];
 })
