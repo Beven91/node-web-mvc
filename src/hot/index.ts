@@ -97,35 +97,48 @@ class HotReload {
     // 获取旧的模块实例
     const old = require.cache[id] as NodeHotModule;
     const hot = old.hot as HotModule;
-    // 执行hooks.pre
-    hot.invokeHook('pre', {}, old);
-    // 执行hooks.preend
-    hot.invokeHook('preend', {}, old);
-    // 将hot对象从旧的模块实例上分离
-    delete old.hot;
-    // 删除缓存
-    delete require.cache[id];
-    // 重新载入模块
-    require(id);
-    // 获取当前更新后的模块实例
-    const now = require.cache[id];
-    // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
-    const index = module.children.indexOf(now);
-    index > -1 ? module.children.splice(index, 1) : undefined;
-    // 执行hooks.accept
-    const reasons = hot.reasons;
-    reasons.forEach((reason) => {
-      if (reason.hooks.accept) {
-        // 如果父模块定义了accept 
-        reason.hooks.accept(now);
-      } else {
-        // 如果父模块没有定义accept 则重新载入父模块
-        this.reload(reason.id, reloadeds);
+    const parent = old.parent;
+    try {
+      // 执行hooks.pre
+      hot.invokeHook('pre', {}, old);
+      // 执行hooks.preend
+      hot.invokeHook('preend', {}, old);
+      // 将hot对象从旧的模块实例上分离
+      delete old.hot;
+      // 删除缓存
+      delete require.cache[id];
+      // 重新载入模块
+      require(id);
+      // 获取当前更新后的模块实例
+      const now = require.cache[id];
+      // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
+      const index = module.children.indexOf(now);
+      index > -1 ? module.children.splice(index, 1) : undefined;
+      // 执行hooks.accept
+      const reasons = hot.reasons;
+      reasons.forEach((reason) => {
+        if (reason.hooks.accept) {
+          // 如果父模块定义了accept 
+          reason.hooks.accept(now);
+        } else {
+          // 如果父模块没有定义accept 则重新载入父模块
+          this.reload(reason.id, reloadeds);
+        }
+      })
+      // 还原父依赖
+      if (old.parent) {
+        now.parent = require.cache[old.parent.id];
       }
-    })
-    // 还原父依赖
-    if (old.parent) {
-      now.parent = require.cache[old.parent.id];
+    } catch (ex) {
+      // 如果热更新异常，则需要还原被删除的内容
+      const mod = require.cache[id] = (require.cache[id] || old) as NodeHotModule;
+      mod.hot = mod.hot || hot;
+      mod.parent = parent;
+      // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
+      const finded = module.children.find((m) => m.id === id);
+      const index = module.children.indexOf(finded)
+      index > -1 ? module.children.splice(index, 1) : undefined;
+      console.error('Hot reload error', ex.stack);
     }
   }
 

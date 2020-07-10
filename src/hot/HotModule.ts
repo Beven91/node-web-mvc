@@ -26,11 +26,6 @@ export default class HotModule {
   public hooks: Hooks
 
   /**
-   * 原始监听的属性列表
-   */
-  private nativeKeys: Array<string>
-
-  /**
    * 原始模块的exports对象
    */
   private get nativeExports() {
