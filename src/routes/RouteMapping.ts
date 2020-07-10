@@ -105,7 +105,7 @@ export default class RouteMapping {
     this.produces = produces;
     this.params = params;
     this.headers = headers;
-    const methods = ensureArrayPaths(method || ['GET', 'POST', 'DELETE', 'PUT', 'PATCH']);
+    const methods = ensureArrayPaths(method || ['GET', 'POST', 'DELETE', 'PUT', 'PATCH','OPTIONS']);
     methods.forEach((k) => {
       this.method[k.toUpperCase()] = true;
     });

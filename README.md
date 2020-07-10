@@ -1,6 +1,11 @@
-# mvc 
 
-### 安装
+<p align="center">
+  spring style web mvc framework
+</p>
+
+<h1 align="center">Node Web Mvc</h1>
+
+## 安装
 
 > npm
 
@@ -18,79 +23,580 @@ yarn add node-web-mvc
 
 ```
 
-## 2.0内容
+## 启动
+
+`node-web-mvc` 默认支持三种启动模式
+
+- node  纯node模式，通过`http`模块来启动服务
+
+- express 通过`express`的中间件来附加服务
+
+- koa 通过`koa`的中间件类附加服务
+
+- 如果要接入到其他类型框架，可参考[`如何定制一个上下文`](#如何定制一个上下文)
 
 
-### SpringMvc 使用方式
-
-> 启动配置
+### node 模式
 
 ```js
 import { Registry } from 'node-web-mvc';
 
-//注册api/controllers目录下的所有controller
-Registry.registerControllers(path.resolve('api/controllers'));
-
-// 启动Mvc   mode 目前可以设置成 express 或者 koa
-app.use(Registry.launch({ mode:'express' }));
-
+// 启动Mvc  
+Registry.launch({
+  // 启动模式： 可选类型: node | express | koa
+  mode: 'node',
+  // 服务端口
+  port: 9800,
+  // 热更新配置
+  hot: {
+    // 配置热更新监听的目录
+    cwd: path.resolve('./'),
+  },
+  // 配置controller存放目录，用于进行controller自动载入与注册使用
+  cwd: path.resolve('./controllers'),
+});
 ```
 
-> HomeController
+### express 模式
 
 ```js
-import { RequestMapping, PostMapping } from 'node-web-mvc';
+const express = require('express');
+const app = express();
 
-@Scope('prototype')
-@RequestMapping('/user')
-export default class UserController {
+app.use('/api', Registry.launch({
+  // 启动模式： 可选类型: node | express | koa
+  mode: 'node',
+  // 服务端口
+  port: 9800,
+  // 指定路由基础路径
+  base: '/api',
+  // 热更新配置
+  hot: {
+    // 配置热更新监听的目录
+    cwd: path.resolve('./'),
+  },
+  // 配置controller存放目录，用于进行controller自动载入与注册使用
+  cwd: path.resolve('./controllers'),
+}));
+```
 
-  @PostMapping('/addUser')
-  addUser(req, resp) {
-    return 'aaa';
+### koa 模式
+
+```js
+const Koa = require('koa');
+const app = new Koa();
+
+app.use('/api', Registry.launch({
+  // 启动模式： 可选类型: node | express | koa
+  mode: 'node',
+  // 服务端口
+  port: 9800,
+  // 指定路由基础路径
+  base: '/api',
+  // 热更新配置
+  hot: {
+    // 配置热更新监听的目录
+    cwd: path.resolve('./'),
+  },
+  // 配置controller存放目录，用于进行controller自动载入与注册使用
+  cwd: path.resolve('./controllers'),
+}));
+```
+
+## 控制器 Controller
+
+完成启动配置后，可以在控制器目录下定义对应的控制器
+
+控制器的定义风格和`Spring Mvc`风格一致。
+
+> 例如:
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @RequestMapping({ value:'/index',method:'GET' })
+  index(){
+    return 'Hi i am home index';
+  }
+}
+```
+更多的控制器配置，我们可以关于后面注解来依次完善控制器。
+
+## 路由映射
+
+### `@RequestMapping` 
+
+该注解用于将请求映射到指定控制器以及控制器的函数。
+
+有两种使用方式
+
+#### 简要模式
+
+当前配置模式下，在不限制请求方式(`Http Method`)的情况下，以 `/home` 来访问`HomeController`
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+}
+```
+
+#### 详细配置
+
+通过传入一个对象[`RouteMappingOptions`](#RouteMappingOptions)来进行详细映射。
+
+> 以下例子通过`@RequestMapping`配置 允许在`GET`方式下通过`/home/index`路由来访问 `HomeController`的`index`函数
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @RequestMapping({ value:'/index',method:'GET' })
+  index(){
+    return 'Hi i am home index';
+  }
+}
+```
+
+通过以上映射配置，我们可以定义一个`Controller`的请求映射方式，在大多数情况下，我们只会配置`路由`与`请求类型`
+为了简化映射配置，所以也定义了其他的几个快捷配置的映射注解
+
+- `@GetMapping`  映射一个`method`为 `GET`的请求
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @GetMapping('/index')
+  index(){
+    return 'Hi i am home index';
+  }
+}
+```
+
+- `@PostMapping` 映射一个`method`为 `POST`的请求
+
+- `@PutMapping` 映射一个`method`为 `PUT`的请求
+
+- `@DeleteMapping` 映射一个`method`为 `DELETE`的请求
+
+- `@PatchMapping` 映射一个`method`为 `PATCH`的请求
+
+#### 路由风格
+
+`@RequestMapping` 等几个相关的映射注解配置路由时，支持一下几种风格路由映射
+
+- `普通`路由
+
+```js
+@GetMapping('/detail/index')
+```
+
+- `参数占位`类型
+
+> 使用 `{}` 来标识占位
+
+通过`占位`映射的路由参数，可以通过[`@PathVariable`](#PathVariable) 注解来提取
+
+```js
+@GetMapping('/detail/{id}')
+```
+
+> 使用 `:` 来标识占位
+
+```js
+@GetMapping('/detail/:id')
+```
+
+> `正则`风格路由
+```js
+@GetMapping('/route/:foo/(.*)')
+```
+
+## 参数提取
+
+通过路由映射注解完成控制器访问配置后，在实现控制器具体函数内时，我们会需要从请求中获取一些参数来完成接口操作。
+
+提取请求参数可以从以下注解来完成
+
+- `@RequestParam` 提取类型为`urleoncoded`的参数
+
+- `@RequestBody` 提取整个`body`内容，通常是提取成为一个`json`对象
+
+- `@PathVariable` 提取路由中的占位参数
+
+- `@RequestHeader` 提取请求头中的指定名的请求头做为参数
+
+- `@ServletParam` 用于提取`request`与`response`
+
+### RequestParam
+
+从`urleoncoded`的内容中提取指定名称的参数
+
+`@RequestParam` 作为参数注解，不进行任何配置，默认会以参数名来作为提取名依据
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @GetMapping('/index')
+  index(@RequestParam name){
+    return `Hi ${name}, i am home index`;
+  }
+}
+```
+
+同时`@RequestParam` 也可以进行详细配置[`MethodParameterOptions`](#MethodParameterOptions)
+
+> 将url中传递过来的`userName`提取实参调用时传递给`index`函数的`name`形参，且配置该参数必填
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @GetMapping('/index')
+  index(@RequestParam({ value:'userName', required:true }) name){
+    return `Hi ${name}, i am home index`;
+  }
+}
+```
+
+### RequestBody 
+
+提取整个`body`内容，通常是提取成为一个`json`对象
+```js
+@RequestMapping('/order')
+class OrderController { 
+
+  @GetMapping('/save')
+  saveOrder(@RequestBody order){
+    console.log(order);
+  }
+}
+```
+
+### PathVariable 
+
+从请求路由中提取路径参数
+
+```js
+@RequestMapping('/order')
+class OrderController { 
+
+  @GetMapping('/detail/:id')
+  detail(@PathVariable id){
+    return `Order ${id}`;
+  }
+}
+```
+
+### RequestHeader 
+
+从请求头中提取参数
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @GetMapping('/index')
+  detail(@RequestHeader('content-type') ct){
+    return `content-type: ${ct}`;
+  }
+}
+```
+
+### ServletParam 
+
+提取`request`与`response`整个对象
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @GetMapping('/index')
+  detail(@ServletParam('request') request, @ServletParam('response') response){
+    
+  }
+}
+```
+
+## 返回内容
+
+控制器函数返回内容默认支持下几种类型
+
+- ModelAndView 返回一个视图
+
+- String 返回一个字符串
+
+- Object 如果需要正常返回，需要通过`RequestMapping`指定produces为`application/json`
+
+- undefined 则表示返回''
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @GetMapping('/index')
+  index(){
+    return new ModelAndView('home/index');
   }
 
-  @RequestMapping('/getUser', 'get')
-  getUser() {
-    return JSON.stringify({
-      name: '李白'
+  @GetMapping('/string')
+  strings(){
+    return `output :String`;
+  }
+
+  @GetMapping({ value: '/object', produces:'application/json' })
+  list(){
+    return [
+      { name:'张三',id:100 }
+    ];
+  }
+}
+```
+
+## 视图
+
+框架内置视图解析器接口，但是没有实现具体视图的解析器，例如: `ejs`, `handlerbasrs` 
+
+如果希望支持以上引擎，可以实现一个视图解析器，将该视图解析器注册到框架解析器容器中，即可完成指定类型视图的渲染。
+
+###  扩展一个ejs视图引擎
+
+定义一个ejs `View` 
+> ./EjsView.ts
+
+```js
+/**
+ * @module EjsView
+ * @description Razor视图
+ */
+import ejs from 'ejs';
+import { View } from 'node-web-mvc';
+
+export default class EjsView extends View {
+
+  /**
+   * 进行视图渲染
+   * @param model 当前视图的内容
+   * @param request 当前视图
+   * @param response 
+   */
+  render(model, request, response) {
+    return ejs.renderFile(this.url, model).then((html) => {
+      response.setHeader('Content-Type', 'text/html');
+      response.setStatus(200).end(html, 'utf8');
     })
   }
 }
 ```
 
-### 传统方式
+定义ejs 视图解析器
+>  EjsViewResolver.ts
+
+通过重写`UrlBasedViewResolver` 的`internalResolve` 来解析`ejs`的视图
 
 ```js
-import { Registry, ControllerFactory,AreaRegistration,Routes } from 'node-web-mvc';
+import fs from 'fs';
+import path from 'path';
+import { UrlBasedViewResolver,HttpServletRequest,View } from 'node-web-mvc'
+import EjsView from './EjsView';
 
-//注册api/controllers目录下的所有controller
-ControllerFactory.registerControllers(path.resolve('api/controllers'));
-//注册所有MVC域(Area)
-// AreaRegistration.registerAllAreas(path.resolve('api/areas'));
+export default class EjsViewResolver extends UrlBasedViewResolver {
 
-// 或者可以设置自定义的控制器工厂
-// ControllerFactory.defaultFactory = new ControllerFactory();
+  internalResolve(viewName: string, model: any, request: HttpServletRequest): View {
+    const file = path.resolve(viewName);
+    if (fs.existsSync(file)) {
+      return new EjsView(viewName);
+    }
+    return null;
+  }
+}
+```
 
-//设置默认路由
-//推荐：最好把以下代码放到所有路由配置的最后，以降低其优先级，防止吞掉其他指定的路由
-Routes.mapRoute('{controller}/{action}', { controller: 'Home', action: 'index' });
+将`ejs`视图解析器注册到解析器容器中
+```js
+import { Registry } from 'node-web-mvc';
 
-// 启动Mvc   mode 目前可以设置成 express 或者 koa
-app.use(Registry.launch({ mode:'express' }));
+// 启动Mvc  
+Registry.launch({
+  // 启动模式： 可选类型: node | express | koa
+  mode: 'node',
+  // 服务端口
+  port: 9800,
+  // 热更新配置
+  hot: {
+    // 配置热更新监听的目录
+    cwd: path.resolve('./'),
+  },
+  // 配置controller存放目录，用于进行controller自动载入与注册使用
+  cwd: path.resolve('./controllers'),
+  // 通过配置，来注册ejs视图解析器s
+  addViewResolvers(registry) {
+    // 注册ejs视图解析器
+    registry.addViewResolver(new EjsViewResolver('test/WEB-INF/', '.ejs'))
+  }
+});
+```
+
+## HandlerInterceptorAdapter 
+
+切面
+
+## HttpMessageConverter  
+
+消息转换器
+
+## HandlerMethodArgumentResolver 
+
+参数解析器
+
+## Swagger
+
+框架支持swagger文档生成功能
+
+可通过以下注解来完成文档元数据定义
+
+- `@Api` 定义一个接口服务
+
+```js
+@Api({ description: '首页控制器' })
+class HomeConntroller {
+
+}
+```
+
+- `@ApiOperation` 定义一个接口操作
+
+```js
+@Api({ description: '首页控制器' })
+class HomeConntroller {
+
+  @ApiOperation({ value: '首页列表数据', notes: '这是备注' })
+  index(){
+  }
+}
+```
+
+- `@ApiImplicitParams` 定义指定接口参数
+```js
+@Api({ description: '首页控制器' })
+class HomeConntroller {
+
+  @ApiOperation({ value: '首页列表数据', notes: '这是备注' })
+  @GetMapping('/index')
+  index(){
+  }
+
+  @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
+  @ApiImplicitParams([
+    RequestParam({ value: 'file', desc: '证书', required: true, dataType: MultipartFile }),
+    RequestParam({ value: 'desc', desc: '描述', required: true, paramType: 'formData' }),
+    RequestParam({ value: 'id', desc: '用户id', required: true })
+  ])
+  @PostMapping('/upload')
+  upload(file: MultipartFile, desc, id) {
+    return file.transferTo('app_data/images/' + file.name);
+  }
+}
+```
+
+- `@ApiModel` 定义一个实体类
+
+```js
+@ApiModel({ value: '用户信息', description: '用户信息。。' })
+export default class UserInfo {
+
+}
+```
+
+- `@ApiModelProperty` 标注指定属性
+
+```js
+@ApiModel({ value: '用户信息', description: '用户信息。。' })
+export default class UserInfo {
+
+  @ApiModelProperty({ value: '用户名', required: true, example: '张三' })
+  public userName: string
+
+
+  @ApiModelProperty({ value: '用户编码', required: true, example: 1 })
+  public userId: number
+}
+```
+
+## 类型定义
+
+### MethodParameterOptions
+
+```js
+class MethodParameterOptions {
+  /**
+   * 需要从请求中提取的参数名称
+   */
+  public value: string
+
+  /**
+   * 当前参数的描述信息
+   */
+  public desc?: string
+
+  /**
+  * 参数是否必须传递 默认值为 true
+  */
+  public required?: boolean
+
+  /**
+   * 参数默认值,如果设置了默认值，则会忽略 required = true
+   */
+  public defaultValue?: any
+
+  /**
+   * 参数的数据类型
+   */
+  public dataType?: Function
+
+  /**
+   * 参数传入类型 可选的值有path, query, body, header or form
+   */
+  public paramType?: string
+}
 
 ```
 
-> controller.js
+### RouteMappingOptions
 
 ```js
-const { Controller } = require('node-mvc');
+class RouteMappingOptions {
+ /**
+   * 当前路由路径值
+   */
+  value: string | Array<string>
 
-export default class HomeController extends Controller {
+  /**
+   * 当前路由能处理的Http请求类型
+   */
+  method?: Map<string, boolean>
 
-  index(request,response){
-    return '返回内容';
-  }
+  /**
+   * 当前路由设置的返回内容类型
+   */
+  produces?: string
+
+  /**
+   * 当前路由能接受的内容类型
+   */
+  consumes?: Array<string>
+
+  /**
+   * 当前路由需要的请求头信息
+   */
+  headers?: Map<string, string>
+
+  /**
+   * 当前路由需要的请求参数
+   */
+  params?: Map<string, any>
 }
-
 ```

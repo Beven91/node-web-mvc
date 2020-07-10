@@ -48,7 +48,7 @@ export default class OpenApiModel {
     const api = this.createApi(ctor);
     let operation = api.operations.find((operation) => operation.method === name);
     if (!operation) {
-      operation = { api, consumes: null, method: name, option, parameters: {} };
+      operation = { api, consumes: null, method: name, option, parameters: [] };
       api.operations.push(operation);
     }
     return operation;
@@ -88,7 +88,6 @@ export default class OpenApiModel {
     const operation = this.createOperation(ctor, name, option);
     // option 强制使用当前配置的option
     operation.option = option;
-    // operation.consumes = operation.consumes || 
   }
 
   /**
@@ -111,7 +110,7 @@ export default class OpenApiModel {
    */
   static addOperationParam(param: ApiImplicitParamOptions, ctor, name) {
     const operation = this.createOperation(ctor, name, {});
-    operation.parameters[param.name] = {
+    operation.parameters.push({
       name: param.name,
       required: param.required,
       description: param.value,
@@ -120,7 +119,7 @@ export default class OpenApiModel {
       schema: {
         $ref: null,
       }
-    };
+    });
   }
 
   /**
@@ -132,7 +131,6 @@ export default class OpenApiModel {
     const model = this.createApiModel(ctor);
     model.title = modelOptions.value || ctor.name;
     model.description = modelOptions.description;
-    model.properties = {};
   }
 
   /**
@@ -170,7 +168,6 @@ export default class OpenApiModel {
    * 获取完整的swaager openapi.json
    */
   static build() {
-    console.log(apiMetaList);
     const documentation = {
       info: {
         title: pkg.name,
@@ -208,7 +205,7 @@ export default class OpenApiModel {
     const api = operation.api;
     const descriptor = ControllerManagement.getControllerDescriptor(api.class);
     const actionDescriptor = descriptor.actions[operation.method];
-    if (!actionDescriptor) {
+    if (!actionDescriptor || !actionDescriptor.mapping) {
       return;
     }
     const mainMapping = descriptor.mapping;
@@ -253,8 +250,7 @@ export default class OpenApiModel {
    * @param operation 
    */
   private static buildOperationParameters(operation: ApiOperationMeta) {
-    Object.keys(operation.parameters).forEach((k) => {
-      const parameter = operation.parameters[k];
+    operation.parameters.forEach((parameter) => {
       const dataType = parameter.type;
       const model = definitions[dataType];
       if (dataType === 'file') {
@@ -270,7 +266,7 @@ export default class OpenApiModel {
 }
 
 /**
- * 内部热更新
+ * 内部热更新 
  */
 hot.create(module).preload((old) => {
   // 预更新时，判断当前模块是否为被修饰的类
@@ -281,6 +277,7 @@ hot.create(module).preload((old) => {
   const api = apiMetaList.find((api) => api.class === info);
   if (api) {
     const index = apiMetaList.indexOf(api);
+    console.log('find inddex',index);
     apiMetaList.splice(index, 1);
   }
   // 删除schema

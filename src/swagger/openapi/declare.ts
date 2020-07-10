@@ -175,16 +175,12 @@ export declare class ApiModelMeta {
   properties: ApiModelPropertyMetaMap
 }
 
-export declare class ParameterMetaMap {
-  [propName: string]: ApiOperationParamMeta
-}
-
 export declare class ApiOperationMeta {
   method: string
   api: ApiMeta
   consumes: Array<string>
   option?: ApiOperationOptions
-  parameters: ParameterMetaMap
+  parameters: Array<ApiOperationParamMeta>
 }
 
 export declare class ApiMeta {

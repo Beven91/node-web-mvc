@@ -1,6 +1,5 @@
 import RouteCollection from '../../../routes/RouteCollection';
 import ControllerManagement from '../../../ControllerManagement';
-import { ActionDescriptors } from '../../../interface/declare';
 import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping';
 
 /**

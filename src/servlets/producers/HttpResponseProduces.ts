@@ -79,15 +79,15 @@ export default class HttpResponseProduces {
     const status = useStatus ? responseStatus : 200;
     const { actionMapping, servletContext } = this;
     const { produces } = actionMapping;
+    const { response  } = servletContext;
+    const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain')
     // 设置返回内容类型
-    if (produces) {
-      this.servletContext.response.setHeader('Content-Type', produces);
-    }
+    response.setHeader('Content-Type', mediaType.name);
     // 设置返回状态
-    this.servletContext.response.setStatus(status, responseStatusReason);
+    response.setStatus(status, responseStatusReason);
     // 根据对应的转换器来写出内容到客户端
     return MessageConverter
-      .write(data, new MediaType(produces), servletContext)
+      .write(data, mediaType, servletContext)
       .then(() => servletContext.response.end())
       .then(() => data);
   }
