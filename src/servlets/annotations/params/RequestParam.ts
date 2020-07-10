@@ -3,28 +3,28 @@
  * @module RequestParam
  * @description 提取query请求参数值
  */
-import ControllerManagement from '../../../ControllerManagement';
-import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
-import Javascript from '../../../interface/Javascript';
+import createParam from './createParam';
+import { MethodParameterOptions } from '../../../interface/MethodParameter';
 
 /**
  * 从query请求参数中，提取指定名称的参数值
- * 在执行接口函数时作为实参传入。
+ * 
+ *  action(@RequestParam id)
+ * 
+ *  action(@RequestParam({ required: true }) id)
+ * 
  */
-export default function RequestParam(...params: Array<any | MethodParameterOptions>): any {
-  if (params.length === 1) {
-    return (target, name) => createRequestParam(target, name, params[0])
+export default function RequestParam(target: MethodParameterOptions | Object | string, name?: string, index?: number): any {
+  if (arguments.length === 3) {
+    // 长度为3表示使用为参数注解 例如:  index(@RequestParam id)
+    return createParam(target, name, { value: null }, index, 'query', RequestParam);
   } else {
-    const [target, name, index] = params;
-    const handler = target[name];
-    const parameters = Javascript.resolveParameters(handler);
-    createRequestParam(target, name, { value: parameters[index] });
+    // 通过调用配置返回注解
+    const isString = typeof target === 'string';
+    const options = (isString ? { value: target } : target) as MethodParameterOptions;
+    return function (newTarget, newName, newIndex) {
+      newIndex = isNaN(newIndex) ? -1 : newIndex;
+      return createParam(newTarget, newName, options, newIndex, 'query', RequestParam);
+    }
   }
-}
-
-function createRequestParam(target, name, options): MethodParameter {
-  const action = ControllerManagement.getActionDescriptor(target.constructor, name);
-  const param = new MethodParameter(options, 'query', RequestParam);
-  action.params.push(param);
-  return param;
 }

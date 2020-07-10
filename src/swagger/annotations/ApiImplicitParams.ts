@@ -15,7 +15,7 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
     params = params.map((param) => {
       if (typeof param === 'function') {
         const fun = param as Function;
-        const options = fun(target, name, descriptor);
+        const options = fun(target, name, descriptor, true);
         if (!options) {
           return null;
         }

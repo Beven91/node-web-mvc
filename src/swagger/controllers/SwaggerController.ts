@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
-import ServletParam from '../../servlets/annotations/params/ServletParam';
+import { ServletRequest, ServletResponse } from '../../servlets/annotations/params/ServletParam';
 import OpenApi from '../openapi/index';
 
 // 设置常见内容文件返回mime
@@ -25,17 +25,14 @@ export default class SwaggerController {
    * 用于返回swagger-ui下的静态资源
    */
   @RequestMapping('/swagger/(.*)')
-  @ServletParam('request')
-  @ServletParam('response')
-  @ServletParam('next')
-  static(request, response, next) {
+  static(@ServletRequest request,@ServletResponse response) {
     const name = request.path.split('/swagger/').slice(1).join('');
     const view = name || 'index.html';
     const file = path.join(__dirname, '../swagger-ui', view);
     const ext = path.extname(file);
     if (!fs.existsSync(file)) {
       // 如果文件按不存在，则移交给其他执行器
-      return next();
+      return;
     }
     if (producers[ext]) {
       // 设置返回内容类型

@@ -83,7 +83,7 @@ export default class HandlerMethod {
     this.servletContext = servletContext;
     this.paramsDictionary = {};
     this.resolveParameters.forEach((parameter) => {
-      this.paramsDictionary[parameter.value] = parameter;
+      this.paramsDictionary[parameter.name || parameter.value] = parameter;
     });
   }
 

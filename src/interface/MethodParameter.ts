@@ -5,9 +5,14 @@
 
 export class MethodParameterOptions {
   /**
-     * 需要从请求中提取的参数名称
-     */
+   * 需要从请求中提取的参数名称
+   */
   public value: string
+
+  /**
+   * 所在的参数名称
+   */
+  public name?:string
 
   /**
    * 当前参数的描述信息
@@ -67,6 +72,7 @@ export default class MethodParameter extends MethodParameterOptions {
       this.value = options.value;
       this.desc = options.desc;
       this.required = options.required;
+      this.name = options.name;
       this.dataType = options.dataType;
       this.defaultValue = options.defaultValue;
       this.paramType = options.paramType;

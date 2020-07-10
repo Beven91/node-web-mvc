@@ -12,9 +12,7 @@ export default class ScopeController {
 
   @ApiOperation({ value: '获取设置的对象', notes: '获取通过/scope/set设置的值，当前会返回值应该返回空，因为当前控制器类作用域设置成prototype' })
   @GetMapping('/get')
-  @ServletParam('req', 'request')
-  @ServletParam('resp', 'response')
-  getObj(req, resp) {
+  getObj() {
     return this.scopeData || '没有设置值';
   }
 
@@ -26,6 +24,7 @@ export default class ScopeController {
   @PostMapping({ value: '/set', produces: 'application/json' })
   setObj(user: UserInfo, id) {
     this.scopeData = user;
+    this.scopeData.userId = id;
     return this.scopeData;
   }
 

@@ -2,18 +2,27 @@
  * @module RequestBody
  * @description 提取body请求参数值
  */
-import ControllerManagement from '../../../ControllerManagement';
-import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import createParam from './createParam';
+import { MethodParameterOptions } from '../../../interface/MethodParameter';
 
 /**
- * 从query请求参数中，提取指定名称的参数值
- * 在执行接口函数时作为实参传入。
+ * 将body提取成指定参数
+ * 
+ *  action(@RequestBody user)
+ * 
+ *  action(@RequestBody({ required:true }) user)
  */
-export default function RequestBody(value: MethodParameterOptions | string) {
-  return (target, name): MethodParameter => {
-    const action = ControllerManagement.getActionDescriptor(target.constructor, name);
-    const param = new MethodParameter(value, 'body', RequestBody);
-    action.params.push(param);
-    return param;
+export default function RequestBody(target: MethodParameterOptions | Object | string, name?: string, index?: number): any {
+  if (arguments.length === 3) {
+    // 长度为3表示使用为参数注解
+    return createParam(target, name, { value: null }, index, 'body', RequestBody);
+  } else {
+    // 通过调用配置返回注解
+    const isString = typeof target === 'string';
+    const options = (isString ? { value: target } : target) as MethodParameterOptions;
+    return function (newTarget, newName, newIndex) {
+      newIndex = isNaN(newIndex) ? -1 : newIndex;
+      return createParam(newTarget, newName, options, newIndex, 'body', RequestBody);
+    }
   }
 }
