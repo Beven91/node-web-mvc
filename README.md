@@ -121,19 +121,19 @@ class HomeController {
   }
 }
 ```
-更多的控制器配置，我们可以关于后面注解来依次完善控制器。
+更多的控制器配置，我们可以阅读后面通过注解来完善控制器。
 
 ## 路由映射
 
 ### `@RequestMapping` 
 
-该注解用于将请求映射到指定控制器以及控制器的函数。
+该注解用于将请求映射到指定控制器。
 
 有两种使用方式
 
 #### 简要模式
 
-当前配置模式下，在不限制请求方式(`Http Method`)的情况下，以 `/home` 来访问`HomeController`
+仅配置访问路径，例如： 以下例子中，仅配置 以 `/home` 来访问`HomeController`
 
 ```js
 @RequestMapping('/home')
@@ -159,8 +159,7 @@ class HomeController {
 }
 ```
 
-通过以上映射配置，我们可以定义一个`Controller`的请求映射方式，在大多数情况下，我们只会配置`路由`与`请求类型`
-为了简化映射配置，所以也定义了其他的几个快捷配置的映射注解
+在大多数情况下，我们只会配置`路由`与`请求类型` 可以通过以下几个注解来进行快捷配置。
 
 - `@GetMapping`  映射一个`method`为 `GET`的请求
 
@@ -185,7 +184,7 @@ class HomeController {
 
 #### 路由风格
 
-`@RequestMapping` 等几个相关的映射注解配置路由时，支持一下几种风格路由映射
+通过 `@RequestMapping` 等注解配置路由时，可以有以下几种配置风格
 
 - `普通`路由
 
@@ -216,9 +215,7 @@ class HomeController {
 
 ## 参数提取
 
-通过路由映射注解完成控制器访问配置后，在实现控制器具体函数内时，我们会需要从请求中获取一些参数来完成接口操作。
-
-提取请求参数可以从以下注解来完成
+我们可以通过以下几个注解来定义请求参数的提取方式。
 
 - `@RequestParam` 提取类型为`urleoncoded`的参数
 
@@ -249,7 +246,7 @@ class HomeController {
 
 同时`@RequestParam` 也可以进行详细配置[`MethodParameterOptions`](#MethodParameterOptions)
 
-> 将url中传递过来的`userName`提取实参调用时传递给`index`函数的`name`形参，且配置该参数必填
+> 例如： 将url中传递过来的`userName`提取实参调用时传递给`index`函数的`name`形参，且配置该参数必填
 
 ```js
 @RequestMapping('/home')
@@ -306,16 +303,31 @@ class HomeController {
 }
 ```
 
-### ServletParam 
+### ServletRequest 
 
-提取`request`与`response`整个对象
+提取`request`整个对象。
 
 ```js
 @RequestMapping('/home')
 class HomeController { 
 
   @GetMapping('/index')
-  detail(@ServletParam('request') request, @ServletParam('response') response){
+  detail(@ServletRequest request){
+    
+  }
+}
+```
+
+### ServletResponse
+
+提取`response`整个对象。
+
+```js
+@RequestMapping('/home')
+class HomeController { 
+
+  @GetMapping('/index')
+  detail(@ServletResponse response){
     
   }
 }
@@ -323,15 +335,15 @@ class HomeController {
 
 ## 返回内容
 
-控制器函数返回内容默认支持下几种类型
+在控制器具体函数中，我们可以返回以下几种类型来将内容返回到客户端。
+
+- InterruptModel 返回空内容，如果是使用express 则和`next`函数类似
 
 - ModelAndView 返回一个视图
 
 - String 返回一个字符串
 
 - Object 如果需要正常返回，需要通过`RequestMapping`指定produces为`application/json`
-
-- undefined 则表示返回''
 
 ```js
 @RequestMapping('/home')
@@ -358,13 +370,10 @@ class HomeController {
 
 ## 视图
 
-框架内置视图解析器接口，但是没有实现具体视图的解析器，例如: `ejs`, `handlerbasrs` 
+框架默认不具备视图渲染功能，不过我们可以自定义视图解析器来支持渲染像`ejs` ,`handlebars`等类型的视图。
 
-如果希望支持以上引擎，可以实现一个视图解析器，将该视图解析器注册到框架解析器容器中，即可完成指定类型视图的渲染。
+###  第一步 实现一个ejs 视图(`View`) 
 
-###  扩展一个ejs视图引擎
-
-定义一个ejs `View` 
 > ./EjsView.ts
 
 ```js
@@ -392,7 +401,8 @@ export default class EjsView extends View {
 }
 ```
 
-定义ejs 视图解析器
+###  第二步 实现一个ejs视图解析器
+
 >  EjsViewResolver.ts
 
 通过重写`UrlBasedViewResolver` 的`internalResolve` 来解析`ejs`的视图
@@ -415,23 +425,15 @@ export default class EjsViewResolver extends UrlBasedViewResolver {
 }
 ```
 
-将`ejs`视图解析器注册到解析器容器中
+### 第三步 注册ejs视图解析器
+
+启动时通过`addViewResolvers`配置来注册视图解析器。
+
 ```js
 import { Registry } from 'node-web-mvc';
 
 // 启动Mvc  
 Registry.launch({
-  // 启动模式： 可选类型: node | express | koa
-  mode: 'node',
-  // 服务端口
-  port: 9800,
-  // 热更新配置
-  hot: {
-    // 配置热更新监听的目录
-    cwd: path.resolve('./'),
-  },
-  // 配置controller存放目录，用于进行controller自动载入与注册使用
-  cwd: path.resolve('./controllers'),
   // 通过配置，来注册ejs视图解析器s
   addViewResolvers(registry) {
     // 注册ejs视图解析器
@@ -479,7 +481,7 @@ class HomeConntroller {
 }
 ```
 
-- `@ApiImplicitParams` 定义指定接口参数
+- `@ApiImplicitParams` 定义接口操作参数信息
 ```js
 @Api({ description: '首页控制器' })
 class HomeConntroller {
@@ -511,7 +513,7 @@ export default class UserInfo {
 }
 ```
 
-- `@ApiModelProperty` 标注指定属性
+- `@ApiModelProperty` 定义实体类属性
 
 ```js
 @ApiModel({ value: '用户信息', description: '用户信息。。' })
