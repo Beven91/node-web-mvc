@@ -1,0 +1,1 @@
+{"version":3,"file":"Scope.js","sourceRoot":"","sources":["../../../../src/servlets/annotations/Scope.ts"],"names":[],"mappings":";;;;;AAAA,oFAA8D;AAQ9D,SAAwB,eAAe,CAAC,KAAK;IAC3C,OAAO,UAAU,UAAU;QACzB,IAAM,UAAU,GAAG,8BAAoB,CAAC,uBAAuB,CAAC,UAAU,CAAC,CAAC;QAC5E,UAAU,CAAC,KAAK,GAAG,KAAK,CAAC;IAC3B,CAAC,CAAA;AACH,CAAC;AALD,kCAKC"}
