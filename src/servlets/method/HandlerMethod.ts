@@ -100,12 +100,15 @@ export default class HandlerMethod {
   }
 
   /**
-   * 获取当前action设定的标注信息
+   * 获取当前action设定的注解信息
    * 由于Javascript没有反射，所以这里仅返回控制器的所有标记属性
+   * @param { Class } ctor 注解构造函数
    */
-  public getMethodAnnotations() {
+  public getMethodAnnotations(ctor?) {
     const descriptor = ControllerManagement.getControllerDescriptor(this.servletContext.Controller);
-    return descriptor.actions[this.servletContext.actionName];
+    if (!ctor) {
+      return descriptor.actions[this.servletContext.actionName];
+    }
   }
 
   /**

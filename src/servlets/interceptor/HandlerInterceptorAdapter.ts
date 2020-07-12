@@ -6,6 +6,7 @@
 import HandlerInteceptor from './HandlerInteceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
 import HttpServletResponse from '../http/HttpServletResponse';
+import HandlerMethod from '../method/HandlerMethod';
 
 export default abstract class HandlerInterceptorAdapter implements HandlerInteceptor {
   /**
@@ -16,7 +17,7 @@ export default abstract class HandlerInterceptorAdapter implements HandlerIntece
    * @returns { boolean }
    *   返回值：true表示继续流程（如调用下一个拦截器或处理器）；false表示流程中断（如登录检查失败），不会继续调用其他的拦截器或处理器，此时我们需要通过response来产生响应；
    */
-  preHandle(request: HttpServletRequest, response: HttpServletResponse, handler): boolean {
+  preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: HandlerMethod): boolean {
     return true;
   }
 
@@ -27,7 +28,7 @@ export default abstract class HandlerInterceptorAdapter implements HandlerIntece
    * @param { ControllerContext } handler  当前拦截待执行的函数相关信息
    * @param { any } result 执行action返回的结果
    */
-  postHandle(request: HttpServletRequest, response: HttpServletResponse, handler, result): void {
+  postHandle(request: HttpServletRequest, response: HttpServletResponse, handler: HandlerMethod, result): void {
   }
 
   /**
@@ -38,6 +39,6 @@ export default abstract class HandlerInterceptorAdapter implements HandlerIntece
    * @param { ControllerContext } handler  当前拦截待执行的函数相关信息
    * @param { any } ex 如果执行action出现异常时，此参数会有值
    */
-  afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler, ex): void {
+  afterCompletion(request: HttpServletRequest, response: HttpServletResponse, handler: HandlerMethod, ex): void {
   }
 }

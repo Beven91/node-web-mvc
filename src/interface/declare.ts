@@ -7,7 +7,12 @@ export declare class ActionsMap {
 }
 
 // 动作描述
-export declare class ActionDescriptors {
+export class ActionDescriptors {
+  constructor() {
+    this.params = [];
+    this.annotations = [];
+  }
+
   // 动作函数
   value: Function
   // 配置在控制器上的映射
@@ -18,6 +23,15 @@ export declare class ActionDescriptors {
    * 当前函数的参数配置
    */
   params?: Array<MethodParameter>
+  /**
+   * 当前动作的相关注解
+   */
+  annotations: Array<ActionAnnotation>
+}
+
+export declare class ActionAnnotation {
+  ctor: Function
+  options: any
 }
 
 export declare class DescriptorSwaggerMethods {

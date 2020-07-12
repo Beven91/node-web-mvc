@@ -60,7 +60,7 @@ export default class ControllerManagement {
     const descriptor = ControllerManagement.getControllerDescriptor(ctor);
     const actions = descriptor.actions;
     if (!actions[name]) {
-      actions[name] = ({ params: [] } as ActionDescriptors);
+      actions[name] = new ActionDescriptors();// ({ params: [], annotations: [] } as ActionDescriptors);
     }
     const action = actions[name];
     if (!action.params) {
