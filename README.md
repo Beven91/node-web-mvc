@@ -225,7 +225,9 @@ class HomeController {
 
 - `@RequestHeader` 提取请求头中的指定名的请求头做为参数
 
-- `@ServletParam` 用于提取`request`与`response`
+- `@ServletRequest` 用于提取`request` 对象
+
+- `@ServletResponse` 用于提取`response` 对象
 
 ### RequestParam
 
@@ -434,6 +436,7 @@ import { Registry } from 'node-web-mvc';
 
 // 启动Mvc  
 Registry.launch({
+  // ... 其他配置
   // 通过配置，来注册ejs视图解析器s
   addViewResolvers(registry) {
     // 注册ejs视图解析器
@@ -510,6 +513,7 @@ import AuthorizationInterceptor from './interceptors/AuthorizationInterceptor';
 
 // 启动Mvc  
 Registry.launch({
+  // ... 其他配置
   // 通过配置来注册拦截器
   addInterceptors(registry) {
     registry.addInterceptors(new AuthorizationInterceptor())
@@ -517,12 +521,234 @@ Registry.launch({
 });
 ```
 
-
 ## HttpMessageConverter 内容转换
 
-消息转换器
+框架内置了以下几种类型的请求内容转换
+
+- JsonMessageConverter 将`application/json`的http.body正文转换成`json`对象.
+
+- UrlencodedMessageConverter 用于转换类型为`application/x-www-form-urlencoded`的请求内容。
+
+- MultipartMessageConverter 用于转换类型为`multipart/form-data`的请求内容
+
+如果您需要处理其他类型的请求内容，可以自定义一个转换器
+
+### 自定义Http转换器
+
+#### 第一步
+
+通过实现`HttpMessageConverter`接口来实现一个转换器
+
+> XmlHttpMessageConverter.ts
+
+```js
+import { MediaType, ServletContext, HttpMessageConverter,RequestWriterStream } from 'node-web-mvc';
+import xml2js from 'xml2js';
+
+export default class XmlHttpMessageConverter implements HttpMessageConverter {
+  /**
+   * 判断当前转换器是否能处理当前内容类型
+   * @param mediaType 当前内容类型 例如: application/xml
+   */
+  canRead(mediaType: MediaType): boolean {
+    return mediaType.name === 'application/xml';
+  }
+
+  /**
+   * 判断当前内容是否能写
+   * @param mediaType 当前内容类型 例如: application/xml
+   */
+  canWrite(mediaType: MediaType): boolean {
+    return mediaType.name === 'application/xml';
+  }
+
+  // getSupportedMediaTypes(): Array<string>
+
+  /**
+   * 读取当前消息内容
+   * @param servletRequest
+   */
+  read(servletContext: ServletContext, mediaType: MediaType): any {
+    return new Promise((resolve, reject) => {
+      new RequestWriterStream(servletContext.request, (buffers) => {
+        xml2js.parseString(buffers.toString('utf8'), (err, data) => {
+          err ? reject(err) : resolve(data);
+        });
+      });
+    })
+  }
+
+  /**
+   * 写出当前内容
+   * @param data 当前数据
+   * @param mediaType 当前内容类型
+   * @param servletContext 当前请求上下文
+   */
+  write(data: any, mediaType: MediaType, servletContext: ServletContext) {
+    return new Promise((resolve) => {
+      const builder = new xml2js.Builder();
+      const xml = builder.buildObject(data);
+      servletContext.response.write(xml, resolve);
+    })
+  }
+}
+```
+
+#### 第二步
+
+通过`addMessageConverters`将`XmlHttpMessageConverter`进行注册。
+
+> Launch.ts
+
+```js
+import { Registry } from 'node-web-mvc';
+import XmlHttpMessageConverter from './interceptors/XmlHttpMessageConverter';
+
+// 启动Mvc  
+Registry.launch({
+  // ... 其他配置
+  // 注册XmlHttpMessageConverter
+  addMessageConverters(converters) {
+    converters.addMessageConverters(new XmlHttpMessageConverter());
+  }
+});
+
+```
+
+#### 第三步
+
+这样就可以在控制器中使用了
+
+> DataController.ts
+
+```js
+import { RequestMapping, PostMapping, ResponseBody } from 'node-web-mvc';
+
+@RequestMapping('/data')
+export default class DataController {
+
+  // 这里：同时测试 读取xml 以及返回xml
+  @PostMapping({ value: '/receieve', consumes: 'application/xml', produces: 'application/xml' })
+  receieve(@ResponseBody data){
+    console.log('xml data',data);
+    return data;
+  }
+}
+```
 
 ## ArgumentResolver  参数解析
+
+框架内置了以下几种类型的请求参数解析
+
+- `@RequestParam` 提取类型为`urleoncoded`的参数
+
+- `@RequestBody` 提取整个`body`内容，通常是提取成为一个`json`对象
+
+- `@PathVariable` 提取路由中的占位参数
+
+- `@RequestHeader` 提取请求头中的指定名的请求头做为参数
+
+- `@ServletRequest` 用于提取`request` 对象
+
+- `@ServletResponse` 用于提取`response` 对象
+
+如果您需要处理其他类型的请求内容，可以自定义一个参数解析器
+
+### 自定义参数解析器
+
+例如，以下实现通过 `PathVariable` 注解来提取路径参数。
+
+#### 第一步
+
+定义一个`PathVariable`
+
+> PathVariable.ts
+
+```js
+import { createParam, MethodParameterOptions } from 'node-web-mvc';
+
+/**
+ * 从请求path中提取指定名称的参数值
+ * 
+ *  action(@PathVariable id)
+ * 
+ *  action(@PathVariable({ required: true }) id) 
+ */
+export default function PathVariable(target: MethodParameterOptions | Object | string, name?: string, index?: number): any {
+  if (arguments.length === 3) {
+    // 长度为3表示使用为参数注解 例如:  index(@PathVariable id)
+    return createParam(target, name, { value: null }, index, 'path', PathVariable);
+  } else {
+    // 通过调用配置返回注解 例如: index(@PathVariable({ value:'id',required:true })  id)
+    const isString = typeof target === 'string';
+    const options = (isString ? { value: target } : target) as MethodParameterOptions;
+    return function (newTarget, newName, newIndex) {
+      newIndex = isNaN(newIndex) ? -1 : newIndex;
+      return createParam(newTarget, newName, options, newIndex, 'path', PathVariable);
+    }
+  }
+}
+```
+
+
+#### 第二步
+
+通过实现`HandlerMethodArgumentResolver`接口来实现一个解析器
+
+> PathVariableMapMethodArgumentResolver.ts 
+
+```js
+import { ServletContext,MethodParameter, HandlerMethodArgumentResolver } from 'node-web-mvc';
+import PathVariable from './PathVariable';
+
+export default class PathVariableMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
+
+  supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
+    return paramater.hasParameterAnnotation(PathVariable)
+  }
+
+  resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
+    return servletContext.request.pathVariables[parameter.value];
+  }
+}
+```
+
+#### 第三步
+
+通过`addArgumentResolvers`将`PathVariableMapMethodArgumentResolver`进行注册。
+
+```js
+import { Registry } from 'node-web-mvc';
+import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgumentResolver';
+
+// 启动Mvc  
+Registry.launch({
+  // ... 其他配置
+  // 注册XmlHttpMessageConverter
+  addArgumentResolvers(resolvers) {
+    resolvers.addArgumentResolvers(new PathVariableMapMethodArgumentResolver());
+  }
+});
+
+```
+
+#### 第四步
+
+这样就可以在控制器中使用了
+
+```js
+import { RequestMapping, PostMapping } from 'node-web-mvc';
+import PathVariable from './PathVariable';
+
+@RequestMapping('/data')
+export default class DataController {
+
+  @PostMapping('/home/{id}')
+  receieve(@PathVariable id){
+    console.log('id');
+  }
+}
+```
 
 参数解析器
 
