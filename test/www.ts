@@ -4,6 +4,7 @@ import { Registry } from '../src/index';
 import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
 import EjsViewResolver from './resolvers/EjsViewResolver';
+import XmlHttpMessageConverter from './converters/XmlHttpMessageConverter';
 
 
 const port = 9800;
@@ -35,6 +36,9 @@ Registry.launch({
   },
   addViewResolvers(registry) {
     registry.addViewResolver(new EjsViewResolver('test/WEB-INF/', '.ejs'))
+  },
+  addMessageConverters(converters) {
+    converters.addMessageConverters(new XmlHttpMessageConverter());
   }
 });
 

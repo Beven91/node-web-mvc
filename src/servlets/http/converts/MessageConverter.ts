@@ -25,7 +25,7 @@ export default class MessageConverter {
    * @param servletContext 
    */
   static addMessageConverters(converter: HttpMessageConverter) {
-    registerConverters.push(converter);
+    registerConverters.unshift(converter);
   }
 
   /**

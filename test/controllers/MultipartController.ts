@@ -1,4 +1,4 @@
-import { RequestMapping } from '../../src/index';
+import { RequestMapping, RequestBody } from '../../src/index';
 import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../src/index';
 import { PostMapping } from '../../src/index';
 import ModelAndView from '../../src/servlets/models/ModelAndView';
@@ -36,12 +36,22 @@ export default class MultipartController {
     }
     return {
       status: 0,
-      name:name,
+      name: name,
       message: '上传成功'
     }
   }
 
-  hello(){
+  @ApiOperation({ value: 'xml测试', notes: 'application/json测试' })
+  @ApiImplicitParams([
+    { value: '提交数据', paramType: 'body', name: 'data', required: true },
+  ])
+  @PostMapping({ value: '/xml', consumes: 'application/xml', produces: 'application/xml' })
+  xml(@RequestBody data) {
+    console.log('xml', data);
+    return data;
+  }
+
+  hello() {
     return 'hello3'
   }
 }

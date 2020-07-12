@@ -26,7 +26,7 @@ export declare class RouteMappingOptions {
   /**
    * 当前路由能接受的内容类型
    */
-  consumes?: Array<string>
+  consumes?: Array<string> | string
 
   /**
    * 当前路由需要的请求头信息
@@ -101,11 +101,11 @@ export default class RouteMapping {
   constructor(value, method, produces, params, headers, consumes) {
     this.method = {} as Map<string, boolean>;
     this.value = ensureArrayPaths(value);
-    this.consumes = consumes;
+    this.consumes = typeof consumes === 'string' ? [consumes] : consumes;
     this.produces = produces;
     this.params = params;
     this.headers = headers;
-    const methods = ensureArrayPaths(method || ['GET', 'POST', 'DELETE', 'PUT', 'PATCH','OPTIONS']);
+    const methods = ensureArrayPaths(method || ['GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS']);
     methods.forEach((k) => {
       this.method[k.toUpperCase()] = true;
     });

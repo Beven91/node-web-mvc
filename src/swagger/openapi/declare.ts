@@ -153,6 +153,7 @@ export declare class ApiOperationParamMeta {
    * 参数值类型
    */
   type: string
+
   /**
    * 参数引用类型定义
    */

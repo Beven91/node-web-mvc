@@ -33,5 +33,5 @@ export default interface HttpMessageConverter {
    * @param mediaType 当前内容类型
    * @param servletContext 当前请求上下文
    */
-  write(data: any, mediaType: MediaType, servletContext: ServletContext): void
+  write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any>
 }

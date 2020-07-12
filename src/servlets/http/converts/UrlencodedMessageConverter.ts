@@ -28,5 +28,6 @@ export default class UrlencodedMessageConverter implements HttpMessageConverter 
 
   write(data, mediaType: MediaType, servletContext: ServletContext) {
     // 暂不实现
+    return Promise.resolve();
   }
 }

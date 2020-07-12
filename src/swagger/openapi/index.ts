@@ -213,7 +213,7 @@ export default class OpenApiModel {
     const code = 'code' in option ? option.code : '200';
     const model = definitions[option.dataType];
     const operationDoc = {
-      consumes: mainMapping.consumes || operation.consumes,
+      consumes: mapping.consumes || operation.consumes,
       deprecated: false,
       operationId: operation.method,
       tags: api.option.tags,
@@ -253,7 +253,7 @@ export default class OpenApiModel {
     operation.parameters.forEach((parameter) => {
       const dataType = parameter.type;
       const model = definitions[dataType];
-      if (dataType === 'file') {
+      if (dataType === 'file' && !operation.consumes) {
         operation.consumes = ['multipart/form-data'];
       }
       parameter.type = model ? undefined : dataType || 'string',
@@ -277,7 +277,7 @@ hot.create(module).preload((old) => {
   const api = apiMetaList.find((api) => api.class === info);
   if (api) {
     const index = apiMetaList.indexOf(api);
-    console.log('find inddex',index);
+    console.log('find inddex', index);
     apiMetaList.splice(index, 1);
   }
   // 删除schema

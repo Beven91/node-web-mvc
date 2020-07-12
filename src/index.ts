@@ -23,7 +23,7 @@ import ApiModelProperty from './swagger/annotations/ApiModelProperty';
 import ApiImplicitParams from './swagger/annotations/ApiImplicitParams';
 import RequestBody from './servlets/annotations/params/RequestBody';
 import RequestParam from './servlets/annotations/params/RequestParam';
-import ServletParam,{ ServletRequest,ServletResponse } from './servlets/annotations/params/ServletParam';
+import ServletParam, { ServletRequest, ServletResponse } from './servlets/annotations/params/ServletParam';
 import PathVariable from './servlets/annotations/params/PathVariable';
 import RequestHeader from './servlets/annotations/params/RequestHeader';
 import MultipartFile from './servlets/http/MultipartFile';
@@ -32,6 +32,8 @@ import HandlerMethodArgumentResolver from './servlets/method/argument/HandlerMet
 import ViewResolver from './servlets/view/resolvers/ViewResolver';
 import UrlBasedViewResolver from './servlets/view/resolvers/UrlBasedViewResolver';
 import View from './servlets/view/View';
+import RequestMemoryStream from './stream/RequestMemoryStream';
+import createParam from './servlets/annotations/params/createParam';
 import hot from './hot/index';
 
 export {
@@ -71,6 +73,8 @@ export {
   View,
   ViewResolver,
   UrlBasedViewResolver,
+  RequestMemoryStream,
+  createParam
 }
 
 hot.create(module);

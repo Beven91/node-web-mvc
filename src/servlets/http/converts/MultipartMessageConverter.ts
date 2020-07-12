@@ -75,5 +75,6 @@ export default class MultipartMessageConverter implements HttpMessageConverter {
 
   write(data: any, mediaType: MediaType, servletContext: ServletContext) {
     // 暂不实现写出
+    return Promise.resolve();
   }
 }
