@@ -15,6 +15,7 @@
     "rootDir": "./"
   },
   "exclude": [
+    "test",
     "node_modules",
   ]
 }

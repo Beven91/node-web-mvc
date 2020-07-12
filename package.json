@@ -1,13 +1,15 @@
 {
   "name": "node-web-mvc",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "node spring mvc",
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./src/index",
   "directories": {
     "test": "test"
   },
   "scripts": {
     "start": "ts-node ./test/www.ts",
+    "build":"node ./build.js && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
