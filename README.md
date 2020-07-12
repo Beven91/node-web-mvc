@@ -103,7 +103,7 @@ app.use('/api', Registry.launch({
 }));
 ```
 
-## 控制器 Controller
+## Controller 控制器
 
 完成启动配置后，可以在控制器目录下定义对应的控制器
 
@@ -123,7 +123,7 @@ class HomeController {
 ```
 更多的控制器配置，我们可以阅读后面通过注解来完善控制器。
 
-## 路由映射
+## Route 路由映射
 
 ### `@RequestMapping` 
 
@@ -213,7 +213,7 @@ class HomeController {
 @GetMapping('/route/:foo/(.*)')
 ```
 
-## 参数提取
+## Arguments 参数提取
 
 我们可以通过以下几个注解来定义请求参数的提取方式。
 
@@ -333,7 +333,7 @@ class HomeController {
 }
 ```
 
-## 返回内容
+## Responsee 返回内容
 
 在控制器具体函数中，我们可以返回以下几种类型来将内容返回到客户端。
 
@@ -368,11 +368,11 @@ class HomeController {
 }
 ```
 
-## 视图
+## View 视图
 
 框架默认不具备视图渲染功能，不过我们可以自定义视图解析器来支持渲染像`ejs` ,`handlebars`等类型的视图。
 
-###  第一步 实现一个ejs 视图(`View`) 
+####  第一步 实现一个ejs 视图(`View`) 
 
 > ./EjsView.ts
 
@@ -401,7 +401,7 @@ export default class EjsView extends View {
 }
 ```
 
-###  第二步 实现一个ejs视图解析器
+####  第二步 实现一个ejs视图解析器
 
 >  EjsViewResolver.ts
 
@@ -425,7 +425,7 @@ export default class EjsViewResolver extends UrlBasedViewResolver {
 }
 ```
 
-### 第三步 注册ejs视图解析器
+#### 第三步 注册ejs视图解析器
 
 启动时通过`addViewResolvers`配置来注册视图解析器。
 
@@ -442,7 +442,7 @@ Registry.launch({
 });
 ```
 
-## Interceptor
+## Interceptor 拦截器
 
 框架同时也内置了拦截器，我们可以通过自定义拦截器来完成一些请求的前置，以及后置处理。
 
@@ -518,12 +518,11 @@ Registry.launch({
 ```
 
 
-
-## HttpMessageConverter  
+## HttpMessageConverter 内容转换
 
 消息转换器
 
-## HandlerMethodArgumentResolver 
+## ArgumentResolver  参数解析
 
 参数解析器
 
