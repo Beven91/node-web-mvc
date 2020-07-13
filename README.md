@@ -682,14 +682,14 @@ Registry.launch({
 > DataController.ts
 
 ```js
-import { RequestMapping, PostMapping, ResponseBody } from 'node-web-mvc';
+import { RequestMapping, PostMapping, RequestBody } from 'node-web-mvc';
 
 @RequestMapping('/data')
 export default class DataController {
 
   // 这里：同时测试 读取xml 以及返回xml
   @PostMapping({ value: '/receieve', consumes: 'application/xml', produces: 'application/xml' })
-  receieve(@ResponseBody data){
+  receieve(@RequestBody data){
     console.log('xml data',data);
     return data;
   }
