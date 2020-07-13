@@ -405,9 +405,7 @@ export default class HomeController {
 
 利用`ControllerAdvice` 来进行全局异常控制
 
-#### 第一步
-
-定义一个异常处理类，然后使用`ControllerAdvice`注解标注当前类所有全局控制器处理，
+定义一个异常处理类，然后使用`ControllerAdvice`标注当前类为全局控制器处理，
 
 最后在该类上定义一个异常处理函数，然后通过`ExceptionHandler`标注成异常处理函数。
 
