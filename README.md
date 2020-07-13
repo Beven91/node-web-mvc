@@ -896,10 +896,10 @@ export default class UserInfo {
 
 通过上述文档，我们知道，框架默认支持`node`原生,`express`以及`koa` 三种启动方式，如果您希望框架接入到其他的node的`web`框架中，
 
+书写一个继承于`ServletContext`的启动类即可。
+
 
 #### 第一步
-
-书写一个继承于`ServletContext`的启动类即可
 
 例如: 内部的实现的`express`启动上下文
 
