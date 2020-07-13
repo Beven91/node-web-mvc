@@ -38,6 +38,8 @@ yarn add node-web-mvc
 
 ### node 模式
 
+`Registry.launch`启动时，配置接口可参考: [`WebAppConfigurerOptions`](#WebAppConfigurerOptions)
+
 ```js
 import { Registry } from 'node-web-mvc';
 
@@ -47,7 +49,7 @@ Registry.launch({
   mode: 'node',
   // 服务端口
   port: 9800,
-  // 热更新配置
+  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
   hot: {
     // 配置热更新监听的目录
     cwd: path.resolve('./'),
@@ -70,7 +72,7 @@ app.use('/api', Registry.launch({
   port: 9800,
   // 指定路由基础路径
   base: '/api',
-  // 热更新配置
+  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
   hot: {
     // 配置热更新监听的目录
     cwd: path.resolve('./'),
@@ -93,7 +95,7 @@ app.use('/api', Registry.launch({
   port: 9800,
   // 指定路由基础路径
   base: '/api',
-  // 热更新配置
+  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
   hot: {
     // 配置热更新监听的目录
     cwd: path.resolve('./'),
@@ -248,7 +250,7 @@ class HomeController {
 
 同时`@RequestParam` 也可以进行详细配置[`MethodParameterOptions`](#MethodParameterOptions)
 
-> 例如： 将url中传递过来的`userName`提取实参调用时传递给`index`函数的`name`形参，且配置该参数必填
+> 例如： 将url中传递过来的`userName`值提取给`index`中的 `name`参数
 
 ```js
 @RequestMapping('/home')
@@ -808,7 +810,13 @@ export default class DataController {
 }
 ```
 
-参数解析器
+## 热更新
+
+在启动时，可通过配置`hot`配置启用热更新服务，
+
+在热更新服务下，控制器代码以及及依赖模块改动，无需重启服务器。
+
+
 
 ## Swagger
 
@@ -885,6 +893,35 @@ export default class UserInfo {
 ```
 
 ## 类型定义
+
+### WebAppConfigurerOptions
+
+```js
+class WebAppConfigurerOptions {
+  // 端口
+  port?: number
+  // 当前类型
+  mode: string
+  // 是否开启swagger文档
+  swagger?: boolean
+  // 基础路径
+  base?: string
+  // 配置请求内容大小
+  multipart?: Multipart
+  // 存放控制器的根目录
+  cwd: string
+  // 热更新配置
+  hot?: HotOptions
+  // 注册拦截器
+  addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
+  // 添加http消息转换器
+  addMessageConverters?: (converters: typeof MessageConverter) => void
+  // 添加参数解析器
+  addArgumentResolvers?: (resolvers: typeof ArgumentsResolvers) => void
+  // 添加视图解析器
+  addViewResolvers?: (registry: typeof ViewResolverRegistry) => void
+}
+```
 
 ### MethodParameterOptions
 
