@@ -784,7 +784,7 @@ import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgume
 // 启动Mvc  
 Registry.launch({
   // ... 其他配置
-  // 注册XmlHttpMessageConverter
+  // 注册
   addArgumentResolvers(resolvers) {
     resolvers.addArgumentResolvers(new PathVariableMapMethodArgumentResolver());
   }
