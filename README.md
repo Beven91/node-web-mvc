@@ -370,6 +370,66 @@ class HomeController {
 }
 ```
 
+
+## 异常处理
+
+框架可以通过以下两个注解来进行控制器异常处理
+
+- `ExceptionHandler`
+
+- `ControllerAdvice` 
+
+### ExceptionHandler
+
+如果将`ExceptionHandler`标注在控制器的函数上，则表示当前控制器的函数执行异常时，会使用当前标注的函数来进行异常处理。
+
+```js
+import { GetMapping, RequestMapping, ExceptionHandler } from 'node-web-mvc';
+
+@RequestMapping('/home')
+export default class HomeController {
+
+  @GetMapping('/index')
+  index(){
+    throw new Error('error');
+  }
+
+  @ExceptionHandler
+  handleException(error){
+    // 返回一个 json 异常对象
+    return { code:error.code,message:error.message };
+  }
+}
+```
+### ControllerAdvice
+
+利用`ControllerAdvice` 来进行全局异常控制
+
+#### 第一步
+
+定义一个异常处理类，然后使用`ControllerAdvice`注解标注当前类所有全局控制器处理，
+
+最后在该类上定义一个异常处理函数，然后通过`ExceptionHandler`标注成异常处理函数。
+
+例如:
+
+> AppException.ts
+
+```js
+
+@ControllerAdvice
+class AppException {
+
+  @ExceptionHandler
+  handleException(error){
+    // 返回一个 json 异常对象
+    return { code:error.code,message:error.message };
+  }
+}
+```
+
+我们可以通过
+
 ## View 视图
 
 框架默认不具备视图渲染功能，不过我们可以自定义视图解析器来支持渲染像`ejs` ,`handlebars`等类型的视图。
