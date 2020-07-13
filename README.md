@@ -38,7 +38,7 @@ yarn add node-web-mvc
 
 ### node 模式
 
-`Registry.launch`启动时，配置接口可参考: [`WebAppConfigurerOptions`](#WebAppConfigurerOptions)
+`Registry.launch`启动时，配置结构可参考: [`WebAppConfigurerOptions`](#WebAppConfigurerOptions)
 
 ```js
 import { Registry } from 'node-web-mvc';
@@ -890,6 +890,61 @@ export default class UserInfo {
   @ApiModelProperty({ value: '用户编码', required: true, example: 1 })
   public userId: number
 }
+```
+
+## 如何定制一个上下文
+
+通过上述文档，我们知道，框架默认支持`node`原生,`express`以及`koa` 三种启动方式，如果您希望框架接入到其他的node的`web`框架中，
+
+
+#### 第一步
+
+书写一个继承于`ServletContext`的启动类即可
+
+例如: 内部的实现的`express`启动上下文
+
+> ServletExpressContext.ts
+
+```js
+/**
+ * @module ServletExpressContext
+ * @description 用于实现在express框架下运行mvc的请求上下文
+ */
+import { ServletContext } from 'node-web-mvc';
+
+export default class ServletExpressContext extends ServletContext {
+  /**
+   * 用于接入要实现的目标平台的启动入口，主要用于
+   * 返回一个启动中间件函数，通过返回的来获取到 request response next
+   * 然后调用 callback(request,response,next) 即可
+   * @param callback 
+   */
+  static launch(callback) {
+    return function (request:IncomingMessage, response:ServerResponse, next) {
+      // 需要保证:
+      //   1. request为node原生http的 IncomingMessage 
+      //   2. response为node原生http的 ServerResponse
+      callback(request, response, next);
+    }
+  }
+}
+```
+
+#### 第二步
+
+将书写的上下文，注册到启动器中。
+
+```js
+import { Registry } from 'node-web-mvc';
+import ServletExpressContext from './ServletExpressContext';
+
+// 注册一个express上下文
+Registry.register('express', ServletExpressContext);
+
+// 接下来启动时将 mode设置成 express 就可以了
+Registry.launch({
+  mode:'express'
+});
 ```
 
 ## 类型定义
