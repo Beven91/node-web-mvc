@@ -27,7 +27,7 @@ yarn add node-web-mvc
 
 `node-web-mvc` 默认支持三种启动模式
 
-- node  纯node模式，通过`http`模块来启动服务
+- node  通过`http`模块来启动服务
 
 - express 通过`express`的中间件来附加服务
 
