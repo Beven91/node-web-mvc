@@ -27,7 +27,7 @@ yarn add node-web-mvc
 
 `node-web-mvc` 默认支持三种启动模式
 
-- node  纯node模式，通过`http`模块来启动服务
+- node  通过`http`模块来启动服务
 
 - express 通过`express`的中间件来附加服务
 
@@ -38,6 +38,8 @@ yarn add node-web-mvc
 
 ### node 模式
 
+`Registry.launch`启动时，配置结构可参考: [`WebAppConfigurerOptions`](#WebAppConfigurerOptions)
+
 ```js
 import { Registry } from 'node-web-mvc';
 
@@ -47,7 +49,7 @@ Registry.launch({
   mode: 'node',
   // 服务端口
   port: 9800,
-  // 热更新配置
+  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
   hot: {
     // 配置热更新监听的目录
     cwd: path.resolve('./'),
@@ -70,7 +72,7 @@ app.use('/api', Registry.launch({
   port: 9800,
   // 指定路由基础路径
   base: '/api',
-  // 热更新配置
+  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
   hot: {
     // 配置热更新监听的目录
     cwd: path.resolve('./'),
@@ -93,7 +95,7 @@ app.use('/api', Registry.launch({
   port: 9800,
   // 指定路由基础路径
   base: '/api',
-  // 热更新配置
+  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
   hot: {
     // 配置热更新监听的目录
     cwd: path.resolve('./'),
@@ -248,7 +250,7 @@ class HomeController {
 
 同时`@RequestParam` 也可以进行详细配置[`MethodParameterOptions`](#MethodParameterOptions)
 
-> 例如： 将url中传递过来的`userName`提取实参调用时传递给`index`函数的`name`形参，且配置该参数必填
+> 例如： 将url中传递过来的`userName`值提取给`index`中的 `name`参数
 
 ```js
 @RequestMapping('/home')
@@ -369,6 +371,64 @@ class HomeController {
   }
 }
 ```
+
+
+## 异常处理
+
+框架可以通过以下两个注解来进行控制器异常处理
+
+- `ExceptionHandler`
+
+- `ControllerAdvice` 
+
+### ExceptionHandler
+
+如果将`ExceptionHandler`标注在控制器的函数上，则表示当前控制器的函数执行异常时，会使用当前标注的函数来进行异常处理。
+
+```js
+import { GetMapping, RequestMapping, ExceptionHandler } from 'node-web-mvc';
+
+@RequestMapping('/home')
+export default class HomeController {
+
+  @GetMapping('/index')
+  index(){
+    throw new Error('error');
+  }
+
+  @ExceptionHandler
+  handleException(error){
+    // 返回一个 json 异常对象
+    return { code:error.code,message:error.message };
+  }
+}
+```
+### ControllerAdvice
+
+利用`ControllerAdvice` 来进行全局异常控制
+
+定义一个异常处理类，然后使用`ControllerAdvice`标注当前类为全局控制器处理，
+
+最后在该类上定义一个异常处理函数，然后通过`ExceptionHandler`标注成异常处理函数。
+
+例如:
+
+> AppException.ts
+
+```js
+
+@ControllerAdvice
+class AppException {
+
+  @ExceptionHandler
+  handleException(error){
+    // 返回一个 json 异常对象
+    return { code:error.code,message:error.message };
+  }
+}
+```
+
+我们可以通过
 
 ## View 视图
 
@@ -622,14 +682,14 @@ Registry.launch({
 > DataController.ts
 
 ```js
-import { RequestMapping, PostMapping, ResponseBody } from 'node-web-mvc';
+import { RequestMapping, PostMapping, RequestBody } from 'node-web-mvc';
 
 @RequestMapping('/data')
 export default class DataController {
 
   // 这里：同时测试 读取xml 以及返回xml
   @PostMapping({ value: '/receieve', consumes: 'application/xml', produces: 'application/xml' })
-  receieve(@ResponseBody data){
+  receieve(@RequestBody data){
     console.log('xml data',data);
     return data;
   }
@@ -724,7 +784,7 @@ import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgume
 // 启动Mvc  
 Registry.launch({
   // ... 其他配置
-  // 注册XmlHttpMessageConverter
+  // 注册
   addArgumentResolvers(resolvers) {
     resolvers.addArgumentResolvers(new PathVariableMapMethodArgumentResolver());
   }
@@ -750,7 +810,13 @@ export default class DataController {
 }
 ```
 
-参数解析器
+## 热更新
+
+在启动时，可通过配置`hot`配置启用热更新服务，
+
+在热更新服务下，控制器代码以及及依赖模块改动，无需重启服务器。
+
+
 
 ## Swagger
 
@@ -826,7 +892,93 @@ export default class UserInfo {
 }
 ```
 
+## 如何定制一个上下文
+
+通过上述文档，我们知道，框架默认支持`node`原生,`express`以及`koa` 三种启动方式，如果您希望框架接入到node的其他`web`框架中，
+
+书写一个继承于`ServletContext`的启动上下文类可。
+
+
+#### 第一步
+
+定义一个新的下文类
+
+例如: 内部的实现的`express`启动上下文
+
+> ServletExpressContext.ts
+
+```js
+/**
+ * @module ServletExpressContext
+ * @description 用于实现在express框架下运行mvc的请求上下文
+ */
+import { ServletContext } from 'node-web-mvc';
+
+export default class ServletExpressContext extends ServletContext {
+  /**
+   * 用于接入要实现的目标平台的启动入口，主要用于
+   * 返回一个启动中间件函数，通过返回的来获取到 request response next
+   * 然后调用 callback(request,response,next) 即可
+   * @param callback 
+   */
+  static launch(callback) {
+    return function (request:IncomingMessage, response:ServerResponse, next) {
+      // 需要保证:
+      //   1. request为node原生http的 IncomingMessage 
+      //   2. response为node原生http的 ServerResponse
+      callback(request, response, next);
+    }
+  }
+}
+```
+
+#### 第二步
+
+将书写的上下文，注册到启动器中。
+
+```js
+import { Registry } from 'node-web-mvc';
+import ServletExpressContext from './ServletExpressContext';
+
+// 注册一个express上下文
+Registry.register('express', ServletExpressContext);
+
+// 接下来启动时将 mode设置成 express 就可以了
+Registry.launch({
+  mode:'express'
+});
+```
+
 ## 类型定义
+
+### WebAppConfigurerOptions
+
+```js
+class WebAppConfigurerOptions {
+  // 端口
+  port?: number
+  // 当前类型
+  mode: string
+  // 是否开启swagger文档
+  swagger?: boolean
+  // 基础路径
+  base?: string
+  // 配置请求内容大小
+  multipart?: Multipart
+  // 存放控制器的根目录
+  cwd: string
+  // 热更新配置
+  hot?: HotOptions
+  // 注册拦截器
+  addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
+  // 添加http消息转换器
+  addMessageConverters?: (converters: typeof MessageConverter) => void
+  // 添加参数解析器
+  addArgumentResolvers?: (resolvers: typeof ArgumentsResolvers) => void
+  // 添加视图解析器
+  addViewResolvers?: (registry: typeof ViewResolverRegistry) => void
+}
+```
 
 ### MethodParameterOptions
 
