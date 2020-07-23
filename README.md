@@ -725,7 +725,7 @@ export default class DataController {
 > UserId.ts
 
 ```js
-import { Target } from '../../src/index';
+import { Target } from 'node-web-mvc';
 
 @Target
 class UserId {
