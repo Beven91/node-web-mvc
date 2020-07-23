@@ -1,1 +1,0 @@
-{"version":3,"file":"ApiOperation.js","sourceRoot":"","sources":["../../../../src/swagger/annotations/ApiOperation.ts"],"names":[],"mappings":";;;;;AAIA,2DAAuC;AAOvC,SAAwB,YAAY,CAAC,SAA8B;IACjE,OAAO,UAAC,MAAM,EAAE,IAAI,EAAE,UAAU;QAC9B,eAAO,CAAC,YAAY,CAAC,SAAS,EAAE,MAAM,CAAC,WAAW,EAAE,IAAI,CAAC,CAAC;IAC5D,CAAC,CAAA;AACH,CAAC;AAJD,+BAIC"}

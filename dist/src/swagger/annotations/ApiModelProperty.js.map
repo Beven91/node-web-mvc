@@ -1,1 +1,0 @@
-{"version":3,"file":"ApiModelProperty.js","sourceRoot":"","sources":["../../../../src/swagger/annotations/ApiModelProperty.ts"],"names":[],"mappings":";;;;;AAIA,2DAAuC;AAOvC,SAAwB,gBAAgB,CAAC,OAAgC;IACvE,OAAO,UAAC,MAAM,EAAE,IAAI;QAClB,eAAO,CAAC,gBAAgB,CAAC,OAAO,EAAE,MAAM,CAAC,WAAW,EAAE,IAAI,CAAC,CAAC;IAC9D,CAAC,CAAA;AACH,CAAC;AAJD,mCAIC"}
