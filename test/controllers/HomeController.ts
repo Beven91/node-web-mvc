@@ -1,5 +1,6 @@
 
 import { Controller, Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable } from '../../src/index';
+import UserId from '../annotations/UserIdAnnotation';
 
 @Api({ description: '首页' })
 @RequestMapping('/home')
@@ -36,5 +37,11 @@ export default class HomeController extends Controller {
   ])
   path(@PathVariable id) {
     return 'home/index...' + id;
+  }
+
+  @ApiOperation({ value: '@UserId 测试' })
+  @GetMapping('/userId')
+  userId(@UserId id) {
+    return 'userId...' + id;
   }
 }

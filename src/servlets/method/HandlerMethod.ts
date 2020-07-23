@@ -9,6 +9,7 @@ import { ActionDescriptors } from '../../interface/declare';
 import InterruptModel from '../models/InterruptModel';
 import MethodParameter from '../../interface/MethodParameter';
 import Javascript from '../../interface/Javascript';
+import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
 
 declare class ParameterDictionary {
   [propName: string]: MethodParameter
@@ -58,10 +59,12 @@ export default class HandlerMethod {
   /**
    * 当前action定义的可解析参数配置
    */
-  public get resolveParameters() {
-    const descriptor = ControllerManagement.getControllerDescriptor(this.servletContext.Controller);
-    const action = (descriptor.actions[this.servletContext.actionName] || {}) as ActionDescriptors
-    return action.params || [];
+  public get resolveParameters(): Array<MethodParameter> {
+    const { Controller, actionName } = this.servletContext;
+    return RuntimeAnnotation.getMethodParamAnnotations(Controller, actionName).map((annotation) => {
+      const name = annotation.nativeAnnotation.constructor.name;
+      return annotation.nativeAnnotation.param || new MethodParameter({ value: annotation.paramName }, name, annotation)
+    })
   }
 
   /**

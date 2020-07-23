@@ -77,7 +77,7 @@ export default class RuntimeAnnotation {
    * @param ctor 函数所在类 
    * @param method 函数名称
    */
-  static getMethodAnnotations(ctor, method) {
+  static getMethodAnnotations(ctor: Function, method: string) {
     const isAnnotation = (s) => s.elementType === ElementType.METHOD && s.name === method;
     return this.getClassAnnotations(ctor).filter(isAnnotation);
   }
@@ -87,7 +87,7 @@ export default class RuntimeAnnotation {
    * @param ctor 函数所在类 
    * @param method 函数名称
    */
-  static getMethodParamAnnotations(ctor, method) {
+  static getMethodParamAnnotations(ctor: Function, method: string) {
     const isAnnotation = (s) => s.elementType === ElementType.PARAMETER && s.name === method;
     return this.getClassAnnotations(ctor).filter(isAnnotation);
   }
@@ -98,7 +98,7 @@ export default class RuntimeAnnotation {
    * @param method 函数名称
    * @param paramName 参数下标
    */
-  static getMethodParamAnnotation(ctor, method, paramName) {
+  static getMethodParamAnnotation(ctor: Function, method: string, paramName: string) {
     return this.getMethodAnnotations(ctor, method).find((s) => s.paramName === paramName);
   }
 

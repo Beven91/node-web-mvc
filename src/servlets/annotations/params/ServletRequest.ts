@@ -6,11 +6,15 @@
 import createParam from './createParam';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import MethodParameter from '../../../interface/MethodParameter';
 
 @Target
 class ServletRequest {
+
+  public param: MethodParameter
+
   constructor(meta: RuntimeAnnotation) {
-    createParam('', meta, 'request');
+    this.param = createParam({ required: true }, meta, 'request');
   }
 }
 
@@ -20,4 +24,4 @@ class ServletRequest {
  * action(@ServletRequest request)
  * 
  */
-export default Target.install<typeof ServletRequest,null>(ServletRequest);
+export default Target.install<typeof ServletRequest, null>(ServletRequest);

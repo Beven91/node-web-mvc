@@ -12,9 +12,19 @@ declare class Query {
   [propName: string]: any
 }
 
+declare class Cookies {
+  [propName: string]: string | Array<string>
+}
+
 export default class HttpServletRequest {
 
+  private _cookies: Cookies
+
   private request: IncomingMessage
+
+  public get cookies(){
+    return this._cookies;
+  }
 
   /**
    * 当前请求上下文
@@ -120,5 +130,6 @@ export default class HttpServletRequest {
     this.path = url.pathname;
     this.mediaType = new MediaType(this.headers['content-type']);
     this.servletContext = servletContext;
+    this._cookies = {};
   }
 }

@@ -716,38 +716,26 @@ export default class DataController {
 
 ### 自定义参数解析器
 
-例如，以下实现通过 `PathVariable` 注解来提取路径参数。
+例如，以下实现通过 `UserId` 注解来提取当前登录用户id。
 
 #### 第一步
 
-定义一个`PathVariable`
+定义一个`UserId`注解
 
-> PathVariable.ts
+> UserId.ts
 
 ```js
-import { createParam, MethodParameterOptions } from 'node-web-mvc';
+import { Target } from '../../src/index';
 
-/**
- * 从请求path中提取指定名称的参数值
- * 
- *  action(@PathVariable id)
- * 
- *  action(@PathVariable({ required: true }) id) 
- */
-export default function PathVariable(target: MethodParameterOptions | Object | string, name?: string, index?: number): any {
-  if (arguments.length === 3) {
-    // 长度为3表示使用为参数注解 例如:  index(@PathVariable id)
-    return createParam(target, name, { value: null }, index, 'path', PathVariable);
-  } else {
-    // 通过调用配置返回注解 例如: index(@PathVariable({ value:'id',required:true })  id)
-    const isString = typeof target === 'string';
-    const options = (isString ? { value: target } : target) as MethodParameterOptions;
-    return function (newTarget, newName, newIndex) {
-      newIndex = isNaN(newIndex) ? -1 : newIndex;
-      return createParam(newTarget, newName, options, newIndex, 'path', PathVariable);
-    }
+@Target
+class UserId {
+  constructor(){
+    // 注解构造函数
   }
 }
+
+// 公布注解
+export default Target.install(UserId);
 ```
 
 
@@ -755,20 +743,23 @@ export default function PathVariable(target: MethodParameterOptions | Object | s
 
 通过实现`HandlerMethodArgumentResolver`接口来实现一个解析器
 
-> PathVariableMapMethodArgumentResolver.ts 
+> UserIdArgumentResolver.ts 
 
 ```js
 import { ServletContext,MethodParameter, HandlerMethodArgumentResolver } from 'node-web-mvc';
-import PathVariable from './PathVariable';
+import UserIdAnnotation from './UserIdAnnotation';
 
-export default class PathVariableMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
+export default class UserIdArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    return paramater.hasParameterAnnotation(PathVariable)
+    return paramater.hasParameterAnnotation(UserIdAnnotation)
   }
 
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
-    return servletContext.request.pathVariables[parameter.value];
+    const cookies = servletContext.request.cookies;
+    const token = cookies.token;
+    // 从token中解析出用户id
+    return TokenService.decode(token).userId;
   }
 }
 ```
@@ -779,14 +770,14 @@ export default class PathVariableMapMethodArgumentResolver implements HandlerMet
 
 ```js
 import { Registry } from 'node-web-mvc';
-import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgumentResolver';
+import UserIdArgumentResolver from './UserIdArgumentResolver';
 
 // 启动Mvc  
 Registry.launch({
   // ... 其他配置
   // 注册
   addArgumentResolvers(resolvers) {
-    resolvers.addArgumentResolvers(new PathVariableMapMethodArgumentResolver());
+    resolvers.addArgumentResolvers(new UserIdArgumentResolver());
   }
 });
 
@@ -798,14 +789,14 @@ Registry.launch({
 
 ```js
 import { RequestMapping, PostMapping } from 'node-web-mvc';
-import PathVariable from './PathVariable';
+import UserId from './UserId';
 
 @RequestMapping('/data')
 export default class DataController {
 
-  @PostMapping('/home/{id}')
-  receieve(@PathVariable id){
-    console.log('id');
+  @PostMapping('/home')
+  receieve(@UserId id){
+    console.log('id',id);
   }
 }
 ```

@@ -34,7 +34,10 @@ import ViewResolver from './servlets/view/resolvers/ViewResolver';
 import UrlBasedViewResolver from './servlets/view/resolvers/UrlBasedViewResolver';
 import View from './servlets/view/View';
 import RequestMemoryStream from './stream/RequestMemoryStream';
+import Target from './servlets/annotations/Target';
 import createParam from './servlets/annotations/params/createParam';
+import ServletContext from './servlets/http/ServletContext';
+import MethodParameter from './interface/MethodParameter';
 import hot from './hot/index';
 
 export {
@@ -71,9 +74,12 @@ export {
   HttpMessageConverter,
   HandlerMethodArgumentResolver,
   View,
+  Target,
   ViewResolver,
   UrlBasedViewResolver,
   RequestMemoryStream,
+  ServletContext,
+  MethodParameter,
   createParam
 }
 

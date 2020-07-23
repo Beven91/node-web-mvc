@@ -6,6 +6,7 @@ import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
 import EjsViewResolver from './resolvers/EjsViewResolver';
 import XmlHttpMessageConverter from './converters/XmlHttpMessageConverter';
+import UserIdArgumentResolver from './resolvers/UserIdArgumentResolver';
 
 const port = 9800;
 // const app = express();
@@ -36,6 +37,9 @@ Registry.launch({
   },
   addViewResolvers(registry) {
     registry.addViewResolver(new EjsViewResolver('test/WEB-INF/', '.ejs'))
+  },
+  addArgumentResolvers(resolvers){
+    resolvers.addArgumentResolvers(new UserIdArgumentResolver());
   },
   addMessageConverters(converters) {
     converters.addMessageConverters(new XmlHttpMessageConverter());
