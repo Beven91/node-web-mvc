@@ -39,6 +39,9 @@ import createParam from './servlets/annotations/params/createParam';
 import ServletContext from './servlets/http/ServletContext';
 import MethodParameter from './interface/MethodParameter';
 import hot from './hot/index';
+import ModelAndView from './servlets/models/ModelAndView';
+import InterruptModel from './servlets/models/InterruptModel';
+import ServletModel from './servlets/models/ServletModel';
 
 export {
   hot,
@@ -76,6 +79,9 @@ export {
   View,
   Target,
   ViewResolver,
+  ModelAndView,
+  InterruptModel,
+  ServletModel,
   UrlBasedViewResolver,
   RequestMemoryStream,
   ServletContext,
