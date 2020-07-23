@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "ts-node ./test/www.ts",
-    "build":"node ./build.js && tsc",
+    "build": "node ./build.js && tsc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -32,6 +32,7 @@
     "busboy": "^0.3.1",
     "bytes": "^3.1.0",
     "fs-extra": "^9.0.1",
+    "lodash": "^4.17.19",
     "path-to-regexp": "^6.1.0"
   },
   "devDependencies": {
