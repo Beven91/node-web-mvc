@@ -1,5 +1,13 @@
 import RequestMapping from './RequestMapping';
 import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping';
+import Target from '../Target';
+
+@Target
+class PatchMapping extends RequestMapping.Annotation {
+  constructor(meta, value: RouteMappingOptions) {
+    super(meta, RouteMapping.create(value, 'PATCH'));
+  }
+}
 
 /**
  * 配置一个Patch类型的请求映射
@@ -11,6 +19,4 @@ import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping'
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default function (value: RouteMappingOptions | string) {
-  return RequestMapping(RouteMapping.create(value, 'PATCH'));
-}
+export default Target.install<typeof PatchMapping, RouteMappingOptions | string>(PatchMapping);

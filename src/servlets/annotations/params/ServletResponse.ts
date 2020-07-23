@@ -1,0 +1,23 @@
+
+/**
+ * @module ServletRsponse
+ * @description 从请求上下文中提取 response对象
+ */
+import createParam from './createParam';
+import Target from '../Target';
+import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+
+@Target
+class ServletRsponse {
+  constructor(meta: RuntimeAnnotation) {
+    createParam('', meta, 'response');
+  }
+}
+
+/**
+ * 从servlet上下文中提取response
+ *
+ * action(@ServletRequest response)
+ * 
+ */
+export default Target.install<typeof ServletRsponse,null>(ServletRsponse);

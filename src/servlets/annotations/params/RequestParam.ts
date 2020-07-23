@@ -4,7 +4,19 @@
  * @description 提取query请求参数值
  */
 import createParam from './createParam';
-import { MethodParameterOptions } from '../../../interface/MethodParameter';
+import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import Target from '../Target';
+import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+
+@Target
+class RequestParam {
+
+  public param: MethodParameter
+
+  constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
+    this.param = createParam(options, meta, 'query');
+  }
+}
 
 /**
  * 从query请求参数中，提取指定名称的参数值
@@ -14,17 +26,4 @@ import { MethodParameterOptions } from '../../../interface/MethodParameter';
  *  action(@RequestParam({ required: true }) id)
  * 
  */
-export default function RequestParam(target: MethodParameterOptions | Object | string, name?: string, index?: number): any {
-  if (arguments.length === 3) {
-    // 长度为3表示使用为参数注解 例如:  index(@RequestParam id)
-    return createParam(target, name, { value: null }, index, 'query', RequestParam);
-  } else {
-    // 通过调用配置返回注解
-    const isString = typeof target === 'string';
-    const options = (isString ? { value: target } : target) as MethodParameterOptions;
-    return function (newTarget, newName, newIndex) {
-      newIndex = isNaN(newIndex) ? -1 : newIndex;
-      return createParam(newTarget, newName, options, newIndex, 'query', RequestParam);
-    }
-  }
-}
+export default Target.install<typeof RequestParam, MethodParameterOptions | string>(RequestParam);

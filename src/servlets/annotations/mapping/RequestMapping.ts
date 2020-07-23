@@ -1,6 +1,30 @@
 import RouteCollection from '../../../routes/RouteCollection';
 import ControllerManagement from '../../../ControllerManagement';
 import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping';
+import Target from '../Target';
+import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import ElementType from '../annotation/ElementType';
+
+@Target
+class RequestMapping {
+
+  mapping: RouteMapping
+
+  constructor(meta: RuntimeAnnotation, value: RouteMappingOptions | string) {
+    this.mapping = RouteMapping.create(value, null);
+    const { target, name, descriptor } = meta;
+    switch (meta.elementType) {
+      case ElementType.TYPE:
+        // 修饰控制器
+        requestMappingController(target, this.mapping);
+        break;
+      case ElementType.METHOD:
+        // 修饰控制器函数
+        requestMappingAction(target.constructor, name, descriptor, this.mapping);
+        break;
+    }
+  }
+}
 
 /**
  * 映射指定控制器以及控制器下的函数的请求路径
@@ -12,16 +36,7 @@ import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping'
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default function requestMappingAnnotation(value: RouteMappingOptions | string): any {
-  return function (target, name, descriptor) {
-    const mapping = RouteMapping.create(value, null);
-    if (arguments.length > 1) {
-      return requestMappingAction(target.constructor, name, descriptor, mapping);
-    } else {
-      return requestMappingController(target, mapping);
-    }
-  }
-}
+export default Target.install<typeof RequestMapping, RouteMappingOptions | string>(RequestMapping);
 
 /**
  * 附加控制器类的请求映射
@@ -45,7 +60,9 @@ function requestMappingAction(target, name: string, descriptor, mapping: RouteMa
   action.value = descriptor.value;
   action.mapping = mapping;
   RouteCollection.mapRule({
-    match: (req) => mapping.match(req, target, descriptor.value, name),
+    match: (req) => {
+      return mapping.match(req, target, descriptor.value, name);
+    },
     action: action,
     controller: target,
   });

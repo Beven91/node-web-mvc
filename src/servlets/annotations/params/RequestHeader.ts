@@ -4,7 +4,19 @@
  * @description 提取header中的信息作为参数值
  */
 import createParam from './createParam';
-import { MethodParameterOptions } from '../../../interface/MethodParameter';
+import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import Target from '../Target';
+import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+
+@Target
+class RequestHeader {
+
+  public param: MethodParameter
+
+  constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
+    this.param = createParam(options, meta, 'header');
+  }
+}
 
 /**
  * 提取header中的信息作为参数值
@@ -12,17 +24,4 @@ import { MethodParameterOptions } from '../../../interface/MethodParameter';
  *  action(@RequestHeader({ value:'accept' }) id)
  * 
  */
-export default function RequestHeader(target: MethodParameterOptions | Object, name?: string, index?: number): any {
-  if (arguments.length === 3) {
-    // 长度为3表示使用为参数注解
-    return createParam(target, name, { value: null }, index, 'header', RequestHeader);
-  } else {
-    // 通过调用返回注解
-    const isString = typeof target === 'string';
-    const options = (isString ? { value: target } : target) as MethodParameterOptions;
-    return function (newTarget, newName, newIndex) {
-      newIndex = isNaN(newIndex) ? -1 : newIndex;
-      return createParam(newTarget, newName, options, newIndex, 'query', RequestHeader);
-    }
-  }
-}
+export default Target.install<typeof RequestHeader, MethodParameterOptions | string>(RequestHeader);
