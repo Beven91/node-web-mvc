@@ -5,12 +5,11 @@
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
-import ServletParam from '../../annotations/params/ServletParam';
 
 export default class PathVariableMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    return paramater.hasParameterAnnotation(ServletParam)
+    return paramater.paramType === 'request' || paramater.paramType === 'response';
   }
 
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {

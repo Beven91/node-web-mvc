@@ -3,16 +3,18 @@
  * @description 请求参数配置类
  */
 
+import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation"
+
 export class MethodParameterOptions {
   /**
    * 需要从请求中提取的参数名称
    */
-  public value: string
+  public value?: string
 
   /**
    * 所在的参数名称
    */
-  public name?:string
+  public name?: string
 
   /**
    * 当前参数的描述信息
@@ -42,7 +44,10 @@ export class MethodParameterOptions {
 
 export default class MethodParameter extends MethodParameterOptions {
 
-  private annotations?: Array<Function>
+  /**
+   * 注解
+   */
+  private annotation: RuntimeAnnotation
 
   /**
    * 参数传入类型 可选的值有path, query, body, header or form
@@ -53,7 +58,10 @@ export default class MethodParameter extends MethodParameterOptions {
    * 判断当前参数是否存在指定注解
    */
   public hasParameterAnnotation(annotation): boolean {
-    return !!this.annotations.find((a) => a === annotation);
+    // const annotations = RuntimeAnnotation.getMethodAnnotations(this.target,this.method);
+    const ctor = annotation.Annotation || annotation;
+    return this.annotation && this.annotation.nativeAnnotation instanceof ctor;
+    // return !!annotations.find((a) => a.nativeAnnotation instanceof ctor);
   }
 
   /**
@@ -62,7 +70,7 @@ export default class MethodParameter extends MethodParameterOptions {
    * @param paramType 
    */
 
-  constructor(options, paramType?: string, annotation?: Function) {
+  constructor(options, paramType?: string, annotation?: RuntimeAnnotation) {
     super();
     if (options instanceof MethodParameter) {
       return options;
@@ -77,7 +85,7 @@ export default class MethodParameter extends MethodParameterOptions {
       this.defaultValue = options.defaultValue;
       this.paramType = options.paramType;
     }
-    this.annotations = [annotation]
+    this.annotation = annotation;
     this.paramType = this.paramType || paramType;
   }
 }

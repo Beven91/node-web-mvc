@@ -8,7 +8,8 @@ enum HttpMethod {
   POST = 'POST',
   PUT = 'PUT',
   DELETE = 'DELETE',
-  PATCH = 'PATCH'
+  PATCH = 'PATCH',
+  OPTIONS = 'OPTIONS'
 }
 
 export default HttpMethod;
