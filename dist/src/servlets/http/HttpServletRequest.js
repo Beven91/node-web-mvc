@@ -20,7 +20,15 @@ var HttpServletRequest = (function () {
         this.path = url.pathname;
         this.mediaType = new MediaType_1.default(this.headers['content-type']);
         this.servletContext = servletContext;
+        this._cookies = {};
     }
+    Object.defineProperty(HttpServletRequest.prototype, "cookies", {
+        get: function () {
+            return this._cookies;
+        },
+        enumerable: false,
+        configurable: true
+    });
     Object.defineProperty(HttpServletRequest.prototype, "nativeRequest", {
         get: function () {
             return this.request;

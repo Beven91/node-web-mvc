@@ -15,8 +15,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = __importDefault(require("fs"));
 var path_1 = __importDefault(require("path"));
 var RequestMapping_1 = __importDefault(require("../../servlets/annotations/mapping/RequestMapping"));
-var ServletParam_1 = require("../../servlets/annotations/params/ServletParam");
 var index_1 = __importDefault(require("../openapi/index"));
+var ServletRequest_1 = __importDefault(require("../../servlets/annotations/params/ServletRequest"));
+var ServletResponse_1 = __importDefault(require("../../servlets/annotations/params/ServletResponse"));
 var producers = {
     '.js': 'text/javascript',
     '.html': 'text/html',
@@ -46,7 +47,7 @@ var SwaggerController = (function () {
     ], SwaggerController.prototype, "openapi", null);
     __decorate([
         RequestMapping_1.default('/swagger/(.*)'),
-        __param(0, ServletParam_1.ServletRequest), __param(1, ServletParam_1.ServletResponse)
+        __param(0, ServletRequest_1.default), __param(1, ServletResponse_1.default)
     ], SwaggerController.prototype, "static", null);
     return SwaggerController;
 }());

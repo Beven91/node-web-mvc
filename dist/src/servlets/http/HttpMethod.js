@@ -7,6 +7,7 @@ var HttpMethod;
     HttpMethod["PUT"] = "PUT";
     HttpMethod["DELETE"] = "DELETE";
     HttpMethod["PATCH"] = "PATCH";
+    HttpMethod["OPTIONS"] = "OPTIONS";
 })(HttpMethod || (HttpMethod = {}));
 exports.default = HttpMethod;
 //# sourceMappingURL=HttpMethod.js.map

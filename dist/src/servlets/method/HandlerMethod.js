@@ -49,7 +49,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var ControllerManagement_1 = __importDefault(require("../../ControllerManagement"));
 var ServletModel_1 = __importDefault(require("../models/ServletModel"));
 var InterruptModel_1 = __importDefault(require("../models/InterruptModel"));
+var MethodParameter_1 = __importDefault(require("../../interface/MethodParameter"));
 var Javascript_1 = __importDefault(require("../../interface/Javascript"));
+var RuntimeAnnotation_1 = __importDefault(require("../annotations/annotation/RuntimeAnnotation"));
 var HandlerMethod = (function () {
     function HandlerMethod(servletContext) {
         var _this = this;
@@ -85,9 +87,11 @@ var HandlerMethod = (function () {
     });
     Object.defineProperty(HandlerMethod.prototype, "resolveParameters", {
         get: function () {
-            var descriptor = ControllerManagement_1.default.getControllerDescriptor(this.servletContext.Controller);
-            var action = (descriptor.actions[this.servletContext.actionName] || {});
-            return action.params || [];
+            var _a = this.servletContext, Controller = _a.Controller, actionName = _a.actionName;
+            return RuntimeAnnotation_1.default.getMethodParamAnnotations(Controller, actionName).map(function (annotation) {
+                var name = annotation.nativeAnnotation.constructor.name;
+                return annotation.nativeAnnotation.param || new MethodParameter_1.default({ value: annotation.paramName }, name, annotation);
+            });
         },
         enumerable: false,
         configurable: true

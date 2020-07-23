@@ -1,14 +1,10 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var ServletParam_1 = __importDefault(require("../../annotations/params/ServletParam"));
 var PathVariableMapMethodArgumentResolver = (function () {
     function PathVariableMapMethodArgumentResolver() {
     }
     PathVariableMapMethodArgumentResolver.prototype.supportsParameter = function (paramater, servletContext) {
-        return paramater.hasParameterAnnotation(ServletParam_1.default);
+        return paramater.paramType === 'request' || paramater.paramType === 'response';
     };
     PathVariableMapMethodArgumentResolver.prototype.resolveArgument = function (parameter, servletContext) {
         switch (parameter.paramType) {

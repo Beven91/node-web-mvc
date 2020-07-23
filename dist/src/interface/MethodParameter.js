@@ -39,12 +39,13 @@ var MethodParameter = (function (_super) {
             _this.defaultValue = options.defaultValue;
             _this.paramType = options.paramType;
         }
-        _this.annotations = [annotation];
+        _this.annotation = annotation;
         _this.paramType = _this.paramType || paramType;
         return _this;
     }
     MethodParameter.prototype.hasParameterAnnotation = function (annotation) {
-        return !!this.annotations.find(function (a) { return a === annotation; });
+        var ctor = annotation.Annotation || annotation;
+        return this.annotation && this.annotation.nativeAnnotation instanceof ctor;
     };
     return MethodParameter;
 }(MethodParameterOptions));

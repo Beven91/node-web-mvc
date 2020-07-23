@@ -11,14 +11,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var createParam_1 = __importDefault(require("./createParam"));
 var Target_1 = __importDefault(require("../Target"));
-var RequestParam = (function () {
-    function RequestParam(meta, options) {
-        this.param = createParam_1.default(options, meta, 'query');
+var ServletRsponse = (function () {
+    function ServletRsponse(meta) {
+        this.param = createParam_1.default({ required: true }, meta, 'response');
     }
-    RequestParam = __decorate([
+    ServletRsponse = __decorate([
         Target_1.default
-    ], RequestParam);
-    return RequestParam;
+    ], ServletRsponse);
+    return ServletRsponse;
 }());
-exports.default = Target_1.default.install(RequestParam);
-//# sourceMappingURL=RequestParam.js.map
+exports.default = Target_1.default.install(ServletRsponse);
+//# sourceMappingURL=ServletResponse.js.map

@@ -602,7 +602,7 @@ Registry.launch({
 > XmlHttpMessageConverter.ts
 
 ```js
-import { MediaType, ServletContext, HttpMessageConverter,RequestWriterStream } from 'node-web-mvc';
+import { MediaType, ServletContext, HttpMessageConverter,RequestMemoryStream } from 'node-web-mvc';
 import xml2js from 'xml2js';
 
 export default class XmlHttpMessageConverter implements HttpMessageConverter {
@@ -630,7 +630,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    */
   read(servletContext: ServletContext, mediaType: MediaType): any {
     return new Promise((resolve, reject) => {
-      new RequestWriterStream(servletContext.request, (buffers) => {
+      new RequestMemoryStream(servletContext.request, (buffers) => {
         xml2js.parseString(buffers.toString('utf8'), (err, data) => {
           err ? reject(err) : resolve(data);
         });
