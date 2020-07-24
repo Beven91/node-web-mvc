@@ -811,7 +811,35 @@ export default class DataController {
 
 在热更新服务下，控制器代码以及及依赖模块改动，无需重启服务器。
 
+### hot.preload
 
+再修改一个文件时，会触发热更，再执行热更新前，会触发`preload`,如果您希望
+您的某个依赖模块需要进行特定处理，则可以再该文件中订阅`hot.preload`
+
+> 例如: ControllerFactory.ts 再一些控制器模块修改时，需要进行一些前置处理
+
+```js
+import { hot } from 'node-web-mvc';
+
+// 订阅preload
+hot.create(module).preload((old) => {
+  // old 为当前即将进行热更新的模块旧模块，此时可以根据old来进行一些清理操作
+})
+```
+
+### hot.accept
+
+在模块热更新后，同此此函数来接受更新
+
+```js
+import { hot } from 'node-web-mvc';
+
+// 订阅preload
+hot.create(module).preload((new,old) => {
+  // new 为当前热更新后的新模块对象
+  // old 为热更新前的模块对象
+})
+```
 
 ## Swagger
 
