@@ -55,7 +55,11 @@ Registry.launch({
     cwd: path.resolve('./'),
   },
   // 配置controller存放目录，用于进行controller自动载入与注册使用
-  cwd: path.resolve('./controllers'),
+  // 支持字符串或者字符串数组
+  cwd: [
+    path.resolve('./global'),
+    path.resolve('./controllers'),
+  ],
 });
 ```
 

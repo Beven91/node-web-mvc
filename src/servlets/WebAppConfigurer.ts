@@ -2,8 +2,8 @@
  * @module WebAppConfigurer
  * @description 服务全局配置
  */
-import fs from 'fs';
 import path from 'path';
+import glob from 'glob'
 import bytes from 'bytes';
 import OpenApi from '../swagger/openapi';
 import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
@@ -39,7 +39,7 @@ export declare class WebAppConfigurerOptions {
   // 配置请求内容大小
   multipart?: Multipart
   // 存放控制器的根目录
-  cwd: string
+  cwd: string | Array<string>
   // 热更新配置
   hot?: HotOptions
   // 注册拦截器
@@ -117,12 +117,12 @@ export default class WebAppConfigurer {
   }
 
   private launchSpringMvc(dir) {
-    const files = fs.readdirSync(dir).filter((name) => {
+    const files = glob.sync(dir + '/**/*.*').filter((name) => {
       const ext = path.extname(name);
       return ext === '.js' || ext === '.ts';
     });
     files.forEach((name) => {
-      require(path.join(dir, name));
+      require(name);
     })
   }
 
@@ -156,8 +156,9 @@ export default class WebAppConfigurer {
       OpenApi.initialize();
     }
     this.options = options;
+    const dirs = options.cwd instanceof Array ? options.cwd : [options.cwd];
     // 加载mvc目录
-    this.launchSpringMvc(options.cwd);
+    dirs.forEach((dir) => this.launchSpringMvc(dir))
     // 初始化请求大小限制
     this.options.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = this.sizeFormat(this.multipart.maxFileSize, bytes.parse('500kb'));
