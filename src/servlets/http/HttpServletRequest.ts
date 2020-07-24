@@ -22,7 +22,7 @@ export default class HttpServletRequest {
 
   private request: IncomingMessage
 
-  public get cookies(){
+  public get cookies() {
     return this._cookies;
   }
 
@@ -117,6 +117,17 @@ export default class HttpServletRequest {
     this.nativeRequest.pipe(writeStream, options);
   }
 
+  private parseCookie(cookieStr) {
+    const cookies = {};
+    (cookieStr || '').split(';').forEach((cookieKvs) => {
+      const kv = cookieKvs.split('=');
+      const name = (kv[0]).trim();
+      const values = (kv[1] || '').split(',');
+      cookies[name] = values.length < 2 ? values[0] : values;
+    });
+    return cookies;
+  }
+
   constructor(request: IncomingMessage, servletContext: ServletContext) {
     const protocol = (request.connection as any).encrypted ? 'https' : 'http';
     const url = new URL(request.url, `${protocol}://${request.headers.host}`);
@@ -130,6 +141,6 @@ export default class HttpServletRequest {
     this.path = url.pathname;
     this.mediaType = new MediaType(this.headers['content-type']);
     this.servletContext = servletContext;
-    this._cookies = {};
+    this._cookies = this.parseCookie(request.headers['cookie']);
   }
 }

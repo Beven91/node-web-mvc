@@ -9,7 +9,7 @@ export default class HomeController extends Controller {
   @ApiOperation({ value: '@RequestParam 测试' })
   @GetMapping('/index')
   @ApiImplicitParams([
-    { value: '编号', paramType: 'query', name: 'id' }
+    { value: '编号', paramType: 'query', name: 'id', required: true }
   ])
   index(@RequestParam({ required: true }) id) {
     return 'home/index...' + id;
