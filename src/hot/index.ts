@@ -60,10 +60,26 @@ class HotReload {
   watch(cwd) {
     const runtime = { timerId: null }
     fs.watch(cwd, { recursive: true }, (type, filename) => {
-      const id = path.join(cwd, filename);
-      clearTimeout(runtime.timerId);
-      runtime.timerId = setTimeout(() => this.handleReload(id), this.reloadTimeout);
+      if (/\.(ts|js)/.test(filename)) {
+        const id = path.join(cwd, filename).replace(/^[A-Z]:/, (a) => a.toLowerCase());;
+        clearTimeout(runtime.timerId);
+        runtime.timerId = setTimeout(() => this.hotWatch(type, id), this.reloadTimeout);
+      }
     });
+  }
+
+  hotWatch(type, filename) {
+    const mode = type === 'rename' ? fs.existsSync(filename) ? 'created' : 'remove' : type;
+    switch (mode) {
+      case 'created':
+        if (!require.cache[filename]) {
+          console.log('created:', filename)
+          require(filename);
+        }
+        break;
+      default:
+        this.handleReload(filename);
+    }
   }
 
   /**
@@ -89,7 +105,7 @@ class HotReload {
    * 重载模块
    */
   reload(id, reloadeds) {
-    if (reloadeds[id] || !require.cache[id]) {
+    if (reloadeds[id] || !require.cache[id] || require.cache[id] === module) {
       return;
     }
     reloadeds[id] = true;
@@ -107,6 +123,8 @@ class HotReload {
       delete old.hot;
       // 删除缓存
       delete require.cache[id];
+      // 如果文件一删除，则跳过
+      if (!fs.existsSync(id)) return;
       // 重新载入模块
       require(id);
       // 获取当前更新后的模块实例
