@@ -1,12 +1,12 @@
 
 // import express from 'express';
 import path from 'path';
-import { Registry } from '../src/index';
-import AdminInterceptor from './interceptor/AdminInterceptor';
-import EncodeInterceptor from './interceptor/EncodeInterceptor';
-import EjsViewResolver from './resolvers/EjsViewResolver';
-import XmlHttpMessageConverter from './converters/XmlHttpMessageConverter';
-import UserIdArgumentResolver from './resolvers/UserIdArgumentResolver';
+import { Registry } from './src/index';
+import AdminInterceptor from './test/interceptor/AdminInterceptor';
+import EncodeInterceptor from './test/interceptor/EncodeInterceptor';
+import EjsViewResolver from './test/resolvers/EjsViewResolver';
+import XmlHttpMessageConverter from './test/converters/XmlHttpMessageConverter';
+import UserIdArgumentResolver from './test/resolvers/UserIdArgumentResolver';
 
 const port = 9800;
 // const app = express();
@@ -30,7 +30,7 @@ Registry.launch({
   hot: {
     cwd: path.resolve('./test'),
   },
-  cwd: path.resolve('./test/controllers'),
+  cwd: path.resolve('./test'),
   addInterceptors: (registry) => {
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());

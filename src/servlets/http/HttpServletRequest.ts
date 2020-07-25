@@ -117,13 +117,20 @@ export default class HttpServletRequest {
     this.nativeRequest.pipe(writeStream, options);
   }
 
-  private parseCookie(cookieStr) {
+  /**
+   * 解析cookie
+   * @param cookieStr 
+   */
+  private parseCookie(cookieStr): Cookies {
     const cookies = {};
-    (cookieStr || '').split(';').forEach((cookieKvs) => {
-      const kv = cookieKvs.split('=');
-      const name = (kv[0]).trim();
-      const values = (kv[1] || '').split(',');
-      cookies[name] = values.length < 2 ? values[0] : values;
+    (cookieStr || '').split(/; */).forEach((kv) => {
+      const pairs = kv.split('=');
+      const name = pairs[0].trim();
+      if (undefined === [cookies[name]]) {
+        const value = pairs[1].trim();
+        const values = value[0] === '"' ? value.slice(1, -1) : value;
+        cookies[name] = values;
+      }
     });
     return cookies;
   }

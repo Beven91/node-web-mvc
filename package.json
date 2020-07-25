@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "start": "ts-node ./test/www.ts",
+    "start": "ts-node ./www.ts",
     "build": "node ./build.js && tsc",
     "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"

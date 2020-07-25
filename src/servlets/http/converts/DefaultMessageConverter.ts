@@ -25,7 +25,7 @@ export default class DefaultMessageConverter implements HttpMessageConverter {
       if (data instanceof Buffer || typeof data === 'string') {
         servletContext.response.write(data, resolve);
       } else {
-        servletContext.response.write(JSON.stringify(data), resolve);
+        servletContext.response.write(String(data), resolve);
       }
     })
   }

@@ -353,6 +353,8 @@ class HomeController {
 
 - Object 如果需要正常返回，需要通过`RequestMapping`指定produces为`application/json`
 
+- Promise 返回一个异步结果
+
 ```js
 @RequestMapping('/home')
 class HomeController { 

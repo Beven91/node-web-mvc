@@ -80,9 +80,9 @@ export default class HttpResponseProduces {
     const { actionMapping, servletContext } = this;
     const { produces } = actionMapping;
     const { response  } = servletContext;
-    const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain')
+    const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain;charset=utf-8');
     // 设置返回内容类型
-    response.setHeader('Content-Type', mediaType.name);
+    response.setHeader('Content-Type', mediaType.toString());
     // 设置返回状态
     response.setStatus(status, responseStatusReason);
     // 根据对应的转换器来写出内容到客户端
