@@ -267,6 +267,49 @@ class HomeController {
 }
 ```
 
+文件上传参数提取
+
+```js
+import { MultipartFile } from 'node-web-mvc';
+
+@Api({ description:'上传' })
+@RequestMapping('/upload')
+class HomeController { 
+
+  // 单个文件上传
+  @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
+  // 配置swagger 生成上传表单
+  @ApiImplicitParams([
+    { name: 'files', value: '证书', required: true, dataType: 'file' },
+    { name: 'id', value: '用户id', required: true },
+  ])
+  @PostMapping({ value: '/file', produces: 'application/json' })
+  async index(@RequestParam file: MultipartFile,@RequestParam id){
+    // 保存文件
+    await file.transferTo('app_data/images/' + file.name);
+
+    return {
+      code:0,
+      message:'上传成功'
+    }
+  }
+
+  // 多个文件上传
+  @PostMapping({ value: '/files', produces: 'application/json' })
+  async index(@RequestParam files: Array<MultipartFile>){
+    // 保存文件
+    for (let file of files) {
+      await file.transferTo('app_data/images/' + file.name)
+    }
+
+    return {
+      code:0,
+      message:'上传成功'
+    }
+  }
+}
+```
+
 ### RequestBody 
 
 提取整个`body`内容，通常是提取成为一个`json`对象
