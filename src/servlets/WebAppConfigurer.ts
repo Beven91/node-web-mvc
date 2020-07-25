@@ -13,7 +13,8 @@ import ViewResolverRegistry from './view/ViewResolverRegistry';
 import hot, { HotOptions, NodeHotModule } from '../hot';
 
 const runtime = {
-  configurer: null
+  configurer: null,
+  cacheKeys: {}
 }
 
 declare interface Multipart {
@@ -117,12 +118,15 @@ export default class WebAppConfigurer {
   }
 
   private launchSpringMvc(dir) {
+    const cacheKeys = runtime.cacheKeys;
     const files = glob.sync(dir + '/**/*.*').filter((name) => {
       const ext = path.extname(name);
       return ext === '.js' || ext === '.ts';
     });
     files.forEach((name) => {
-      require(name);
+      if (!cacheKeys[name.toLowerCase()]) {
+        require(name);
+      }
     })
   }
 
@@ -157,6 +161,8 @@ export default class WebAppConfigurer {
     }
     this.options = options;
     const dirs = options.cwd instanceof Array ? options.cwd : [options.cwd];
+    // 存储cacheKeys
+    Object.keys(require.cache).forEach((k) => runtime.cacheKeys[k.replace(/\\/g, '/').toLowerCase()] = true);
     // 加载mvc目录
     dirs.forEach((dir) => this.launchSpringMvc(dir))
     // 初始化请求大小限制

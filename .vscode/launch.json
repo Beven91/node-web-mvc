@@ -17,7 +17,7 @@
         "ts-node/register"
       ],
       "args": [
-        "${workspaceFolder}/www.ts"
+        "${workspaceFolder}/test/www.ts"
       ],
     },
   ]
