@@ -2,3 +2,5 @@
 app_data
 node_modules
 test
+tsconfig.json
+build.js
