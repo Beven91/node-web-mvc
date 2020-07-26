@@ -42,7 +42,7 @@ export default class UserController {
     throw new Error('出错啦');
   }
 
-  @ExceptionHandler()
+  @ExceptionHandler
   handleException(ex) {
     console.log(UserInfo);
     return JSON.stringify({ code: -99, message: ex.message })

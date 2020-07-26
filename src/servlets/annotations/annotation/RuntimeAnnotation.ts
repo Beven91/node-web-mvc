@@ -127,6 +127,11 @@ export default class RuntimeAnnotation {
         runtimeAnnotation.name = name;
         runtimeAnnotation.descriptor = descritpor;
         break;
+      case ElementType.PROPERTY:
+        runtimeAnnotation.target = target;
+        runtimeAnnotation.name = name;
+        runtimeAnnotation.descriptor = descritpor;
+        break;
       case ElementType.PARAMETER:
         {
           const parameters = Javascript.resolveParameters(target[name]);

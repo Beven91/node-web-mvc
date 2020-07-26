@@ -7,6 +7,7 @@ import ServletModel from '../models/ServletModel';
 import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
 import WebAppConfigurer from '../WebAppConfigurer';
+import RequestBeanProvider from '../../ioc/provider/RequestBeanProvider';
 
 export default abstract class ServletContext {
 
@@ -75,6 +76,8 @@ export default abstract class ServletContext {
    */
   public controllerName: string
 
+  public requestDefinitionInstances;
+
   /**
    * 构造一个上下文实例
    * @param request 当前正在处理的请求实例
@@ -94,6 +97,8 @@ export default abstract class ServletContext {
     this.Controller = null;
     // 当前请求提取出来的参数
     this.params = ({}) as Map<string, any>;
+    this.requestDefinitionInstances = {};
+    RequestBeanProvider.servletContext = this;
   }
 
   /**

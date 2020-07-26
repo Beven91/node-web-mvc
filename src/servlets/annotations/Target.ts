@@ -5,7 +5,6 @@
 import AnnotationOptions from "./annotation/AnnotationOptions";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 import { reflectAnnotationType } from "./annotation/ElementType";
-import Javascript from "../../interface/Javascript";
 
 const elementTypes = Symbol('elementTypes');
 
@@ -15,14 +14,16 @@ export const parameterReturnable = Symbol('parameterReturnable');
  * 标注指定类成为指定范围的注解类
  * @param types 
  */
-export default function Target(types) {
+export default function Target(types): any {
   if (types instanceof Array) {
-    (target) => target[elementTypes] = types;
+    return (target) => {
+      target[elementTypes] = types
+    }
   }
 }
 
 Target.install = function <C, T>(target) {
-  const decorator = function (a: T | Function, b?: String, c?: Object | number): any {
+  const decorator = function (a: T | Object | Function, b?: string | symbol, c?: any): any {
     const args = Array.prototype.slice.call(arguments);
     const runtime = new AnnotationOptions(target, args);
     const elementType = reflectAnnotationType(args);

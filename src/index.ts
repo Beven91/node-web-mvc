@@ -42,6 +42,10 @@ import hot from './hot/index';
 import ModelAndView from './servlets/models/ModelAndView';
 import InterruptModel from './servlets/models/InterruptModel';
 import ServletModel from './servlets/models/ServletModel';
+import Autowired from './ioc/annotations/Autowired';
+import Component from './ioc/annotations/Component';
+import Repository from './ioc/annotations/Repository';
+import Service from './ioc/annotations/Service';
 
 export {
   hot,
@@ -86,7 +90,11 @@ export {
   RequestMemoryStream,
   ServletContext,
   MethodParameter,
-  createParam
+  createParam,
+  Autowired,
+  Component,
+  Service,
+  Repository
 }
 
 hot.create(module);

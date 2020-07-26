@@ -784,7 +784,7 @@ class UserId {
 }
 
 // 公布注解
-export default Target.install(UserId);
+export default Target.install<typeof UserId>(UserId);
 ```
 
 

@@ -1,4 +1,4 @@
-import { RequestMapping, RequestBody } from '../../src/index';
+import { RequestMapping, RequestBody, Autowired } from '../../src/index';
 import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../src/index';
 import { PostMapping } from '../../src/index';
 import ModelAndView from '../../src/servlets/models/ModelAndView';
@@ -8,6 +8,14 @@ import GetMapping from '../../src/servlets/annotations/mapping/GetMapping';
 @RequestMapping('/multipart')
 export default class MultipartController {
 
+  @Autowired
+  public userInfo;
+
+  @Autowired
+  say(){
+
+  }
+  
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @ApiImplicitParams([
     RequestParam({ value: 'file', desc: '证书', required: true, dataType: MultipartFile }),

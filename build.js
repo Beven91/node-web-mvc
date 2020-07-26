@@ -24,5 +24,4 @@ function copy() {
   });
 }
 
-
 tasks.forEach((handler) => handler());
