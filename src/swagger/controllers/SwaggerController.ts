@@ -29,7 +29,7 @@ export default class SwaggerController {
   static(@ServletRequest request,@ServletResponse response) {
     const name = request.path.split('/swagger/').slice(1).join('');
     const view = name || 'index.html';
-    const file = path.join(__dirname, '../swagger-ui', view);
+    const file = path.join(__dirname,'../../../swagger-ui', view);
     const ext = path.extname(file);
     if (!fs.existsSync(file)) {
       // 如果文件按不存在，则移交给其他执行器

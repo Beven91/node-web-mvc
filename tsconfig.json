@@ -12,7 +12,7 @@
     "sourceMap": true,
     "experimentalDecorators":true,
     "outDir": "./dist/",
-    "rootDir": "./"
+    "rootDir": "./src"
   },
   "exclude": [
     "test",
