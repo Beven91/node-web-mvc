@@ -42,10 +42,15 @@ import hot from './hot/index';
 import ModelAndView from './servlets/models/ModelAndView';
 import InterruptModel from './servlets/models/InterruptModel';
 import ServletModel from './servlets/models/ServletModel';
+import Middlewares from './servlets/models/Middlewares';
 import Autowired from './ioc/annotations/Autowired';
 import Component from './ioc/annotations/Component';
 import Repository from './ioc/annotations/Repository';
 import Service from './ioc/annotations/Service';
+import HttpServletRequest from './servlets/http/HttpServletRequest';
+import HttpServletResponse from './servlets/http/HttpServletResponse';
+import MediaType from './servlets/http/MediaType';
+import MessageConverter from './servlets/http/converts/MessageConverter';
 
 export {
   hot,
@@ -94,7 +99,12 @@ export {
   Autowired,
   Component,
   Service,
-  Repository
+  Repository,
+  Middlewares,
+  MediaType,
+  HttpServletRequest,
+  HttpServletResponse,
+  MessageConverter
 }
 
 hot.create(module);
