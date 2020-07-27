@@ -398,6 +398,25 @@ class HomeController {
 
 - Promise 返回一个异步结果
 
+- Middlewares 返回一个类express的中间件执行结果
+
+```js
+import { RequestMapping, GetMapping, Middlewares } from 'node-web-mvc';
+
+@RequestMapping('/home')
+class HomeController {
+
+  @GetMapping('/index')
+  index(){
+    return new Middlewares([
+      (req,resp,next)=> next()
+    ])
+  }
+}
+
+
+```
+
 ```js
 @RequestMapping('/home')
 class HomeController { 

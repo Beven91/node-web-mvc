@@ -10,6 +10,7 @@ import InterruptModel from '../models/InterruptModel';
 import MethodParameter from '../../interface/MethodParameter';
 import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import Middlewares from '../models/Middlewares';
 
 declare class ParameterDictionary {
   [propName: string]: MethodParameter
@@ -118,8 +119,11 @@ export default class HandlerMethod {
    * 执行方法
    */
   public async invoke(...args) {
-    const { controller, action } = this.servletContext;
-    const data = await action.call(controller, ...args);
+    const { controller, action, request, response } = this.servletContext;
+    let data = await action.call(controller, ...args);
+    if (data instanceof Middlewares) {
+      data = await data.execute(request, response)
+    }
     if (this.servletContext.isNextInvoked && data === undefined) {
       return new InterruptModel();
     }

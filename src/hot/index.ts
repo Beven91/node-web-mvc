@@ -60,7 +60,7 @@ class HotReload {
   watch(cwd) {
     const runtime = { timerId: null }
     fs.watch(cwd, { recursive: true }, (type, filename) => {
-      if (/\.(ts|js)/.test(filename)) {
+      if (!/node_module/.test(filename) && /\.(ts|js)$/.test(filename)) {
         const id = path.join(cwd, filename).replace(/^[A-Z]:/, (a) => a.toLowerCase());;
         clearTimeout(runtime.timerId);
         runtime.timerId = setTimeout(() => this.hotWatch(type, id), this.reloadTimeout);
