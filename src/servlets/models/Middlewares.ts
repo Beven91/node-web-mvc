@@ -5,7 +5,7 @@
 
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
-import { InterruptModel } from "../..";
+import InterruptModel from './InterruptModel';
 
 export default class Middlewares {
 
