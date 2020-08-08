@@ -3,6 +3,11 @@
  * 热更新模块
  */
 
+const includes = [
+  /node_modules\/node-web-mbc/,
+  /^((?!node_modules).)*$/i,
+]
+
 declare class Hooks {
   /**
    * 在更新后执行
@@ -16,9 +21,26 @@ declare class Hooks {
    * 在执行完pre在accept之前执行
    */
   preend?: Function
+  /**
+   * 再热更新完毕后
+   */
+  postend?: Function
 }
 
 export default class HotModule {
+
+
+  /**
+   * 设置需要包含在热更新子模块的正则表达式
+   * @param items 
+   */
+  static setInclude(items) {
+    (items || []).forEach((item) => {
+      if (item instanceof RegExp) {
+        includes.push(item);
+      }
+    });
+  }
 
   /**
    * 当前接受的accept
@@ -55,7 +77,8 @@ export default class HotModule {
   }
 
   static isInclude(filename) {
-    return !/node_modules/.test(filename);
+    filename = filename.replace(/\\/g, '/');
+    return !!includes.find((reg) => reg.test(filename));
   }
 
   /**
@@ -63,6 +86,7 @@ export default class HotModule {
    */
   accept(handler: (now, old) => void) {
     this.hooks.accept = handler;
+    return this;
   }
 
   /**
@@ -70,6 +94,7 @@ export default class HotModule {
    */
   preload(handler: (old) => void) {
     this.hooks.pre = handler;
+    return this;
   }
 
   /**
@@ -77,6 +102,15 @@ export default class HotModule {
    */
   preend(handler: (old) => void) {
     this.hooks.preend = handler;
+    return this;
+  }
+
+  /**
+   * 热更新完毕
+   * @param params 
+   */
+  postend(handler: (now, old) => void) {
+    this.hooks.postend = handler;
   }
 
   /**

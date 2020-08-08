@@ -268,18 +268,30 @@ export default class OpenApiModel {
 /**
  * 内部热更新 
  */
-hot.create(module).preload((old) => {
-  // 预更新时，判断当前模块是否为被修饰的类
-  const info = old.exports.default || old.exports;
-  if (typeof info !== 'function') {
-    return;
-  }
-  const api = apiMetaList.find((api) => api.class === info);
-  if (api) {
-    const index = apiMetaList.indexOf(api);
-    console.log('find inddex', index);
-    apiMetaList.splice(index, 1);
-  }
-  // 删除schema
-  delete definitions[info.name];
-})
+hot.create(module)
+  .preload((old) => {
+    // 预更新时，判断当前模块是否为被修饰的类
+    const info = old.exports.default || old.exports;
+    if (typeof info !== 'function') {
+      return;
+    }
+    const api = apiMetaList.find((api) => api.class === info);
+    if (api) {
+      const index = apiMetaList.indexOf(api);
+      old.__apiIndex = index;
+      apiMetaList.splice(index, 1);
+    }
+    // 删除schema
+    delete definitions[info.name];
+  })
+  .postend((now, old) => {
+    const index = old.__apiIndex;
+    const last = apiMetaList.pop();
+    const newApiList = [
+      ...apiMetaList.slice(0, index),
+      last,
+      ...apiMetaList.slice(index)
+    ]
+    apiMetaList.length = 0;
+    apiMetaList.push(...newApiList);
+  })

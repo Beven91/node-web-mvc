@@ -143,6 +143,7 @@ class HotReload {
           this.reload(reason.id, reloadeds);
         }
       })
+      hot.invokeHook('postend', {}, now, old);
       // 还原父依赖
       if (old.parent) {
         now.parent = require.cache[old.parent.id];
