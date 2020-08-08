@@ -72,7 +72,7 @@ export declare class ApiModelOptions {
   /**
    * model的别名，默认为类名
    */
-  value: string
+  value?: string
 
   /**
    * model的详细描述
@@ -89,7 +89,7 @@ export declare class ApiModelPropertyOptions {
   /**
    * 属性的示例值
    */
-  example?: string | number | Date | boolean
+  example?: string | number | Date | boolean | Object
 
   /**
    * 是否为必须值
@@ -149,6 +149,12 @@ export declare class ApiOperationParamMeta {
    * 参数来源类型
    */
   in: string
+
+  /**
+   * 参数原始数据类型
+   */
+  dataType:string
+
   /**
    * 参数值类型
    */
@@ -173,6 +179,7 @@ export declare class ApiModelPropertyMeta {
 export declare class ApiModelMeta {
   title: string
   description: string
+  ctor:Function
   properties: ApiModelPropertyMetaMap
 }
 

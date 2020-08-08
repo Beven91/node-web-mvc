@@ -61,7 +61,7 @@ export default class OpenApiModel {
   private static createApiModel(ctor) {
     const name = ctor.name;
     if (!definitions[name]) {
-      definitions[name] = { title: '', description: '', properties: {} }
+      definitions[name] = { title: '', description: '', properties: {}, ctor: ctor }
     }
     return definitions[name];
   }
@@ -115,7 +115,8 @@ export default class OpenApiModel {
       required: param.required,
       description: param.value,
       in: param.dataType === 'file' ? 'formData' : param.paramType,
-      type: param.dataType,
+      dataType: param.dataType,
+      type:'',
       schema: {
         $ref: null,
       }
@@ -184,7 +185,15 @@ export default class OpenApiModel {
       //   schemas: {}
       // },
       // openapi: '3.0.1',
-      definitions: definitions,
+      definitions: Object.keys(definitions).reduce((map, key) => {
+        const definition = definitions[key];
+        map[key] = {
+          title: definition.title,
+          description: definition.description,
+          properties: definition.properties,
+        }
+        return map;
+      }, {}),
       swagger: '2.0',
     };
     apiMetaList.forEach((api) => {
@@ -251,7 +260,7 @@ export default class OpenApiModel {
    */
   private static buildOperationParameters(operation: ApiOperationMeta) {
     operation.parameters.forEach((parameter) => {
-      const dataType = parameter.type;
+      const dataType = parameter.dataType;
       const model = definitions[dataType];
       if (dataType === 'file' && !operation.consumes) {
         operation.consumes = ['multipart/form-data'];
@@ -280,9 +289,11 @@ hot.create(module)
       const index = apiMetaList.indexOf(api);
       old.__apiIndex = index;
       apiMetaList.splice(index, 1);
+    } else {
+      const key = Object.keys(definitions).find((k) => definitions[k].ctor === info);
+      // 删除schema
+      delete definitions[key];
     }
-    // 删除schema
-    delete definitions[info.name];
   })
   .postend((now, old) => {
     const index = old.__apiIndex;
