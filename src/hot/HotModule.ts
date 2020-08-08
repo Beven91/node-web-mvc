@@ -4,7 +4,7 @@
  */
 
 const includes = [
-  /node_modules\/node-web-mbc/,
+  /node_modules\/node-web-mvc/,
   /^((?!node_modules).)*$/i,
 ]
 
