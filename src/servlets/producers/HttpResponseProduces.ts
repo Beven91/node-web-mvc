@@ -93,7 +93,11 @@ export default class HttpResponseProduces {
     return MessageConverter
       .write(data, mediaType, servletContext)
       .then(() => servletContext.response.end())
-      .then(() => data);
+      .then(() => data)
+      // 异常处理
+      .catch((error) => {
+        response.setStatus(500, error.message).end();
+      })
   }
 
   /**
