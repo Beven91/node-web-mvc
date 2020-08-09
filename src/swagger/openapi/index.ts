@@ -258,17 +258,22 @@ export default class OpenApiModel {
    * @param operation 
    */
   private static buildOperationParameters(operation: ApiOperationMeta) {
-    operation.parameters.forEach((parameter) => {
+    return operation.parameters.map((parameter) => {
       const dataType = parameter.dataType;
       const model = Definition.getDefinitionModel(dataType);
       if (dataType === 'file' && !operation.consumes) {
         operation.consumes = ['multipart/form-data'];
       }
-      parameter.type = model.type;
-      parameter.items = model.items;
-      parameter.schema = model.schema;
+      return {
+        name: parameter.name,
+        required: parameter.required,
+        description: parameter.description,
+        in: parameter.in,
+        type: model.schema ? undefined : model.type || dataType,
+        items: model.items,
+        schema: model.schema,
+      }
     });
-    return operation.parameters;
   }
 }
 

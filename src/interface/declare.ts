@@ -54,6 +54,8 @@ export declare class DescriptorSwagger {
 export declare class ControllerDescriptors {
   // 对应的控制器类
   ctor: any
+  // 控制器全局的produces
+  produces?: string
   // 配置在控制器上的映射
   mapping: RouteMapping
   // 所有接口的路由映射配置

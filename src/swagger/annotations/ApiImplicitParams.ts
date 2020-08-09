@@ -37,7 +37,7 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
           value: options.desc,
           required: options.required,
           paramType: options.paramType,
-          dataType: dataType.name,
+          dataType: dataType.name === 'Object' ? undefined : dataType.name,
         }
       }
       return param;

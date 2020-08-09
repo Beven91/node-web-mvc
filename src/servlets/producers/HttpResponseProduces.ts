@@ -4,7 +4,7 @@
  */
 import ServletContext from '../http/ServletContext';
 import ControllerManagement from '../../ControllerManagement';
-import { ActionDescriptors } from '../../interface/declare';
+import { ActionDescriptors, ControllerDescriptors } from '../../interface/declare';
 import ServletModel from '../models/ServletModel';
 import RouteMapping from '../../routes/RouteMapping';
 import HandlerMethod from '../method/HandlerMethod';
@@ -21,6 +21,8 @@ export default class HttpResponseProduces {
 
   private actionMapping: RouteMapping = null
 
+  private controllerDescriptor: ControllerDescriptors
+
   constructor(servletContext: ServletContext) {
     const actionName = servletContext.actionName;
     const Controller = servletContext.Controller;
@@ -28,6 +30,7 @@ export default class HttpResponseProduces {
     const actions = descriptor.actions;
     const action = (actions[actionName] || {}) as ActionDescriptors;
     this.servletContext = servletContext;
+    this.controllerDescriptor = descriptor;
     this.actionMapping = (action.mapping || {}) as RouteMapping;
   }
 
@@ -79,8 +82,9 @@ export default class HttpResponseProduces {
     const status = useStatus ? responseStatus : 200;
     const { actionMapping, servletContext } = this;
     const { produces } = actionMapping;
-    const { response  } = servletContext;
-    const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain;charset=utf-8');
+    const { response } = servletContext;
+    const defaultProduces = this.controllerDescriptor.produces;
+    const mediaType = new MediaType(produces || defaultProduces || response.nativeContentType || 'text/plain;charset=utf-8');
     // 设置返回内容类型
     response.setHeader('Content-Type', mediaType.toString());
     // 设置返回状态
