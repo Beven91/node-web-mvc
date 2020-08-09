@@ -16,7 +16,7 @@ export default class ScopeController {
     return this.scopeData || '没有设置值';
   }
 
-  @ApiOperation({ value: '设置数据', dataType: 'UserInfo' })
+  @ApiOperation({ value: '设置数据', returnType: 'UserInfo' })
   @ApiImplicitParams([
     RequestBody({ value: 'user', desc: '用户信息', required: true, dataType: UserInfo }),
     RequestParam({ value: 'id', desc: '用户id', required: true })

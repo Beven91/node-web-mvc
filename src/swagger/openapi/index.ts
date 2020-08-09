@@ -219,7 +219,7 @@ export default class OpenApiModel {
     const mainMapping = descriptor.mapping;
     const mapping = actionDescriptor.mapping;
     const code = 'code' in option ? option.code : '200';
-    const model = Definition.getDefinitionModel(option.dataType);
+    const model = Definition.getDefinitionModel(option.returnType);
     const operationDoc = {
       consumes: mapping.consumes || operation.consumes,
       deprecated: false,

@@ -937,7 +937,7 @@ class HomeConntroller {
 @Api({ description: '首页控制器' })
 class HomeConntroller {
 
-  @ApiOperation({ value: '首页列表数据', notes: '这是备注' })
+  @ApiOperation({ value: '首页列表数据', notes: '这是备注',returnType:'返回数据类型' })
   @GetMapping('/index')
   index(){
   }
