@@ -62,7 +62,7 @@ export default class Definition {
     const newModel = {
       ctor: model.ctor,
       title: model.title,
-      name:nowKey,
+      name: nowKey,
       description: model.description,
       properties: {}
     };
@@ -98,8 +98,10 @@ export default class Definition {
       };
     } else if (model) {
       return this.createDefinition(model, nowKey, define);
-    } else {
+    } else if (defineModel) {
       return this.createDefinition(defineModel, nowKey, define);
+    } else {
+      return { name: nowKey };
     }
   }
 
