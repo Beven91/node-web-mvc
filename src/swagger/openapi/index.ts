@@ -36,7 +36,7 @@ export default class OpenApiModel {
     let api = apiMetaList.find((api) => api.class === ctor);
     if (!api) {
       const name = this.clampName(ctor.name);
-      api = { class: ctor, operations: [], option: { tags: [name] } };
+      api = { class: ctor, operations: [], option: { tags: [{ name: name }] } };
       apiMetaList.push(api);
     }
     return api;
@@ -76,7 +76,7 @@ export default class OpenApiModel {
     const name = this.clampName(controller.name);
     const api = this.createApi(controller);
     api.option = option;
-    api.option.tags = (option.tags || [option.value || name])
+    api.option.tags = (option.tags || [{ name: name, description: option.description || name }])
   }
 
   /**
@@ -225,7 +225,7 @@ export default class OpenApiModel {
       consumes: mapping.consumes || operation.consumes,
       deprecated: false,
       operationId: operation.method,
-      tags: api.option.tags,
+      tags: api.option.tags.map((tag) => tag.name),
       summary: option.value,
       description: option.notes,
       parameters: this.buildOperationParameters(operation),

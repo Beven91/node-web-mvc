@@ -12,7 +12,14 @@ export declare class ApiOptions {
   /**
    * 接口标签 如果没有定义tags 则默认使用 value
    */
-  tags?: Array<string>
+  tags?: Array<ApiTag>
+}
+
+export declare class ApiTag {
+  name: string
+
+  description?: string
+
 }
 
 export declare class ApiOperationOptions {
@@ -34,7 +41,7 @@ export declare class ApiOperationOptions {
   httpMethod?
 
   // 返回数据类型
-  returnType?:string
+  returnType?: string
 
   /**
    * 返回http结果类型
@@ -47,10 +54,11 @@ export declare class ApiImplicitParamOptions {
    * 接口参数名称
    */
   name: string
+
   /**
    * 参数的简短描述
    */
-  value?: string
+  description?: string
 
   /**
    * 是否为必传参数
@@ -99,7 +107,7 @@ export declare class ApiModelPropertyOptions {
   /**
    * 数据类型
    */
-  dataType?:string
+  dataType?: string
 
   /**
    * 当前属性是否为泛型，且对应的泛型类型名
@@ -196,7 +204,7 @@ export declare class ApiModelPropertyMeta {
 
 export declare class ApiModelMeta {
   title: string
-  name?:string
+  name?: string
   description: string
   ctor: Function
   properties: ApiModelPropertyMetaMap

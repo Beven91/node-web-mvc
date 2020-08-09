@@ -21,7 +21,7 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
         // 执行参数注解
         const annotation = decorator(parameterReturnable, (options) => {
           const data = options[0] as ApiImplicitParamOptions;
-          const paramIndex = parameters.indexOf(data.value);
+          const paramIndex = parameters.indexOf(data.description);
           return [target, name, paramIndex];
         });
         const options = annotation ? annotation.nativeAnnotation.param : null;
@@ -34,7 +34,7 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
         }
         return {
           name: options.value,
-          value: options.desc,
+          description: options.desc,
           required: options.required,
           paramType: options.paramType,
           dataType: dataType.name === 'Object' ? undefined : dataType.name,

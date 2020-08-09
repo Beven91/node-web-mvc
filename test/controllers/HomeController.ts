@@ -14,7 +14,7 @@ export default class HomeController extends Controller {
   @ApiOperation({ value: '@RequestParam 测试' })
   @GetMapping('/index')
   @ApiImplicitParams([
-    { value: '编号', paramType: 'query', name: 'id', required: true }
+    { description: '编号', paramType: 'query', name: 'id', required: true }
   ])
   index(@RequestParam({ required: true }) id) {
     return 'home/index...' + id;
@@ -28,7 +28,7 @@ export default class HomeController extends Controller {
 
   @ApiOperation({ value: '@RequestBody 测试' })
   @ApiImplicitParams([
-    { value: '类型', paramType: 'body', name: 'type' }
+    { description: '类型', paramType: 'body', name: 'type' }
   ])
   @PostMapping('/body')
   body(@RequestBody user: UserInfo): UserInfo {
@@ -38,7 +38,7 @@ export default class HomeController extends Controller {
   @ApiOperation({ value: '@PathVariable 测试' })
   @GetMapping('/path/{id}')
   @ApiImplicitParams([
-    { value: '编号', paramType: 'path', name: 'id' }
+    { description: '编号', paramType: 'path', name: 'id' }
   ])
   path(@PathVariable id) {
     return 'home/index...' + id;
