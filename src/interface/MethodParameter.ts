@@ -54,6 +54,10 @@ export default class MethodParameter extends MethodParameterOptions {
    */
   public paramType?: string
 
+  public get ctor(){
+    return this.annotation.ctor;
+  }
+
   /**
    * 判断当前参数是否存在指定注解
    */

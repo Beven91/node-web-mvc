@@ -9,10 +9,13 @@ import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 
 @Target
 class RequestBody {
-  
+
   public param: MethodParameter
 
-  constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
+  constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string | Function) {
+    if (typeof options === 'function') {
+      options = { dataType: options }
+    }
     this.param = createParam(options, meta, 'body');
   }
 }

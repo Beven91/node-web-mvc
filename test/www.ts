@@ -8,7 +8,7 @@ import EjsViewResolver from './resolvers/EjsViewResolver';
 import XmlHttpMessageConverter from './converters/XmlHttpMessageConverter';
 import UserIdArgumentResolver from './resolvers/UserIdArgumentResolver';
 
-const port = 9800;
+const port = 9898;
 // const app = express();
 
 // app.use(express.static(path.resolve('')))

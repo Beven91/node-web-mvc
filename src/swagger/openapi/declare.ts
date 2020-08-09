@@ -95,6 +95,11 @@ export declare class ApiModelPropertyOptions {
    * 是否为必须值
    */
   required?: boolean
+
+  /**
+   * 当前属性是否为泛型，且对应的泛型类型名
+   */
+  generic?: boolean
 }
 
 export declare class OperationPath {
@@ -153,7 +158,7 @@ export declare class ApiOperationParamMeta {
   /**
    * 参数原始数据类型
    */
-  dataType:string
+  dataType: string
 
   /**
    * 参数值类型
@@ -166,6 +171,10 @@ export declare class ApiOperationParamMeta {
   schema: {
     $ref: string,
   }
+
+  items?: {
+    $ref: string
+  }
 }
 
 export declare class ApiModelPropertyMetaMap {
@@ -173,13 +182,18 @@ export declare class ApiModelPropertyMetaMap {
 }
 
 export declare class ApiModelPropertyMeta {
-
+  generic?: boolean
+  description: string
+  required: boolean
+  example: any
+  type: string
 }
 
 export declare class ApiModelMeta {
   title: string
+  name?:string
   description: string
-  ctor:Function
+  ctor: Function
   properties: ApiModelPropertyMetaMap
 }
 
@@ -195,4 +209,10 @@ export declare class ApiMeta {
   class: Function
   option?: ApiOptions
   operations: Array<ApiOperationMeta>
+}
+
+export declare class DefinitionInfo {
+  type?: string
+  name: string
+  items?: any
 }

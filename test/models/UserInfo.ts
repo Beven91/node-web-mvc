@@ -21,4 +21,7 @@ export default class UserInfo {
 
   @ApiModelProperty({ value: '用户编码', required: true, example: 1 })
   public userId: number
+
+  @ApiModelProperty({ value:'性别' })
+  public sex:string
 }

@@ -48,4 +48,10 @@ export default class HomeController extends Controller {
   userId(@UserId id) {
     return 'userId...' + id;
   }
+
+  @ApiOperation({ value:'数据返回',dataType:'GeneralResult<List<UserInfo>>' })
+  @GetMapping('/return')
+  returnData(){
+
+  }
 }

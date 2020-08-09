@@ -8,12 +8,13 @@ import ControllerManagement from '../../ControllerManagement';
 import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiModelMeta, ApiMeta, ApiOperationMeta } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
 import hot from '../../hot';
+import Definition from './definition';
 
 // 获取当前工程的信息
 const pkg = require(path.resolve('package.json'));
 
 // 所有注册models
-const definitions = {} as { [propName: string]: ApiModelMeta };
+const definitions = Definition.definitions;
 
 // 所有注册的接口
 const apiMetaList = [] as Array<ApiMeta>
@@ -116,7 +117,7 @@ export default class OpenApiModel {
       description: param.value,
       in: param.dataType === 'file' ? 'formData' : param.paramType,
       dataType: param.dataType,
-      type:'',
+      type: '',
       schema: {
         $ref: null,
       }
@@ -130,7 +131,7 @@ export default class OpenApiModel {
    */
   static addModel(modelOptions: ApiModelOptions, ctor) {
     const model = this.createApiModel(ctor);
-    model.title = modelOptions.value || ctor.name;
+    model.title = modelOptions.value;
     model.description = modelOptions.description;
   }
 
@@ -143,6 +144,7 @@ export default class OpenApiModel {
   static addModelProperty(propertyOptions: ApiModelPropertyOptions, ctor, name) {
     const model = this.createApiModel(ctor);
     model.properties[name] = {
+      generic: propertyOptions.generic,
       description: propertyOptions.value,
       required: propertyOptions.required,
       example: propertyOptions.example,
@@ -185,24 +187,21 @@ export default class OpenApiModel {
       //   schemas: {}
       // },
       // openapi: '3.0.1',
-      definitions: Object.keys(definitions).reduce((map, key) => {
-        const definition = definitions[key];
-        map[key] = {
-          title: definition.title,
-          description: definition.description,
-          properties: definition.properties,
-        }
-        return map;
-      }, {}),
+      definitions: {},
       swagger: '2.0',
     };
+    // 清空依赖引用
+    Definition.cleanReference();
+    // 构建api
     apiMetaList.forEach((api) => {
       const paths = documentation.paths;
       // 构建tags
       documentation.tags = documentation.tags.concat(api.option.tags || []);
       // 构建paths
       api.operations.forEach((operation) => this.buildOperation(paths, operation));
-    })
+    });
+    // 最后清理definition
+    documentation.definitions = Definition.getFinalDefinitions();
     return documentation;
   }
 
@@ -220,7 +219,7 @@ export default class OpenApiModel {
     const mainMapping = descriptor.mapping;
     const mapping = actionDescriptor.mapping;
     const code = 'code' in option ? option.code : '200';
-    const model = definitions[option.dataType];
+    const model = Definition.getDefinitionModel(option.dataType);
     const operationDoc = {
       consumes: mapping.consumes || operation.consumes,
       deprecated: false,
@@ -236,10 +235,9 @@ export default class OpenApiModel {
         "404": { "description": "Not Found" },
         [code]: {
           "description": "OK",
-          "schema": {
-            type: model ? undefined : option.dataType,
-            $ref: model ? '#/definitions/' + option.dataType : undefined
-          }
+          "type": model.type,
+          "items": model.items,
+          "schema": model.schema,
         }
       }
     }
@@ -261,14 +259,13 @@ export default class OpenApiModel {
   private static buildOperationParameters(operation: ApiOperationMeta) {
     operation.parameters.forEach((parameter) => {
       const dataType = parameter.dataType;
-      const model = definitions[dataType];
+      const model = Definition.getDefinitionModel(dataType);
       if (dataType === 'file' && !operation.consumes) {
         operation.consumes = ['multipart/form-data'];
       }
-      parameter.type = model ? undefined : dataType || 'string',
-        parameter.schema = {
-          $ref: model ? '#/definitions/' + dataType : undefined,
-        }
+      parameter.type = model.type;
+      parameter.items = model.items;
+      parameter.schema = model.schema;
     });
     return operation.parameters;
   }
@@ -290,9 +287,11 @@ hot.create(module)
       old.__apiIndex = index;
       apiMetaList.splice(index, 1);
     } else {
-      const key = Object.keys(definitions).find((k) => definitions[k].ctor === info);
-      // 删除schema
-      delete definitions[key];
+      const keys = Object.keys(definitions).filter((k) => definitions[k].ctor === info);
+      keys.forEach((key) => {
+        // 删除schema
+        delete definitions[key];
+      })
     }
   })
   .postend((now, old) => {

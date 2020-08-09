@@ -13,7 +13,14 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
     return paramater.hasParameterAnnotation(RequestBody)
   }
 
-  resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
-    return MessageConverter.read(servletContext);
+  async resolveArgument(parameter: MethodParameter, servletContext: ServletContext) {
+    const T = parameter.dataType as any;
+    const data = await MessageConverter.read(servletContext);
+    if (typeof T === 'function') {
+      const instance = new T();
+      Object.keys(data).forEach((key) => instance[key] = data[key]);
+      return instance;
+    }
+    return data;
   }
 }
