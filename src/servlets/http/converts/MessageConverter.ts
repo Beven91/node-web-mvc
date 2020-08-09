@@ -52,7 +52,9 @@ export default class MessageConverter {
    * 写出内容到response中
    */
   static write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
-    const converter = registerConverters.find((converter) => converter.canWrite(mediaType));
-    return Promise.resolve(converter.write(data, mediaType, servletContext));
+    return new Promise((resolve)=>{
+      const converter = registerConverters.find((converter) => converter.canWrite(mediaType));
+      return resolve(converter.write(data, mediaType, servletContext));
+    })
   }
 }
