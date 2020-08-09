@@ -32,21 +32,45 @@ export default class Definition {
    * @param dataType 
    */
   static getFinalDefinitions() {
+    const tempDefinitions = {};
     const finalDefinitions = {};
-    // 定义的模块信息
+    // 梳理定义
     Object
       .keys(definitions)
-      .filter((k) => references[k])
       .forEach((key) => {
         const definition = definitions[key];
         const ctorName = definition.name || definition.ctor.name;
-        finalDefinitions[key] = {
+        tempDefinitions[key] = {
           title: definition.title ? `${definition.title} - ${ctorName}` : ctorName,
           description: definition.description,
-          properties: definition.properties,
+          properties: this.buildFinalDefinitionProperties(definition),
         }
       });
+    // 筛选，返回最终需要的定义
+    Object
+      .keys(tempDefinitions)
+      .filter((k) => references[k])
+      .forEach((k) => {
+        finalDefinitions[k] = tempDefinitions[k];
+      })
     return finalDefinitions
+  }
+
+  static buildFinalDefinitionProperties(definition: ApiModelMeta) {
+    const properties = definition.properties;
+    const finalProperties = {};
+    Object.keys(properties).forEach((key) => {
+      const property = properties[key];
+      const info = this.getDefinitionModel(property.type);
+      if (info.type === 'array') {
+        finalProperties[key] = info;
+      } else if (info.schema) {
+        finalProperties[key] = info.schema;
+      } else {
+        finalProperties[key] = property;
+      }
+    })
+    return finalProperties;
   }
 
   /**
@@ -122,7 +146,7 @@ export default class Definition {
       const isArray = data.type === 'array';
       return isArray ? { type: 'array', items: data.items } : { schema: { '$ref': ref } };
     } else {
-      return {};
+      return { empty: true };
     }
   }
 }
