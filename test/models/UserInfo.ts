@@ -23,6 +23,14 @@ export default class UserInfo {
 
   A = A
 
+  @ApiModelProperty({ value:'年龄' })
+  age = 120
+
+  @ApiModelProperty({ value:'名称' })
+  public get name(){
+    return '';
+  }
+
   @ApiModelProperty({ value: '用户名', required: true, example: '张三' })
   public userName: string
 

@@ -27,20 +27,26 @@ enum ElementType {
   PROPERTY = 'PROPERTY'
 }
 
+function isPropertyDescritpor(descriptor) {
+  if(descriptor && typeof descriptor === 'object'){
+    return 'get' in descriptor && 'set' in descriptor;
+  }
+}
+
 export function reflectAnnotationType(options: Array<any>) {
   if (!options || options.length < 0 || options.length > 3 || !options[0]) {
     return 'UNKNOW';
   }
   const length = options.length;
-  const [target, name, descritptor] = options;
+  const [target, name, descriptor] = options;
   const hasContructor = typeof target.constructor === 'function';
   const isAnnotation = hasContructor && (target[name] === target.constructor.prototype[name]);
   if (length === 1 && typeof target === 'function') {
     return ElementType.TYPE;
-  } else if (length === 3 && isAnnotation && descritptor === undefined) {
+  } else if (length === 3 && isAnnotation && (descriptor === undefined || isPropertyDescritpor(descriptor))) {
     return ElementType.PROPERTY
   } else if (length === 3 && isAnnotation) {
-    const isNumber = typeof descritptor === 'number';
+    const isNumber = typeof descriptor === 'number';
     return isNumber ? ElementType.PARAMETER : ElementType.METHOD;
   }
   return 'UNKNOW';
