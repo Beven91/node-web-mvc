@@ -67,7 +67,9 @@ export default class HttpServletResponse {
    * @param response 
    */
   setStatus(status, statusMessage?) {
-    this.nativeResponse.writeHead(status, statusMessage);
+    if (!this.headersSent) {
+      this.nativeResponse.writeHead(status, statusMessage);
+    }
     return this;
   }
 

@@ -92,7 +92,9 @@ export default class HttpResponseProduces {
     // 根据对应的转换器来写出内容到客户端
     return MessageConverter
       .write(data, mediaType, servletContext)
-      .then(() => servletContext.response.end())
+      .then(() => {
+        servletContext.response.end()
+      })
       .then(() => data)
       // 异常处理
       .catch((error) => {
