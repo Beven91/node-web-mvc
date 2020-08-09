@@ -148,7 +148,7 @@ export default class OpenApiModel {
       description: propertyOptions.value,
       required: propertyOptions.required,
       example: propertyOptions.example,
-      type: typeof (propertyOptions.example || '')
+      type: propertyOptions.dataType || typeof (propertyOptions.example || '')
     }
   }
 

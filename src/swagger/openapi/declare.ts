@@ -97,6 +97,11 @@ export declare class ApiModelPropertyOptions {
   required?: boolean
 
   /**
+   * 数据类型
+   */
+  dataType?:string
+
+  /**
    * 当前属性是否为泛型，且对应的泛型类型名
    */
   generic?: boolean
