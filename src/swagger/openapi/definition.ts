@@ -142,6 +142,7 @@ export default class Definition {
     } else if (defineModel) {
       return this.createDefinition(defineModel, nowKey, define);
     } else {
+      console.warn('找不到实体:', key);
       return { name: nowKey };
     }
   }

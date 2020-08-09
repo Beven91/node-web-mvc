@@ -11,7 +11,7 @@
 
 ```shell
 
-npm install node-web-mvc
+npm install node-web-mvc reflect-metadata
 
 ```
 
@@ -19,7 +19,7 @@ npm install node-web-mvc
 
 ```shell
 
-yarn add node-web-mvc
+yarn add node-web-mvc reflect-metadata
 
 ```
 

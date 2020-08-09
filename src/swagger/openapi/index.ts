@@ -143,8 +143,9 @@ export default class OpenApiModel {
    */
   static addModelProperty(propertyOptions: ApiModelPropertyOptions, ctor, name) {
     const model = this.createApiModel(ctor);
+    const generic = /<\d+>/.test(propertyOptions.dataType)
     model.properties[name] = {
-      generic: propertyOptions.generic,
+      generic: propertyOptions.generic || generic,
       description: propertyOptions.value,
       required: propertyOptions.required,
       example: propertyOptions.example,
