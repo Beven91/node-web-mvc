@@ -4,13 +4,20 @@
  */
 import OpenApi from '../openapi/index';
 import { ApiOptions } from '../openapi/declare';
+import Target from '../../servlets/annotations/Target';
+import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
 
-/**
- * 用于标注指定controller为接口类
- * @param {ApiOptions} options 
- */
-export default function Api(options: ApiOptions) {
-  return (controller) => {
-    OpenApi.addApi(options, controller);
+@Target
+class Api {
+
+  constructor(meta: RuntimeAnnotation, options: ApiOptions) {
+    options = options || {} as ApiOptions;
+    OpenApi.addApi(options, meta.ctor);
   }
 }
+
+/**
+ * 用于标注接实体类
+ * @param {ApiOperationOptions} options 配置 
+ */
+export default Target.install<typeof Api, ApiOptions>(Api);

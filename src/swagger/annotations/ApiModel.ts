@@ -1,16 +1,24 @@
 /**
  * @module ApiModel
- * 用于标注接口参数
+ * 用于标注接实体类
  */
+
 import OpenApi from '../openapi/index';
 import { ApiModelOptions } from '../openapi/declare';
+import Target from '../../servlets/annotations/Target';
+import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
+
+@Target
+class ApiModel {
+
+  constructor(meta: RuntimeAnnotation, options: ApiModelOptions) {
+    options = options || {} as ApiModelOptions;
+    OpenApi.addModel(options, meta.ctor);
+  }
+}
 
 /**
  * 用于标注接实体类
- * @param {ApiModelOptions} options 接口方法配置 
+ * @param {ApiOperationOptions} options 配置 
  */
-export default function ApiModel(options: ApiModelOptions) {
-  return (model) => {
-    OpenApi.addModel(options, model);
-  }
-}
+export default Target.install<typeof ApiModel, ApiModelOptions>(ApiModel);

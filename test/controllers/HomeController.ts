@@ -4,7 +4,7 @@ import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
 import UserInfo from '../models/UserInfo';
 
-@Api({ description: '首页' })
+@Api
 @RequestMapping('/home')
 export default class HomeController extends Controller {
 
