@@ -114,7 +114,7 @@ export default class OpenApiModel {
     operation.parameters.push({
       name: param.name,
       required: param.required,
-      description: param.value,
+      description: param.description || param.value,
       in: param.dataType === 'file' ? 'formData' : param.paramType,
       dataType: param.dataType,
       type: '',

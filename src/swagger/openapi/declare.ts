@@ -61,6 +61,11 @@ export declare class ApiImplicitParamOptions {
   description?: string
 
   /**
+   * 参数简短描述 同 description
+   */
+  value?: string
+
+  /**
    * 是否为必传参数
    */
   required?: boolean
