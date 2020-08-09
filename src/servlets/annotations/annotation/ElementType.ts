@@ -40,7 +40,7 @@ export function reflectAnnotationType(options: Array<any>) {
   const length = options.length;
   const [target, name, descriptor] = options;
   const hasContructor = typeof target.constructor === 'function';
-  const isAnnotation = hasContructor && (target[name] === target.constructor.prototype[name]);
+  const isAnnotation = hasContructor && (target[name] && target.constructor.prototype[name]);
   if (length === 1 && typeof target === 'function') {
     return ElementType.TYPE;
   } else if (length === 3 && isAnnotation && (descriptor === undefined || isPropertyDescritpor(descriptor))) {
