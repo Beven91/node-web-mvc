@@ -81,6 +81,24 @@ export default class Definition {
     return dataType === 'List' || dataType === 'Array' || dataType === 'array';
   }
 
+  static createGenericT(property, define) {
+    const parts = define.name.split(',');
+    const isArray = define.type === 'array';
+    let data = { empty: true } as any;
+    if (/<\d+>/.test(property.type)) {
+      let genericName = property.type;
+      parts.forEach((name, index) => {
+        genericName = genericName.replace(`<${index + 1}>`, `<${name}>`);
+      })
+      data = this.getDefinitionModel(genericName);
+    }
+    if (data.empty) {
+      return isArray ? { type: 'array', items: define.items } : { '$ref': this.makeRef(define.name) };
+    } else {
+      return data.type === 'array' ? { type: 'array', items: data.items } : data.schema;
+    }
+  }
+
   static createDefinition(model: ApiModelMeta, nowKey, define) {
     const properties = model.properties;
     const newModel = {
@@ -93,8 +111,7 @@ export default class Definition {
     Object.keys(properties).map((k) => {
       const property = properties[k];
       if (property.generic) {
-        const isArray = define.type === 'array';
-        newModel.properties[k] = isArray ? { type: 'array', items: define.items } : { '$ref': this.makeRef(define.name) }
+        newModel.properties[k] = this.createGenericT(property, define);
       } else {
         newModel.properties[k] = {
           ...properties[k]
@@ -132,6 +149,8 @@ export default class Definition {
   /**
    * 解析paramType类型
    * @param {String} paramType 类型字符串
+   * List<A>
+   * Map<K,V>
    */
   static getDefinitionModel(dataType: string) {
     const model = definitions[dataType];

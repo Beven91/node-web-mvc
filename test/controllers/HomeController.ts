@@ -55,4 +55,10 @@ export default class HomeController extends Controller {
   returnData() {
 
   }
+
+  @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo>' })
+  @GetMapping('/return2')
+  returnData2() {
+
+  }
 }
