@@ -53,7 +53,7 @@ export declare class ApiImplicitParamOptions {
   /**
    * 接口参数名称
    */
-  name?: string
+  name: string
 
   /**
    * 参数的简短描述
