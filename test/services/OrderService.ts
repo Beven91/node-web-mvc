@@ -7,6 +7,7 @@ export default class OrderService {
   private orderModel;
 
   constructor(){
+    console.log('ssss');
     console.log(this.orderModel);
   }
 
