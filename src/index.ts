@@ -1,4 +1,5 @@
 import './interface/polyfill';
+import 'reflect-metadata';
 import Controller from './controller';
 import AreaRegistration from './areaRegistration';
 import Routes from './routes/RouteCollection';

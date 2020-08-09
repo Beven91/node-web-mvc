@@ -2,6 +2,7 @@
 import { Controller, Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired } from '../../src/index';
 import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
+import UserInfo from '../models/UserInfo';
 
 @Api({ description: '首页' })
 @RequestMapping('/home')
@@ -30,8 +31,8 @@ export default class HomeController extends Controller {
     { value: '类型', paramType: 'body', name: 'type' }
   ])
   @PostMapping('/body')
-  body(@RequestBody type) {
-    return 'home/index...' + JSON.stringify(type);
+  body(@RequestBody user: UserInfo): UserInfo {
+    return user;
   }
 
   @ApiOperation({ value: '@PathVariable 测试' })
@@ -49,9 +50,9 @@ export default class HomeController extends Controller {
     return 'userId...' + id;
   }
 
-  @ApiOperation({ value:'数据返回',returnType:'GeneralResult<List<UserInfo>>' })
+  @ApiOperation({ value: '数据返回', returnType: 'GeneralResult<List<UserInfo>>' })
   @GetMapping('/return')
-  returnData(){
+  returnData() {
 
   }
 }

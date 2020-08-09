@@ -5,7 +5,7 @@
 import path from 'path';
 import RouteCollection from '../../routes/RouteCollection';
 import ControllerManagement from '../../ControllerManagement';
-import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiModelMeta, ApiMeta, ApiOperationMeta } from './declare';
+import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiMeta, ApiOperationMeta } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
 import hot from '../../hot';
 import Definition from './definition';

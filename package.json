@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "2.2.12",
+  "version": "2.2.13",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "types": "./src/index",
@@ -35,7 +35,8 @@
     "fs-extra": "^9.0.1",
     "glob": "^7.1.6",
     "lodash": "^4.17.19",
-    "path-to-regexp": "^6.1.0"
+    "path-to-regexp": "^6.1.0",
+    "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
     "@types/express": "^4.17.6",

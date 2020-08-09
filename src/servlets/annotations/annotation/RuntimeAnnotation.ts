@@ -54,6 +54,22 @@ export default class RuntimeAnnotation {
   elementType: ElementType
 
   /**
+   * 如果当前注解为：函数注解，则能获取到返回结果类型
+   */
+  get returnType() {
+    return Reflect.getMetadata('design:returntype', this.target, this.name);
+  }
+
+  /**
+   * 如果当前注解为参数注解，则能获取到当前参数的类型
+   * @param ctor 
+   */
+  get paramType(){
+    const paramtypes = Reflect.getMetadata('design:paramtypes', this.target, this.name) || [];
+    return paramtypes[this.paramIndex];
+  }
+
+  /**
    * 获取指定类的所有注解信息
    * @param {Function} ctor 被修饰的类 
    * @param {Function} type 注解类型

@@ -11,6 +11,7 @@ export default function (options: MethodParameterOptions | string, meta: Runtime
   const parameters = Javascript.resolveParameters(handler);
   options.name = options.name || parameters[paramIndex];
   options.value = options.value || options.name;
+  options.dataType = options.dataType || meta.paramType;
   const action = ControllerManagement.getActionDescriptor(target.constructor, name);
   const param = new MethodParameter(options, type, meta);
   action.params.push(param);

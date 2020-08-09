@@ -10,6 +10,7 @@
     "esModuleInterop":true,
     "preserveConstEnums": true,
     "sourceMap": true,
+    "emitDecoratorMetadata": true,
     "experimentalDecorators":true,
     "outDir": "./dist/",
     "rootDir": "./src"

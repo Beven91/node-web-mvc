@@ -12,10 +12,7 @@ class RequestBody {
 
   public param: MethodParameter
 
-  constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string | Function) {
-    if (typeof options === 'function') {
-      options = { dataType: options }
-    }
+  constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string ) {
     this.param = createParam(options, meta, 'body');
   }
 }

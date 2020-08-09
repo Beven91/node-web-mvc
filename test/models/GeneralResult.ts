@@ -4,6 +4,7 @@
  */
 
 import { ApiModel, ApiModelProperty } from "../../src";
+import Paged from "./Paged";
 
 @ApiModel({ value: '返回结果' })
 export default class GeneralResult<T> {
@@ -23,8 +24,8 @@ export default class GeneralResult<T> {
   /**
    * 返回的数据
    */
-  @ApiModelProperty({ value: '数据', generic: true })
-  public data: T
+  @ApiModelProperty({ value: '数据', generic: true,dataType:'Paged<1>' })
+  public data: Paged<T>
 
   /**
    * 构造一个统一返回结果实例
