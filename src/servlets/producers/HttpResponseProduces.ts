@@ -98,7 +98,9 @@ export default class HttpResponseProduces {
       .then(() => data)
       // 异常处理
       .catch((error) => {
-        response.setStatus(500, error.message).end();
+        console.error(error);
+        response.setStatus(500, error.message).write(error.message || '');
+        response.end();
       })
   }
 
