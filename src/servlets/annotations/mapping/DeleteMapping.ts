@@ -3,7 +3,7 @@ import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping'
 import Target from '../Target';
 
 @Target
-class DeleteMapping extends RequestMapping.Annotation {
+class DeleteMapping extends RequestMapping.Class {
   constructor(value: RouteMappingOptions, meta) {
     super(meta, RouteMapping.create(value, 'DELETE'));
   }

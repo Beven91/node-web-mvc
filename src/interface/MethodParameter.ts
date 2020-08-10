@@ -4,6 +4,7 @@
  */
 
 import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation"
+import { AnnotationFunction } from "../servlets/annotations/Target"
 
 export class MethodParameterOptions {
   /**
@@ -54,17 +55,17 @@ export default class MethodParameter extends MethodParameterOptions {
    */
   public paramType?: string
 
-  public get ctor(){
+  public get ctor() {
     return this.annotation.ctor;
   }
 
   /**
    * 判断当前参数是否存在指定注解
    */
-  public hasParameterAnnotation(annotation): boolean {
+  public hasParameterAnnotation(annotation: AnnotationFunction<any>): boolean {
     // const annotations = RuntimeAnnotation.getMethodAnnotations(this.target,this.method);
-    const ctor = annotation.Annotation || annotation;
-    return this.annotation && this.annotation.nativeAnnotation instanceof ctor;
+    const ctor = annotation.Class || annotation;
+    return this.annotation && this.annotation instanceof ctor;
     // return !!annotations.find((a) => a.nativeAnnotation instanceof ctor);
   }
 

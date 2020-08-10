@@ -3,18 +3,20 @@
  * @module PathVariable
  * @description 提取path中请求参数值
  */
-import createParam from './createParam';
+import createParam, { RequestParameterAnnotation } from './createParam';
 import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import AnnotaionOptions from '../annotation/AnnotationOptions';
 
 @Target
-class PathVariable {
+class PathVariable extends RuntimeAnnotation implements RequestParameterAnnotation {
 
   public param: MethodParameter
 
-  constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
-    this.param = createParam(options, meta, 'path');
+  constructor(meta: AnnotaionOptions, options: MethodParameterOptions | string) {
+    super(meta);
+    this.param = createParam(options, this, 'path');
   }
 }
 
@@ -25,4 +27,4 @@ class PathVariable {
  * 
  *  action(@PathVariable({ required: true }) id) 
  */
-export default Target.install<typeof PathVariable, MethodParameterOptions | string>(PathVariable);
+export default Target.install<typeof PathVariable,MethodParameterOptions | string>(PathVariable);

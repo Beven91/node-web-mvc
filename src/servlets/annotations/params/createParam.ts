@@ -3,6 +3,10 @@ import MethodParameter, { MethodParameterOptions } from '../../../interface/Meth
 import Javascript from '../../../interface/Javascript';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 
+export declare class RequestParameterAnnotation {
+  param: MethodParameter
+}
+
 export default function (options: MethodParameterOptions | string, meta: RuntimeAnnotation, type): MethodParameter {
   const isString = typeof options === 'string';
   options = ((isString ? { value: options } : options) || {}) as MethodParameterOptions;

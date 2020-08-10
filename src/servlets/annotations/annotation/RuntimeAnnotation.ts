@@ -10,6 +10,44 @@ import Javascript from "../../../interface/Javascript";
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
 
 export default class RuntimeAnnotation {
+
+  constructor(options: AnnotationOptions) {
+    const { meta, types, ctor } = options;
+    // 检查范围
+    const elementType = checkAnnotation(types, meta, ctor.name);
+    // 设置当前标注的实际使用类型
+    this.elementType = elementType as ElementType;
+
+    const [target, name, descritpor] = meta;
+
+    // 初始化元信息
+    switch (elementType) {
+      case ElementType.TYPE:
+        this.target = target;
+        break;
+      case ElementType.METHOD:
+        this.target = target;
+        this.name = name;
+        this.descriptor = descritpor;
+        break;
+      case ElementType.PROPERTY:
+        this.target = target;
+        this.name = name;
+        this.descriptor = descritpor;
+        break;
+      case ElementType.PARAMETER:
+        {
+          const parameters = Javascript.resolveParameters(target[name]);
+          this.target = target;
+          this.name = name;
+          this.paramIndex = descritpor;
+          this.paramName = parameters[this.paramIndex];
+        }
+        break;
+    }
+  }
+
+
   /**
    * 标注的类
    */
@@ -64,7 +102,7 @@ export default class RuntimeAnnotation {
    * 如果当前注解为参数注解，则能获取到当前参数的类型
    * @param ctor 
    */
-  get paramType(){
+  get paramType() {
     const paramtypes = Reflect.getMetadata('design:paramtypes', this.target, this.name) || [];
     return paramtypes[this.paramIndex];
   }
@@ -122,46 +160,10 @@ export default class RuntimeAnnotation {
    * 创建一个运行时注解
    * @param { AnnotationOptions } options 注解参数
    */
-  static create(options: AnnotationOptions) {
-    const { meta, types, ctor: RealAnnotation } = options;
-    // 检查范围
-    const elementType = checkAnnotation(types, meta, RealAnnotation.name);
-    // 创建一个运行时注解
-    const runtimeAnnotation = new RuntimeAnnotation();
-    // 设置当前标注的实际使用类型
-    runtimeAnnotation.elementType = elementType as ElementType;
-
-    const [target, name, descritpor] = meta;
-
-    // 初始化元信息
-    switch (elementType) {
-      case ElementType.TYPE:
-        runtimeAnnotation.target = target;
-        break;
-      case ElementType.METHOD:
-        runtimeAnnotation.target = target;
-        runtimeAnnotation.name = name;
-        runtimeAnnotation.descriptor = descritpor;
-        break;
-      case ElementType.PROPERTY:
-        runtimeAnnotation.target = target;
-        runtimeAnnotation.name = name;
-        runtimeAnnotation.descriptor = descritpor;
-        break;
-      case ElementType.PARAMETER:
-        {
-          const parameters = Javascript.resolveParameters(target[name]);
-          runtimeAnnotation.target = target;
-          runtimeAnnotation.name = name;
-          runtimeAnnotation.paramIndex = descritpor;
-          runtimeAnnotation.paramName = parameters[runtimeAnnotation.paramIndex];
-        }
-        break;
-    }
-
+  static create(options: AnnotationOptions, ctor: typeof RuntimeAnnotation): RuntimeAnnotation {
+    const RealRuntimeAnnotation = ctor as any;
     // 根据构造创建注解实例
-    runtimeAnnotation.nativeAnnotation = new RealAnnotation(runtimeAnnotation, ...options.options);
-
+    const runtimeAnnotation = new RealRuntimeAnnotation(options, ...options.options);
     // 将注解添加到注解列表
     runtimeAnnotations.push(runtimeAnnotation);
 
