@@ -55,6 +55,8 @@ import HttpServletRequest from './servlets/http/HttpServletRequest';
 import HttpServletResponse from './servlets/http/HttpServletResponse';
 import MediaType from './servlets/http/MediaType';
 import MessageConverter from './servlets/http/converts/MessageConverter';
+import RuntimeAnnotation from './servlets/annotations/annotation/RuntimeAnnotation';
+import AnnotationOptions from './servlets/annotations/annotation/AnnotationOptions';
 
 export {
   hot,
@@ -111,7 +113,9 @@ export {
   MessageConverter,
   ResponseStatus,
   HandlerMethod,
-  HandlerAdapter
+  HandlerAdapter,
+  RuntimeAnnotation,
+  AnnotationOptions
 }
 
 hot.create(module);
