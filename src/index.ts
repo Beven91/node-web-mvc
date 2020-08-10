@@ -22,6 +22,7 @@ import ApiOperation from './swagger/annotations/ApiOperation';
 import ApiModel from './swagger/annotations/ApiModel';
 import ApiModelProperty from './swagger/annotations/ApiModelProperty';
 import ApiImplicitParams from './swagger/annotations/ApiImplicitParams';
+import ResponseStatus from './servlets/annotations/ResponseStatus';
 import RequestBody from './servlets/annotations/params/RequestBody';
 import RequestParam from './servlets/annotations/params/RequestParam';
 import ServletRequest from './servlets/annotations/params/ServletRequest';
@@ -34,6 +35,8 @@ import HandlerMethodArgumentResolver from './servlets/method/argument/HandlerMet
 import ViewResolver from './servlets/view/resolvers/ViewResolver';
 import UrlBasedViewResolver from './servlets/view/resolvers/UrlBasedViewResolver';
 import View from './servlets/view/View';
+import HandlerMethod from './servlets/method/HandlerMethod';
+import HandlerAdapter from './servlets/method/HandlerAdapter';
 import RequestMemoryStream from './stream/RequestMemoryStream';
 import Target from './servlets/annotations/Target';
 import createParam from './servlets/annotations/params/createParam';
@@ -105,7 +108,10 @@ export {
   MediaType,
   HttpServletRequest,
   HttpServletResponse,
-  MessageConverter
+  MessageConverter,
+  ResponseStatus,
+  HandlerMethod,
+  HandlerAdapter
 }
 
 hot.create(module);

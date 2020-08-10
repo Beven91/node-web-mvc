@@ -4,6 +4,7 @@
  */
 import ServletModel from '../models/ServletModel';
 import ServletContext from '../http/ServletContext';
+import { HttpServletRequest } from '../..';
 
 export default interface HandlerAdapter {
   /**
@@ -19,5 +20,5 @@ export default interface HandlerAdapter {
   /**
    * 返回上次修改时间，可以返回-1表示不支持
    */
-  getLastModified(request, handler);
+  getLastModified(request: HttpServletRequest, handler);
 }

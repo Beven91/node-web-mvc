@@ -3,14 +3,13 @@
  * @description action执行器
  */
 import ServletContext from '../http/ServletContext';
-import ControllerManagement from '../../ControllerManagement';
 import ServletModel from '../models/ServletModel';
-import { ActionDescriptors } from '../../interface/declare';
 import InterruptModel from '../models/InterruptModel';
 import MethodParameter from '../../interface/MethodParameter';
 import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
 import Middlewares from '../models/Middlewares';
+import ResponseStatus, { ResponseStatusAnnotation } from '../annotations/ResponseStatus';
 
 declare class ParameterDictionary {
   [propName: string]: MethodParameter
@@ -95,24 +94,21 @@ export default class HandlerMethod {
    * 从 ResponseStatus 获取当前action设定的返回状态，如果没有获取到则使用默认的
    */
   private evaluateResponseStatus(): void {
-    const actionDescriptor = this.getMethodAnnotations();
-    const annotation = actionDescriptor.responseStatus;
+    const annotation = this.getAnnotation(ResponseStatus);
     if (annotation != null) {
-      this.responseStatus = annotation.code;
-      this.responseStatusReason = annotation.reason;
+      const nativeAnnotation = annotation.nativeAnnotation as ResponseStatusAnnotation;
+      this.responseStatus = nativeAnnotation.code;
+      this.responseStatusReason = nativeAnnotation.reason;
     }
   }
 
   /**
-   * 获取当前action设定的注解信息
-   * 由于Javascript没有反射，所以这里仅返回控制器的所有标记属性
-   * @param { Class } ctor 注解构造函数
+   * 获取当前方法上的指定注解信息
+   * @param { Annotation } annotationClass 注解类
    */
-  public getMethodAnnotations(ctor?) {
-    const descriptor = ControllerManagement.getControllerDescriptor(this.servletContext.Controller);
-    if (!ctor) {
-      return descriptor.actions[this.servletContext.actionName];
-    }
+  public getAnnotation(annotationClass?) {
+    const annotations = RuntimeAnnotation.getMethodAnnotations(this.servletContext.Controller,this.servletContext.actionName);
+    return annotations.find((a)=> a.nativeAnnotation instanceof annotationClass);
   }
 
   /**
