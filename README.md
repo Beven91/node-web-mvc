@@ -600,8 +600,9 @@ export default class AuthorizationInterceptor extends HandlerInterceptorAdapter 
    */
   preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: HandlerMethod): boolean {
     // 假设我们添加了一个UserLogin注解
-    const annotation = handler.getMethodAnnotations(UserLogin);
+    const annotation = handler.getAnnotation(UserLogin);
     if (annotation) {
+      const nativeAnnotation = annotation.nativeAnnotation;
       // 进行权限校验
     }
     return true;
