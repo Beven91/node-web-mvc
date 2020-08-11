@@ -3,8 +3,7 @@
  * @description 请求参数配置类
  */
 
-import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation"
-import { AnnotationFunction } from "../servlets/annotations/Target"
+import RuntimeAnnotation, { AnnotationFunction } from "../servlets/annotations/annotation/RuntimeAnnotation"
 
 export class MethodParameterOptions {
   /**
@@ -62,11 +61,8 @@ export default class MethodParameter extends MethodParameterOptions {
   /**
    * 判断当前参数是否存在指定注解
    */
-  public hasParameterAnnotation(annotation: AnnotationFunction<any>): boolean {
-    // const annotations = RuntimeAnnotation.getMethodAnnotations(this.target,this.method);
-    const ctor = annotation.Annotation || annotation;
-    return this.annotation && this.annotation.nativeAnnotation instanceof ctor;
-    // return !!annotations.find((a) => a.nativeAnnotation instanceof ctor);
+  public hasParameterAnnotation(ctor: AnnotationFunction<any>): boolean {
+    return !!RuntimeAnnotation.getNativeAnnotation(this.annotation, ctor);
   }
 
   /**

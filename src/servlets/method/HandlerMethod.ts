@@ -7,7 +7,7 @@ import ServletModel from '../models/ServletModel';
 import InterruptModel from '../models/InterruptModel';
 import MethodParameter from '../../interface/MethodParameter';
 import Javascript from '../../interface/Javascript';
-import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import RuntimeAnnotation, { AnnotationFunction } from '../annotations/annotation/RuntimeAnnotation';
 import Middlewares from '../models/Middlewares';
 import ResponseStatus, { ResponseStatusAnnotation } from '../annotations/ResponseStatus';
 
@@ -105,10 +105,9 @@ export default class HandlerMethod {
    * 获取当前方法上的指定注解信息
    * @param { Annotation } annotationClass 注解类
    */
-  public getAnnotation<T>(annotationClass?) {
-    const annotations = RuntimeAnnotation.getMethodAnnotations(this.servletContext.Controller,this.servletContext.actionName);
-    const annotation =  annotations.find((a)=> a.nativeAnnotation instanceof annotationClass);
-    return annotation ? annotation.nativeAnnotation as T : null;
+  public getAnnotation<T>(ctor: AnnotationFunction<any>) {
+    const annotations = RuntimeAnnotation.getMethodAnnotations(this.servletContext.Controller, this.servletContext.actionName);
+    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
 
   /**

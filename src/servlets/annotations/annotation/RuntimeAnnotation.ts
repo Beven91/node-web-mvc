@@ -9,6 +9,12 @@ import Javascript from "../../../interface/Javascript";
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
 
+export declare interface AnnotationFunction<A> extends ClassDecorator, PropertyDecorator, MethodDecorator, ParameterDecorator {
+  Annotation: A
+}
+
+type BaseAnnotation = AnnotationFunction<any>
+
 export default class RuntimeAnnotation {
   /**
    * 标注的类
@@ -64,7 +70,7 @@ export default class RuntimeAnnotation {
    * 如果当前注解为参数注解，则能获取到当前参数的类型
    * @param ctor 
    */
-  get paramType(){
+  get paramType() {
     const paramtypes = Reflect.getMetadata('design:paramtypes', this.target, this.name) || [];
     return paramtypes[this.paramIndex];
   }
@@ -116,6 +122,20 @@ export default class RuntimeAnnotation {
    */
   static getMethodParamAnnotation(ctor: Function, method: string, paramName: string) {
     return this.getMethodAnnotations(ctor, method).find((s) => s.paramName === paramName);
+  }
+
+  /**
+   * 从一组annotations中获取对应类型的注解
+   * @param annotations 
+   * @param ctor 
+   */
+  static getNativeAnnotation<T>(annotations: Array<RuntimeAnnotation> | RuntimeAnnotation, ctor: BaseAnnotation): T {
+    if (annotations) {
+      const Annotation = ctor.Annotation || ctor;
+      annotations = annotations instanceof Array ? annotations : [annotations];
+      const annotation = annotations.find((a) => a.nativeAnnotation instanceof Annotation);
+      return annotation ? annotation.nativeAnnotation as T : null;
+    }
   }
 
   /**

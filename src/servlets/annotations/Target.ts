@@ -3,7 +3,7 @@
  * @description 用于标注指定类成为一个标注类
  */
 import AnnotationOptions from "./annotation/AnnotationOptions";
-import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
+import RuntimeAnnotation, { AnnotationFunction } from "./annotation/RuntimeAnnotation";
 import { reflectAnnotationType } from "./annotation/ElementType";
 
 const elementTypes = Symbol('elementTypes');
@@ -14,12 +14,7 @@ export const parameterReturnable = Symbol('parameterReturnable');
 
 export declare type ReturnableAnnotationFunction<T> = (a: typeof parameterReturnable, callback: Function) => T
 
-export declare interface AnnotationFunction<A> extends ClassDecorator, PropertyDecorator, MethodDecorator, ParameterDecorator {
-  Annotation: A
-}
-
 export declare interface CallableAnnotationFunction<A, T> extends ConfigableDecorator<T>, AnnotationFunction<A> {
-
 }
 
 /**
