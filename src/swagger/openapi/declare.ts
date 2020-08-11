@@ -205,6 +205,7 @@ export declare class ApiModelPropertyMeta {
   required: boolean
   example: any
   type: string
+  items?:any
 }
 
 export declare class ApiModelMeta {

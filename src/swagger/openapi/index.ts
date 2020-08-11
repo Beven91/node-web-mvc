@@ -191,8 +191,6 @@ export default class OpenApiModel {
       definitions: {},
       swagger: '2.0',
     };
-    // 清空依赖引用
-    Definition.cleanReference();
     // 构建api
     apiMetaList.forEach((api) => {
       const paths = documentation.paths;

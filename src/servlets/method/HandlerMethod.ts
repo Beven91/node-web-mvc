@@ -94,11 +94,10 @@ export default class HandlerMethod {
    * 从 ResponseStatus 获取当前action设定的返回状态，如果没有获取到则使用默认的
    */
   private evaluateResponseStatus(): void {
-    const annotation = this.getAnnotation(ResponseStatus);
+    const annotation = this.getAnnotation<ResponseStatusAnnotation>(ResponseStatus);
     if (annotation != null) {
-      const nativeAnnotation = annotation.nativeAnnotation as ResponseStatusAnnotation;
-      this.responseStatus = nativeAnnotation.code;
-      this.responseStatusReason = nativeAnnotation.reason;
+      this.responseStatus = annotation.code;
+      this.responseStatusReason = annotation.reason;
     }
   }
 
@@ -106,9 +105,10 @@ export default class HandlerMethod {
    * 获取当前方法上的指定注解信息
    * @param { Annotation } annotationClass 注解类
    */
-  public getAnnotation(annotationClass?) {
+  public getAnnotation<T>(annotationClass?) {
     const annotations = RuntimeAnnotation.getMethodAnnotations(this.servletContext.Controller,this.servletContext.actionName);
-    return annotations.find((a)=> a.nativeAnnotation instanceof annotationClass);
+    const annotation =  annotations.find((a)=> a.nativeAnnotation instanceof annotationClass);
+    return annotation ? annotation.nativeAnnotation as T : null;
   }
 
   /**

@@ -8,7 +8,19 @@ import { reflectAnnotationType } from "./annotation/ElementType";
 
 const elementTypes = Symbol('elementTypes');
 
+declare type ConfigableDecorator<T> = (a: T) => any
+
 export const parameterReturnable = Symbol('parameterReturnable');
+
+export declare type ReturnableAnnotationFunction<T> = (a: typeof parameterReturnable, callback: Function) => T
+
+export declare interface AnnotationFunction<A> extends ClassDecorator, PropertyDecorator, MethodDecorator, ParameterDecorator {
+  Annotation: A
+}
+
+export declare interface CallableAnnotationFunction<A, T> extends ConfigableDecorator<T>, AnnotationFunction<A> {
+
+}
 
 /**
  * 标注指定类成为指定范围的注解类
@@ -22,10 +34,10 @@ export default function Target(types): any {
   }
 }
 
-Target.install = function <C, T>(target) {
-  const decorator = function (a: T | Object | Function, b?: string | symbol, c?: any): any {
+Target.install = function <A, T>(ctor: A): CallableAnnotationFunction<A, T> {
+  const decorator = function () {
     const args = Array.prototype.slice.call(arguments);
-    const runtime = new AnnotationOptions(target, args);
+    const runtime = new AnnotationOptions(ctor, args);
     const elementType = reflectAnnotationType(args);
     if (elementType === 'UNKNOW') {
       // 如果是执行配置，这里需要返回修饰器函数 例如:  @GetMapping('/home')
@@ -47,12 +59,12 @@ Target.install = function <C, T>(target) {
     // 如果是按照如下方式使用注解 例如: @GetMapping
     createAnnotation(runtime);
   }
-  decorator.Annotation = target as C;
-  Object.defineProperty(decorator, 'name', { value: target.name });
-  return decorator;
+  decorator.Annotation = ctor;
+  Object.defineProperty(decorator, 'name', { value: (ctor as any).name });
+  return decorator as any;
 }
 
-function createAnnotation(runtime: AnnotationOptions) {
+function createAnnotation(runtime: AnnotationOptions): RuntimeAnnotation {
   const target = runtime.meta[0];
   runtime.types = target[elementTypes] || target.constructor[elementTypes] || [];
   // 创建注解

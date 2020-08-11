@@ -19,12 +19,7 @@ export default class Definition {
   }
 
   static makeRef(name) {
-    references[name] = true;
     return `#/definitions/${name}`;
-  }
-
-  static cleanReference() {
-    references = {};
   }
 
   /**
@@ -49,14 +44,14 @@ export default class Definition {
     // 筛选，返回最终需要的定义
     Object
       .keys(tempDefinitions)
-      .filter((k) => references[k])
+      .filter((k) => !/<\d+>/.test(k))
       .forEach((k) => {
         finalDefinitions[k] = tempDefinitions[k];
       })
     return finalDefinitions
   }
 
-  static buildFinalDefinitionProperties(definition: ApiModelMeta) {
+  private static buildFinalDefinitionProperties(definition: ApiModelMeta) {
     const properties = definition.properties;
     const finalProperties = {};
     Object.keys(properties).forEach((key) => {
@@ -77,11 +72,11 @@ export default class Definition {
    * 判断类型是否为数组类型
    * @param dataType 
    */
-  static isArray(dataType) {
+  private static isArray(dataType) {
     return dataType === 'List' || dataType === 'Array' || dataType === 'array';
   }
 
-  static createGenericT(property, define) {
+  private static createGenericT(property, define) {
     const parts = define.name.split(',');
     const isArray = define.type === 'array';
     let data = { empty: true } as any;
@@ -99,7 +94,7 @@ export default class Definition {
     }
   }
 
-  static createDefinition(model: ApiModelMeta, nowKey, define) {
+  private static createDefinition(model: ApiModelMeta, nowKey, define) {
     const properties = model.properties;
     const newModel = {
       ctor: model.ctor,
@@ -122,7 +117,7 @@ export default class Definition {
     return { name: nowKey }
   }
 
-  static parseDefinition(define, key): DefinitionInfo {
+  private static parseDefinition(define, key): DefinitionInfo {
     const defineModel = definitions[define.name];
     const nowKey = define.name ? `${key}<${define.name}>` : key;
     const model = definitions[key];
