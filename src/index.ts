@@ -15,7 +15,7 @@ import RestController from './servlets/annotations/RestController';
 import Scope from './servlets/annotations/Scope';
 import ControllerAdvice from './servlets/annotations/ControllerAdvice';
 import ExceptionHandler from './servlets/annotations/ExceptionHandler';
-import HandlerInteceptor from './servlets/interceptor/HandlerInteceptor';
+import HandlerInterceptor from './servlets/interceptor/HandlerInterceptor';
 import HandlerInterceptorAdapter from './servlets/interceptor/HandlerInterceptorAdapter';
 import Api from './swagger/annotations/Api';
 import ApiOperation from './swagger/annotations/ApiOperation';
@@ -80,7 +80,7 @@ export {
   ControllerAdvice,
   ExceptionHandler,
   ControllerFactory,
-  HandlerInteceptor,
+  HandlerInterceptor,
   HandlerInterceptorAdapter,
   RequestBody,
   RequestParam,

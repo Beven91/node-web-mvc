@@ -6,7 +6,7 @@ import path from 'path';
 import glob from 'glob'
 import bytes from 'bytes';
 import OpenApi from '../swagger/openapi';
-import HandlerInteceptorRegistry from './interceptor/HandlerInteceptorRegistry';
+import HandlerInterceptorRegistry from './interceptor/HandlerInterceptorRegistry';
 import MessageConverter from './http/converts/MessageConverter';
 import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './view/ViewResolverRegistry';
@@ -44,7 +44,7 @@ export declare class WebAppConfigurerOptions {
   // 热更新配置
   hot?: HotOptions
   // 注册拦截器
-  addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
+  addInterceptors?: (registry: typeof HandlerInterceptorRegistry) => void
   // 添加http消息转换器
   addMessageConverters?: (converters: typeof MessageConverter) => void
   // 添加参数解析器
@@ -141,7 +141,7 @@ export default class WebAppConfigurer {
     }
     // 注册拦截器
     if (options.addInterceptors) {
-      options.addInterceptors(HandlerInteceptorRegistry);
+      options.addInterceptors(HandlerInterceptorRegistry);
     }
     // 注册转换器
     if (options.addMessageConverters) {

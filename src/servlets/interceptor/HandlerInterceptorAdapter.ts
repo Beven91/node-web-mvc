@@ -3,12 +3,12 @@
  * @module HandlerInterceptorAdapter
  * 拦截器抽象类
  */
-import HandlerInteceptor from './HandlerInteceptor';
+import HandlerInterceptor from './HandlerInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
 import HttpServletResponse from '../http/HttpServletResponse';
 import HandlerMethod from '../method/HandlerMethod';
 
-export default abstract class HandlerInterceptorAdapter implements HandlerInteceptor {
+export default abstract class HandlerInterceptorAdapter implements HandlerInterceptor {
   /**
    * 在处理action前，进行请求预处理，通常可以用于编码、安全控制、权限校验
    * @param { HttpRequest } request 当前请求对象

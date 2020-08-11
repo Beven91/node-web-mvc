@@ -1058,7 +1058,7 @@ class WebAppConfigurerOptions {
   // 热更新配置
   hot?: HotOptions
   // 注册拦截器
-  addInterceptors?: (registry: typeof HandlerInteceptorRegistry) => void
+  addInterceptors?: (registry: typeof HandlerInterceptorRegistry) => void
   // 添加http消息转换器
   addMessageConverters?: (converters: typeof MessageConverter) => void
   // 添加参数解析器
