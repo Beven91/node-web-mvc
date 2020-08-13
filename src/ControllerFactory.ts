@@ -176,15 +176,18 @@ export default class ControllerFactory {
       // 执行控制器
       .executeController(servletContext)
       .then((model: ServletModel) => {
-        if (model instanceof InterruptModel) {
+        if (model instanceof InterruptModel && !servletContext.response.headersSent) {
           // 如果没有执行action,跳转到下一个
           servletContext.next()
         }
       })
       .catch((ex) => {
         runtime.error = ex;
-        // 如果出现意外异常
-        servletContext.next(ex);
+        console.error(ex);
+        if (!servletContext.response.headersSent) {
+          // 如果出现意外异常
+          servletContext.next(ex);
+        }
       })
   }
 }
