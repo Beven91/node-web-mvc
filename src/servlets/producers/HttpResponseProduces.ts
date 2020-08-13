@@ -62,6 +62,10 @@ export default class HttpResponseProduces {
    */
   private handleViewResponse(mv: ModelAndView) {
     const { servletContext: { request, response } } = this;
+    if (response.headersSent) {
+      // 如果前置流程已处理了返回
+      return;
+    }
     return Promise
       // 查找视图
       .resolve(this.resolveViewName(mv))

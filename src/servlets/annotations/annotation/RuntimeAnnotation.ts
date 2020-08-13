@@ -129,9 +129,9 @@ export default class RuntimeAnnotation {
    * @param annotations 
    * @param ctor 
    */
-  static getNativeAnnotation<T>(annotations: Array<RuntimeAnnotation> | RuntimeAnnotation, ctor: BaseAnnotation): T {
+  static getNativeAnnotation<T>(annotations: Array<RuntimeAnnotation> | RuntimeAnnotation, ctor: BaseAnnotation | RuntimeAnnotation): T {
     if (annotations) {
-      const Annotation = ctor.Annotation || ctor;
+      const Annotation = (ctor as any).Annotation || ctor;
       annotations = annotations instanceof Array ? annotations : [annotations];
       const annotation = annotations.find((a) => a.nativeAnnotation instanceof Annotation);
       return annotation ? annotation.nativeAnnotation as T : null;

@@ -105,7 +105,7 @@ export default class HandlerMethod {
    * 获取当前方法上的指定注解信息
    * @param { Annotation } annotationClass 注解类
    */
-  public getAnnotation<T>(ctor: AnnotationFunction<any>) {
+  public getAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
     const annotations = RuntimeAnnotation.getMethodAnnotations(this.servletContext.Controller, this.servletContext.actionName);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
