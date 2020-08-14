@@ -3,6 +3,7 @@
  * @description 用于根据viewName去获取对应的View
  */
 
+import hot from '../../hot';
 import ViewResolver from './resolvers/ViewResolver';
 
 const registerResolvers: Array<ViewResolver> = [];
@@ -23,3 +24,11 @@ export default class ViewResolverRegistry {
     registerResolvers.push(resolver);
   }
 }
+
+/**
+ * 内部热更新 
+ */
+hot.create(module)
+  .postend((now, old) => {
+    new hot.ListReplacement(registerResolvers, now, old);
+  });

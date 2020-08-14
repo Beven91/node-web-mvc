@@ -12,6 +12,7 @@ import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgume
 import ServletContextMethodArgumentResolver from './ServletContextMethodArgumentResolver';
 import HandlerMethod from '../HandlerMethod';
 import ParameterRequiredError from '../../../errors/ParameterRequiredError';
+import hot from '../../../hot';
 
 const registerResolvers: Array<HandlerMethodArgumentResolver> = [
   new PathVariableMapMethodArgumentResolver(),
@@ -68,3 +69,11 @@ export default class ArgumentsResolvers {
     return resolver ? resolver.resolveArgument(parameter, servletContext) : undefined;
   }
 }
+
+/**
+ * 内部热更新 
+ */
+hot.create(module)
+  .postend((now, old) => {
+    new hot.ListReplacement(registerResolvers, now, old);
+  });

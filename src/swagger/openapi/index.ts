@@ -220,7 +220,7 @@ export default class OpenApiModel {
     const code = 'code' in option ? option.code : '200';
     const model = Definition.getDefinitionModel(option.returnType);
     const operationDoc = {
-      consumes: mapping.consumes || operation.consumes,
+      consumes: mapping.consumes || operation.consumes || descriptor.produces,
       deprecated: false,
       operationId: operation.method,
       tags: api.option.tags.map((tag) => tag.name),

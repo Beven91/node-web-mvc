@@ -10,6 +10,7 @@ import DefaultMessageConverter from './DefaultMessageConverter';
 import MultipartMessageConverter from './MultipartMessageConverter';
 import UrlencodedMessageConverter from './UrlencodedMessageConverter';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
+import hot from '../../../hot';
 
 const registerConverters: Array<HttpMessageConverter> = [
   new JsonMessageConverter(),
@@ -58,3 +59,11 @@ export default class MessageConverter {
     })
   }
 }
+
+/**
+ * 内部热更新 
+ */
+hot.create(module)
+  .postend((now, old) => {
+    new hot.ListReplacement(registerConverters, now, old);
+  });

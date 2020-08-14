@@ -5,6 +5,7 @@ import path from 'path';
 import fs from 'fs';
 import HotModule from './HotModule';
 import Module from 'module';
+import ListReplacement from './ListReplacement';
 
 export declare class NodeHotModule extends Module {
   hot: HotModule
@@ -22,6 +23,9 @@ export declare class HotOptions {
 }
 
 class HotReload {
+
+  ListReplacement = ListReplacement
+
   /**
    * 热更新配置
    */
@@ -46,7 +50,7 @@ class HotReload {
    * @param {Module} mod 模块对象 
    */
   public create(mod): HotModule {
-    const id = mod.id;
+    const id = mod.filename || mod.id;
     if (!this.hotModules.get(id)) {
       mod.hot = new HotModule(id);
       this.hotModules.set(id, mod.hot);
@@ -132,13 +136,16 @@ class HotReload {
       // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
       const index = module.children.indexOf(now);
       index > -1 ? module.children.splice(index, 1) : undefined;
+      // if (hot.hooks.accept) {
+      //   hot.hooks.accept(now, old);
+      // }
       // 执行hooks.accept
       const reasons = hot.reasons;
       reasons.forEach((reason) => {
         if (reason.hooks.accept) {
           // 如果父模块定义了accept 
-          reason.hooks.accept(now);
-        } else {
+          reason.hooks.accept(now, old);
+        } else if (require.cache[reason.id] !== require.main) {
           // 如果父模块没有定义accept 则重新载入父模块
           this.reload(reason.id, reloadeds);
         }
@@ -154,7 +161,7 @@ class HotReload {
       mod.hot = mod.hot || hot;
       mod.parent = parent;
       // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
-      const finded = module.children.find((m) => m.id === id);
+      const finded = module.children.find((m) => m.filename === id);
       const index = module.children.indexOf(finded)
       index > -1 ? module.children.splice(index, 1) : undefined;
       console.error('Hot reload error', ex.stack);

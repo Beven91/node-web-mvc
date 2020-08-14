@@ -4,7 +4,7 @@ import { HandlerInterceptorAdapter } from '../../src/index';
 export default class AdminInterceptor extends HandlerInterceptorAdapter {
 
   preHandle(request) {
-    console.log('AdminInterceptor.preHandle called');
+    console.log('AdminInterceptor.preHandle called...........');
     if (request.path === '/scope/admin') {
       return false;
     }
