@@ -81,7 +81,16 @@ export default class RuntimeAnnotation {
    * @param {Function} type 注解类型
    */
   static getClassAnnotations(ctor) {
-    return runtimeAnnotations.filter((m) => m.target = ctor);
+    return runtimeAnnotations.filter((m) => m.target == ctor);
+  }
+
+  /**
+   * 获取指定类的所有所有的注解信息（包括函数，属性，参数等)
+   * @param {Function} ctor 被修饰的类 
+   * @param {Function} type 注解类型
+   */
+  static getClassAllAnnotations(ctor) {
+    return runtimeAnnotations.filter((m) => m.target == ctor || m.target.constructor === ctor);
   }
 
   /**
@@ -101,7 +110,7 @@ export default class RuntimeAnnotation {
    */
   static getMethodAnnotations(ctor: Function, method: string) {
     const isAnnotation = (s) => s.elementType === ElementType.METHOD && s.name === method;
-    return this.getClassAnnotations(ctor).filter(isAnnotation);
+    return this.getClassAllAnnotations(ctor).filter(isAnnotation);
   }
 
   /**
@@ -111,7 +120,7 @@ export default class RuntimeAnnotation {
    */
   static getMethodParamAnnotations(ctor: Function, method: string) {
     const isAnnotation = (s) => s.elementType === ElementType.PARAMETER && s.name === method;
-    return this.getClassAnnotations(ctor).filter(isAnnotation);
+    return this.getClassAllAnnotations(ctor).filter(isAnnotation);
   }
 
   /**
