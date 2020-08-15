@@ -126,7 +126,7 @@ export default class HttpServletRequest {
     (cookieStr || '').split(/; */).forEach((kv) => {
       const pairs = kv.split('=');
       const name = pairs[0].trim();
-      if (undefined === [cookies[name]]) {
+      if (undefined === cookies[name]) {
         const value = pairs[1].trim();
         const values = value[0] === '"' ? value.slice(1, -1) : value;
         cookies[name] = values;
