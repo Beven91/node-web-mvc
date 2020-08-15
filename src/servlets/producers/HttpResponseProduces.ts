@@ -14,6 +14,7 @@ import ModelAndView from '../models/ModelAndView';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
 import View from '../view/View';
 import ViewNotFoundError from '../../errors/ViewNotFoundError';
+import { InterruptModel } from '../..';
 
 export default class HttpResponseProduces {
 
@@ -39,6 +40,9 @@ export default class HttpResponseProduces {
    * @param {any} model 控制器动作返回的结果
    */
   produce(model: ServletModel, handler: HandlerMethod) {
+    if (model instanceof InterruptModel) {
+      return this.servletContext.next();
+    }
     return Promise
       .resolve(model.data)
       .then((data) => this.handleProduces(data, handler))
