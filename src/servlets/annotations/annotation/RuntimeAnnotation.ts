@@ -81,7 +81,7 @@ export default class RuntimeAnnotation {
    * @param {Function} type 注解类型
    */
   static getClassAnnotations(ctor) {
-    return runtimeAnnotations.filter((m) => m.target = ctor || m.target.constructor === ctor);
+    return runtimeAnnotations.filter((m) => m.target = ctor);
   }
 
   /**
