@@ -55,9 +55,16 @@ export default class Registry {
     RouteCollection.base = configure.contextPath;
     // 返回中间件
     return HttpContext.launch((request, response, next) => {
-      const HttpServletContext = HttpContext as any;
-      const context: ServletContext = new HttpServletContext(configure, request, response, next);
-      ControllerFactory.defaultFactory.handle(context);
+      new Promise((resolve) => {
+        const HttpServletContext = HttpContext as any;
+        const context: ServletContext = new HttpServletContext(configure, request, response, next);
+        ControllerFactory.defaultFactory.handle(context);
+        resolve();
+      })
+        .catch((ex) => {
+          console.error(ex);
+          response.status(500).end();
+        })
     });
   }
 }
