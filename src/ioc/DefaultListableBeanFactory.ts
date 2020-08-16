@@ -37,7 +37,7 @@ export default class DefaultListableBeanFactory {
         return;
       }
       this.beanDefinitions.forEach((item, key) => {
-        if (item.ctor === info) {
+        if (item && item.ctor === info) {
           this.beanDefinitions.set(key, null);
         }
       })

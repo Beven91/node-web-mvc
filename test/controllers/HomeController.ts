@@ -2,7 +2,7 @@
 import { Controller, Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired } from '../../src/index';
 import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
-import UserInfo from '../models/UserInfo';
+import { UserInfo } from '../models/';
 
 @Api
 @RequestMapping('/home')
@@ -17,6 +17,7 @@ export default class HomeController extends Controller {
     { description: '编号', paramType: 'query', name: 'id', required: true }
   ])
   index(@RequestParam({ required: true }) id) {
+    this.orderService.sayHello();
     return 'home/index...' + id;
   }
 

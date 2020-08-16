@@ -11,4 +11,7 @@ export default class OrderService {
     console.log(this.orderModel);
   }
 
+  sayHello(){
+    console.log('hello');
+  }
 }
