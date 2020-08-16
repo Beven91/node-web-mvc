@@ -300,12 +300,17 @@ hot.create(module)
   })
   .postend((now, old) => {
     const index = old.__apiIndex;
-    const last = apiMetaList.pop();
-    const newApiList = [
-      ...apiMetaList.slice(0, index),
-      last,
-      ...apiMetaList.slice(index)
-    ]
-    apiMetaList.length = 0;
-    apiMetaList.push(...newApiList);
+    if (isNaN(index)) {
+      return;
+    }
+    if (apiMetaList.length > 0) {
+      const last = apiMetaList.pop();
+      const newApiList = [
+        ...apiMetaList.slice(0, index),
+        last,
+        ...apiMetaList.slice(index)
+      ]
+      apiMetaList.length = 0;
+      apiMetaList.push(...newApiList);
+    }
   })
