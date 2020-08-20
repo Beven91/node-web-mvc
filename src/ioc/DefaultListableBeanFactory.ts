@@ -3,7 +3,7 @@
  * @description Ioc 容器
  */
 import BeanDefinition from "./BeanDefinition";
-import hot from "../hot";
+import hot from "nodejs-hmr";
 
 const runtime = {
   instance: null

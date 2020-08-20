@@ -10,7 +10,7 @@ import DefaultMessageConverter from './DefaultMessageConverter';
 import MultipartMessageConverter from './MultipartMessageConverter';
 import UrlencodedMessageConverter from './UrlencodedMessageConverter';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
-import hot from '../../../hot';
+import hot from 'nodejs-hmr';
 
 const registerConverters: Array<HttpMessageConverter> = [
   new JsonMessageConverter(),

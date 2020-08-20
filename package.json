@@ -35,11 +35,11 @@
     "fs-extra": "^9.0.1",
     "glob": "^7.1.6",
     "lodash": "^4.17.19",
+    "nodejs-hmr": "1.0.3",
     "path-to-regexp": "^6.1.0",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "reflect-metadata": "^0.1.13",
     "@types/express": "^4.17.6",
     "@types/node": "^14.0.6",
     "babel-eslint": "^10.1.0",

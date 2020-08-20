@@ -42,7 +42,7 @@ import Target from './servlets/annotations/Target';
 import createParam from './servlets/annotations/params/createParam';
 import ServletContext from './servlets/http/ServletContext';
 import MethodParameter from './interface/MethodParameter';
-import hot from './hot/index';
+import hot from 'nodejs-hmr';
 import ModelAndView from './servlets/models/ModelAndView';
 import InterruptModel from './servlets/models/InterruptModel';
 import ServletModel from './servlets/models/ServletModel';

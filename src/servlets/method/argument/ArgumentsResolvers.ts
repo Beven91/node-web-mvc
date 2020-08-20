@@ -12,7 +12,7 @@ import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgume
 import ServletContextMethodArgumentResolver from './ServletContextMethodArgumentResolver';
 import HandlerMethod from '../HandlerMethod';
 import ParameterRequiredError from '../../../errors/ParameterRequiredError';
-import hot from '../../../hot';
+import hot from 'nodejs-hmr';
 
 const registerResolvers: Array<HandlerMethodArgumentResolver> = [
   new PathVariableMapMethodArgumentResolver(),

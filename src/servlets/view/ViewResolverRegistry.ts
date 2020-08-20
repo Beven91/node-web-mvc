@@ -3,7 +3,7 @@
  * @description 用于根据viewName去获取对应的View
  */
 
-import hot from '../../hot';
+import hot from 'nodejs-hmr';
 import ViewResolver from './resolvers/ViewResolver';
 
 const registerResolvers: Array<ViewResolver> = [];

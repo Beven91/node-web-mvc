@@ -3,12 +3,11 @@
  * @description 拦截器注册表
  */
 import HandlerInterceptor from './HandlerInterceptor';
-import ListReplacement from '../../hot/ListReplacement';
-import hot from '../../hot';
+import hot from 'nodejs-hmr';
 
 const interceptors: Array<HandlerInterceptor> = [];
 
-export default class HandlerInteceptorRegistry {
+export default class HanListReplacementdlerInteceptorRegistry {
 
   static getInterceptors(): Array<HandlerInterceptor> {
     return interceptors;
@@ -27,5 +26,5 @@ export default class HandlerInteceptorRegistry {
  */
 hot.create(module)
   .postend((now, old) => {
-    new ListReplacement(interceptors, now, old);
+    new hot.ListReplacement(interceptors, now, old);
   });

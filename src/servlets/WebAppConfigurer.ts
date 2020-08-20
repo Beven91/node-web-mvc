@@ -10,7 +10,7 @@ import HandlerInterceptorRegistry from './interceptor/HandlerInterceptorRegistry
 import MessageConverter from './http/converts/MessageConverter';
 import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './view/ViewResolverRegistry';
-import hot, { HotOptions, NodeHotModule } from '../hot';
+import hot, { HotOptions } from 'nodejs-hmr';
 
 const runtime = {
   configurer: null,

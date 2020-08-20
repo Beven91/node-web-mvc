@@ -6,7 +6,7 @@ import Javascript from './interface/Javascript';
 import ServletContext from './servlets/http/ServletContext';
 import RouteMapping from './routes/RouteMapping';
 import { ControllerDescriptors, ActionsMap, ActionDescriptors } from './interface/declare';
-import hot from './hot';
+import hot from 'nodejs-hmr';
 
 const runtime = {
   // 控制器作用域控制存储器

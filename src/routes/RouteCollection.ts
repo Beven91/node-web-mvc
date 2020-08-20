@@ -4,7 +4,7 @@
  */
 
 import HttpServletRequest from "../servlets/http/HttpServletRequest";
-import hot from "../hot";
+import hot from "nodejs-hmr";
 
 export interface DefaultOption {
   controller: string,

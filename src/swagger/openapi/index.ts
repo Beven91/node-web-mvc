@@ -7,7 +7,7 @@ import RouteCollection from '../../routes/RouteCollection';
 import ControllerManagement from '../../ControllerManagement';
 import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiMeta, ApiOperationMeta } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
-import hot from '../../hot';
+import hot from 'nodejs-hmr';
 import Definition from './definition';
 
 // 获取当前工程的信息
