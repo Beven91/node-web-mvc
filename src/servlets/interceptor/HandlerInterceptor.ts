@@ -15,7 +15,7 @@ export default interface HandlerInterceptor {
    * @returns { boolean }
    *   返回值：true表示继续流程（如调用下一个拦截器或处理器）；false表示流程中断（如登录检查失败），不会继续调用其他的拦截器或处理器，此时我们需要通过response来产生响应；
    */
-  preHandle(request: HttpServletRequest, response: HttpServletResponse, handler): boolean;
+  preHandle(request: HttpServletRequest, response: HttpServletResponse, handler): Promise<boolean> | boolean
 
   /**
    * 在处理完action后的拦截函数，可对执行完的接口进行处理
