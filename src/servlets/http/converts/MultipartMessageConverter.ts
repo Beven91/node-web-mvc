@@ -28,22 +28,24 @@ export default class MultipartMessageConverter implements HttpMessageConverter {
    * @param {String} encoding 文件内容编码
    * @param {String} mimetype 内容类型
    */
-  createMultipartFile(form, fieldname, file, filename, encoding, mimetype): Promise<any> {
+  createMultipartFile(form, fieldname, file, filename, encoding, mimetype, servletContext: ServletContext): Promise<any> {
     return new Promise((resolve, reject) => {
       // 将数据添加form上
       const value = form[fieldname];
+      const multipartFile = new MultipartFile(filename, file, encoding, mimetype);
       if (value) {
         form[fieldname] = [
           value,
-          new MultipartFile(filename, file, encoding, mimetype)
+          multipartFile
         ];
       } else {
-        form[fieldname] = new MultipartFile(filename, file, encoding, mimetype);
+        form[fieldname] = multipartFile;
       }
       // 如果超过最大限制，则抛出异常
       file.on('limit', () => reject(new EntityTooLargeError()));
       // 常规读取文件完毕
       file.on('end', resolve);
+      servletContext.addReleaseQueue(() => multipartFile.destory());
     })
   }
 
@@ -60,7 +62,7 @@ export default class MultipartMessageConverter implements HttpMessageConverter {
       });
       busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         // 提取文件
-        promise = promise.then(() => this.createMultipartFile(form, fieldname, file, filename, encoding, mimetype));
+        promise = promise.then(() => this.createMultipartFile(form, fieldname, file, filename, encoding, mimetype, servletContext));
       });
       busboy.on('field', function (fieldname, val) {
         // 提取字段

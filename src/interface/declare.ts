@@ -1,4 +1,4 @@
-import RouteMapping from '../routes/RouteMapping';
+import RequestMappingInfo from '../servlets/mapping/RequestMappingInfo';
 import MethodParameter from './MethodParameter';
 
 // 动作字典
@@ -16,7 +16,7 @@ export class ActionDescriptors {
   // 动作函数
   value: Function
   // 配置在控制器上的映射
-  mapping: RouteMapping
+  mapping: RequestMappingInfo
   // 当前action设置的返回状态
   responseStatus?: { reason: string, code: number }
   /**
@@ -57,7 +57,7 @@ export declare class ControllerDescriptors {
   // 控制器全局的produces
   produces?: string
   // 配置在控制器上的映射
-  mapping: RouteMapping
+  mapping: RequestMappingInfo
   // 所有接口的路由映射配置
   actions: ActionsMap
   // 当前控制器自定义的异常处理函数

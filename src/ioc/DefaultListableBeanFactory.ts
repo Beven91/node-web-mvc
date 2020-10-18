@@ -2,14 +2,19 @@
  * @module DefaultListableBeanFactory
  * @description Ioc 容器
  */
-import BeanDefinition from "./BeanDefinition";
 import hot from "nodejs-hmr";
+import BeanDefinition from "./BeanDefinition";
+import BeanFactory from './BeanFactory';
+import ObjectProvider from "./provider/ObjectProvider";
+import SingletonBeanProvider from './provider/SingletonBeanProvider';
+import RequestBeanProvider from "./provider/RequestBeanProvider";
+import PrototypeBeanProvider from "./provider/PrototypeBeanProvider";
 
 const runtime = {
   instance: null
 }
 
-export default class DefaultListableBeanFactory {
+export default class DefaultListableBeanFactory implements BeanFactory {
   /**
    * 获取注册
    */
@@ -23,10 +28,15 @@ export default class DefaultListableBeanFactory {
   /**
    * 已注册bean定义字典
    */
-  private beanDefinitions: Map<string, BeanDefinition>
+  private readonly beanDefinitions = new Map<any, BeanDefinition>();
+
+  // bean提供者
+  private readonly providers = new Map<string, ObjectProvider>();
 
   constructor() {
-    this.beanDefinitions = new Map<string, BeanDefinition>();
+    this.providers.set('prototype', new PrototypeBeanProvider());
+    this.providers.set('singleton', new SingletonBeanProvider());
+    this.providers.set('request', new RequestBeanProvider());
     /**
      * 内部热更新 
      */
@@ -58,12 +68,24 @@ export default class DefaultListableBeanFactory {
    * @param {Array<any>} args 参数
    */
   getBean(name, ...args) {
-    const definition = this.beanDefinitions.get(name);
-    if (!definition) {
-      return null;
+    const definition = (this.getDefinition(name) || {}) as BeanDefinition;
+    const provider = this.providers.get(definition.scope);
+    return provider ? provider.createInstance(definition.ctor, args) : null;
+  }
+
+  /**
+   * 获取指定类型的bean实例
+   * @param beanType bean类型
+   * @param args 构造函数参数
+   */
+  getBeanOfType(beanType,...args){
+    let definition = this.getDefinition(beanType);
+    if(!definition){
+      definition = new BeanDefinition(beanType);
+      this.registerBeanDefinition(beanType,definition);
     }
-    const Bean = definition.ctor as any;
-    return new Bean(...args);
+    const provider = this.providers.get(definition.scope);
+    return provider ? provider.createInstance(definition.ctor, args) : null;
   }
 
   /**

@@ -6,18 +6,22 @@
 
 import Target from "./Target";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
-import ControllerManagement from "../../ControllerManagement";
 
 @Target
-class RestController {
+export class RestControllerAnnotation {
 
   constructor(meta: RuntimeAnnotation) {
-    const descriptor = ControllerManagement.getControllerDescriptor(meta.ctor);
-    descriptor.produces = 'application/json;charset=utf-8';
   }
+
+  static isRestController(beanType: Function) {
+    const annotation = RuntimeAnnotation.getClassAnnotation(beanType, RestControllerAnnotation);
+    return !!annotation;
+  }
+
+
 }
 
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof RestController,string>(RestController);
+export default Target.install<typeof RestControllerAnnotation, string>(RestControllerAnnotation);

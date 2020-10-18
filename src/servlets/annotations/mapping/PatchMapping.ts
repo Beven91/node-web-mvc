@@ -1,11 +1,11 @@
 import RequestMapping from './RequestMapping';
-import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping';
+import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
 
 @Target
 class PatchMapping extends RequestMapping.Annotation {
   constructor(meta, value: RouteMappingOptions) {
-    super(meta, RouteMapping.create(value, 'PATCH'));
+    super(meta, RequestMappingInfo.create(value, 'PATCH'));
   }
 }
 

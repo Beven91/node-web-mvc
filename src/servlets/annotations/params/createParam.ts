@@ -1,4 +1,3 @@
-import ControllerManagement from '../../../ControllerManagement';
 import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Javascript from '../../../interface/Javascript';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
@@ -12,8 +11,6 @@ export default function (options: MethodParameterOptions | string, meta: Runtime
   options.name = options.name || parameters[paramIndex];
   options.value = options.value || options.name;
   options.dataType = options.dataType || meta.paramType;
-  const action = ControllerManagement.getActionDescriptor(target.constructor, name);
   const param = new MethodParameter(options, type, meta);
-  action.params.push(param);
   return param;
 }

@@ -10,6 +10,7 @@ import HandlerInterceptorRegistry from './interceptor/HandlerInterceptorRegistry
 import MessageConverter from './http/converts/MessageConverter';
 import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './view/ViewResolverRegistry';
+import { RequestMappingAnnotation } from './annotations/mapping/RequestMapping';
 import hot, { HotOptions } from 'nodejs-hmr';
 
 const runtime = {
@@ -165,6 +166,8 @@ export default class WebAppConfigurer {
     Object.keys(require.cache).forEach((k) => runtime.cacheKeys[k.replace(/\\/g, '/').toLowerCase()] = true);
     // 加载mvc目录
     dirs.forEach((dir) => this.launchSpringMvc(dir))
+    // 初始化
+    RequestMappingAnnotation.initializeUnClassMappings();
     // 初始化请求大小限制
     this.options.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = this.sizeFormat(this.multipart.maxFileSize, bytes.parse('500kb'));

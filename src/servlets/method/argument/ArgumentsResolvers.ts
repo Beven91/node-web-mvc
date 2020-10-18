@@ -26,8 +26,7 @@ export default class ArgumentsResolvers {
 
   /**
    * 注册一个参数解析器
-   * @param parameter 
-   * @param servletContext 
+   * @param resolver 解析器 
    */
   static addArgumentResolvers(resolver: HandlerMethodArgumentResolver) {
     registerResolvers.push(resolver);
@@ -37,16 +36,12 @@ export default class ArgumentsResolvers {
    * 获取要执行函数的参数值信息
    */
   static async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
-    const signParameters = handler.signParameters;
+    const signParameters = handler.parameters;
     const args = [];
     for (let i = 0, k = signParameters.length; i < k; i++) {
-      const name = signParameters[i];
-      const parameter = handler.getResolveParameter(name);
-      if (!parameter) {
-        // 如果缺少参数
-        return Promise.reject(new ParameterRequiredError(name, servletContext));
-      }
+      const parameter = signParameters[i];
       const value = await this.resolveArgument(parameter, servletContext);
+      this.checkArguments(parameter, value);
       const hasResolved = (value !== undefined && value !== null);
       const finalValue = hasResolved ? value : parameter.defaultValue;
       if (parameter.required && (finalValue === null || finalValue === undefined)) {
@@ -57,6 +52,15 @@ export default class ArgumentsResolvers {
       args[i] = finalValue;
     }
     return args;
+  }
+
+  /**
+   * 校验参数
+   */
+  static checkArguments(parameter: MethodParameter, value) {
+    if(parameter.dataType === Array &&  value && !(value instanceof Array)){
+      throw new Error(`The parameter 【${parameter.name}】 needs to be an 【Array】`)
+    }
   }
 
   /**

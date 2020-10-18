@@ -1,9 +1,5 @@
 import './interface/polyfill';
 import 'reflect-metadata';
-import Controller from './controller';
-import AreaRegistration from './areaRegistration';
-import Routes from './routes/RouteCollection';
-import ControllerFactory from './ControllerFactory';
 import Registry from './Registry';
 import RequestMapping from './servlets/annotations/mapping/RequestMapping';
 import PostMapping from './servlets/annotations/mapping/PostMapping';
@@ -66,9 +62,7 @@ export {
   ApiModel,
   ApiModelProperty,
   ApiImplicitParams,
-  Routes,
   Registry,
-  Controller,
   GetMapping,
   PostMapping,
   DeleteMapping,
@@ -76,10 +70,8 @@ export {
   PutMapping,
   RestController,
   RequestMapping,
-  AreaRegistration,
   ControllerAdvice,
   ExceptionHandler,
-  ControllerFactory,
   HandlerInterceptor,
   HandlerInterceptorAdapter,
   RequestBody,

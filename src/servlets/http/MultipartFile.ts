@@ -98,4 +98,14 @@ export default class MultipartFile {
     await Promise.resolve(this.awaiting);
     return fs.readFileSync(this.id);
   }
+
+  destory() {
+    try {
+      if (fs.existsSync(this.id)) {
+        fs.removeSync(this.id);
+      }
+    } catch (ex) {
+      console.warn(ex);
+    }
+  }
 }

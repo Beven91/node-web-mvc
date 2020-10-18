@@ -21,7 +21,7 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
         // 执行参数注解
         const annotation = decorator(parameterReturnable, (options) => {
           const data = options[0] as ApiImplicitParamOptions;
-          const paramIndex = parameters.indexOf(data.description);
+          const paramIndex = parameters.indexOf(data.value);
           return [target, name, paramIndex];
         });
         const options = annotation ? annotation.nativeAnnotation.param : null;

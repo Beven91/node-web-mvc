@@ -2,70 +2,42 @@
  * @module HandlerMethod
  * @description action执行器
  */
-import ServletContext from '../http/ServletContext';
-import ServletModel from '../models/ServletModel';
-import InterruptModel from '../models/InterruptModel';
 import MethodParameter from '../../interface/MethodParameter';
 import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation, { AnnotationFunction } from '../annotations/annotation/RuntimeAnnotation';
-import Middlewares from '../models/Middlewares';
 import ResponseStatus, { ResponseStatusAnnotation } from '../annotations/ResponseStatus';
-
-declare class ParameterDictionary {
-  [propName: string]: MethodParameter
-}
+import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
+import BeanFactory from '../../ioc/BeanFactory';
+import { Handler } from 'express';
 
 export default class HandlerMethod {
 
-  /**
-   * 参数map形式
-   */
-  private paramsDictionary: ParameterDictionary
+  private isBeanType: boolean
 
-  /**
-   * 当前请求上下文
-   */
-  private servletContext: ServletContext;
+  public supportThisMethod: boolean
 
   /**
    * 对应的action
    */
-  public get method() {
-    return this.servletContext.action;
-  }
+  private readonly method: Function;
+
+  // bean创建工厂
+  private readonly beanFactory: BeanFactory
+
+  public readonly methodName: string
 
   /**
-   * 获取指定名称的参数配置
-   * @param name 
+   * 当前bean的类型
    */
-  public getResolveParameter(name: string): MethodParameter {
-    return this.paramsDictionary[name];
-  }
-
-  /**
-   * 获取要执行函数的方法签名列表
-   */
-  public get signParameters(): Array<string> {
-    return Javascript.resolveParameters(this.method)
-  }
+  public readonly beanType: Function
 
   /**
    * 对应controller实例
    */
-  public get controller() {
-    return this.servletContext.controller;
-  }
+  public readonly bean: any
 
-  /**
-   * 当前action定义的可解析参数配置
-   */
-  public get resolveParameters(): Array<MethodParameter> {
-    const { Controller, actionName } = this.servletContext;
-    return RuntimeAnnotation.getMethodParamAnnotations(Controller, actionName).map((annotation) => {
-      const name = annotation.nativeAnnotation.constructor.name;
-      return annotation.nativeAnnotation.param || new MethodParameter({ value: annotation.paramName }, name, annotation)
-    })
-  }
+  // 当前函数，参数列表
+  public readonly parameters: Array<MethodParameter>
 
   /**
    * 当前请求返回的状态码
@@ -79,14 +51,42 @@ export default class HandlerMethod {
   public responseStatusReason: string
 
   /**
-   * 构造一个action执行器
-   * @param servletContext 
+   * 构造一个方法执行器
    */
-  constructor(servletContext: ServletContext) {
-    this.servletContext = servletContext;
-    this.paramsDictionary = {};
-    this.resolveParameters.forEach((parameter) => {
-      this.paramsDictionary[parameter.name || parameter.value] = parameter;
+  constructor(bean: any, method: Function | HandlerMethod) {
+    if(method instanceof HandlerMethod){
+      const handler = method as HandlerMethod;
+      this.isBeanType = handler.isBeanType;
+      this.method =  handler.method;
+      this.methodName = handler.methodName;
+      this.bean = bean;
+      this.beanType = bean.constructor;
+      this.beanFactory = handler.beanFactory;
+      this.parameters = handler.parameters;
+      this.responseStatus = handler.responseStatus;
+      this.responseStatusReason = handler.responseStatusReason;
+    }else{
+      const isType = typeof bean === 'function';
+      this.isBeanType = isType;
+      this.method =  method;
+      this.methodName = method.name;
+      this.bean = isType ? null : bean;
+      this.beanType = isType ? bean : bean.constructor;
+      this.beanFactory = DefaultListableBeanFactory.getInstance();
+      this.parameters = this.initMethodParameters();
+      this.evaluateResponseStatus();
+    }
+  }
+
+  // 初始化参数
+  private initMethodParameters(): Array<MethodParameter> {
+    const parameterNames = Javascript.resolveParameters(this.method);
+    const annotations = RuntimeAnnotation.getMethodParamAnnotations(this.beanType, this.methodName);
+    return parameterNames.map((name) => {
+      const annotation = annotations.find((a) => a.paramName === name);
+      const defaultOptions = { name, paramType: '' };
+      const options = <MethodParameter>(annotation && annotation.nativeAnnotation.param || defaultOptions);
+      return new MethodParameter(options, options.paramType, annotation);
     });
   }
 
@@ -106,7 +106,7 @@ export default class HandlerMethod {
    * @param { Annotation } ctor 要获取的注解类型类
    */
   public getAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
-    const annotations = RuntimeAnnotation.getMethodAnnotations(this.servletContext.Controller, this.servletContext.actionName);
+    const annotations = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
 
@@ -114,26 +114,23 @@ export default class HandlerMethod {
    * 获取当前方法所在类的指定注解信息
    * @param ctor 要获取的注解类型类
    */
-  public getClassAnnotation<T>(ctor:AnnotationFunction<any> | RuntimeAnnotation){
-    const annotations = RuntimeAnnotation.getClassAnnotations(this.servletContext.Controller);
+  public getClassAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
+    const annotations = RuntimeAnnotation.getClassAnnotations(this.beanType);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
+  }
+
+  public createWithResolvedBean() {
+    if (!this.isBeanType) {
+      return new HandlerMethod(this.bean, this);
+    }
+    const bean = this.beanFactory.getBeanOfType(this.beanType);
+    return new HandlerMethod(bean, this);
   }
 
   /**
    * 执行方法
    */
   public async invoke(...args) {
-    const { controller, action, request, response } = this.servletContext;
-    let data = await action.call(controller, ...args);
-    if (data instanceof Middlewares) {
-      data = await data.execute(request, response)
-    }
-    if (this.servletContext.isNextInvoked && data === undefined) {
-      return new InterruptModel();
-    }
-    // 设置返回状态
-    this.evaluateResponseStatus();
-    // 返回结果
-    return new ServletModel(data);
+    return this.method.call(this.bean, ...args);
   }
 }

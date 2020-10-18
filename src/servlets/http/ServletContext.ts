@@ -3,13 +3,14 @@
  * @description 请求上下文
  */
 import { IncomingMessage } from 'http';
-import ServletModel from '../models/ServletModel';
 import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
 import WebAppConfigurer from '../WebAppConfigurer';
-import RequestBeanProvider from '../../ioc/provider/RequestBeanProvider';
+import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 
 export default abstract class ServletContext {
+
+  private releaseQueues = new Array<Function>();
 
   /**
    * 是否next函数被调用
@@ -37,44 +38,14 @@ export default abstract class ServletContext {
   public response: HttpServletResponse;
 
   /**
+   * 当前匹配的处理器执行链
+   */
+  public chain: HandlerExecutionChain
+
+  /**
    * 跳转到下一个请求处理器
    */
   public readonly next: (error?) => void;
-
-  /**
-   * 当前正在处理的请求匹配到的控制器类
-   */
-  public Controller;
-
-  /**
-   * 当前正在处理的请求从路由中匹配到的参数信息
-   */
-  public params: Map<string, any>;
-
-  /**
-   * 当前路由匹配的控制器域名称
-   */
-  public areaName: string;
-
-  /**
-   * 当前正在处理的请求根据路由匹配到的执行函数
-   */
-  public action: (request, response, next) => Promise<ServletModel>;
-
-  /**
-   * 当前正在处理的请求根据路由匹配到的执行函数名称
-   */
-  public actionName: string
-
-  /**
-   * 当前正在处理的控制器实例
-   */
-  public controller
-
-  /**
-   * 当前正在处理的请求根据路由匹配到的控制器名称
-   */
-  public controllerName: string
 
   public requestDefinitionInstances;
 
@@ -93,12 +64,28 @@ export default abstract class ServletContext {
       this.isNextInvoked = true;
     };
     this.forwardStacks = [];
-    // 当前匹配到的控制器类
-    this.Controller = null;
-    // 当前请求提取出来的参数
-    this.params = ({}) as Map<string, any>;
     this.requestDefinitionInstances = {};
-    RequestBeanProvider.servletContext = this;
+  }
+
+  /**
+   * 添加一个资源销毁操作
+   * @param handler 当前销毁函数会在请求结束后执行（无论请求执行成功还是失败)
+   */
+  addReleaseQueue(handler) {
+    this.releaseQueues.push(handler);
+  }
+
+  /**
+   * 执行资源释放队列
+   */
+  doReleaseQueues() {
+    this.releaseQueues.forEach((handler) => {
+      new Promise((resolve) => {
+        handler()
+        resolve();
+      })
+    });
+    this.releaseQueues.length = 0;
   }
 
   /**

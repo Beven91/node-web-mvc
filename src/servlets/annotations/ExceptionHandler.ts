@@ -2,9 +2,20 @@
  * @module ExceptionHandler
  * @description 异常处理注解
  */
-import ControllerManagement from '../../ControllerManagement';
+import Target from "./Target";
+import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 
-export default function ExceptionHandler(target, name?, descriptor?) {
-  const controllerDescriptor = ControllerManagement.getControllerDescriptor(target.constructor);
-  controllerDescriptor.exceptionHandler = descriptor.value;
+@Target
+export class ExceptionHandlerAnnotation {
+
+  handleException: Function
+
+  constructor(meta: RuntimeAnnotation) {
+    this.handleException = meta.method;
+  }
 }
+
+/**
+ * 标注指定类为一个rest 风格的controller
+ */
+export default Target.install<typeof ExceptionHandlerAnnotation, ExceptionHandlerAnnotation>(ExceptionHandlerAnnotation);

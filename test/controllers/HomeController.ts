@@ -1,12 +1,12 @@
 
-import { Controller, Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired } from '../../src/index';
+import {  Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired } from '../../src/index';
 import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
 @Api
 @RequestMapping('/home')
-export default class HomeController extends Controller {
+export default class HomeController  {
 
   @Autowired
   private orderService: OrderService;
@@ -29,7 +29,7 @@ export default class HomeController extends Controller {
 
   @ApiOperation({ value: '@RequestBody 测试' })
   @ApiImplicitParams([
-    { description: '类型', paramType: 'body', name: 'type' }
+    { description: '类型', paramType: 'body', name: 'user' }
   ])
   @PostMapping('/body')
   body(@RequestBody user: UserInfo): UserInfo {

@@ -1,28 +1,47 @@
-import RouteCollection from '../../../routes/RouteCollection';
-import ControllerManagement from '../../../ControllerManagement';
-import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping';
+import hot from 'nodejs-hmr';
+import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 import ElementType from '../annotation/ElementType';
+import RequestMappingHandlerMapping from '../../mapping/RequestMappingHandlerMapping';
+
+const remainingMappings = new Map<Function, Function>();
 
 @Target
-class RequestMapping {
+export class RequestMappingAnnotation {
 
-  mapping: RouteMapping
+  mapping: RequestMappingInfo
 
   constructor(meta: RuntimeAnnotation, value: RouteMappingOptions | string) {
-    this.mapping = RouteMapping.create(value, null);
-    const { target, name, descriptor } = meta;
-    switch (meta.elementType) {
-      case ElementType.TYPE:
-        // 修饰控制器
-        requestMappingController(target, this.mapping);
-        break;
-      case ElementType.METHOD:
-        // 修饰控制器函数
-        requestMappingAction(target.constructor, name, descriptor, this.mapping);
-        break;
+    this.mapping = RequestMappingInfo.create(value, null);
+    const { target } = meta;
+    remainingMappings.set(meta.ctor, meta.ctor);
+    if (meta.elementType === ElementType.TYPE) {
+      remainingMappings.delete(meta.ctor);
+      // 修饰控制器
+      createRouteMappings(target, this.mapping);
     }
+  }
+
+  static initializeUnClassMappings() {
+    for (let ctor of remainingMappings.values()) {
+      createRouteMappings(ctor, RequestMappingInfo.create('', null))
+    }
+    remainingMappings.clear();
+  }
+
+  static getMappingInfo(beanType: Function, method?: string): RequestMappingInfo {
+    let annotation = null;
+    if (arguments.length === 1) {
+      annotation = RuntimeAnnotation.getClassAnnotation(beanType, RequestMappingAnnotation);
+    } else {
+      annotation = RuntimeAnnotation.getMethodAnnotation(beanType, method, RequestMappingAnnotation);
+    }
+    if (!annotation) {
+      return null;
+    }
+    const requestAnno = annotation.nativeAnnotation as RequestMappingAnnotation;
+    return requestAnno.mapping;
   }
 }
 
@@ -36,35 +55,40 @@ class RequestMapping {
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default Target.install<typeof RequestMapping, RouteMappingOptions | string>(RequestMapping);
+export default Target.install<typeof RequestMappingAnnotation, RouteMappingOptions | string>(RequestMappingAnnotation);
 
 /**
  * 附加控制器类的请求映射
  * @param {*} target  当前控制器类
  * @param {*} mapping 配置的映射
  */
-function requestMappingController(target, mapping: RouteMappingOptions) {
-  const descriptor = ControllerManagement.getControllerDescriptor(target);
-  descriptor.mapping = RouteMapping.create(mapping, null);
+function createRouteMappings(target, controllerMapping: RequestMappingInfo) {
+  const annotations = RuntimeAnnotation.getClassAnnotationsOf<RuntimeAnnotation>(target, RequestMappingAnnotation);
+  annotations.forEach((annotation) => {
+    const name = `@${target.name}/${annotation.name}`;
+    const requestMapping = annotation.nativeAnnotation.mapping as RequestMappingInfo;
+    const actionPaths = requestMapping.value || [];
+    const controllerPaths = controllerMapping.value || [''];
+    const values = [];
+    if (controllerPaths.length > 0) {
+      // 合并controller路由
+      controllerPaths.forEach((controllerPath) => {
+        actionPaths.map((actionPath) => {
+          const exp = (controllerPath + '/' + actionPath).replace(/\/{2,3}/, '/').replace(/\{/g, ':').replace(/\}/g, '')
+          values.push(exp);
+        })
+      });
+      requestMapping.value = values;
+    }
+    // 注册mapping
+    RequestMappingHandlerMapping
+      .getInstance()
+      .registerHandlerMethod(name, requestMapping, target, annotation.method);
+  })
 }
 
-/**
- * 处理控制器的指定函数请求映射
- * @param {*} target 当前控制器类
- * @param {*} name 当前函数名
- * @param {*} descriptor 当前属性描述
- * @param {*} mapping 配置的映射
- */
-function requestMappingAction(target, name: string, descriptor, mapping: RouteMapping) {
-  const action = ControllerManagement.getActionDescriptor(target, name);
-  action.value = descriptor.value;
-  action.mapping = mapping;
-  RouteCollection.mapRule({
-    match: (req) => {
-      return mapping.match(req, target, descriptor.value, name);
-    },
-    action: action,
-    controller: target,
-  });
-}
-
+hot
+  .create(module)
+  .postend(() => {
+    RequestMappingAnnotation.initializeUnClassMappings();
+  })

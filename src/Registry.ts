@@ -1,9 +1,8 @@
 import ServletExpressContext from './servlets/platforms/ServletExpressContext';
 import ServletKoaContext from './servlets/platforms/ServletKoaContext';
 import ServletNodeContext from './servlets/platforms/ServletNodeContext';
-import ControllerFactory from './ControllerFactory';
 import ServletContext from './servlets/http/ServletContext';
-import RouteCollection from './routes/RouteCollection';
+import DispatcherServlet from './servlets/DispatcherServlet';
 import WebAppConfigurer, { WebAppConfigurerOptions } from './servlets/WebAppConfigurer';
 
 declare class ContextRegistration {
@@ -21,15 +20,6 @@ export default class Registry {
    */
   static register(name: string, contextClass: typeof ServletContext) {
     registration[name] = contextClass;
-  }
-
-  /**
-   * 根据指定目录统一注册Controller
-   * @static
-   * @param {String} dir 目录地址
-   */
-  static registerControllers(dir: string) {
-    return ControllerFactory.registerControllers(dir);
   }
 
   /**
@@ -51,14 +41,13 @@ export default class Registry {
         Registry.register('${options.mode}',ContextClass)
       `);
     }
-    // 设置基础路由路径
-    RouteCollection.base = configure.contextPath;
     // 返回中间件
     return HttpContext.launch((request, response, next) => {
       new Promise((resolve) => {
         const HttpServletContext = HttpContext as any;
         const context: ServletContext = new HttpServletContext(configure, request, response, next);
-        ControllerFactory.defaultFactory.handle(context);
+        new DispatcherServlet().doService(context);
+        // ControllerFactory.defaultFactory.handle(context);
         resolve();
       })
         .catch((ex) => {

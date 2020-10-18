@@ -3,10 +3,8 @@
  * @description 用于处理控制器返回的结果
  */
 import ServletContext from '../http/ServletContext';
-import ControllerManagement from '../../ControllerManagement';
-import { ActionDescriptors, ControllerDescriptors } from '../../interface/declare';
 import ServletModel from '../models/ServletModel';
-import RouteMapping from '../../routes/RouteMapping';
+import RequestMappingInfo from '../mapping/RequestMappingInfo';
 import HandlerMethod from '../method/HandlerMethod';
 import MessageConverter from '../http/converts/MessageConverter';
 import MediaType from '../http/MediaType';
@@ -14,25 +12,23 @@ import ModelAndView from '../models/ModelAndView';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
 import View from '../view/View';
 import ViewNotFoundError from '../../errors/ViewNotFoundError';
-import { InterruptModel } from '../..';
+import InterruptModel from '../models/InterruptModel';
+import { RequestMappingAnnotation } from '../annotations/mapping/RequestMapping';
+import { RestControllerAnnotation } from '../annotations/RestController';
 
 export default class HttpResponseProduces {
 
   private servletContext: ServletContext = null
 
-  private actionMapping: RouteMapping = null
+  private controllerMapping: RequestMappingInfo
 
-  private controllerDescriptor: ControllerDescriptors
+  private actionMapping: RequestMappingInfo
 
   constructor(servletContext: ServletContext) {
-    const actionName = servletContext.actionName;
-    const Controller = servletContext.Controller;
-    const descriptor = ControllerManagement.getControllerDescriptor(Controller);
-    const actions = descriptor.actions;
-    const action = (actions[actionName] || {}) as ActionDescriptors;
     this.servletContext = servletContext;
-    this.controllerDescriptor = descriptor;
-    this.actionMapping = (action.mapping || {}) as RouteMapping;
+    const handlerMethod = servletContext.chain.getHandler();
+    this.controllerMapping = RequestMappingAnnotation.getMappingInfo(handlerMethod.beanType);
+    this.actionMapping = RequestMappingAnnotation.getMappingInfo(handlerMethod.beanType,handlerMethod.methodName);
   }
 
   /**
@@ -88,11 +84,14 @@ export default class HttpResponseProduces {
     const { responseStatus, responseStatusReason } = handler;
     const useStatus = !(responseStatus === null || responseStatus === undefined)
     const status = useStatus ? responseStatus : 200;
-    const { actionMapping, servletContext } = this;
-    const { produces } = actionMapping;
+    const { servletContext } = this;
     const { response } = servletContext;
-    const defaultProduces = this.controllerDescriptor.produces;
-    const mediaType = new MediaType(produces || defaultProduces || response.nativeContentType || 'text/plain;charset=utf-8');
+    const isRestController = RestControllerAnnotation.isRestController(handler.beanType);
+    const restProduces =  isRestController ? 'application/json;charset=utf-8' : '';
+    const ctrlProduces = this.controllerMapping ? this.controllerMapping.produces : '';
+    const actProduces = this.actionMapping ? this.actionMapping.produces : '';
+    const produces = actProduces || restProduces || ctrlProduces;
+    const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain;charset=utf-8');
     // 设置返回内容类型
     response.setHeader('Content-Type', mediaType.toString());
     // 设置返回状态

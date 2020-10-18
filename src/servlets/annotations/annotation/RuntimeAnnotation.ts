@@ -5,6 +5,7 @@
 import AnnotationOptions from "./AnnotationOptions";
 import ElementType, { checkAnnotation } from "./ElementType";
 import Javascript from "../../../interface/Javascript";
+import { type } from "os";
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
@@ -15,11 +16,16 @@ export declare interface AnnotationFunction<A> extends ClassDecorator, PropertyD
 
 type BaseAnnotation = AnnotationFunction<any>
 
+const isAnnotationOf = (m: RuntimeAnnotation, type) => {
+  type = (type as any).Annotation || type;
+  return m.nativeAnnotation instanceof type || m instanceof type
+};
+
 export default class RuntimeAnnotation {
   /**
-   * 标注的类
+   * 标注的类或者函数
    */
-  target: Function
+  public readonly target: Function
 
   /**
    * 标注类的构造函数
@@ -34,30 +40,45 @@ export default class RuntimeAnnotation {
   }
 
   /**
+   * 当前标注的方法
+   */
+  public get method() {
+    const fn = this.elementType === ElementType.TYPE ? null : this.target[this.methodName];
+    if (fn) {
+      Object.defineProperty(fn, 'name', { value:this.methodName });
+    }
+    return fn;
+  }
+
+  public get methodName() {
+    return this.name;
+  }
+
+  /**
    * 标注的函数
    */
-  name: string
+  public readonly name: string
 
   /**
    * 标注参数的下表
    */
-  paramIndex: number
+  public readonly paramIndex: number
 
   /**
    * 参数名称
    */
-  paramName: string
+  public readonly paramName: string
 
   /**
    * 如果是标注在属性上，此属性会指向属性的descritpor
    */
-  descriptor: any
+  public readonly descriptor: any
 
   // 标注实例
-  nativeAnnotation: any
+  public readonly nativeAnnotation: any
 
   // 当前标注实际使用的类型
-  elementType: ElementType
+  public readonly elementType: ElementType
 
   /**
    * 如果当前注解为：函数注解，则能获取到返回结果类型
@@ -78,10 +99,19 @@ export default class RuntimeAnnotation {
   /**
    * 获取指定类的所有注解信息
    * @param {Function} ctor 被修饰的类 
-   * @param {Function} type 注解类型
    */
   static getClassAnnotations(ctor) {
-    return runtimeAnnotations.filter((m) => m.target == ctor);
+    return runtimeAnnotations.filter((m) => m.ctor == ctor && m.elementType === ElementType.TYPE);
+  }
+
+  /**
+   * 获取指定类下，指定类型的注解
+   * @param {Function} ctor 被修饰的类 
+   * @param {Function} type 注解类型
+   */
+  static getClassAnnotationsOf<T>(ctor, type) {
+    const annotations = this.getClassAllAnnotations(ctor).filter((m) => isAnnotationOf(m, type));
+    return (annotations as any) as Array<T>
   }
 
   /**
@@ -90,7 +120,7 @@ export default class RuntimeAnnotation {
    * @param {Function} type 注解类型
    */
   static getClassAllAnnotations(ctor) {
-    return runtimeAnnotations.filter((m) => m.target == ctor || m.target.constructor === ctor);
+    return runtimeAnnotations.filter((m) => m.ctor == ctor);
   }
 
   /**
@@ -99,8 +129,8 @@ export default class RuntimeAnnotation {
    * @param {Function} type 注解类型
    */
   static getClassAnnotation(ctor, type) {
-    const isAnnotation = (m) => m.target === ctor && m.nativeAnnotation instanceof type;
-    return runtimeAnnotations.find(isAnnotation);
+    const annotations = this.getClassAnnotations(ctor);
+    return annotations.find((m) => isAnnotationOf(m, type));
   }
 
   /**
@@ -111,6 +141,16 @@ export default class RuntimeAnnotation {
   static getMethodAnnotations(ctor: Function, method: string) {
     const isAnnotation = (s) => s.elementType === ElementType.METHOD && s.name === method;
     return this.getClassAllAnnotations(ctor).filter(isAnnotation);
+  }
+
+  /**
+   * 获取指定函数的指定注解
+   * @param ctor 函数所在类 
+   * @param method 函数名称
+   */
+  static getMethodAnnotation(ctor: Function, method: string, type: any) {
+    const annotations = this.getMethodAnnotations(ctor, method);
+    return annotations.find((m) => isAnnotationOf(m, type));
   }
 
   /**
@@ -140,9 +180,8 @@ export default class RuntimeAnnotation {
    */
   static getNativeAnnotation<T>(annotations: Array<RuntimeAnnotation> | RuntimeAnnotation, ctor: BaseAnnotation | RuntimeAnnotation): T {
     if (annotations) {
-      const Annotation = (ctor as any).Annotation || ctor;
       annotations = annotations instanceof Array ? annotations : [annotations];
-      const annotation = annotations.find((a) => a.nativeAnnotation instanceof Annotation);
+      const annotation = annotations.find((a) => isAnnotationOf(a, ctor));
       return annotation ? annotation.nativeAnnotation as T : null;
     }
   }
@@ -152,48 +191,50 @@ export default class RuntimeAnnotation {
    * @param { AnnotationOptions } options 注解参数
    */
   static create(options: AnnotationOptions) {
+    // 创建一个运行时注解
+    return new RuntimeAnnotation(options);
+  }
+
+  constructor(options: AnnotationOptions) {
     const { meta, types, ctor: RealAnnotation } = options;
     // 检查范围
     const elementType = checkAnnotation(types, meta, RealAnnotation.name);
-    // 创建一个运行时注解
-    const runtimeAnnotation = new RuntimeAnnotation();
+
     // 设置当前标注的实际使用类型
-    runtimeAnnotation.elementType = elementType as ElementType;
+    this.elementType = elementType as ElementType;
 
     const [target, name, descritpor] = meta;
 
     // 初始化元信息
     switch (elementType) {
       case ElementType.TYPE:
-        runtimeAnnotation.target = target;
+        this.target = target;
         break;
       case ElementType.METHOD:
-        runtimeAnnotation.target = target;
-        runtimeAnnotation.name = name;
-        runtimeAnnotation.descriptor = descritpor;
+        this.target = target;
+        this.name = name;
+        this.descriptor = descritpor;
         break;
       case ElementType.PROPERTY:
-        runtimeAnnotation.target = target;
-        runtimeAnnotation.name = name;
-        runtimeAnnotation.descriptor = descritpor;
+        this.target = target;
+        this.name = name;
+        this.descriptor = descritpor;
         break;
       case ElementType.PARAMETER:
         {
           const parameters = Javascript.resolveParameters(target[name]);
-          runtimeAnnotation.target = target;
-          runtimeAnnotation.name = name;
-          runtimeAnnotation.paramIndex = descritpor;
-          runtimeAnnotation.paramName = parameters[runtimeAnnotation.paramIndex];
+          this.target = target;
+          this.name = name;
+          this.paramIndex = descritpor;
+          this.paramName = parameters[this.paramIndex];
         }
         break;
     }
 
     // 根据构造创建注解实例
-    runtimeAnnotation.nativeAnnotation = new RealAnnotation(runtimeAnnotation, ...options.options);
+    this.nativeAnnotation = new RealAnnotation(this, ...options.options);
 
     // 将注解添加到注解列表
-    runtimeAnnotations.push(runtimeAnnotation);
-
-    return runtimeAnnotation;
+    runtimeAnnotations.push(this);
   }
 }

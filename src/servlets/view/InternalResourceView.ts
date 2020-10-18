@@ -4,7 +4,6 @@
  */
 import querystring from 'querystring';
 import View from './View';
-import ControllerFactory from '../../ControllerFactory';
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
 import DispatcherServlet from '../DispatcherServlet';
@@ -30,8 +29,6 @@ export default class InternalResourceView extends View {
       ...(querystring.parse((url.search||'').slice(1)))
     }
     const pathVariables = request.pathVariables || {};
-    // 重新渲染上下文
-    ControllerFactory.defaultFactory.createController(request.servletContext);
     // 合并pathVariables
     request.pathVariables = {
       ...pathVariables,

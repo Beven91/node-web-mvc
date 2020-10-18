@@ -18,7 +18,16 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
     const data = await MessageConverter.read(servletContext);
     if (typeof T === 'function') {
       const instance = new T();
-      Object.keys(data).forEach((key) => instance[key] = data[key]);
+      Object.keys(data).forEach((key) => {
+        const descriptor = Object.getOwnPropertyDescriptor(instance, key);
+        try {
+          instance[key] = data[key];
+        } catch (ex) {
+          if (ex.message.indexOf('which has only a getter') < 0) {
+            throw ex;
+          }
+        }
+      });
       return instance;
     }
     return data;

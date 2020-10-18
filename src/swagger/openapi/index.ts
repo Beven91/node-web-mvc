@@ -3,12 +3,12 @@
  * @description 用于构建当前环境的openapi.json
  */
 import path from 'path';
-import RouteCollection from '../../routes/RouteCollection';
-import ControllerManagement from '../../ControllerManagement';
 import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiMeta, ApiOperationMeta } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
 import hot from 'nodejs-hmr';
 import Definition from './definition';
+import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
+import WebAppConfigurer from '../../servlets/WebAppConfigurer';
 
 // 获取当前工程的信息
 const pkg = require(path.resolve('package.json'));
@@ -181,7 +181,7 @@ export default class OpenApiModel {
       tags: [],
       paths: {} as OperationsDoc,
       servers: [
-        { url: RouteCollection.base || '/' }
+        { url: WebAppConfigurer.configurer.contextPath || '/' }
       ],
       // components: {
       //   parameters: {},
@@ -210,17 +210,14 @@ export default class OpenApiModel {
   private static buildOperation(paths, operation: ApiOperationMeta) {
     const option = operation.option;
     const api = operation.api;
-    const descriptor = ControllerManagement.getControllerDescriptor(api.class);
-    const actionDescriptor = descriptor.actions[operation.method];
-    if (!actionDescriptor || !actionDescriptor.mapping) {
+    const mapping = RequestMappingAnnotation.getMappingInfo(api.class, operation.method);
+    if (!mapping) {
       return;
     }
-    const mainMapping = descriptor.mapping;
-    const mapping = actionDescriptor.mapping;
     const code = 'code' in option ? option.code : '200';
     const model = Definition.getDefinitionModel(option.returnType);
     const operationDoc = {
-      consumes: mapping.consumes || operation.consumes || [descriptor.produces],
+      consumes: mapping.consumes || operation.consumes || mapping.consumes,
       deprecated: false,
       operationId: operation.method,
       tags: api.option.tags.map((tag) => tag.name),
@@ -240,14 +237,11 @@ export default class OpenApiModel {
         }
       }
     }
-    mainMapping.value.forEach((m) => {
-      mapping.value.forEach((url) => {
-        url = m + url;
-        Object.keys(mapping.method).forEach((method) => {
-          const path = (paths[url] = {}) as OperationPathMap;
-          path[method.toLowerCase()] = operationDoc;
-        });
-      })
+    mapping.value.forEach((url) => {
+      Object.keys(mapping.method).forEach((method) => {
+        const path = (paths[url] = {}) as OperationPathMap;
+        path[method.toLowerCase()] = operationDoc;
+      });
     })
   }
 

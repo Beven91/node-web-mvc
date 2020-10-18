@@ -3,7 +3,6 @@
  * @description 静态资源注册表
  */
 import ResourceHandlerRegistration from './ResourceHandlerRegistration';
-import hot from 'nodejs-hmr';
 
 // 所有注册的静态资源注册集合
 const registrations: Array<ResourceHandlerRegistration> = [];
@@ -38,5 +37,4 @@ export default class ResourceHandlerRegistry {
       }
     }
   }
-
 }

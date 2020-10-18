@@ -1,11 +1,11 @@
 import RequestMapping from './RequestMapping';
-import RouteMapping, { RouteMappingOptions } from '../../../routes/RouteMapping';
+import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
 
 @Target
 class PutMapping extends RequestMapping.Annotation {
   constructor(meta, value: RouteMappingOptions) {
-    super(meta, RouteMapping.create(value, 'PUT'));
+    super(meta, RequestMappingInfo.create(value, 'PUT'));
   }
 }
 

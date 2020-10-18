@@ -9,12 +9,41 @@ import HandlerExecutionChain from './interceptor/HandlerExecutionChain';
 import RequestMappingHandlerAdapter from './method/RequestMappingHandlerAdapter';
 import HttpResponseProduces from './producers/HttpResponseProduces';
 import InterruptModel from './models/InterruptModel';
-import ControllerManagement from '../ControllerManagement';
+import HandlerMapping from './mapping/HandlerMapping';
+import RequestMappingHandlerMapping from './mapping/RequestMappingHandlerMapping'
+import AdviceRegistry from './advice/AdviceRegistry';
+import ExceptionHandler, { ExceptionHandlerAnnotation } from './annotations/ExceptionHandler';
+import Middlewares from './models/Middlewares';
 
 export default class DispatcherServlet {
 
+  // 所有映射处理器
+  private handlerMappings: Array<HandlerMapping>
+
+  private handlerAdapters: Array<HandlerAdapter>
+
+  constructor() {
+    this.handlerMappings = [
+      RequestMappingHandlerMapping.getInstance(),
+      // RouterFunctionMapping  --> FilteredRouterFunctions
+      // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
+      // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
+      // AbstractDetectingUrlHandlerMapping
+    ]
+
+    this.handlerAdapters = [
+      new RequestMappingHandlerAdapter()
+    ]
+  }
+
   getHandler(servletContext: ServletContext): HandlerExecutionChain {
-    return new HandlerExecutionChain(servletContext)
+    for (let handlerMapping of this.handlerMappings) {
+      const executionChain = handlerMapping.getHandler(servletContext);
+      if (executionChain) {
+        servletContext.chain = executionChain;
+        return executionChain;
+      }
+    }
   }
 
   /**
@@ -22,21 +51,33 @@ export default class DispatcherServlet {
    * @param handler 
    */
   getHandlerAdapter(handler): HandlerAdapter {
-    //TODO: 这先临时固定为 RequestMappingHandlerAdapter,待后续完善
-    return new RequestMappingHandlerAdapter();
+    return this.handlerAdapters.find((adapter) => adapter.supports(handler));
   }
 
   async doService(servletContext: ServletContext): Promise<ServletModel> {
     try {
-      return this.doDispatch(servletContext);
+      const model = await this.doDispatch(servletContext);
+      if (model instanceof InterruptModel && !servletContext.response.headersSent) {
+        // 如果没有执行action,跳转到下一个
+        servletContext.next()
+      }
     } catch (ex) {
+      if (!servletContext.response.headersSent) {
+        // 如果出现意外异常
+        servletContext.next(ex);
+      }
       return Promise.reject(ex);
+    } finally {
+      servletContext.doReleaseQueues();
     }
   }
 
   async doDispatch(servletContext: ServletContext): Promise<ServletModel> {
     const runtime = { res: null, error: null }
     const mappedHandler = this.getHandler(servletContext);
+    if (!mappedHandler) {
+      return new InterruptModel();
+    }
     try {
       // 执行拦截器: preHandler
       const isKeeping = await mappedHandler.applyPreHandle();
@@ -48,7 +89,8 @@ export default class DispatcherServlet {
         // 获取handler当前执行适配器
         const ha = this.getHandlerAdapter(mappedHandler.getHandler());
         // 开始执行handler
-        runtime.res = await ha.handle(servletContext, mappedHandler.getHandler());
+        const res = await ha.handle(servletContext, mappedHandler.getHandler());
+        runtime.res = await this.applyMiddlewares(servletContext, res);
       } catch (ex) {
         // 自定义异常处理
         runtime.res = await this.handleException(ex, servletContext);
@@ -68,23 +110,36 @@ export default class DispatcherServlet {
   }
 
   /**
+   * 返回结果中间件处理。
+   * @param servletContext 
+   */
+  async applyMiddlewares(servletContext: ServletContext, data) {
+    const { request, response } = servletContext;
+    if (data instanceof Middlewares) {
+      data = await data.execute(request, response)
+    }
+    const isEmpty = servletContext.isNextInvoked && data === undefined;
+    return isEmpty ? new InterruptModel() : new ServletModel(data);
+  }
+
+  /**
    * 处理异常
    * @param { Error } error 异常信息
    * @param {ControllerContext} servletContext 请求上下文
    */
   handleException(error, servletContext: ServletContext): Promise<ServletModel> {
-    const { Controller, controller } = servletContext;
-    const advice = ControllerManagement.controllerAdviceInstance;
-    const controllerDescriptors = ControllerManagement.getControllerDescriptor(Controller);
-    const adviceDescriptors = advice ? ControllerManagement.getControllerDescriptor(advice.constructor) : null;
+    const globalHandler = AdviceRegistry.getExceptionHandler();
+    const chain = servletContext.chain;
+    const handlerMethod = chain.getHandler();
+    const anno = handlerMethod.getAnnotation<ExceptionHandlerAnnotation>(ExceptionHandler);
     console.error(error.stack || error);
-    if (controllerDescriptors.exceptionHandler) {
+    if (globalHandler) {
       // 优先处理：如果存在控制器本身设置的exceptionhandler
-      const res = controllerDescriptors.exceptionHandler.call(controller, error);
+      const res = globalHandler(error);
       return Promise.resolve(new ServletModel(res));
-    } else if (adviceDescriptors && adviceDescriptors.exceptionHandler) {
+    } else if (anno && anno.handleException) {
       // 全局异常处理:
-      const res = adviceDescriptors.exceptionHandler.call(advice, error);
+      const res = anno.handleException.call(handlerMethod, error);
       return Promise.resolve(new ServletModel(res));
     } else {
       // 如果没有定义异常处理

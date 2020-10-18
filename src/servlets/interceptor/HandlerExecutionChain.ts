@@ -2,35 +2,64 @@
  * @module HandlerExecutionChain  
  * @description 拦截器执行链
  */
-import HandlerInteceptor from './HandlerInterceptor';
 import HandlerInterceptorRegistry from './HandlerInterceptorRegistry'
 import ServletContext from '../http/ServletContext';
 import HandlerMethod from '../method/HandlerMethod';
+import HandlerInterceptor from './HandlerInterceptor';
 
 export default class HandlerExecutionChain {
 
-  private servletContext: ServletContext;
+  private servletContext: ServletContext
 
-  private handler;
+  private handler: any
 
   /**
-   * interceptor终端时的拦截器下标
+   * interceptor中断时的拦截器下标
    */
   private interceptorIndex: number
 
   /**
    * 构造一个拦截器注册器
    */
-  constructor(servletContext: ServletContext) {
+  constructor(handler: any, servletContext: ServletContext) {
     this.servletContext = servletContext;
-    this.handler = new HandlerMethod(servletContext);
+    this.handler = handler;
     this.interceptors = HandlerInterceptorRegistry.getInterceptors() || [];
   }
 
   /**
    * 当前注册所有拦截器实例
    */
-  private interceptors: Array<HandlerInteceptor>
+  private interceptors: Array<HandlerInterceptor>
+
+  /**
+   * 获取当前执行链所有拦截器
+   */
+  public getInterceptors() {
+    return this.interceptors;
+  }
+
+  /**
+   * 添加拦截器到当前调用链末尾
+   * @param interceptor 
+   */
+  public addInterceptor(...interceptors: Array<HandlerInterceptor>) {
+    interceptors.forEach((interceptor) => this.interceptors.push(interceptor))
+  }
+
+  /**
+   * 添加指定拦截器，到指定下标
+   */
+  public addInterceptor2(index: number, interceptor: HandlerInterceptor) {
+    const allInterceptors = this.interceptors;
+    const newInterceptors = [
+      ...allInterceptors.slice(0, index),
+      interceptor,
+      ...allInterceptors.slice(index)
+    ]
+    this.interceptors.length = 0;
+    this.interceptors.push(...newInterceptors);
+  }
 
   /**
    * 获取当前handler

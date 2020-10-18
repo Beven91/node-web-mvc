@@ -5,8 +5,20 @@
  *    1. 全局处理运行异常
  *    2. 暂不实现 : 全局数据绑定
  */
-import ControllerManagement from '../../ControllerManagement';
+import Target from "./Target";
+import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
+import AdviceRegistry from '../advice/AdviceRegistry';
 
-export default function ControllerAdvice(ControllerAdivce) {
-  ControllerManagement.controllerAdviceInstance = new ControllerAdivce();
+
+@Target
+export class ControllerAdvice {
+
+  constructor(meta: RuntimeAnnotation) {
+    AdviceRegistry.register(meta.target);
+  }
 }
+
+/**
+ * 标注指定类为一个rest 风格的controller
+ */
+export default Target.install<typeof ControllerAdvice, ControllerAdvice>(ControllerAdvice);

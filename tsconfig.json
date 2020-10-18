@@ -12,6 +12,7 @@
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators":true,
+    "downlevelIteration":true,
     "outDir": "./dist/",
     "rootDir": "./src"
   },
