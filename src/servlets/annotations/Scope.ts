@@ -21,4 +21,4 @@ export class ScopeAnnotation {
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof ScopeAnnotation, ScopeAnnotation>(ScopeAnnotation);
+export default Target.install<typeof ScopeAnnotation, string>(ScopeAnnotation);
