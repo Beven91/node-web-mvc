@@ -28,9 +28,10 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
         if (typeof beanType !== 'function') {
           return;
         }
-        for (let registration of regitry.values()) {
+        for (let key of regitry.keys()) {
+          const registration = regitry.get(key);
           if (registration.getHandlerMethod().beanType === beanType) {
-            removes.push(registration);
+            removes.push(key);
           }
         }
         // 移除旧的配置
