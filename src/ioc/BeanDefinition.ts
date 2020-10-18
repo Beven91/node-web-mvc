@@ -5,6 +5,8 @@
 import RuntimeAnnotation from '../servlets/annotations/annotation/RuntimeAnnotation';
 import Scope, { ScopeAnnotation } from '../servlets/annotations/Scope';
 
+export type ScopeType  = 'prototype' | 'singleton' | 'request'
+
 export default class BeanDefinition {
   /**
    * 作用域
@@ -13,11 +15,13 @@ export default class BeanDefinition {
 
   private beanCtor: Function
 
+  private setScope: string
+
   /**
    * 当前bean作用域类型
    */
   public get scope() {
-    let scope = 'singleton';
+    let scope = this.setScope || 'singleton';
     const annotation = RuntimeAnnotation.getClassAnnotation(this.beanCtor, Scope);
     if (annotation) {
       const scopeAnno = annotation.nativeAnnotation as ScopeAnnotation;
@@ -36,8 +40,10 @@ export default class BeanDefinition {
   /**
    * 构造一个bean定义
    * @param ctor bean构造函数
+   * @param scope 作用域
    */
-  constructor(ctor) {
+  constructor(ctor, scope?: ScopeType) {
     this.beanCtor = ctor;
+    this.setScope = scope;
   }
 }

@@ -3,6 +3,8 @@
  * @description ico 创建bean工厂
  */
 
+import { ScopeType } from "./BeanDefinition";
+
 export default interface BeanFactory {
   /**
    * 获取指定bean
@@ -11,5 +13,5 @@ export default interface BeanFactory {
    */
   getBean(name, ...args);
 
-  getBeanOfType(beanType, ...args);
+  getBeanOfType(beanType, scope: ScopeType, ...args);
 }

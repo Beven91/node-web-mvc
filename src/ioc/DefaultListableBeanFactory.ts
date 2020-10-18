@@ -3,7 +3,7 @@
  * @description Ioc 容器
  */
 import hot from "nodejs-hmr";
-import BeanDefinition from "./BeanDefinition";
+import BeanDefinition, { ScopeType } from "./BeanDefinition";
 import BeanFactory from './BeanFactory';
 import ObjectProvider from "./provider/ObjectProvider";
 import SingletonBeanProvider from './provider/SingletonBeanProvider';
@@ -78,11 +78,11 @@ export default class DefaultListableBeanFactory implements BeanFactory {
    * @param beanType bean类型
    * @param args 构造函数参数
    */
-  getBeanOfType(beanType,...args){
+  getBeanOfType(beanType, scope: ScopeType, ...args) {
     let definition = this.getDefinition(beanType);
-    if(!definition){
-      definition = new BeanDefinition(beanType);
-      this.registerBeanDefinition(beanType,definition);
+    if (!definition) {
+      definition = new BeanDefinition(beanType, scope);
+      this.registerBeanDefinition(beanType, definition);
     }
     const provider = this.providers.get(definition.scope);
     return provider ? provider.createInstance(definition.ctor, args) : null;

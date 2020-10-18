@@ -54,10 +54,10 @@ export default class HandlerMethod {
    * 构造一个方法执行器
    */
   constructor(bean: any, method: Function | HandlerMethod) {
-    if(method instanceof HandlerMethod){
+    if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;
       this.isBeanType = handler.isBeanType;
-      this.method =  handler.method;
+      this.method = handler.method;
       this.methodName = handler.methodName;
       this.bean = bean;
       this.beanType = bean.constructor;
@@ -65,10 +65,10 @@ export default class HandlerMethod {
       this.parameters = handler.parameters;
       this.responseStatus = handler.responseStatus;
       this.responseStatusReason = handler.responseStatusReason;
-    }else{
+    } else {
       const isType = typeof bean === 'function';
       this.isBeanType = isType;
-      this.method =  method;
+      this.method = method;
       this.methodName = method.name;
       this.bean = isType ? null : bean;
       this.beanType = isType ? bean : bean.constructor;
@@ -123,7 +123,7 @@ export default class HandlerMethod {
     if (!this.isBeanType) {
       return new HandlerMethod(this.bean, this);
     }
-    const bean = this.beanFactory.getBeanOfType(this.beanType);
+    const bean = this.beanFactory.getBeanOfType(this.beanType, 'singleton');
     return new HandlerMethod(bean, this);
   }
 
