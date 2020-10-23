@@ -8,7 +8,7 @@ import RuntimeAnnotation, { AnnotationFunction } from '../annotations/annotation
 import ResponseStatus, { ResponseStatusAnnotation } from '../annotations/ResponseStatus';
 import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
 import BeanFactory from '../../ioc/BeanFactory';
-import { Handler } from 'express';
+import InterruptModel from '../models/InterruptModel';
 
 export default class HandlerMethod {
 
@@ -25,6 +25,10 @@ export default class HandlerMethod {
   private readonly beanFactory: BeanFactory
 
   public readonly methodName: string
+
+  public get beanTypeName() {
+    return this.beanType ? this.beanType.name : '';
+  }
 
   /**
    * 当前bean的类型
@@ -69,7 +73,7 @@ export default class HandlerMethod {
       const isType = typeof bean === 'function';
       this.isBeanType = isType;
       this.method = method;
-      this.methodName = method.name;
+      this.methodName = method ? method.name : '@@handler@@';
       this.bean = isType ? null : bean;
       this.beanType = isType ? bean : bean.constructor;
       this.beanFactory = DefaultListableBeanFactory.getInstance();
@@ -131,6 +135,9 @@ export default class HandlerMethod {
    * 执行方法
    */
   public async invoke(...args) {
-    return this.method.call(this.bean, ...args);
+    if (this.method) {
+      return this.method.call(this.bean, ...args);
+    }
+    return new InterruptModel();
   }
 }

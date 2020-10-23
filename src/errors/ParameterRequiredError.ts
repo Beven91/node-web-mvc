@@ -6,7 +6,8 @@
 import ServletContext from "../servlets/http/ServletContext";
 
 export default class ParameterRequiredError extends Error {
-  constructor(parameter:string, servletContext: ServletContext) {
-    super(`Required request parameter: ${parameter} is missing @${servletContext.controllerName}.${servletContext.actionName}`)
+  constructor(parameter: string, servletContext: ServletContext) {
+    const handler = servletContext.chain.getHandler();
+    super(`Required request parameter: ${parameter} is missing @${handler.beanTypeName}.${handler.methodName}`)
   }
 }

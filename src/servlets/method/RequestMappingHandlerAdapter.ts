@@ -10,8 +10,8 @@ import ArgumentsResolvers from './argument/ArgumentsResolvers';
 
 export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter {
 
-  supportsInternal() {
-    return true;
+  supportsInternal(handlerMethod: HandlerMethod) {
+    return true  
   }
 
   handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<ServletModel> {

@@ -3,17 +3,10 @@
  * @description 静态资源注册表
  */
 import ResourceHandlerRegistration from './ResourceHandlerRegistration';
-
-// 所有注册的静态资源注册集合
-const registrations: Array<ResourceHandlerRegistration> = [];
+import ResourceHandlerMapping from './ResourceHandlerMapping';
+import ResourceHttpRequestHandler from './ResourceHttpRequestHandler';
 
 export default class ResourceHandlerRegistry {
-
-  private readonly registrations: Array<ResourceHandlerRegistration>;
-
-  constructor() {
-    this.registrations = [];
-  }
 
   /**
     * 添加一个静态服务资源
@@ -22,19 +15,7 @@ export default class ResourceHandlerRegistry {
     */
   addResourceHandler(...pathPatterns: Array<string>) {
     const registration = new ResourceHandlerRegistration(pathPatterns);
-    this.registrations.push(registration);
+    ResourceHandlerMapping.getInstance().registerHandlerMethod('resource', registration, new ResourceHttpRequestHandler(registration))
     return registration;
-  }
-
-  getHandlerMapping() {
-    if (this.registrations.length < 1) {
-      return null;
-    }
-
-    for(let registration of this.registrations){
-      for(let pathPattern of registration.pathPatterns){
-        
-      }
-    }
   }
 }

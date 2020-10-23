@@ -54,7 +54,7 @@ export default class MultipartFile {
     // 临时文件存放区域
     this.id = path.resolve('app_data/temp-files', Date.now().toString());
     // 确认目标目录是否存在
-    fs.ensureDir(path.dirname(this.id));
+    fs.ensureDirSync(path.dirname(this.id));
 
     this.awaiting = new Promise((resolve) => {
       // 创建一个写出流
@@ -84,11 +84,14 @@ export default class MultipartFile {
   /**
    * 将上传的文件保存到指定位置
    */
-  async transferTo(dest) {
-    await Promise.resolve(this.awaiting);
-    // 写出文件
-    fs.ensureDir(path.dirname(dest));
-    fs.renameSync(this.id, dest);
+  transferTo(dest) {
+    return Promise
+      .resolve(this.awaiting)
+      .then(() => {
+        // 写出文件
+        fs.ensureDirSync(path.dirname(dest));
+        fs.renameSync(this.id, dest);
+      })
   }
 
   /**

@@ -12,6 +12,7 @@ import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgume
 import ServletContextMethodArgumentResolver from './ServletContextMethodArgumentResolver';
 import HandlerMethod from '../HandlerMethod';
 import ParameterRequiredError from '../../../errors/ParameterRequiredError';
+import ArgumentResolvError from '../../../errors/ArgumentResolvError';
 import hot from 'nodejs-hmr';
 
 const registerResolvers: Array<HandlerMethodArgumentResolver> = [
@@ -36,30 +37,35 @@ export default class ArgumentsResolvers {
    * 获取要执行函数的参数值信息
    */
   static async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
-    const signParameters = handler.parameters;
-    const args = [];
-    for (let i = 0, k = signParameters.length; i < k; i++) {
-      const parameter = signParameters[i];
-      const value = await this.resolveArgument(parameter, servletContext);
-      this.checkArguments(parameter, value);
-      const hasResolved = (value !== undefined && value !== null);
-      const finalValue = hasResolved ? value : parameter.defaultValue;
-      if (parameter.required && (finalValue === null || finalValue === undefined)) {
-        // 如果缺少参数
-        return Promise.reject(new ParameterRequiredError(name, servletContext));
+    try {
+      const signParameters = handler.parameters;
+      const args = [];
+      for (let i = 0, k = signParameters.length; i < k; i++) {
+        const parameter = signParameters[i];
+        const value = await this.resolveArgument(parameter, servletContext);
+        this.checkArguments(parameter, value);
+        const hasResolved = (value !== undefined && value !== null);
+        const finalValue = hasResolved ? value : parameter.defaultValue;
+        if (parameter.required && (finalValue === null || finalValue === undefined)) {
+          // 如果缺少参数
+          return Promise.reject(new ParameterRequiredError(name, servletContext));
+        }
+        // 设置参数值
+        args[i] = finalValue;
       }
-      // 设置参数值
-      args[i] = finalValue;
+      return args;
+    } catch (ex) {
+      ex = ex instanceof ParameterRequiredError ? ex : new ArgumentResolvError(ex.message);
+      throw ex;
     }
-    return args;
   }
 
   /**
    * 校验参数
    */
   static checkArguments(parameter: MethodParameter, value) {
-    if(parameter.dataType === Array &&  value && !(value instanceof Array)){
-      throw new Error(`The parameter 【${parameter.name}】 needs to be an 【Array】`)
+    if (parameter.dataType === Array && value && !(value instanceof Array)) {
+      throw new ArgumentResolvError(`The parameter 【${parameter.name}】 needs to be an 【Array】`)
     }
   }
 
@@ -79,5 +85,5 @@ export default class ArgumentsResolvers {
  */
 hot.create(module)
   .postend((now, old) => {
-    new hot.ListReplacement(registerResolvers, now, old);
+    hot.createHotUpdater(registerResolvers, now, old).update();
   });

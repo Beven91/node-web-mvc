@@ -19,30 +19,19 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
 
   constructor() {
     super();
-    const regitry = this.mappingRegistry.getRegistration();
     hot.create(module)
       .preload((old) => {
-        // 预更新时，清空当前控制器已注册路由
-        const removes = [];
-        const beanType = old.exports.default || old.exports;
-        if (typeof beanType !== 'function') {
-          return;
-        }
-        for (let key of regitry.keys()) {
-          const registration = regitry.get(key);
-          if (registration.getHandlerMethod().beanType === beanType) {
-            removes.push(key);
-          }
-        }
-        // 移除旧的配置
-        removes.forEach((r) => regitry.delete(r));
+        hot
+          .createHotUpdater<MappingRegistration<T>>(this.mappingRegistry.getRegistration(), null, old)
+          .needHot((m, ctor) => m.getHandlerMethod().beanType === ctor)
+          .remove();
       });
   }
 
   /**
    * 注册一个映射方法
    */
-  registerHandlerMethod(name: string, mapping: T, handler: any, method: Function) {
+  registerHandlerMethod(name: string, mapping: T, handler: any, method?: Function) {
     this.mappingRegistry.register(name, mapping, handler, method);
   }
 
@@ -63,11 +52,11 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
     let methodNotAllowed = false;
     for (let registration of registry.values()) {
       const handler = this.match(registration, lookupPath, request);
-      if(handler && !handler.supportThisMethod){
+      if (handler && !handler.supportThisMethod) {
         methodNotAllowed = true;
         continue;
       }
-      if (handler){
+      if (handler) {
         return handler;
       }
     }

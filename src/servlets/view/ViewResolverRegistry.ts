@@ -30,5 +30,5 @@ export default class ViewResolverRegistry {
  */
 hot.create(module)
   .postend((now, old) => {
-    new hot.ListReplacement(registerResolvers, now, old);
+    hot.createHotUpdater(registerResolvers, now, old).update();
   });

@@ -41,17 +41,8 @@ export default class DefaultListableBeanFactory implements BeanFactory {
      * 内部热更新 
      */
     hot.create(module).preload((old) => {
-      // 预更新时，判断当前模块是否为被修饰的类
-      const info = old.exports.default || old.exports;
-      if (typeof info !== 'function') {
-        return;
-      }
-      this.beanDefinitions.forEach((item, key) => {
-        if (item && item.ctor === info) {
-          this.beanDefinitions.set(key, null);
-        }
-      })
-    })
+      hot.createHotUpdater(this.beanDefinitions, null, old).remove();
+    });
   }
 
   /**

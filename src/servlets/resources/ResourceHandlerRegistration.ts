@@ -2,6 +2,7 @@
  * @module ResourceHandlerRegistration
  * @description 
  */
+import ResourceHandlerMapping from './ResourceHandlerMapping';
 
 export default class ResourceHandlerRegistration {
 

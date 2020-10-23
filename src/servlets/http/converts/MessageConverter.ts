@@ -53,7 +53,7 @@ export default class MessageConverter {
    * 写出内容到response中
    */
   static write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
-    return new Promise((resolve)=>{
+    return new Promise((resolve) => {
       const converter = registerConverters.find((converter) => converter.canWrite(mediaType));
       return resolve(converter.write(data, mediaType, servletContext));
     })
@@ -65,5 +65,5 @@ export default class MessageConverter {
  */
 hot.create(module)
   .postend((now, old) => {
-    new hot.ListReplacement(registerConverters, now, old);
+    hot.createHotUpdater(registerConverters, now, old).update();
   });

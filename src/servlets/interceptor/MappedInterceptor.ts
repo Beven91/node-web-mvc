@@ -68,6 +68,13 @@ export default class MappedInterceptor implements HandlerInterceptor {
     return this.pathMatcher.match(pattern, path);
   }
 
+  /**
+   * 设置当前路径匹配器
+   */
+  setPathMatcher(pathMatcher: PathMatcher) {
+    this.pathMatcher = pathMatcher;
+  }
+
   preHandle(request: HttpServletRequest, response: HttpServletResponse, handler): Promise<boolean> | boolean {
     return this.interceptor.preHandle(request, response, handler);
   }
