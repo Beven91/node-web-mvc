@@ -46,7 +46,7 @@ Registry.launch({
   },
   addMessageConverters(converters) {
     converters.addMessageConverters(new XmlHttpMessageConverter());
-  }
+  },
 });
 
 //   console.log(`

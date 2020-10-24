@@ -69,7 +69,7 @@ export declare class WebAppConfigurerOptions {
   // 添加视图解析器
   addViewResolvers?: (registry: typeof ViewResolverRegistry) => void
   // 添加静态资源处理器
-  addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
+  addResourceHandlers?: (registry: typeof ResourceHandlerRegistry) => void
 }
 
 export default class WebAppConfigurer {

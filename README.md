@@ -502,7 +502,24 @@ class AppException {
 }
 ```
 
-我们可以通过
+## Resource 静态资源
+
+框架也提供了静态资源服务，以及针对静态资源设定缓存策略等。
+
+```js
+import { Registry } from 'node-web-mvc';
+
+// 启动Mvc  
+Registry.launch({
+  addResourceHandlers(registry){
+    registry
+      .addResourceHandler('/swagger-ui/**')
+      .addResourceLocations('/a/b/swagger-ui/')
+      .setCacheControl({ maxAge:0 })
+  }
+});
+
+```
 
 ## View 视图
 
