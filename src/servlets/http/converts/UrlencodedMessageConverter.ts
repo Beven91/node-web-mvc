@@ -2,19 +2,15 @@
  * @module UrlencodedMessageConverter
  * @description 一个用于处理http内容格式为: urlencoded的处理器
  */
-import HttpMessageConverter from './HttpMessageConverter';
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import parser from 'body-parser';
+import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
-export default class UrlencodedMessageConverter implements HttpMessageConverter {
+export default class UrlencodedMessageConverter extends AbstractHttpMessageConverter {
 
-  canRead(mediaType: MediaType) {
-    return mediaType.name === 'application/x-www-form-urlencoded';
-  }
-
-  canWrite(mediaType: MediaType) {
-    return mediaType.name === 'application/x-www-form-urlencoded';
+  constructor(){
+    super(new MediaType('application/x-www-form-urlencoded'));
   }
 
   read(servletContext: ServletContext, mediaType: MediaType) {

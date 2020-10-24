@@ -5,7 +5,11 @@
 import ServletModel from './ServletModel';
 
 export default class InterruptModel extends ServletModel {
-  constructor() {
+
+  public readonly isEnd:boolean
+  
+  constructor(isEnd = false) {
     super(null);
+    this.isEnd = isEnd;
   }
 }

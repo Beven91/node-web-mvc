@@ -2,18 +2,14 @@
  * @module DefaultMessageConverter
  * @description 默认处理消息内容转换器，用于垫底
  */
-import HttpMessageConverter from './HttpMessageConverter';
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
+import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
-export default class DefaultMessageConverter implements HttpMessageConverter {
+export default class DefaultMessageConverter extends AbstractHttpMessageConverter {
 
-  canRead(mediaType: MediaType) {
-    return true;
-  }
-
-  canWrite(mediaType: MediaType) {
-    return true;
+  constructor(){
+    super(MediaType.ALL);
   }
 
   read(servletContext: ServletContext, mediaType: MediaType): any {

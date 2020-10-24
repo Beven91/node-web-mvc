@@ -30,6 +30,9 @@ Registry.launch({
   hot: {
     cwd: path.resolve('./test'),
   },
+  resource: {
+    gzipped: true,
+  },
   cwd: path.resolve('./test'),
   addInterceptors: (registry) => {
     registry.addInterceptor(new AdminInterceptor());
@@ -38,7 +41,7 @@ Registry.launch({
   addViewResolvers(registry) {
     registry.addViewResolver(new EjsViewResolver('test/WEB-INF/', '.ejs'))
   },
-  addArgumentResolvers(resolvers){
+  addArgumentResolvers(resolvers) {
     resolvers.addArgumentResolvers(new UserIdArgumentResolver());
   },
   addMessageConverters(converters) {

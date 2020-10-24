@@ -3,6 +3,8 @@
  * @description Http信息返回类
  */
 import { ServerResponse } from 'http';
+import InterruptModel from '../models/InterruptModel';
+import HttpStatus from './HttpStatus';
 import ServletContext from './ServletContext';
 
 export default class HttpServletResponse {
@@ -63,21 +65,59 @@ export default class HttpServletResponse {
   }
 
   /**
+   * 获取设置的返回头
+   * @param name 
+   */
+  getHeader(name: string) {
+    return this.nativeResponse.getHeader((name || '').toLowerCase());
+  }
+
+  /**
    * 添加一个指定名称的返回头到返回头队列
    * @param {String} name 返回头名称
    * @param {String} value 返回头值
    */
-  setHeader(name: string, value: string) {
+  setHeader(name: string, value: string | number) {
     this.nativeResponse.setHeader(name, value);
+    return this;
+  }
+
+  /**
+   * 返回异常，结束请i去
+   * @param name 
+   */
+  sendError(status: HttpStatus) {
+    this.setStatus(status).end();
+  }
+
+  /**
+   * 判断当前返回头中是否指定头
+   */
+  containsHeader(name: string) {
+    return !!this.getHeader(name);
+  }
+
+  /**
+   * 设置日期类型返回头
+   */
+  setDateHeader(name: string, value: number | Date) {
+    const v = value instanceof Date ? value : new Date(value);
+    this.nativeResponse.setHeader(name, v.toUTCString());
+    return this;
   }
 
   /**
    * 设置返回状态
    * @param response 
    */
-  setStatus(status, statusMessage?) {
-    this.tempStatusCode = status;
-    this.tempStatusMessage = statusMessage;
+  setStatus(status: number | HttpStatus, statusMessage?) {
+    if (status instanceof HttpStatus) {
+      this.tempStatusCode = status.code;
+      this.tempStatusMessage = status.message;
+    } else {
+      this.tempStatusCode = status;
+      this.tempStatusMessage = statusMessage;
+    }
     return this;
   }
 
@@ -105,6 +145,7 @@ export default class HttpServletResponse {
   end(data?, encoding?, callback?) {
     this.writeStatus();
     this.nativeResponse.end(data, encoding, callback);
+    return new InterruptModel();
   }
 
   /**

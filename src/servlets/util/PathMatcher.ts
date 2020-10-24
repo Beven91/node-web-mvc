@@ -25,6 +25,7 @@ export default class PathMatcher {
    * @param path 路径
    */
   matchPattern(pattern: string, path: string): MatchResult {
+    pattern = pattern.replace('**', '(.*)');
     return matcher.match(pattern)(path) as MatchResult;
   }
 }

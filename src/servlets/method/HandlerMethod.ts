@@ -58,6 +58,7 @@ export default class HandlerMethod {
    * 构造一个方法执行器
    */
   constructor(bean: any, method: Function | HandlerMethod) {
+    this.supportThisMethod = true;
     if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;
       this.isBeanType = handler.isBeanType;
@@ -119,7 +120,7 @@ export default class HandlerMethod {
    * @param ctor 要获取的注解类型类
    */
   public getClassAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
-    const annotations = RuntimeAnnotation.getClassAnnotations(this.beanType);
+    const annotations = RuntimeAnnotation.getClassAllAnnotations(this.beanType);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
 

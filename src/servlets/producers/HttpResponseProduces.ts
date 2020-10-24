@@ -28,7 +28,7 @@ export default class HttpResponseProduces {
     this.servletContext = servletContext;
     const handlerMethod = servletContext.chain.getHandler();
     this.controllerMapping = RequestMappingAnnotation.getMappingInfo(handlerMethod.beanType);
-    this.actionMapping = RequestMappingAnnotation.getMappingInfo(handlerMethod.beanType,handlerMethod.methodName);
+    this.actionMapping = RequestMappingAnnotation.getMappingInfo(handlerMethod.beanType, handlerMethod.methodName);
   }
 
   /**
@@ -37,7 +37,7 @@ export default class HttpResponseProduces {
    */
   produce(model: ServletModel, handler: HandlerMethod) {
     if (model instanceof InterruptModel) {
-      return this.servletContext.next();
+      return model.isEnd ? null : this.servletContext.next();
     }
     return Promise
       .resolve(model.data)
@@ -87,7 +87,7 @@ export default class HttpResponseProduces {
     const { servletContext } = this;
     const { response } = servletContext;
     const isRestController = RestControllerAnnotation.isRestController(handler.beanType);
-    const restProduces =  isRestController ? 'application/json;charset=utf-8' : '';
+    const restProduces = isRestController ? 'application/json;charset=utf-8' : '';
     const ctrlProduces = this.controllerMapping ? this.controllerMapping.produces : '';
     const actProduces = this.actionMapping ? this.actionMapping.produces : '';
     const produces = actProduces || restProduces || ctrlProduces;

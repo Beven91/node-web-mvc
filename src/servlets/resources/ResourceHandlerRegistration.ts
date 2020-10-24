@@ -2,6 +2,7 @@
  * @module ResourceHandlerRegistration
  * @description 
  */
+import CacheControl from '../http/CacheControl';
 import ResourceHandlerMapping from './ResourceHandlerMapping';
 
 export default class ResourceHandlerRegistration {
@@ -15,6 +16,11 @@ export default class ResourceHandlerRegistration {
    * 获取当前静态资源路径匹配规则列表
    */
   readonly pathPatterns: Array<string>
+
+  /**
+   * 设置当前静态资源的缓存配置
+   */
+  cacheControl: CacheControl
 
   /**
    * 构造一个静态资源注册信息。
@@ -38,8 +44,12 @@ export default class ResourceHandlerRegistration {
    * 
    * ```
    */
-  addResourceLocations(resourceLocations: Array<string>) {
+  addResourceLocations(...resourceLocations: Array<string>) {
     this.resourceLocations.push(...resourceLocations);
     return this;
+  }
+
+  setCacheControl(options: CacheControl) {
+    this.cacheControl = new CacheControl(options);
   }
 }

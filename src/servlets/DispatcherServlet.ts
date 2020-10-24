@@ -14,6 +14,8 @@ import RequestMappingHandlerMapping from './mapping/RequestMappingHandlerMapping
 import AdviceRegistry from './advice/AdviceRegistry';
 import ExceptionHandler, { ExceptionHandlerAnnotation } from './annotations/ExceptionHandler';
 import Middlewares from './models/Middlewares';
+import ResourceHandlerAdapter from './resources/ResourceHandlerAdapter';
+import ResourceHandlerMapping from './resources/ResourceHandlerMapping';
 
 export default class DispatcherServlet {
 
@@ -24,6 +26,7 @@ export default class DispatcherServlet {
 
   constructor() {
     this.handlerMappings = [
+      ResourceHandlerMapping.getInstance(),
       RequestMappingHandlerMapping.getInstance(),
       // RouterFunctionMapping  --> FilteredRouterFunctions
       // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
@@ -32,6 +35,7 @@ export default class DispatcherServlet {
     ]
 
     this.handlerAdapters = [
+      new ResourceHandlerAdapter(),
       new RequestMappingHandlerAdapter()
     ]
   }
@@ -131,15 +135,15 @@ export default class DispatcherServlet {
     const globalHandler = AdviceRegistry.getExceptionHandler();
     const chain = servletContext.chain;
     const handlerMethod = chain.getHandler();
-    const anno = handlerMethod.getAnnotation<ExceptionHandlerAnnotation>(ExceptionHandler);
+    const anno = handlerMethod.getClassAnnotation<ExceptionHandlerAnnotation>(ExceptionHandler);
     console.error(error.stack || error);
-    if (globalHandler) {
+    if (anno && anno.handleException) {
       // 优先处理：如果存在控制器本身设置的exceptionhandler
-      const res = globalHandler(error);
-      return Promise.resolve(new ServletModel(res));
-    } else if (anno && anno.handleException) {
-      // 全局异常处理:
       const res = anno.handleException.call(handlerMethod, error);
+      return Promise.resolve(new ServletModel(res));
+    } else if (globalHandler) {
+      // 全局异常处理:
+      const res = globalHandler(error);
       return Promise.resolve(new ServletModel(res));
     } else {
       // 如果没有定义异常处理

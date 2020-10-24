@@ -1,6 +1,6 @@
 module.exports = {
   parser: 'babel-eslint',
-  extends: ['google'],
+  extends: [ 'google' ],
   env: {
     browser: true,
     node: true,
@@ -8,15 +8,15 @@ module.exports = {
     commonjs: true,
   },
   rules: {
-    'new-cap':0,
+    'new-cap': 0,
     'no-console': 0,
     'require-jsdoc': 0,
     'no-debugger': 0,
-    "array-bracket-spacing": ["error", "always"],
-    "object-curly-spacing": ["error", "always"],
+    'array-bracket-spacing': [ 'error', 'always' ],
+    'object-curly-spacing': [ 'error', 'always' ],
     'import/no-extraneous-dependencies': 0,
-    semi: ['error', 'always'],
-    'no-cond-assign': ['error', 'always'],
+    'semi': [ 'error', 'always' ],
+    'no-cond-assign': [ 'error', 'always' ],
     'no-console': 'off',
     'import/no-unresolved': 0,
     'import/prefer-default-export': 0,
@@ -30,7 +30,7 @@ module.exports = {
     'arrow-parens': 0,
     'no-invalid-this': 0,
     'no-case-declarations': 0,
-    'import/extensions': 0
+    'import/extensions': 0,
   },
   globals: {
     chrome: true,

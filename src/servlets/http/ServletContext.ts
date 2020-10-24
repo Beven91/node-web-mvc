@@ -60,7 +60,9 @@ export default abstract class ServletContext {
     this.response = new HttpServletResponse(response, this);
     this.configurer = configurer;
     this.next = (...params) => {
-      next(...params);
+      if(!this.response.nativeResponse.writableFinished){
+        next(...params);
+      }
       this.isNextInvoked = true;
     };
     this.forwardStacks = [];

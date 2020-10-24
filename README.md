@@ -54,6 +54,12 @@ Registry.launch({
     // 配置热更新监听的目录
     cwd: path.resolve('./'),
   },
+  //resource:{
+    //// 是否开启gzip压缩
+    //gzipped: true/false
+    ////开启gzip的媒体类型字符串
+    //mimeTypes: 'text/css'
+  //}
   // 配置controller存放目录，用于进行controller自动载入与注册使用
   // 支持字符串或者字符串数组
   cwd: [

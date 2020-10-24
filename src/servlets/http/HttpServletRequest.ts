@@ -7,6 +7,7 @@ import { IncomingMessage, IncomingHttpHeaders } from 'http';
 import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
+import WebAppConfigurer from '../WebAppConfigurer';
 
 declare class Query {
   [propName: string]: any
@@ -58,6 +59,14 @@ export default class HttpServletRequest {
    */
   public get baseUrl() {
     return this.fdomain + this.path;
+  }
+
+  /**
+   * 去除contextPath后的请求路径
+   */
+  public get usePath() {
+    const base = WebAppConfigurer.configurer.contextPath;
+    return base ? this.path.replace(new RegExp('^' + base), '') : this.path;
   }
 
   /**
@@ -117,6 +126,22 @@ export default class HttpServletRequest {
     this.nativeRequest.pipe(writeStream, options);
   }
 
+  constructor(request: IncomingMessage, servletContext: ServletContext) {
+    const protocol = (request.connection as any).encrypted ? 'https' : 'http';
+    const url = new URL(request.url, `${protocol}://${request.headers.host}`);
+    this.headers = request.headers;
+    this.method = HttpMethod[(request.method).toUpperCase()];
+    this.protocol = protocol;
+    this.request = request;
+    this.query = querystring.parse(url.search.slice(1));
+    this.host = url.hostname;
+    this.port = url.port;
+    this.path = url.pathname;
+    this.mediaType = new MediaType(this.headers['content-type']);
+    this.servletContext = servletContext;
+    this._cookies = this.parseCookie(request.headers['cookie']);
+  }
+
   /**
    * 解析cookie
    * @param cookieStr 
@@ -135,19 +160,15 @@ export default class HttpServletRequest {
     return cookies;
   }
 
-  constructor(request: IncomingMessage, servletContext: ServletContext) {
-    const protocol = (request.connection as any).encrypted ? 'https' : 'http';
-    const url = new URL(request.url, `${protocol}://${request.headers.host}`);
-    this.headers = request.headers;
-    this.method = HttpMethod[(request.method).toUpperCase()];
-    this.protocol = protocol;
-    this.request = request;
-    this.query = querystring.parse(url.search.slice(1));
-    this.host = url.hostname;
-    this.port = url.port;
-    this.path = url.pathname;
-    this.mediaType = new MediaType(this.headers['content-type']);
-    this.servletContext = servletContext;
-    this._cookies = this.parseCookie(request.headers['cookie']);
+  public getHeader(name: string) {
+    return this.nativeRequest.headers[(name || '').toLowerCase()]
+  }
+
+  public getDateHeader(name) {
+    const v = this.getHeader(name);
+    if (v) {
+      return Date.parse(v as string);
+    }
+    return null;
   }
 }

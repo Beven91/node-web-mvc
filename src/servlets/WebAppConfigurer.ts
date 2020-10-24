@@ -12,10 +12,12 @@ import ArgumentsResolvers from './method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './view/ViewResolverRegistry';
 import { RequestMappingAnnotation } from './annotations/mapping/RequestMapping';
 import hot, { HotOptions } from 'nodejs-hmr';
+import ResourceHandlerRegistry from './resources/ResourceHandlerRegistry';
 
 const runtime = {
   configurer: null,
-  cacheKeys: {}
+  cacheKeys: {},
+  defaultMimeTypes: 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain'
 }
 
 declare interface Multipart {
@@ -29,6 +31,18 @@ declare interface Multipart {
   maxRequestSize: string | number
 }
 
+declare interface ResourceOptions {
+  /**
+   * 是否开启gzip压缩
+   */
+  gzipped: boolean
+  /**
+   * 开启gzip的媒体类型字符串
+   * 例如: application/javascript,text/css
+   */
+  mimeTypes?: string | object
+}
+
 export declare class WebAppConfigurerOptions {
   // 端口
   port?: number
@@ -36,6 +50,8 @@ export declare class WebAppConfigurerOptions {
   mode: string
   // 是否开启swagger文档
   swagger?: boolean
+  // 静态资源配置
+  resource?: ResourceOptions
   // 基础路径
   base?: string
   // 配置请求内容大小
@@ -52,6 +68,8 @@ export declare class WebAppConfigurerOptions {
   addArgumentResolvers?: (resolvers: typeof ArgumentsResolvers) => void
   // 添加视图解析器
   addViewResolvers?: (registry: typeof ViewResolverRegistry) => void
+  // 添加静态资源处理器
+  addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
 }
 
 export default class WebAppConfigurer {
@@ -84,6 +102,13 @@ export default class WebAppConfigurer {
    */
   public get mode() {
     return this.options.mode;
+  }
+
+  /**
+   * 静态资源配置
+   */
+  public get resource() {
+    return this.options.resource;
   }
 
   /**
@@ -156,11 +181,16 @@ export default class WebAppConfigurer {
     if (options.addViewResolvers) {
       options.addViewResolvers(ViewResolverRegistry);
     }
+    // 注册静态资源
+    if (options.addResourceHandlers) {
+      options.addResourceHandlers(ResourceHandlerRegistry);
+    }
     if (options.swagger !== false) {
-      // 如果使用swagger
       OpenApi.initialize();
     }
     this.options = options;
+    this.options.resource = this.options.resource || { gzipped: false, mimeTypes: runtime.defaultMimeTypes };
+    this.options.resource.mimeTypes = this.initializeMimeTypes(this.options.resource.mimeTypes);
     const dirs = options.cwd instanceof Array ? options.cwd : [options.cwd];
     // 存储cacheKeys
     Object.keys(require.cache).forEach((k) => runtime.cacheKeys[k.replace(/\\/g, '/').toLowerCase()] = true);
@@ -173,6 +203,20 @@ export default class WebAppConfigurer {
     this.multipart.maxFileSize = this.sizeFormat(this.multipart.maxFileSize, bytes.parse('500kb'));
     this.multipart.maxRequestSize = this.sizeFormat(this.multipart.maxRequestSize, bytes.parse('500kb'));
     return this;
+  }
+
+  initializeMimeTypes(mimeTypes: string | object) {
+    mimeTypes = mimeTypes == null ? runtime.defaultMimeTypes : mimeTypes;
+    if (typeof mimeTypes === 'object' && mimeTypes) {
+      return mimeTypes;
+    }
+    const newMimeTypes = {};
+    const values = (mimeTypes as string).split(',');
+    values.forEach((k) => {
+      const name = k.trim();
+      newMimeTypes[name] = name;
+    });
+    return newMimeTypes;
   }
 }
 

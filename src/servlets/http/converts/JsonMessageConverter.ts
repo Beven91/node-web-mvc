@@ -2,19 +2,15 @@
  * @module JsonMessageConverter
  * @description 一个用于处理http请求格式json的处理器
  */
-import HttpMessageConverter from './HttpMessageConverter';
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import parser from 'body-parser';
+import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
-export default class JsonMessageConverter implements HttpMessageConverter {
+export default class JsonMessageConverter extends AbstractHttpMessageConverter {
 
-  canRead(mediaType: MediaType) {
-    return mediaType.name === 'application/json';
-  }
-
-  canWrite(mediaType: MediaType) {
-    return mediaType.name === 'application/json';
+  constructor(){
+    super(new MediaType('application/json'))
   }
 
   read(servletContext: ServletContext, mediaType: MediaType) {

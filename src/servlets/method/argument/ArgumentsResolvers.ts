@@ -48,7 +48,7 @@ export default class ArgumentsResolvers {
         const finalValue = hasResolved ? value : parameter.defaultValue;
         if (parameter.required && (finalValue === null || finalValue === undefined)) {
           // 如果缺少参数
-          return Promise.reject(new ParameterRequiredError(name, servletContext));
+          return Promise.reject(new ParameterRequiredError(parameter.name, servletContext));
         }
         // 设置参数值
         args[i] = finalValue;

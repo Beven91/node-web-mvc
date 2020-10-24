@@ -36,7 +36,7 @@ export default class ServletNodeContext extends ServletContext {
         ====> Start node-mvc
         ====> Enviroment: development
         ====> Listening: port ${port}
-        ====> Url: http://localhost:${port}/swagger/index.html
+        ====> Url: http://localhost:${port}/swagger-ui/index.html
         -------------------------------------
       `);
     });

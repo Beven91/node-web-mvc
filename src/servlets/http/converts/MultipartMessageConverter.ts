@@ -3,20 +3,16 @@
  * @description 一个用于处理http请求格式为multipart/类型内容的处理器
  */
 import Busboy from 'busboy';
-import HttpMessageConverter from './HttpMessageConverter';
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
+import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
-export default class MultipartMessageConverter implements HttpMessageConverter {
+export default class MultipartMessageConverter extends AbstractHttpMessageConverter {
 
-  canRead(mediaType: MediaType) {
-    return mediaType.name === 'multipart/form-data';
-  }
-
-  canWrite(mediaType: MediaType) {
-    return mediaType.name === 'multipart/form-data';
+  constructor(){
+    super(new MediaType('multipart/form-data'))
   }
 
   /**

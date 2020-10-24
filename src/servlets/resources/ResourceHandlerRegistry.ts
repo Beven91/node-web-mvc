@@ -13,7 +13,7 @@ export default class ResourceHandlerRegistry {
     * @param ...pathPatterns 
     * 路径规则样例:  "/static/**" 或者 "/css/{filename:\\w+\\.css}"。
     */
-  addResourceHandler(...pathPatterns: Array<string>) {
+  static addResourceHandler(...pathPatterns: Array<string>) {
     const registration = new ResourceHandlerRegistration(pathPatterns);
     ResourceHandlerMapping.getInstance().registerHandlerMethod('resource', registration, new ResourceHttpRequestHandler(registration))
     return registration;

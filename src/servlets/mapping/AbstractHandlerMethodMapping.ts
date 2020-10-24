@@ -52,7 +52,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
     let methodNotAllowed = false;
     for (let registration of registry.values()) {
       const handler = this.match(registration, lookupPath, request);
-      if (handler && !handler.supportThisMethod) {
+      if (handler &&  !handler.supportThisMethod) {
         methodNotAllowed = true;
         continue;
       }
