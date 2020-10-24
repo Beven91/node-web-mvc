@@ -504,13 +504,19 @@ class AppException {
 
 ## Resource 静态资源
 
-框架也提供了静态资源服务，以及针对静态资源设定缓存策略等。
+框架也提供了静态资源服务，以及针对静态资源设定缓存策略等,同时也支持`gzip`压缩处理。
 
 ```js
 import { Registry } from 'node-web-mvc';
 
 // 启动Mvc  
 Registry.launch({
+  resource:{
+    gzipped:true,// 默认不开启gzip
+    // 默认可不填写，默认值为: 
+    // application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain
+    mimeTypes:'text/css,text/html', 
+  },
   addResourceHandlers(registry){
     registry
       .addResourceHandler('/swagger-ui/**')
