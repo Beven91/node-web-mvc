@@ -43,7 +43,7 @@ export default class ResourceHttpRequestHandler {
   /**
    * 处理静态资源请求
    */
-  handleRequest(request: HttpServletRequest, response: HttpServletResponse): any {
+  async handleRequest(request: HttpServletRequest, response: HttpServletResponse) {
     const servletContext = request.servletContext;
     // 校验请求
     const resource = this.checkRequest(request, response);
@@ -62,14 +62,15 @@ export default class ResourceHttpRequestHandler {
     if (!ranges) {
       // 非断点下载
       this.setHeaders(response, resource);
-      this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);
+      await this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);
       return;
     }
     // 断点下载
     response.setHeader(HttpHeaders.ACCEPT_RANGES, 'bytes');
     try {
       const regions = ResourceRegion.getRangeRegions(request, resource);
-      this.resourceRegionHttpMessageConverter.write(regions, resource.mediaType, servletContext);
+      response.setStatus(HttpStatus.PARTIAL_CONTENT);
+      await this.resourceRegionHttpMessageConverter.write(regions, resource.mediaType, servletContext);
     } catch (ex) {
       response.setHeader("Content-Range", "bytes */" + resource.contentLength);
       response.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);

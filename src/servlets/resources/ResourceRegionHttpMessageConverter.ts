@@ -20,11 +20,10 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
   }
 
   async write(regions: Array<ResourceRegion>, mediaType: MediaType, servletContext: ServletContext) {
-    const response = servletContext.response;
+    // const response = servletContext.response;
     for (let region of regions) {
       await this.writeRegion(region, servletContext.response);
     }
-    response.end();
   }
 
   writeRegion(region: ResourceRegion, response: HttpServletResponse) {
@@ -37,14 +36,9 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
       const stream = resource.getInputRangeStream(start, end);
       response.setHeader(HttpHeaders.CONTENT_RANGE, `bytes ${start}-${end}/${resourceLength}`);
       response.setHeader(HttpHeaders.CONTENT_LENGTH, rangeLength);
-      stream.pipe(response.nativeResponse).end(() => {
-        try {
-          // stream.close();
-          resolve();
-        } catch (ex) {
-          reject(ex);
-        }
-      })
+      stream.pipe(response.nativeResponse);
+      stream.on('end', resolve);
+      stream.on('error', reject);
     });
   }
 }

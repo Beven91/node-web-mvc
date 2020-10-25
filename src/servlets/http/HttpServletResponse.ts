@@ -9,10 +9,6 @@ import ServletContext from './ServletContext';
 
 export default class HttpServletResponse {
 
-  private tempStatusCode;
-
-  private tempStatusMessage;
-
   /**
    * 当前请求对象
    */
@@ -41,14 +37,14 @@ export default class HttpServletResponse {
    * 获取当前设置的返回状态编码
    */
   public get statusCode() {
-    return this.tempStatusCode || this.nativeResponse.statusCode;
+    return this.nativeResponse.statusCode;
   }
 
   /**
    * 获取当i请安设置返回状态的描述信息
    */
   public get statusMessage() {
-    return this.tempStatusMessage || this.nativeResponse.statusMessage;
+    return this.nativeResponse.statusMessage;
   }
 
   /**
@@ -56,12 +52,6 @@ export default class HttpServletResponse {
    */
   public get nativeContentType() {
     return this.nativeResponse.getHeader('content-type') as string;
-  }
-
-  private writeStatus() {
-    if (!this.headersSent) {
-      this.nativeResponse.writeHead(this.tempStatusCode, this.tempStatusMessage);
-    }
   }
 
   /**
@@ -112,11 +102,11 @@ export default class HttpServletResponse {
    */
   setStatus(status: number | HttpStatus, statusMessage?) {
     if (status instanceof HttpStatus) {
-      this.tempStatusCode = status.code;
-      this.tempStatusMessage = status.message;
+      this.nativeResponse.statusCode = status.code;
+      this.nativeResponse.statusMessage = status.message;
     } else {
-      this.tempStatusCode = status;
-      this.tempStatusMessage = statusMessage;
+      this.nativeResponse.statusCode = status;
+      this.nativeResponse.statusMessage = statusMessage;
     }
     return this;
   }
@@ -134,7 +124,7 @@ export default class HttpServletResponse {
    * @param response 
    */
   write(chunk, callback?, encoding?) {
-    this.writeStatus();
+    // this.writeStatus();
     this.nativeResponse.write(chunk === undefined ? '' : chunk, encoding || 'utf-8', callback);
   }
 
@@ -143,7 +133,7 @@ export default class HttpServletResponse {
    * @param response 
    */
   end(data?, encoding?, callback?) {
-    this.writeStatus();
+    // this.writeStatus();
     this.nativeResponse.end(data, encoding, callback);
     return new InterruptModel();
   }
