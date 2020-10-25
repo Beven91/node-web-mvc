@@ -18,10 +18,11 @@ export default class ResourceHttpMessageConverter extends AbstractHttpMessageCon
   }
 
   write(resource: Resource, mediaType: MediaType, servletContext: ServletContext) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const stream = resource.getInputStream();
       stream.pipe(servletContext.response.nativeResponse);
-      resolve();
+      stream.on('end', resolve);
+      stream.on('error', reject);
     })
   }
 }
