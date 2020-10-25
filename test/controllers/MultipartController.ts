@@ -23,8 +23,12 @@ export default class MultipartController {
     RequestParam({ value: 'id', desc: '用户id', required: true })
   ])
   @PostMapping('/upload')
-  upload(file: MultipartFile, desc, id) {
-    return file.transferTo('app_data/images/' + file.name);
+  async upload(file: MultipartFile, desc, id) {
+    await file.transferTo('app_data/images/' + file.name);
+    return {
+      status:0,
+      message:'上传成功'
+    }
   }
 
   @GetMapping('/upload')
