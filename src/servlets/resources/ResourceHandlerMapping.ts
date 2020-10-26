@@ -37,9 +37,10 @@ export default class ResourceHandlerMapping extends AbstractHandlerMethodMapping
       const result = matcher.matchPattern(pattern, path);
       // 如果当前路由匹配成功
       if (result) {
-        const resolver = new ResourceResolver(mapping);
-        const resource = resolver.resolve(request);
-        return resource ? handlerMethod : null;
+        // const resolver = new ResourceResolver(mapping);
+        // const resource = resolver.resolve(request);
+        return handlerMethod;
+        // return resource ? handlerMethod : null;
       }
     }
   }

@@ -23,7 +23,7 @@ export default class ResourceHttpMessageConverter extends AbstractHttpMessageCon
       const start = Date.now();
       stream.pipe(servletContext.response.nativeResponse);
       stream.on('end',()=>{
-        console.log(`${resource.filename} cost: ${Date.now() - start}ms`);
+        console.log(`${resource.url} cost: ${Date.now() - start}ms`);
       })
       resolve();
     })

@@ -38,7 +38,7 @@ export default class ResourceTransformerChain {
 
   async transform(request: HttpServletRequest, resource: Resource): Promise<Resource> {
     if (!this.invokeable) {
-      return null;
+      return resource;
     }
     return await this.tramformer.transform(request, resource, this.nextChain);
   }

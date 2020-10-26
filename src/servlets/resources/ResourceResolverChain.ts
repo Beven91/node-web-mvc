@@ -39,19 +39,19 @@ export default class ResourceResolverChain {
    * @param requestPath 当前请求路径
    * @param locations 搜索范围位置
    */
-  async resolveResource(request: HttpServletRequest, requestPath: string, locations): Promise<Resource> {
+  async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>): Promise<Resource> {
     if (!this.invokeable) {
       return null;
     }
     return await this.resolver.resolveResource(request, requestPath, locations, this.nextChain);
   }
 
- /**
-  * 根据当前请求以及解析配置来解析资源路径
-  * @param requestPath 当前请求路径
-  * @param locations 搜索范围位置
-  */
-  async resolveUrlPath(resourcePath: string, locations): Promise<string> {
+  /**
+   * 根据当前请求以及解析配置来解析资源路径
+   * @param requestPath 当前请求路径
+   * @param locations 搜索范围位置
+   */
+  async resolveUrlPath(resourcePath: string, locations: Array<Resource>): Promise<string> {
     if (!this.invokeable) {
       return null;
     }

@@ -58,6 +58,7 @@ export default class ResourceHandlerRegistration {
 
   resourceChain(cacheResources,cache?){
     this.resourceChainRegistration = new ResourceChainRegistration(cacheResources,cache);
+    return this.resourceChainRegistration;
   }
 
 }

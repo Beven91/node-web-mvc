@@ -2,9 +2,10 @@
  * @module GzipResource
  */
 import zlib from 'zlib';
-import Resource from "./Resource";
+import HttpHeaders from '../http/HttpHeaders';
+import HttpResource from './HttpResource';
 
-export default class GzipResource extends Resource {
+export default class GzipResource extends HttpResource {
 
   getInputStream() {
     const stream = super.getInputStream();
@@ -14,5 +15,11 @@ export default class GzipResource extends Resource {
   getInputRangeStream(start: number, end: number) {
     const stream = super.getInputRangeStream(start, end);
     return stream.pipe(zlib.createGunzip());
+  }
+
+  getResponseHeaders() {
+    return {
+      [HttpHeaders.CONTENT_ENCODING]: 'gzip'
+    }
   }
 }

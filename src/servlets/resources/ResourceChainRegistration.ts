@@ -20,11 +20,13 @@ export default class ResourceChainRegistration {
     if (resolver) {
       this.resolvers.push(resolver);
     }
+    return this;
   }
 
   addTransformer(transformer: ResourceTransformer) {
     if (transformer) {
       this.transformers.push(transformer);
     }
+    return this;
   }
 }

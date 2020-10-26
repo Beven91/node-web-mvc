@@ -26,8 +26,8 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
 
   constructor() {
     super();
-    const defaultHandler = new HandlerMethod({}, () => new InterruptModel());
-    this.setDefaultHandler(defaultHandler);
+    // const defaultHandler = new HandlerMethod({}, () => new InterruptModel());
+    // this.setDefaultHandler(defaultHandler);
   }
 
   match(registraction: MappingRegistration<RequestMappingInfo>, path: string, request: HttpServletRequest): HandlerMethod {

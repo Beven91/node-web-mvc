@@ -26,8 +26,8 @@ export default class DispatcherServlet {
 
   constructor() {
     this.handlerMappings = [
-      ResourceHandlerMapping.getInstance(),
       RequestMappingHandlerMapping.getInstance(),
+      ResourceHandlerMapping.getInstance(),
       // RouterFunctionMapping  --> FilteredRouterFunctions
       // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
       // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping

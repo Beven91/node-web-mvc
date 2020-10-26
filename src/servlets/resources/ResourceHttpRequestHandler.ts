@@ -20,6 +20,8 @@ import ResourceTransformerChain from './ResourceTransformerChain';
 import GzipResource from './GzipResource';
 import ResourceResolverChain from './ResourceResolverChain';
 import PathResourceResolver from './PathResourceResolver';
+import ResourceResolver from './ResourceResolver';
+import GzipGlobalResolver from './GzipGlobalResolver';
 
 export default class ResourceHttpRequestHandler {
 
@@ -39,8 +41,9 @@ export default class ResourceHttpRequestHandler {
 
 
   constructor(registration: ResourceHandlerRegistration) {
-    const resolvers = [
-      new PathResourceResolver()
+    const resolvers: Array<ResourceResolver> = [
+      new PathResourceResolver(),
+      new GzipGlobalResolver(),
     ];
     const transformers = [];
     this.registration = registration;
@@ -52,13 +55,12 @@ export default class ResourceHttpRequestHandler {
     this.resourceRegionHttpMessageConverter = new ResourceRegionHttpMessageConverter();
     this.resourceResolverChain = new ResourceResolverChain(resolvers);
     this.resourceTransformerChain = new ResourceTransformerChain(transformers, this.resourceResolverChain);
-
   }
 
   /**
    * 处理静态资源请求
    */
-  async handleRequest(request: HttpServletRequest, response: HttpServletResponse): any {
+  async handleRequest(request: HttpServletRequest, response: HttpServletResponse): Promise<any> {
     const servletContext = request.servletContext;
     // 校验请求
     const resource = await this.checkRequest(request, response);
@@ -95,7 +97,8 @@ export default class ResourceHttpRequestHandler {
   * 根据请求对象对应的静态资源
   */
   async getResource(request: HttpServletRequest) {
-    const resource = await this.resourceResolverChain.resolveResource(request, request.usePath, this.registration.resourceLocations);
+    const locations = this.registration.resourceLocations.map((url) => new Resource(url));
+    const resource = await this.resourceResolverChain.resolveResource(request, request.usePath, locations);
     return this.resourceTransformerChain.transform(request, resource);
   }
 
