@@ -18,11 +18,14 @@ export default class ResourceHttpMessageConverter extends AbstractHttpMessageCon
   }
 
   write(resource: Resource, mediaType: MediaType, servletContext: ServletContext) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const stream = resource.getInputStream();
+      const start = Date.now();
       stream.pipe(servletContext.response.nativeResponse);
-      stream.on('end', resolve);
-      stream.on('error', reject);
+      stream.on('end',()=>{
+        console.log(`${resource.filename} cost: ${Date.now() - start}ms`);
+      })
+      resolve();
     })
   }
 }

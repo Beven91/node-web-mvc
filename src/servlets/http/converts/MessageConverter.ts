@@ -25,14 +25,14 @@ export default class MessageConverter {
    * 注册一个消息转换器
    * @param servletContext 
    */
-  static addMessageConverters(converter: HttpMessageConverter) {
+  addMessageConverters(converter: HttpMessageConverter) {
     registerConverters.unshift(converter);
   }
 
   /**
    * 当前当前http的内容
    */
-  static read(servletContext: ServletContext): Promise<any> {
+  read(servletContext: ServletContext): Promise<any> {
     const request = servletContext.request;
     const configurer = servletContext.configurer;
     const length = parseFloat(request.headers['content-length']);
@@ -52,7 +52,7 @@ export default class MessageConverter {
   /**
    * 写出内容到response中
    */
-  static write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
+  write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
     return new Promise((resolve) => {
       const converter = registerConverters.find((converter) => converter.canWrite(mediaType));
       return resolve(converter.write(data, mediaType, servletContext));

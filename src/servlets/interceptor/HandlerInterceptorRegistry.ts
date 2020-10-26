@@ -13,7 +13,7 @@ export default class HandlerInteceptorRegistry {
   /**
    * 获取当前注册的所有拦截器
    */
-  static getInterceptors(): Array<HandlerInterceptor> {
+  getInterceptors(): Array<HandlerInterceptor> {
     return registrations
       .sort((o1, o2) => o1.getOrder() - o2.getOrder())
       .map((registration) => registration.getInterceptor())
@@ -22,7 +22,7 @@ export default class HandlerInteceptorRegistry {
   /**
    * 添加一个拦截器
    */
-  static addInterceptor(interceptor: HandlerInterceptor) {
+  addInterceptor(interceptor: HandlerInterceptor) {
     const registration = new InterceptorRegistration(interceptor);
     registrations.push(registration)
     return registration;

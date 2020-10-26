@@ -15,14 +15,10 @@ export default class ResourceHandlerAdapter extends AbstractHandlerMethodAdapter
     return handlerMethod.bean instanceof ResourceHttpRequestHandler;
   }
 
-  async handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<ServletModel> {
-    try {
-      const invoker = handler.bean as ResourceHttpRequestHandler;
-      // 处理请求
-      invoker.handleRequest(servletContext.request, servletContext.response);
-      return Promise.resolve(new InterruptModel(true));
-    } catch (ex) {
-      return Promise.reject(ex);
-    }
+  handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<ServletModel> {
+    const invoker = handler.bean as ResourceHttpRequestHandler;
+    // 处理请求
+    invoker.handleRequest(servletContext.request, servletContext.response);
+    return Promise.resolve(new InterruptModel(true));
   }
 }

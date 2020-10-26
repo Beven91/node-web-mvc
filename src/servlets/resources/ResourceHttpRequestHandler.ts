@@ -16,9 +16,10 @@ import HttpStatus from '../http/HttpStatus';
 import ResourceHttpMessageConverter from './ResourceHttpMessageConverter';
 import ResourceRegion from './ResourceRegion';
 import ResourceRegionHttpMessageConverter from './ResourceRegionHttpMessageConverter';
-import ResourceResolver from './ResourceResolver';
 import ResourceTransformerChain from './ResourceTransformerChain';
 import GzipResource from './GzipResource';
+import ResourceResolverChain from './ResourceResolverChain';
+import PathResourceResolver from './PathResourceResolver';
 
 export default class ResourceHttpRequestHandler {
 
@@ -28,25 +29,39 @@ export default class ResourceHttpRequestHandler {
   // 允许使用的请求方式
   private allowHeaders = [HttpMethod.GET, HttpMethod.HEAD]
 
-  private resourceHttpMessageConverter: ResourceHttpMessageConverter
+  private readonly resourceHttpMessageConverter: ResourceHttpMessageConverter
 
-  private resourceRegionHttpMessageConverter: ResourceRegionHttpMessageConverter
+  private readonly resourceRegionHttpMessageConverter: ResourceRegionHttpMessageConverter
 
-  private resourceTransformer = new ResourceTransformerChain()
+  private readonly resourceResolverChain: ResourceResolverChain
+
+  private readonly resourceTransformerChain: ResourceTransformerChain
+
 
   constructor(registration: ResourceHandlerRegistration) {
+    const resolvers = [
+      new PathResourceResolver()
+    ];
+    const transformers = [];
     this.registration = registration;
+    if (this.registration.resourceChainRegistration) {
+      resolvers.push(...this.registration.resourceChainRegistration.resolvers);
+      transformers.push(...this.registration.resourceChainRegistration.transformers);
+    }
     this.resourceHttpMessageConverter = new ResourceHttpMessageConverter();
     this.resourceRegionHttpMessageConverter = new ResourceRegionHttpMessageConverter();
+    this.resourceResolverChain = new ResourceResolverChain(resolvers);
+    this.resourceTransformerChain = new ResourceTransformerChain(transformers, this.resourceResolverChain);
+
   }
 
   /**
    * 处理静态资源请求
    */
-  async handleRequest(request: HttpServletRequest, response: HttpServletResponse) {
+  async handleRequest(request: HttpServletRequest, response: HttpServletResponse): any {
     const servletContext = request.servletContext;
     // 校验请求
-    const resource = this.checkRequest(request, response);
+    const resource = await this.checkRequest(request, response);
     if (!resource) {
       return;
     }
@@ -62,15 +77,14 @@ export default class ResourceHttpRequestHandler {
     if (!ranges) {
       // 非断点下载
       this.setHeaders(response, resource);
-      await this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);
+      this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);
       return;
     }
     // 断点下载
     response.setHeader(HttpHeaders.ACCEPT_RANGES, 'bytes');
     try {
       const regions = ResourceRegion.getRangeRegions(request, resource);
-      response.setStatus(HttpStatus.PARTIAL_CONTENT);
-      await this.resourceRegionHttpMessageConverter.write(regions, resource.mediaType, servletContext);
+      this.resourceRegionHttpMessageConverter.write(regions, resource.mediaType, servletContext);
     } catch (ex) {
       response.setHeader("Content-Range", "bytes */" + resource.contentLength);
       response.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
@@ -80,18 +94,16 @@ export default class ResourceHttpRequestHandler {
   /**
   * 根据请求对象对应的静态资源
   */
-  getResource(request: HttpServletRequest) {
-    return this.resourceTransformer.transform(
-      request,
-      new ResourceResolver(this.registration).resolve(request)
-    );
+  async getResource(request: HttpServletRequest) {
+    const resource = await this.resourceResolverChain.resolveResource(request, request.usePath, this.registration.resourceLocations);
+    return this.resourceTransformerChain.transform(request, resource);
   }
 
   /**
    * 校验请求谓词
    */
-  checkRequest(request: HttpServletRequest, response: HttpServletResponse) {
-    const resource = this.getResource(request);
+  async checkRequest(request: HttpServletRequest, response: HttpServletResponse) {
+    const resource = await this.getResource(request);
     if (null === resource) {
       // 返回404
       response.sendError(HttpStatus.NOT_FOUND);

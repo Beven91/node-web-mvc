@@ -2,10 +2,10 @@
  * @module HandlerExecutionChain  
  * @description 拦截器执行链
  */
-import HandlerInterceptorRegistry from './HandlerInterceptorRegistry'
 import ServletContext from '../http/ServletContext';
 import HandlerMethod from '../method/HandlerMethod';
 import HandlerInterceptor from './HandlerInterceptor';
+import WebAppConfigurer from '../WebAppConfigurer';
 
 export default class HandlerExecutionChain {
 
@@ -24,7 +24,7 @@ export default class HandlerExecutionChain {
   constructor(handler: any, servletContext: ServletContext) {
     this.servletContext = servletContext;
     this.handler = handler;
-    this.interceptors = HandlerInterceptorRegistry.getInterceptors() || [];
+    this.interceptors = WebAppConfigurer.configurer.interceptorRegistry.getInterceptors() || [];
   }
 
   /**

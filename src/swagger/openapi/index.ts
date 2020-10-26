@@ -9,7 +9,6 @@ import hot from 'nodejs-hmr';
 import Definition from './definition';
 import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
 import WebAppConfigurer from '../../servlets/WebAppConfigurer';
-import ResourceHandlerRegistry from '../../servlets/resources/ResourceHandlerRegistry';
 
 // 获取当前工程的信息
 const pkg = require(path.resolve('package.json'));
@@ -27,7 +26,9 @@ export default class OpenApiModel {
   static initialize() {
     // 如果使用swagger
     const swaggerLocation = path.join(__dirname, '../../../');
-    ResourceHandlerRegistry
+    WebAppConfigurer
+      .configurer
+      .resourceHandlerRegistry
       .addResourceHandler('/swagger-ui/**')
       .addResourceLocations(swaggerLocation)
       .setCacheControl({ maxAge: 0 })

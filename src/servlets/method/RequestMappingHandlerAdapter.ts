@@ -6,17 +6,18 @@ import AbstractHandlerMethodAdapter from './AbstractHandlerMethodAdapter';
 import HandlerMethod from './HandlerMethod';
 import ServletContext from '../http/ServletContext';
 import ServletModel from '../models/ServletModel';
-import ArgumentsResolvers from './argument/ArgumentsResolvers';
+import WebAppConfigurer from '../WebAppConfigurer';
 
 export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter {
 
   supportsInternal(handlerMethod: HandlerMethod) {
-    return true  
+    return true
   }
 
   handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<ServletModel> {
+    const argumentResolver = WebAppConfigurer.configurer.argumentResolver
     // 解析参数值
-    const resolvedArgs = ArgumentsResolvers.resolveArguments(servletContext, handler);
+    const resolvedArgs = argumentResolver.resolveArguments(servletContext, handler);
     // 执行接口函数
     return Promise.resolve(resolvedArgs).then((args) => {
       // 返回结果

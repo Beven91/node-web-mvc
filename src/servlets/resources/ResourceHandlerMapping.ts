@@ -9,7 +9,6 @@ import PathMatcher from '../util/PathMatcher';
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
 import ResourceHandlerRegistration from './ResourceHandlerRegistration';
-import ResourceResolver from "./ResourceResolver";
 
 const runtime = {
   instance: null as ResourceHandlerMapping

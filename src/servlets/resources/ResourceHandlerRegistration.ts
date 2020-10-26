@@ -4,6 +4,7 @@
  */
 import CacheControl from '../http/CacheControl';
 import ResourceHandlerMapping from './ResourceHandlerMapping';
+import ResourceChainRegistration from './ResourceChainRegistration';
 
 export default class ResourceHandlerRegistration {
 
@@ -16,6 +17,8 @@ export default class ResourceHandlerRegistration {
    * 获取当前静态资源路径匹配规则列表
    */
   readonly pathPatterns: Array<string>
+
+  resourceChainRegistration: ResourceChainRegistration
 
   /**
    * 设置当前静态资源的缓存配置
@@ -52,4 +55,9 @@ export default class ResourceHandlerRegistration {
   setCacheControl(options: CacheControl) {
     this.cacheControl = new CacheControl(options);
   }
+
+  resourceChain(cacheResources,cache?){
+    this.resourceChainRegistration = new ResourceChainRegistration(cacheResources,cache);
+  }
+
 }

@@ -13,14 +13,14 @@ export default class ViewResolverRegistry {
   /**
    * 当前注册所有视图解析器
    */
-  static get viewResolvers() {
+  get viewResolvers() {
     return registerResolvers;
   }
 
   /**
    * 添加一个视图解析器
    */
-  static addViewResolver(resolver: ViewResolver) {
+  addViewResolver(resolver: ViewResolver) {
     registerResolvers.push(resolver);
   }
 }

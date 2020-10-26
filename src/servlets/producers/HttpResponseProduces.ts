@@ -6,10 +6,9 @@ import ServletContext from '../http/ServletContext';
 import ServletModel from '../models/ServletModel';
 import RequestMappingInfo from '../mapping/RequestMappingInfo';
 import HandlerMethod from '../method/HandlerMethod';
-import MessageConverter from '../http/converts/MessageConverter';
+import WebAppConfigurer from '../WebAppConfigurer';
 import MediaType from '../http/MediaType';
 import ModelAndView from '../models/ModelAndView';
-import ViewResolverRegistry from '../view/ViewResolverRegistry';
 import View from '../view/View';
 import ViewNotFoundError from '../../errors/ViewNotFoundError';
 import InterruptModel from '../models/InterruptModel';
@@ -97,7 +96,9 @@ export default class HttpResponseProduces {
     // 设置返回状态
     response.setStatus(status, responseStatusReason);
     // 根据对应的转换器来写出内容到客户端
-    return MessageConverter
+    return WebAppConfigurer
+      .configurer
+      .messageConverters
       .write(data, mediaType, servletContext)
       .then(() => {
         servletContext.response.end()
@@ -116,7 +117,7 @@ export default class HttpResponseProduces {
    */
   private resolveViewName(mv: ModelAndView): View {
     const { servletContext: { request } } = this;
-    const viewResolvers = ViewResolverRegistry.viewResolvers;
+    const viewResolvers = WebAppConfigurer.configurer.viewResolvers.viewResolvers;
     for (let resolver of viewResolvers) {
       const view = resolver.resolveViewName(mv.view, mv.model, request);
       if (view) {

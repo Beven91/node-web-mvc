@@ -4,23 +4,42 @@
 
 import Resource from "./Resource";
 import HttpServletRequest from "../http/HttpServletRequest";
-import WebAppConfigurer from '../WebAppConfigurer';
-import HttpHeaders from "../http/HttpHeaders";
-import GzipResource from "./GzipResource";
+import ResourceTransformer from "./ResourceTransformer";
+import ResourceResolverChain from "./ResourceResolverChain";
 
 export default class ResourceTransformerChain {
 
-  transform(request: HttpServletRequest, resource: Resource) {
-    const configure = WebAppConfigurer.configurer
-    if (!configure.resource.gzipped || !resource) {
-      return resource;
+  private resolveCahin: ResourceResolverChain
+
+  private tramformer: ResourceTransformer
+
+  private nextChain: ResourceTransformerChain
+
+  private get invokeable() {
+    return this.tramformer != null && this.nextChain != null;
+  }
+
+  constructor(transformers: Array<ResourceTransformer> | ResourceTransformer, resolveCahin: ResourceResolverChain, nextChain?: ResourceTransformerChain) {
+    if (transformers instanceof Array) {
+      let chain = new ResourceTransformerChain(null, null);
+      const elements = (transformers || []) as Array<ResourceTransformer>;
+      elements.forEach((tramformer) => {
+        chain = new ResourceTransformerChain(tramformer, resolveCahin);
+      });
+      this.tramformer = chain.tramformer;
+      this.resolveCahin = chain.resolveCahin;
+      this.nextChain = chain.nextChain;
+    } else {
+      this.resolveCahin = resolveCahin;
+      this.tramformer = transformers;
+      this.nextChain = nextChain;
     }
-    const supportMimeTypes = WebAppConfigurer.configurer.resource.mimeTypes || {};
-    const supportGzip = /gzip/.test(request.getHeader(HttpHeaders.ACCEPT_ENCODING) as string);
-    if (!supportGzip || !resource.mediaType || !supportMimeTypes[resource.mediaType.name]) {
-      return resource;
+  }
+
+  async transform(request: HttpServletRequest, resource: Resource): Promise<Resource> {
+    if (!this.invokeable) {
+      return null;
     }
-    request.servletContext.response.setHeader(HttpHeaders.CONTENT_ENCODING, 'gzip');
-    return new GzipResource(resource.filename);
+    return await this.tramformer.transform(request, resource, this.nextChain);
   }
 }

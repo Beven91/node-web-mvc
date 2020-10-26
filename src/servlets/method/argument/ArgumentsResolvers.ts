@@ -29,14 +29,14 @@ export default class ArgumentsResolvers {
    * 注册一个参数解析器
    * @param resolver 解析器 
    */
-  static addArgumentResolvers(resolver: HandlerMethodArgumentResolver) {
+  addArgumentResolvers(resolver: HandlerMethodArgumentResolver) {
     registerResolvers.push(resolver);
   }
 
   /**
    * 获取要执行函数的参数值信息
    */
-  static async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
+  async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
     try {
       const signParameters = handler.parameters;
       const args = [];
@@ -63,7 +63,7 @@ export default class ArgumentsResolvers {
   /**
    * 校验参数
    */
-  static checkArguments(parameter: MethodParameter, value) {
+  checkArguments(parameter: MethodParameter, value) {
     if (parameter.dataType === Array && value && !(value instanceof Array)) {
       throw new ArgumentResolvError(`The parameter 【${parameter.name}】 needs to be an 【Array】`)
     }
@@ -74,7 +74,7 @@ export default class ArgumentsResolvers {
    * @param { MethodParameter } parameter 当前参数
    * @param { ServletContext } servletContext 当前请求上下文
    */
-  static resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
+  resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
     const resolver = registerResolvers.find((resolver) => resolver.supportsParameter(parameter, servletContext));
     return resolver ? resolver.resolveArgument(parameter, servletContext) : undefined;
   }

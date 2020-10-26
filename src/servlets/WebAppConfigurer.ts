@@ -61,27 +61,43 @@ export declare class WebAppConfigurerOptions {
   // 热更新配置
   hot?: HotOptions
   // 注册拦截器
-  addInterceptors?: (registry: typeof HandlerInterceptorRegistry) => void
+  addInterceptors?: (registry: HandlerInterceptorRegistry) => void
   // 添加http消息转换器
-  addMessageConverters?: (converters: typeof MessageConverter) => void
+  addMessageConverters?: (converters: MessageConverter) => void
   // 添加参数解析器
-  addArgumentResolvers?: (resolvers: typeof ArgumentsResolvers) => void
+  addArgumentResolvers?: (resolvers: ArgumentsResolvers) => void
   // 添加视图解析器
-  addViewResolvers?: (registry: typeof ViewResolverRegistry) => void
+  addViewResolvers?: (registry: ViewResolverRegistry) => void
   // 添加静态资源处理器
-  addResourceHandlers?: (registry: typeof ResourceHandlerRegistry) => void
+  addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
 }
 
 export default class WebAppConfigurer {
 
-  private constructor() {
-    this.options = {
-      mode: 'node',
-      cwd: path.resolve('controllers'),
-    }
-  }
+  /**
+   * 参数解析器
+   */
+  public readonly argumentResolver: ArgumentsResolvers;
 
-  private options: WebAppConfigurerOptions;
+  /**
+   * 消息转换器
+   */
+  public readonly messageConverters: MessageConverter
+
+  /**
+   * 视图解析器
+   */
+  public readonly viewResolvers: ViewResolverRegistry
+
+  /**
+   * 拦截器注册表
+   */
+  public readonly interceptorRegistry: HandlerInterceptorRegistry
+
+  /**
+   * 静态资源注册表
+   */
+  public readonly resourceHandlerRegistry: ResourceHandlerRegistry
 
   static get configurer(): WebAppConfigurer {
     if (!runtime.configurer) {
@@ -133,6 +149,20 @@ export default class WebAppConfigurer {
     return this.options.multipart;
   }
 
+  private options: WebAppConfigurerOptions;
+
+  private constructor() {
+    this.argumentResolver = new ArgumentsResolvers();
+    this.messageConverters = new MessageConverter();
+    this.viewResolvers = new ViewResolverRegistry();
+    this.interceptorRegistry = new HandlerInterceptorRegistry();
+    this.resourceHandlerRegistry = new ResourceHandlerRegistry();
+    this.options = {
+      mode: 'node',
+      cwd: path.resolve('controllers'),
+    }
+  }
+
   /**
    * 格式化请求大小
    * @param size 
@@ -167,24 +197,25 @@ export default class WebAppConfigurer {
     }
     // 注册拦截器
     if (options.addInterceptors) {
-      options.addInterceptors(HandlerInterceptorRegistry);
+      options.addInterceptors(this.interceptorRegistry);
     }
     // 注册转换器
     if (options.addMessageConverters) {
-      options.addMessageConverters(MessageConverter);
+      options.addMessageConverters(this.messageConverters);
     }
     // 注册参数解析器
     if (options.addArgumentResolvers) {
-      options.addArgumentResolvers(ArgumentsResolvers);
+      options.addArgumentResolvers(this.argumentResolver);
     }
     // 注册视图解析器
     if (options.addViewResolvers) {
-      options.addViewResolvers(ViewResolverRegistry);
+      options.addViewResolvers(this.viewResolvers);
     }
     // 注册静态资源
     if (options.addResourceHandlers) {
-      options.addResourceHandlers(ResourceHandlerRegistry);
+      options.addResourceHandlers(this.resourceHandlerRegistry);
     }
+    // swagger 开启
     if (options.swagger !== false) {
       OpenApi.initialize();
     }
@@ -192,16 +223,16 @@ export default class WebAppConfigurer {
     this.options.resource = this.options.resource || { gzipped: false, mimeTypes: runtime.defaultMimeTypes };
     this.options.resource.mimeTypes = this.initializeMimeTypes(this.options.resource.mimeTypes);
     const dirs = options.cwd instanceof Array ? options.cwd : [options.cwd];
-    // 存储cacheKeys
-    Object.keys(require.cache).forEach((k) => runtime.cacheKeys[k.replace(/\\/g, '/').toLowerCase()] = true);
-    // 加载mvc目录
-    dirs.forEach((dir) => this.launchSpringMvc(dir))
-    // 初始化
-    RequestMappingAnnotation.initializeUnClassMappings();
     // 初始化请求大小限制
     this.options.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = this.sizeFormat(this.multipart.maxFileSize, bytes.parse('500kb'));
     this.multipart.maxRequestSize = this.sizeFormat(this.multipart.maxRequestSize, bytes.parse('500kb'));
+    // 存储cacheKeys
+    Object.keys(require.cache).forEach((k) => runtime.cacheKeys[k.replace(/\\/g, '/').toLowerCase()] = true);
+    // 加载controller等
+    dirs.forEach((dir) => this.launchSpringMvc(dir))
+    // 初始化没有配置class注解的mapping
+    RequestMappingAnnotation.initializeUnClassMappings();
     return this;
   }
 

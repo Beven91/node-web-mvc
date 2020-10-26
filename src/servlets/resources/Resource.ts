@@ -45,7 +45,7 @@ export default class Resource {
   /**
    * 获取当前资源的读取流
    */
-  getInputStream(): Stream {
+  getInputStream(): Stream  {
     return fs.createReadStream(this.filename);
   }
 
