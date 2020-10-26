@@ -25,7 +25,7 @@ export default class OpenApiModel {
    */
   static initialize() {
     // 如果使用swagger
-    const swaggerLocation = path.join(__dirname, '../../../');
+    const swaggerLocation = path.join(__dirname, '../../../swagger-ui/');
     WebAppConfigurer
       .configurer
       .resourceHandlerRegistry

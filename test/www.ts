@@ -31,7 +31,7 @@ Registry.launch({
     cwd: path.resolve('./test'),
   },
   resource: {
-    gzipped: true,
+    gzipped: false,
   },
   cwd: path.resolve('./test'),
   addInterceptors: (registry) => {

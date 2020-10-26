@@ -94,11 +94,23 @@ export default class ResourceHttpRequestHandler {
   }
 
   /**
+   * 处理请求url
+   * @param request 
+   */
+  processPath(resourcePath: string) {
+    resourcePath = resourcePath.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
+    const segments = resourcePath.split('/');
+    segments.shift();
+    return segments.join('/');
+  }
+
+  /**
   * 根据请求对象对应的静态资源
   */
   async getResource(request: HttpServletRequest) {
+    const resourcePath = this.processPath(request.usePath);
     const locations = this.registration.resourceLocations.map((url) => new Resource(url));
-    const resource = await this.resourceResolverChain.resolveResource(request, request.usePath, locations);
+    const resource = await this.resourceResolverChain.resolveResource(request, resourcePath, locations);
     return this.resourceTransformerChain.transform(request, resource);
   }
 
