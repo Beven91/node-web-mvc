@@ -17,8 +17,6 @@ export class RestControllerAnnotation {
     const annotation = RuntimeAnnotation.getClassAnnotation(beanType, RestControllerAnnotation);
     return !!annotation;
   }
-
-
 }
 
 /**

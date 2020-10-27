@@ -31,7 +31,10 @@ export default class ServletNodeContext extends ServletContext {
       socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     });
     server.listen(port, () => {
-      console.log(`
+      if (configurer.onLaunch) {
+        configurer.onLaunch();
+      } else {
+        console.log(`
         -------------------------------------
         ====> Start node-mvc
         ====> Enviroment: development
@@ -39,6 +42,7 @@ export default class ServletNodeContext extends ServletContext {
         ====> Url: http://localhost:${port}/swagger-ui/index.html
         -------------------------------------
       `);
+      }
     });
     return () => {
     }

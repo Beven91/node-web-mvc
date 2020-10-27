@@ -15,14 +15,14 @@ export default class PathResourceResolver implements ResourceResolver {
     return resource ? resource.url : null;
   }
 
-  private getResource(resourcePath:string, locations: Array<Resource>): Resource {
+  private getResource(resourcePath: string, locations: Array<Resource>): Resource {
     const segments = resourcePath.split('/');
     const first = segments.shift();
     for (let location of locations) {
       const resource = location.createRelative(resourcePath);
       if (resource.isReadable) {
         return resource;
-      }else if(location.url.endsWith(path.sep+first+path.sep)){
+      } else if (location.url.endsWith(path.sep + first + path.sep)) {
         const resource2 = location.createRelative(segments.join('/'));
         return resource2.isReadable ? resource2 : null;
       }

@@ -21,7 +21,7 @@ export default class ResourceCacheControl {
     this.cacheControl = cacheControl;
     if (cacheControl) {
       this.applyCacheControl();
-    }else{
+    } else {
       this.cacheControl = new CacheControl({} as any);
       this.applyCacheControl();
     }

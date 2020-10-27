@@ -38,8 +38,8 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
       response.setHeader(HttpHeaders.CONTENT_RANGE, `bytes ${start}-${end}/${resourceLength}`);
       response.setHeader(HttpHeaders.CONTENT_LENGTH, rangeLength);
       stream.pipe(response.nativeResponse);
-      stream.on('end',resolve);
-      stream.on('error',reject);
+      stream.on('end', resolve);
+      stream.on('error', reject);
     });
   }
 }

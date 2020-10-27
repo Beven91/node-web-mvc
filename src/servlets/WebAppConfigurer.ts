@@ -70,6 +70,8 @@ export declare class WebAppConfigurerOptions {
   addViewResolvers?: (registry: ViewResolverRegistry) => void
   // 添加静态资源处理器
   addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
+  // 应用监听端口，且已启动
+  onLaunch?: () => any
 }
 
 export default class WebAppConfigurer {
@@ -147,6 +149,10 @@ export default class WebAppConfigurer {
    */
   public get multipart(): Multipart {
     return this.options.multipart;
+  }
+
+  public get onLaunch() {
+    return this.options.onLaunch;
   }
 
   private options: WebAppConfigurerOptions;

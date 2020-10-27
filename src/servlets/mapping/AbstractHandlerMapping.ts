@@ -72,7 +72,7 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
   /**
    * 扩展拦截器,主要用于子类使用。
    */
-  protected extendInterceptors() { 
+  protected extendInterceptors() {
 
   }
 

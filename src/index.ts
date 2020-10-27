@@ -73,7 +73,6 @@ import ResourceTransformerChain from './servlets/resources/ResourceTransformerCh
 import WebAppConfigurer from './servlets/WebAppConfigurer';
 import { WebAppConfigurerOptions } from './servlets/WebAppConfigurer';
 
-
 export {
   hot,
   Scope,

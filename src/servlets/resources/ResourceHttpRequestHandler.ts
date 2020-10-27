@@ -98,7 +98,7 @@ export default class ResourceHttpRequestHandler {
    * @param request 
    */
   processPath(resourcePath: string) {
-    return  resourcePath.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
+    return resourcePath.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
   }
 
   /**

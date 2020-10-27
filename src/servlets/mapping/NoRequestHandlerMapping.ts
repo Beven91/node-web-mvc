@@ -21,11 +21,11 @@ export default class NoRequestHandlerMapping extends AbstractHandlerMapping {
     return runtime.instance;
   }
 
- /**
-  * 根据当前请求对象获取 处理器执行链
-  * @param context 请求上下文对象
-  */
+  /**
+   * 根据当前请求对象获取 处理器执行链
+   * @param context 请求上下文对象
+   */
   getHandlerInternal(context: ServletContext) {
-    return new HandlerMethod({},()=>new InterruptModel())
+    return new HandlerMethod({}, () => new InterruptModel())
   }
 }

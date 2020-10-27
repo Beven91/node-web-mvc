@@ -16,7 +16,7 @@ export default class GzipResourceResolver implements ResourceResolver {
   async resolveResource(request: HttpServletRequest, requestPath: string, locations, nextChain: ResourceResolverChain): Promise<Resource> {
     const resource = await nextChain.resolveResource(request, requestPath, locations);
     const isGzipAccepted = /gzip/.test(request.getHeader(HttpHeaders.ACCEPT_ENCODING) as string);
-    if(resource && isGzipAccepted){
+    if (resource && isGzipAccepted) {
       return new GzipResource(resource.url);
     }
     return resource;

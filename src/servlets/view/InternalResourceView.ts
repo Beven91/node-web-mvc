@@ -14,8 +14,8 @@ export default class InternalResourceView extends View {
   render(model, request: HttpServletRequest, response: HttpServletResponse) {
     const url = new URL(this.url);
     const servletContext = request.servletContext;
-    const isLoop = !!servletContext.forwardStacks.find((f)=>f === this.url);
-    if(isLoop){
+    const isLoop = !!servletContext.forwardStacks.find((f) => f === this.url);
+    if (isLoop) {
       // 如果循环跳转
       throw new ForwardEndlessLoopError(servletContext.forwardStacks);
     }
@@ -26,7 +26,7 @@ export default class InternalResourceView extends View {
     request.host = url.hostname;
     request.query = {
       ...(request.query || {}),
-      ...(querystring.parse((url.search||'').slice(1)))
+      ...(querystring.parse((url.search || '').slice(1)))
     }
     const pathVariables = request.pathVariables || {};
     // 合并pathVariables

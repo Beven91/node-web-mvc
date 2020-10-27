@@ -42,7 +42,7 @@ export default abstract class ServletContext {
    */
   public chain: HandlerExecutionChain
 
-  public params:Map<any,any>
+  private params: Map<any, any>
 
   /**
    * 跳转到下一个请求处理器
@@ -50,6 +50,23 @@ export default abstract class ServletContext {
   public readonly next: (error?) => void;
 
   public requestDefinitionInstances;
+
+  /**
+   * 设置属性值
+   * @param name 属性名
+   * @param value 属性值
+   */
+  public setAttribute(name: any, value: any) {
+    this.params.set(name, value);
+  }
+
+  /**
+   * 获取属性值
+   * @param name 属性名称 
+   */
+  public getAttrigute(name) {
+    return this.params.get(name);
+  }
 
   /**
    * 构造一个上下文实例
@@ -60,10 +77,10 @@ export default abstract class ServletContext {
   constructor(configurer: WebAppConfigurer, request: IncomingMessage, response, next) {
     this.request = new HttpServletRequest(request, this);
     this.response = new HttpServletResponse(response, this);
-    this.params = new Map<any,any>();
+    this.params = new Map<any, any>();
     this.configurer = configurer;
     this.next = (...params) => {
-      if(!this.response.nativeResponse.writableFinished){
+      if (!this.response.nativeResponse.writableFinished) {
         next(...params);
       }
       this.isNextInvoked = true;

@@ -5,7 +5,6 @@
 import AnnotationOptions from "./AnnotationOptions";
 import ElementType, { checkAnnotation } from "./ElementType";
 import Javascript from "../../../interface/Javascript";
-import { type } from "os";
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];

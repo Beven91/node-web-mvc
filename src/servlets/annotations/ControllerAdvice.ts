@@ -9,7 +9,6 @@ import Target from "./Target";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 import AdviceRegistry from '../advice/AdviceRegistry';
 
-
 @Target
 export class ControllerAdvice {
 
