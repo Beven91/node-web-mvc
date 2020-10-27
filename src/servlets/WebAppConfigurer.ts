@@ -195,6 +195,10 @@ export default class WebAppConfigurer {
     if (options.hot) {
       hot.run(options.hot);
     }
+    // swagger 开启
+    if (options.swagger !== false) {
+      OpenApi.initialize();
+    }
     // 注册拦截器
     if (options.addInterceptors) {
       options.addInterceptors(this.interceptorRegistry);
@@ -214,10 +218,6 @@ export default class WebAppConfigurer {
     // 注册静态资源
     if (options.addResourceHandlers) {
       options.addResourceHandlers(this.resourceHandlerRegistry);
-    }
-    // swagger 开启
-    if (options.swagger !== false) {
-      OpenApi.initialize();
     }
     this.options = options;
     this.options.resource = this.options.resource || { gzipped: false, mimeTypes: runtime.defaultMimeTypes };

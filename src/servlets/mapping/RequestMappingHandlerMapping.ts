@@ -9,7 +9,6 @@ import HttpServletRequest from "../http/HttpServletRequest";
 import PathMatcher from '../util/PathMatcher';
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
-import InterruptModel from "../models/InterruptModel";
 
 const runtime = {
   instance: null as RequestMappingHandlerMapping

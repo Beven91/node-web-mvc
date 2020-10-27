@@ -6,7 +6,7 @@ import path from 'path';
 import fs from 'fs';
 import MediaType from "../MediaType";
 
-const file = path.join(__dirname, 'mime.type');
+const file = path.join(__dirname, '../../../../mime.type');
 
 const runtime = {
   mimeTypes: null

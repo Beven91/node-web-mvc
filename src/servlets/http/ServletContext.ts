@@ -42,6 +42,8 @@ export default abstract class ServletContext {
    */
   public chain: HandlerExecutionChain
 
+  public params:Map<any,any>
+
   /**
    * 跳转到下一个请求处理器
    */
@@ -58,6 +60,7 @@ export default abstract class ServletContext {
   constructor(configurer: WebAppConfigurer, request: IncomingMessage, response, next) {
     this.request = new HttpServletRequest(request, this);
     this.response = new HttpServletResponse(response, this);
+    this.params = new Map<any,any>();
     this.configurer = configurer;
     this.next = (...params) => {
       if(!this.response.nativeResponse.writableFinished){

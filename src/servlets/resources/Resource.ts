@@ -39,7 +39,7 @@ export default class Resource {
   }
 
   get isReadable() {
-    return !!this.stat;
+    return !!this.stat && this.stat.isFile();
   }
 
   constructor(filename) {

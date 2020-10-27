@@ -7,11 +7,12 @@ import HandlerMethod from './HandlerMethod';
 import ServletContext from '../http/ServletContext';
 import ServletModel from '../models/ServletModel';
 import WebAppConfigurer from '../WebAppConfigurer';
+import ResourceHttpRequestHandler from '../resources/ResourceHttpRequestHandler';
 
 export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter {
 
   supportsInternal(handlerMethod: HandlerMethod) {
-    return true
+    return !(handlerMethod.bean instanceof ResourceHttpRequestHandler);
   }
 
   handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<ServletModel> {

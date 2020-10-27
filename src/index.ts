@@ -53,6 +53,26 @@ import MediaType from './servlets/http/MediaType';
 import MessageConverter from './servlets/http/converts/MessageConverter';
 import RuntimeAnnotation from './servlets/annotations/annotation/RuntimeAnnotation';
 import AnnotationOptions from './servlets/annotations/annotation/AnnotationOptions';
+import HttpResource from './servlets/resources/HttpResource';
+import Resource from './servlets/resources/Resource';
+import ResourceChainRegistration from './servlets/resources/ResourceChainRegistration';
+import ResourceHandlerRegistration from './servlets/resources/ResourceHandlerRegistration';
+import ResourceResolver from './servlets/resources/ResourceResolver';
+import ResourceTransformer from './servlets/resources/ResourceTransformer';
+import ResourceRegion from './servlets/resources/ResourceRegion';
+import HttpMethod from './servlets/http/HttpMethod';
+import HttpHeaders from './servlets/http/HttpHeaders';
+import HttpStatus from './servlets/http/HttpStatus';
+import HandlerInterceptorRegistry from './servlets/interceptor/HandlerInterceptorRegistry';
+import ArgumentsResolvers from './servlets/method/argument/ArgumentsResolvers';
+import ViewResolverRegistry from './servlets/view/ViewResolverRegistry';
+import ResourceHandlerRegistry from './servlets/resources/ResourceHandlerRegistry';
+import AbstractHandlerMethodAdapter from './servlets/method/AbstractHandlerMethodAdapter';
+import ResourceResolverChain from './servlets/resources/ResourceResolverChain';
+import ResourceTransformerChain from './servlets/resources/ResourceTransformerChain';
+import WebAppConfigurer from './servlets/WebAppConfigurer';
+import { WebAppConfigurerOptions } from './servlets/WebAppConfigurer';
+
 
 export {
   hot,
@@ -107,7 +127,26 @@ export {
   HandlerMethod,
   HandlerAdapter,
   RuntimeAnnotation,
-  AnnotationOptions
+  AnnotationOptions,
+  HttpResource,
+  Resource,
+  ResourceChainRegistration,
+  ResourceHandlerRegistration,
+  ResourceResolver,
+  ResourceTransformer,
+  ResourceRegion,
+  HttpMethod,
+  HttpHeaders,
+  HttpStatus,
+  HandlerInterceptorRegistry,
+  ArgumentsResolvers,
+  ViewResolverRegistry,
+  ResourceHandlerRegistry,
+  AbstractHandlerMethodAdapter,
+  ResourceTransformerChain,
+  ResourceResolverChain,
+  WebAppConfigurer,
+  WebAppConfigurerOptions
 }
 
 hot.create(module);

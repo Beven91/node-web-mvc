@@ -9,6 +9,7 @@ import ServletContext from '../http/ServletContext';
 import HandlerInterceptor from '../interceptor/HandlerInterceptor';
 import MappedInterceptor from '../interceptor/MappedInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
+import WebAppConfigurer from '../WebAppConfigurer';
 
 export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
@@ -62,7 +63,8 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
   /**
    * 初始化拦截器
    */
-  initApplicationContext() {
+  constructor() {
+    this.interceptors.push(...WebAppConfigurer.configurer.interceptorRegistry.getInterceptors())
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
@@ -70,7 +72,9 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
   /**
    * 扩展拦截器,主要用于子类使用。
    */
-  protected extendInterceptors() { }
+  protected extendInterceptors() { 
+
+  }
 
   /**
    * 根据当前请求对象获取 处理器执行链

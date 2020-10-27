@@ -15,7 +15,8 @@ export default class PathMatcher {
    * @param path 路径
    */
   match(pattern: string, path: string): boolean {
-    return this.matchPattern(pattern, path) !== null;
+    const r = this.matchPattern(pattern, path) as any;
+    return r !== null && r !== false;
   }
 
   /**

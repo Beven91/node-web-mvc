@@ -1,3 +1,4 @@
+import path from 'path';
 import HttpServletRequest from '../http/HttpServletRequest';
 import Resource from './Resource';
 import ResourceResolver from './ResourceResolver';
@@ -14,11 +15,16 @@ export default class PathResourceResolver implements ResourceResolver {
     return resource ? resource.url : null;
   }
 
-  private getResource(resourcePath, locations): Resource {
+  private getResource(resourcePath:string, locations: Array<Resource>): Resource {
+    const segments = resourcePath.split('/');
+    const first = segments.shift();
     for (let location of locations) {
       const resource = location.createRelative(resourcePath);
       if (resource.isReadable) {
         return resource;
+      }else if(location.url.endsWith(path.sep+first+path.sep)){
+        const resource2 = location.createRelative(segments.join('/'));
+        return resource2.isReadable ? resource2 : null;
       }
     }
     return null;

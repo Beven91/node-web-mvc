@@ -16,6 +16,7 @@ import ExceptionHandler, { ExceptionHandlerAnnotation } from './annotations/Exce
 import Middlewares from './models/Middlewares';
 import ResourceHandlerAdapter from './resources/ResourceHandlerAdapter';
 import ResourceHandlerMapping from './resources/ResourceHandlerMapping';
+import NoRequestHandlerMapping from './mapping/NoRequestHandlerMapping';
 
 export default class DispatcherServlet {
 
@@ -28,6 +29,7 @@ export default class DispatcherServlet {
     this.handlerMappings = [
       RequestMappingHandlerMapping.getInstance(),
       ResourceHandlerMapping.getInstance(),
+      NoRequestHandlerMapping.getInstance(),
       // RouterFunctionMapping  --> FilteredRouterFunctions
       // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
       // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
@@ -35,8 +37,8 @@ export default class DispatcherServlet {
     ]
 
     this.handlerAdapters = [
+      new RequestMappingHandlerAdapter(),
       new ResourceHandlerAdapter(),
-      new RequestMappingHandlerAdapter()
     ]
   }
 

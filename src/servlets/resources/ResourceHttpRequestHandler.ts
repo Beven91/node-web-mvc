@@ -79,14 +79,14 @@ export default class ResourceHttpRequestHandler {
     if (!ranges) {
       // 非断点下载
       this.setHeaders(response, resource);
-      this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);
+      await this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);
       return;
     }
     // 断点下载
     response.setHeader(HttpHeaders.ACCEPT_RANGES, 'bytes');
     try {
       const regions = ResourceRegion.getRangeRegions(request, resource);
-      this.resourceRegionHttpMessageConverter.write(regions, resource.mediaType, servletContext);
+      await this.resourceRegionHttpMessageConverter.write(regions, resource.mediaType, servletContext);
     } catch (ex) {
       response.setHeader("Content-Range", "bytes */" + resource.contentLength);
       response.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
@@ -98,10 +98,7 @@ export default class ResourceHttpRequestHandler {
    * @param request 
    */
   processPath(resourcePath: string) {
-    resourcePath = resourcePath.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
-    const segments = resourcePath.split('/');
-    segments.shift();
-    return segments.join('/');
+    return  resourcePath.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
   }
 
   /**
