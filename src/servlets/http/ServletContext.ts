@@ -5,7 +5,7 @@
 import { IncomingMessage } from 'http';
 import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
-import WebAppConfigurer from '../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 
 export default abstract class ServletContext {
@@ -25,7 +25,7 @@ export default abstract class ServletContext {
   /**
    * 当前网站的全局配置
    */
-  public readonly configurer: WebAppConfigurer;
+  public readonly configurer: WebMvcConfigurationSupport;
 
   /**
    * 当前正在处理的请求实例
@@ -74,7 +74,7 @@ export default abstract class ServletContext {
    * @param response 当前正在处理的请求的返回实例
    * @param next 跳转到下一个请求处理器
    */
-  constructor(configurer: WebAppConfigurer, request: IncomingMessage, response, next) {
+  constructor(configurer: WebMvcConfigurationSupport, request: IncomingMessage, response, next) {
     this.request = new HttpServletRequest(request, this);
     this.response = new HttpServletResponse(response, this);
     this.params = new Map<any, any>();

@@ -6,7 +6,7 @@ import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 import RequestBody from '../../annotations/params/RequestBody';
-import WebAppConfigurer from '../../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../../WebMvcConfigurationSupport';
 
 export default class RequestResponseBodyMethodProcessor implements HandlerMethodArgumentResolver {
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
@@ -15,7 +15,7 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
 
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext) {
     const T = parameter.dataType as any;
-    const data = await WebAppConfigurer.configurer.messageConverters.read(servletContext);
+    const data = await WebMvcConfigurationSupport.configurer.messageConverters.read(servletContext);
     if (typeof T === 'function') {
       const instance = new T();
       Object.keys(data).forEach((key) => {

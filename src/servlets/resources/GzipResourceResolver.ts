@@ -7,7 +7,7 @@ import HttpServletRequest from '../http/HttpServletRequest';
 import Resource from './Resource';
 import ResourceResolver from './ResourceResolver';
 import ResourceResolverChain from './ResourceResolverChain';
-import WebAppConfigurer from '../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
 import HttpHeaders from '../http/HttpHeaders';
 import GzipResource from './GzipResource';
 
@@ -24,7 +24,7 @@ export default class GzipResourceResolver implements ResourceResolver {
   }
 
   isGzipAccepted(resource: Resource, request: HttpServletRequest) {
-    const supportMimeTypes = WebAppConfigurer.configurer.resource.mimeTypes || {};
+    const supportMimeTypes = WebMvcConfigurationSupport.configurer.resource.mimeTypes || {};
     const supportGzip = /gzip/.test(request.getHeader(HttpHeaders.ACCEPT_ENCODING) as string);
     if (!supportGzip || !resource.mediaType || !supportMimeTypes[resource.mediaType.name]) {
       return resource;

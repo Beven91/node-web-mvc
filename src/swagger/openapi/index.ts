@@ -8,7 +8,7 @@ import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathM
 import hot from 'nodejs-hmr';
 import Definition from './definition';
 import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
-import WebAppConfigurer from '../../servlets/WebAppConfigurer';
+import WebMvcConfigurationSupport from '../../servlets/WebMvcConfigurationSupport';
 
 // 获取当前工程的信息
 const pkg = require(path.resolve('package.json'));
@@ -26,7 +26,7 @@ export default class OpenApiModel {
   static initialize() {
     // 如果使用swagger
     const swaggerLocation = path.join(__dirname, '../../../swagger-ui/');
-    WebAppConfigurer
+    WebMvcConfigurationSupport
       .configurer
       .resourceHandlerRegistry
       .addResourceHandler('/swagger-ui/**')
@@ -189,7 +189,7 @@ export default class OpenApiModel {
       tags: [],
       paths: {} as OperationsDoc,
       servers: [
-        { url: WebAppConfigurer.configurer.contextPath || '/' }
+        { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
       ],
       // components: {
       //   parameters: {},

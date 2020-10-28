@@ -35,32 +35,38 @@ export default class ResourceHttpRequestHandler {
 
   private readonly resourceRegionHttpMessageConverter: ResourceRegionHttpMessageConverter
 
-  private readonly resourceResolverChain: ResourceResolverChain
+  private resourceResolverChain: ResourceResolverChain
 
-  private readonly resourceTransformerChain: ResourceTransformerChain
+  private resourceTransformerChain: ResourceTransformerChain
 
 
   constructor(registration: ResourceHandlerRegistration) {
-    const resolvers: Array<ResourceResolver> = [
-      new PathResourceResolver(),
-      new GzipGlobalResolver(),
-    ];
-    const transformers = [];
     this.registration = registration;
-    if (this.registration.resourceChainRegistration) {
-      resolvers.push(...this.registration.resourceChainRegistration.resolvers);
-      transformers.push(...this.registration.resourceChainRegistration.transformers);
-    }
     this.resourceHttpMessageConverter = new ResourceHttpMessageConverter();
     this.resourceRegionHttpMessageConverter = new ResourceRegionHttpMessageConverter();
-    this.resourceResolverChain = new ResourceResolverChain(resolvers);
-    this.resourceTransformerChain = new ResourceTransformerChain(transformers, this.resourceResolverChain);
+  }
+
+  initResolversAndTransformers() {
+    if (!this.resourceResolverChain) {
+      const resolvers: Array<ResourceResolver> = [
+        new PathResourceResolver(),
+        new GzipGlobalResolver(),
+      ];
+      const transformers = [];
+      if (this.registration.resourceChainRegistration) {
+        resolvers.push(...this.registration.resourceChainRegistration.resolvers);
+        transformers.push(...this.registration.resourceChainRegistration.transformers);
+      }
+      this.resourceResolverChain = new ResourceResolverChain(resolvers);
+      this.resourceTransformerChain = new ResourceTransformerChain(transformers, this.resourceResolverChain);
+    }
   }
 
   /**
    * 处理静态资源请求
    */
   async handleRequest(request: HttpServletRequest, response: HttpServletResponse): Promise<any> {
+    this.initResolversAndTransformers();
     const servletContext = request.servletContext;
     // 校验请求
     const resource = await this.checkRequest(request, response);

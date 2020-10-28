@@ -9,7 +9,7 @@ import ServletContext from '../http/ServletContext';
 import HandlerInterceptor from '../interceptor/HandlerInterceptor';
 import MappedInterceptor from '../interceptor/MappedInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
-import WebAppConfigurer from '../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
 
 export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
@@ -64,7 +64,7 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
    * 初始化拦截器
    */
   constructor() {
-    this.interceptors.push(...WebAppConfigurer.configurer.interceptorRegistry.getInterceptors())
+    this.interceptors.push(...WebMvcConfigurationSupport.configurer.interceptorRegistry.getInterceptors())
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
@@ -105,6 +105,10 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
    */
   protected getHandlerExecutionChain(handler: any, context: ServletContext): HandlerExecutionChain {
     const chain = handler instanceof HandlerExecutionChain ? handler : new HandlerExecutionChain(handler, context);
+    if(/^\/swagger-ui\//.test(context.request.usePath)){
+      // swagger-ui 不介入
+      return chain;
+    }
     // 依次遍历拦截器，将拦截器添加到调用链。
     for (let interceptor of this.adaptedInterceptors) {
       if (interceptor instanceof MappedInterceptor) {

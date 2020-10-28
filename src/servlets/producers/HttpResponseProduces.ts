@@ -6,7 +6,7 @@ import ServletContext from '../http/ServletContext';
 import ServletModel from '../models/ServletModel';
 import RequestMappingInfo from '../mapping/RequestMappingInfo';
 import HandlerMethod from '../method/HandlerMethod';
-import WebAppConfigurer from '../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
 import MediaType from '../http/MediaType';
 import ModelAndView from '../models/ModelAndView';
 import View from '../view/View';
@@ -96,7 +96,7 @@ export default class HttpResponseProduces {
     // 设置返回状态
     response.setStatus(status, responseStatusReason);
     // 根据对应的转换器来写出内容到客户端
-    return WebAppConfigurer
+    return WebMvcConfigurationSupport
       .configurer
       .messageConverters
       .write(data, mediaType, servletContext)
@@ -117,7 +117,7 @@ export default class HttpResponseProduces {
    */
   private resolveViewName(mv: ModelAndView): View {
     const { servletContext: { request } } = this;
-    const viewResolvers = WebAppConfigurer.configurer.viewResolvers.viewResolvers;
+    const viewResolvers = WebMvcConfigurationSupport.configurer.viewResolvers.viewResolvers;
     for (let resolver of viewResolvers) {
       const view = resolver.resolveViewName(mv.view, mv.model, request);
       if (view) {

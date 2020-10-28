@@ -70,8 +70,7 @@ import ResourceHandlerRegistry from './servlets/resources/ResourceHandlerRegistr
 import AbstractHandlerMethodAdapter from './servlets/method/AbstractHandlerMethodAdapter';
 import ResourceResolverChain from './servlets/resources/ResourceResolverChain';
 import ResourceTransformerChain from './servlets/resources/ResourceTransformerChain';
-import WebAppConfigurer from './servlets/WebAppConfigurer';
-import { WebAppConfigurerOptions } from './servlets/WebAppConfigurer';
+import WebMvcConfigurationSupport from './servlets/WebMvcConfigurationSupport';
 
 export {
   hot,
@@ -144,8 +143,7 @@ export {
   AbstractHandlerMethodAdapter,
   ResourceTransformerChain,
   ResourceResolverChain,
-  WebAppConfigurer,
-  WebAppConfigurerOptions
+  WebMvcConfigurationSupport,
 }
 
 hot.create(module);

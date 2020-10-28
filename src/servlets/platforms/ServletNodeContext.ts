@@ -4,7 +4,7 @@
  */
 import http from 'http';
 import ServletContext from '../http/ServletContext';
-import WebAppConfigurer from '../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
 
 export default class ServletNodeContext extends ServletContext {
   /**
@@ -14,7 +14,7 @@ export default class ServletNodeContext extends ServletContext {
    * @param callback 
    */
   static launch(callback) {
-    const configurer = WebAppConfigurer.configurer;
+    const configurer = WebMvcConfigurationSupport.configurer;
     const port = configurer.port;
     const server = http.createServer((req, res) => {
       Object.defineProperty(req, 'path', { value: req.url });

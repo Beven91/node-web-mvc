@@ -3,7 +3,7 @@ import ServletKoaContext from './servlets/platforms/ServletKoaContext';
 import ServletNodeContext from './servlets/platforms/ServletNodeContext';
 import ServletContext from './servlets/http/ServletContext';
 import DispatcherServlet from './servlets/DispatcherServlet';
-import WebAppConfigurer, { WebAppConfigurerOptions } from './servlets/WebAppConfigurer';
+import WebMvcConfigurationSupport, { WebAppConfigurerOptions } from './servlets/WebMvcConfigurationSupport';
 
 declare class ContextRegistration {
   [propName: string]: typeof ServletContext
@@ -26,14 +26,17 @@ export default class Registry {
    * 启动mvc
    * @param {Express} app express实例 
    */
-  static launch(options: WebAppConfigurerOptions) {
+  static launch(options: WebMvcConfigurationSupport | WebAppConfigurerOptions) {
     if (!options) {
       throw new Error('请设置options属性,例如:' + JSON.stringify({ mode: 'express|koa' }));
     }
+    if (WebMvcConfigurationSupport.configurer) {
+      return console.error('服务已启动，请勿重复调用launch函数');
+    }
     // 初始化全局配置
-    const configure = WebAppConfigurer.configurer.initialize(options);
+    const configurer = WebMvcConfigurationSupport.initialize(options);
     // 获取当前中间件上下文
-    const HttpContext = registration[configure.mode];
+    const HttpContext = registration[configurer.mode];
     if (!HttpContext) {
       throw new Error(`
         当前${options.mode}模式不支持,
@@ -45,7 +48,7 @@ export default class Registry {
     return HttpContext.launch((request, response, next) => {
       new Promise((resolve) => {
         const HttpServletContext = HttpContext as any;
-        const context: ServletContext = new HttpServletContext(configure, request, response, next);
+        const context: ServletContext = new HttpServletContext(configurer, request, response, next);
         new DispatcherServlet().doService(context);
         // ControllerFactory.defaultFactory.handle(context);
         resolve();

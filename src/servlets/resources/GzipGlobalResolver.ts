@@ -7,7 +7,7 @@ import HttpServletRequest from '../http/HttpServletRequest';
 import Resource from './Resource';
 import ResourceResolver from './ResourceResolver';
 import ResourceResolverChain from './ResourceResolverChain';
-import WebAppConfigurer from '../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
 import GzipResource from './GzipResource';
 import GzipResourceResolver from './GzipResourceResolver';
 
@@ -15,7 +15,7 @@ export default class GzipGlobalResolver implements ResourceResolver {
 
   async resolveResource(request: HttpServletRequest, requestPath: string, locations, nextChain: ResourceResolverChain): Promise<Resource> {
     const resource = await nextChain.resolveResource(request, requestPath, locations);
-    const gzipped = WebAppConfigurer.configurer.resource.gzipped;
+    const gzipped = WebMvcConfigurationSupport.configurer.resource.gzipped;
     if (!gzipped || resource instanceof GzipResource) {
       return resource;
     }

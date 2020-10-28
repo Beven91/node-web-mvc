@@ -7,7 +7,7 @@ import { IncomingMessage, IncomingHttpHeaders } from 'http';
 import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
-import WebAppConfigurer from '../WebAppConfigurer';
+import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
 
 declare class Query {
   [propName: string]: any
@@ -65,7 +65,7 @@ export default class HttpServletRequest {
    * 去除contextPath后的请求路径
    */
   public get usePath() {
-    const base = WebAppConfigurer.configurer.contextPath;
+    const base = WebMvcConfigurationSupport.configurer.contextPath;
     return base ? this.path.replace(new RegExp('^' + base), '') : this.path;
   }
 
