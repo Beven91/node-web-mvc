@@ -1445,10 +1445,10 @@ negotiator@0.6.2:
   resolved "https://registry.yarnpkg.com/negotiator/-/negotiator-0.6.2.tgz#feacf7ccf525a77ae9634436a64883ffeca346fb"
   integrity sha512-hZXc7K2e+PgeI1eDBe/10Ard4ekbfrrqG8Ep+8Jmf4JID2bNg7NvCPOZN+kfF574pFQI7mum2AUqDidoKqcTOw==
 
-nodejs-hmr@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/nodejs-hmr/-/nodejs-hmr-1.1.2.tgz#16bd379e9d89f976dc24430c76b6260d88a92d32"
-  integrity sha512-gR9LwPuiten4KJhUgh9pou/KsaKEMjQNpz/a2hUJVbMDsoGVqRXJpIYT/JSJM6alcyhPPyQuZx5rHopPYwrwNA==
+nodejs-hmr@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/nodejs-hmr/-/nodejs-hmr-1.1.5.tgz#7dfab9dc47a665874a2e7e36e34c47d7792107e9"
+  integrity sha512-fHTxVh5bbss/Qy7kdfrxixKz1A7D1NeORAdcBRvucM4NDUCZJ6hJmBXKDoxjTyKE5cS0sm1AkBwGj1BCTJpACg==
 
 normalize-package-data@^2.3.2:
   version "2.5.0"

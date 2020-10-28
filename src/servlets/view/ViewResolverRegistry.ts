@@ -6,29 +6,36 @@
 import hot from 'nodejs-hmr';
 import ViewResolver from './resolvers/ViewResolver';
 
-const registerResolvers: Array<ViewResolver> = [];
-
 export default class ViewResolverRegistry {
+
+  private readonly registerResolvers: Array<ViewResolver>;
+
+  constructor() {
+    this.registerResolvers = new Array<ViewResolver>();
+    hotAccepted(this.registerResolvers);
+  }
 
   /**
    * 当前注册所有视图解析器
    */
   get viewResolvers() {
-    return registerResolvers;
+    return this.registerResolvers;
   }
 
   /**
    * 添加一个视图解析器
    */
   addViewResolver(resolver: ViewResolver) {
-    registerResolvers.push(resolver);
+    this.registerResolvers.push(resolver);
   }
 }
 
-/**
- * 内部热更新 
- */
-hot.create(module)
-  .postend((now, old) => {
-    hot.createHotUpdater(registerResolvers, now, old).update();
-  });
+function hotAccepted(registerResolvers) {
+  // 热更新
+  hot
+    .create(module)
+    .clean()
+    .postend((now, old) => {
+      hot.createHotUpdater(registerResolvers, now, old).update();
+    });
+}

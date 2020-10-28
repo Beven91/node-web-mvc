@@ -1,4 +1,4 @@
-import { Target } from '../../src/index';
+import { Target } from '../../../src/index';
 
 @Target
 class UserId {

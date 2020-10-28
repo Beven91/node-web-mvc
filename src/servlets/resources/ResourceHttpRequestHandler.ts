@@ -2,6 +2,7 @@
  * @module ResourceHttpRequestHandler
  * @description 静态资源请求处理器
  */
+import path from 'path';
 import ResourceHandlerRegistration from './ResourceHandlerRegistration';
 import HttpServletResponse from '../http/HttpServletResponse';
 import HttpServletRequest from '../http/HttpServletRequest';
@@ -112,7 +113,10 @@ export default class ResourceHttpRequestHandler {
   */
   async getResource(request: HttpServletRequest) {
     const resourcePath = this.processPath(request.usePath);
-    const locations = this.registration.resourceLocations.map((url) => new Resource(url));
+    const locations = this.registration.resourceLocations.map((url) => {
+      url = url.endsWith(path.sep) ? url : url + path.sep;
+      return new Resource(url);
+    });
     const resource = await this.resourceResolverChain.resolveResource(request, resourcePath, locations);
     return this.resourceTransformerChain.transform(request, resource);
   }

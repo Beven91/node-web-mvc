@@ -2,11 +2,11 @@
 // import express from 'express';
 import path from 'path';
 import { Registry } from '../src/index';
-import AdminInterceptor from './interceptor/AdminInterceptor';
-import EncodeInterceptor from './interceptor/EncodeInterceptor';
-import EjsViewResolver from './resolvers/EjsViewResolver';
-import XmlHttpMessageConverter from './converters/XmlHttpMessageConverter';
-import UserIdArgumentResolver from './resolvers/UserIdArgumentResolver';
+import AdminInterceptor from './webapp/interceptor/AdminInterceptor';
+import EncodeInterceptor from './webapp/interceptor/EncodeInterceptor';
+import EjsViewResolver from './webapp/resolvers/EjsViewResolver';
+import XmlHttpMessageConverter from './webapp/converters/XmlHttpMessageConverter';
+import UserIdArgumentResolver from './webapp/resolvers/UserIdArgumentResolver';
 
 const port = 9898;
 // const app = express();
@@ -33,7 +33,7 @@ Registry.launch({
   resource: {
     gzipped: false,
   },
-  cwd: path.resolve('./test'),
+  cwd: path.resolve('./test/webapp'),
   addInterceptors: (registry) => {
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());

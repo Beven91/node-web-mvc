@@ -2,7 +2,7 @@
  * @module Paged
  */
 
-import { ApiModel, ApiModelProperty } from "../../src";
+import { ApiModel, ApiModelProperty } from "../../../src";
 
  @ApiModel({ description:'分页数据' })
  export default class Paged<T> {

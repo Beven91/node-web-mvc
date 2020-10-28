@@ -1,5 +1,5 @@
 
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired } from '../../src/index';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired } from '../../../src/index';
 import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';

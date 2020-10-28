@@ -12,21 +12,27 @@ import UrlencodedMessageConverter from './UrlencodedMessageConverter';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
 import hot from 'nodejs-hmr';
 
-const registerConverters: Array<HttpMessageConverter> = [
-  new JsonMessageConverter(),
-  new UrlencodedMessageConverter(),
-  new MultipartMessageConverter(),
-  new DefaultMessageConverter()
-]
-
 export default class MessageConverter {
+
+  private readonly registerConverters: Array<HttpMessageConverter>
+
+  constructor() {
+    this.registerConverters = [
+      new JsonMessageConverter(),
+      new UrlencodedMessageConverter(),
+      new MultipartMessageConverter(),
+      new DefaultMessageConverter()
+    ]
+    // 热更新
+    acceptHot(this.registerConverters);
+  }
 
   /**
    * 注册一个消息转换器
    * @param servletContext 
    */
   addMessageConverters(converter: HttpMessageConverter) {
-    registerConverters.unshift(converter);
+    this.registerConverters.unshift(converter);
   }
 
   /**
@@ -45,7 +51,7 @@ export default class MessageConverter {
       return Promise.resolve(request.body);
     }
     const mediaType = servletContext.request.mediaType;
-    const converter = registerConverters.find((converter) => converter.canRead(mediaType));
+    const converter = this.registerConverters.find((converter) => converter.canRead(mediaType));
     return request.body = Promise.resolve(converter.read(servletContext, mediaType));
   }
 
@@ -54,16 +60,17 @@ export default class MessageConverter {
    */
   write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
     return new Promise((resolve) => {
-      const converter = registerConverters.find((converter) => converter.canWrite(mediaType));
+      const converter = this.registerConverters.find((converter) => converter.canWrite(mediaType));
       return resolve(converter.write(data, mediaType, servletContext));
     })
   }
 }
 
-/**
- * 内部热更新 
- */
-hot.create(module)
-  .postend((now, old) => {
-    hot.createHotUpdater(registerConverters, now, old).update();
-  });
+function acceptHot(registerConverters) {
+  hot
+    .create(module)
+    .clean()
+    .postend((now, old) => {
+      hot.createHotUpdater(registerConverters, now, old).update();
+    });
+}

@@ -1,8 +1,8 @@
-import { RequestMapping, RequestBody, Autowired } from '../../src/index';
-import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../src/index';
-import { PostMapping } from '../../src/index';
-import ModelAndView from '../../src/servlets/models/ModelAndView';
-import GetMapping from '../../src/servlets/annotations/mapping/GetMapping';
+import { RequestMapping, RequestBody, Autowired } from '../../../src/index';
+import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../../src/index';
+import { PostMapping } from '../../../src/index';
+import ModelAndView from '../../../src/servlets/models/ModelAndView';
+import GetMapping from '../../../src/servlets/annotations/mapping/GetMapping';
 
 @Api({ description: 'multipart控制器' })
 @RequestMapping('/multipart')

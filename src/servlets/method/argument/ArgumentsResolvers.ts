@@ -2,6 +2,7 @@
  * @module ArgumentsResolvers
  * @description 参数解析器
  */
+import hot from 'nodejs-hmr';
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import RequestResponseBodyMethodProcessor from './RequestResponseBodyMethodProcessor';
@@ -13,24 +14,29 @@ import ServletContextMethodArgumentResolver from './ServletContextMethodArgument
 import HandlerMethod from '../HandlerMethod';
 import ParameterRequiredError from '../../../errors/ParameterRequiredError';
 import ArgumentResolvError from '../../../errors/ArgumentResolvError';
-import hot from 'nodejs-hmr';
-
-const registerResolvers: Array<HandlerMethodArgumentResolver> = [
-  new PathVariableMapMethodArgumentResolver(),
-  new RequestHeaderMapMethodArgumentResolver(),
-  new RequestParamMapMethodArgumentResolver(),
-  new RequestResponseBodyMethodProcessor(),
-  new ServletContextMethodArgumentResolver()
-]
 
 export default class ArgumentsResolvers {
+
+  private readonly registerResolvers: Array<HandlerMethodArgumentResolver>
+
+  constructor() {
+    this.registerResolvers = [
+      new PathVariableMapMethodArgumentResolver(),
+      new RequestHeaderMapMethodArgumentResolver(),
+      new RequestParamMapMethodArgumentResolver(),
+      new RequestResponseBodyMethodProcessor(),
+      new ServletContextMethodArgumentResolver()
+    ];
+    // 热更新处理
+    acceptHot(this.registerResolvers);
+  }
 
   /**
    * 注册一个参数解析器
    * @param resolver 解析器 
    */
   addArgumentResolvers(resolver: HandlerMethodArgumentResolver) {
-    registerResolvers.push(resolver);
+    this.registerResolvers.push(resolver);
   }
 
   /**
@@ -75,6 +81,7 @@ export default class ArgumentsResolvers {
    * @param { ServletContext } servletContext 当前请求上下文
    */
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
+    const registerResolvers = this.registerResolvers;
     const resolver = registerResolvers.find((resolver) => resolver.supportsParameter(parameter, servletContext));
     return resolver ? resolver.resolveArgument(parameter, servletContext) : undefined;
   }
@@ -83,7 +90,9 @@ export default class ArgumentsResolvers {
 /**
  * 内部热更新 
  */
-hot.create(module)
-  .postend((now, old) => {
-    hot.createHotUpdater(registerResolvers, now, old).update();
-  });
+function acceptHot(registerResolvers) {
+  hot.create(module)
+    .postend((now, old) => {
+      hot.createHotUpdater(registerResolvers, now, old).update();
+    });
+}

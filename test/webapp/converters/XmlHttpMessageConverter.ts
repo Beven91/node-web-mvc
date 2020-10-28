@@ -1,9 +1,9 @@
 // import { MediaType, ServletContext, HttpMessageConverter } from 'node-web-mvc';
 
-import { HttpMessageConverter } from "../../src";
-import MediaType from "../../src/servlets/http/MediaType";
-import ServletContext from "../../src/servlets/http/ServletContext";
-import RequestWriterStream from '../../src/stream/RequestMemoryStream';
+import { HttpMessageConverter } from "../../../src";
+import MediaType from "../../../src/servlets/http/MediaType";
+import ServletContext from "../../../src/servlets/http/ServletContext";
+import RequestWriterStream from '../../../src/stream/RequestMemoryStream';
 import xml2js from 'xml2js';
 
 export default class XmlHttpMessageConverter implements HttpMessageConverter {

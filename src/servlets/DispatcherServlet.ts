@@ -103,15 +103,15 @@ export default class DispatcherServlet {
       }
       // 执行拦截器:postHandler
       runtime.res = await mappedHandler.applyPostHandle(runtime.res);
+      process.nextTick(() => {
+        // 执行拦截器: afterCompletion
+        mappedHandler.applyAfterCompletion(runtime.error);
+      });
       // 处理视图渲染或者数据返回
       return (new HttpResponseProduces(servletContext)).produce(runtime.res, mappedHandler.getHandler());
     } catch (ex) {
       runtime.error = ex;
     }
-    process.nextTick(() => {
-      // 执行拦截器: afterCompletion
-      mappedHandler.applyAfterCompletion(runtime.error);
-    });
     return runtime.error ? Promise.reject(runtime.error) : runtime.res;
   }
 

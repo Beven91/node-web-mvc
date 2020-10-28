@@ -1,4 +1,4 @@
-import { Repository, ApiModel, ApiModelProperty } from "../../src";
+import { Repository, ApiModel, ApiModelProperty } from "../../../src";
 
 @Repository
 @ApiModel({ description:'订单' })

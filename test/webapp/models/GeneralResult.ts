@@ -3,7 +3,7 @@
  * @description 接口统一返回结果
  */
 
-import { ApiModel, ApiModelProperty } from "../../src";
+import { ApiModel, ApiModelProperty } from "../../../src";
 import Paged from "./Paged";
 
 @ApiModel({ value: '返回结果' })

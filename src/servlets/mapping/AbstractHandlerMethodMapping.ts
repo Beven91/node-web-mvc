@@ -36,6 +36,18 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
   }
 
   /**
+   * 移除一个映射方法
+   * @param mapping 
+   */
+  removeHandlerMethod(mapping: T) {
+    this.mappingRegistry.unregister(mapping);
+  }
+
+  getRegistration() {
+    return this.mappingRegistry.getRegistration();
+  }
+
+  /**
   * 根据请求上下信息，获取用于处理当前请求的处理器.
   */
   getHandlerInternal(context: ServletContext) {

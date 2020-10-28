@@ -1,4 +1,4 @@
-import { Service, Autowired } from "../../src";
+import { Service, Autowired } from "../../../src";
 
 @Service
 export default class OrderService {

@@ -1,7 +1,7 @@
-import { RequestMapping, GetMapping, Scope } from '../../src/index';
-import { Api, ApiOperation, RequestBody, RequestParam, ApiImplicitParams } from '../../src/index';
+import { RequestMapping, GetMapping, Scope } from '../../../src/index';
+import { Api, ApiOperation, RequestBody, RequestParam, ApiImplicitParams } from '../../../src/index';
 import UserInfo from '../models/UserInfo';
-import { PostMapping } from '../../src/index';
+import { PostMapping } from '../../../src/index';
 
 @Api({ description: '作用域测试' })
 @Scope('prototype')
@@ -37,5 +37,6 @@ export default class ScopeController {
   @ApiOperation({ value: '管理员入口' })
   @GetMapping('/admin')
   admin() {
+    return 'secret';
   }
 }

@@ -16,7 +16,9 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
   /**
    * 所有设置的拦截器
    */
-  private readonly interceptors = new Array<HandlerInterceptor>()
+  private get interceptors() {
+    return WebMvcConfigurationSupport.configurer.interceptorRegistry.getInterceptors();
+  }
 
   // 默认处理器,如果 getHandlerInternal 没有返回handler，则使用当前配置的默认处理器
   private defaultHandler: any
@@ -64,7 +66,6 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
    * 初始化拦截器
    */
   constructor() {
-    this.interceptors.push(...WebMvcConfigurationSupport.configurer.interceptorRegistry.getInterceptors())
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
@@ -105,7 +106,7 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
    */
   protected getHandlerExecutionChain(handler: any, context: ServletContext): HandlerExecutionChain {
     const chain = handler instanceof HandlerExecutionChain ? handler : new HandlerExecutionChain(handler, context);
-    if(/^\/swagger-ui\//.test(context.request.usePath)){
+    if (/^\/swagger-ui\//.test(context.request.usePath)) {
       // swagger-ui 不介入
       return chain;
     }

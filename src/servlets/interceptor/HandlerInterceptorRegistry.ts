@@ -6,15 +6,20 @@ import HandlerInterceptor from './HandlerInterceptor';
 import InterceptorRegistration from './InterceptorRegistration';
 import hot from 'nodejs-hmr';
 
-const registrations = new Array<InterceptorRegistration>();
-
 export default class HandlerInteceptorRegistry {
+
+  private readonly registrations: Array<InterceptorRegistration>
+
+  constructor() {
+    this.registrations = new Array<InterceptorRegistration>();
+    hotAccepted(this.registrations);
+  }
 
   /**
    * 获取当前注册的所有拦截器
    */
   getInterceptors(): Array<HandlerInterceptor> {
-    return registrations
+    return this.registrations
       .sort((o1, o2) => o1.getOrder() - o2.getOrder())
       .map((registration) => registration.getInterceptor())
   }
@@ -24,7 +29,7 @@ export default class HandlerInteceptorRegistry {
    */
   addInterceptor(interceptor: HandlerInterceptor) {
     const registration = new InterceptorRegistration(interceptor);
-    registrations.push(registration)
+    this.registrations.push(registration)
     return registration;
   }
 }
@@ -32,21 +37,23 @@ export default class HandlerInteceptorRegistry {
 /**
  * 内部热更新 
  */
-hot.create(module)
-  .postend((now, old) => {
-    hot
-      .createHotUpdater<InterceptorRegistration>(registrations, now, old)
-      .needHot((a, ctor) => a.interceptor instanceof ctor)
-      .creator((ctor, oldInterceptor) => {
-        const registration = new InterceptorRegistration(new ctor());
-        if (oldInterceptor.includePatterns.length > 0) {
-          registration.addPathPatterns(...oldInterceptor.includePatterns);
-        }
-        if (oldInterceptor.excludePatterns.length > 0) {
-          registration.excludePathPatterns(...oldInterceptor.excludePatterns);
-        }
-        return registration;
-      })
-      .update()
-
-  });
+function hotAccepted(registrations) {
+  hot.create(module)
+    .clean()
+    .postend((now, old) => {
+      hot
+        .createHotUpdater<InterceptorRegistration>(registrations, now, old)
+        .needHot((a, ctor) => a.interceptor instanceof ctor)
+        .creator((ctor, oldInterceptor) => {
+          const registration = new InterceptorRegistration(new ctor());
+          if (oldInterceptor.includePatterns.length > 0) {
+            registration.addPathPatterns(...oldInterceptor.includePatterns);
+          }
+          if (oldInterceptor.excludePatterns.length > 0) {
+            registration.excludePathPatterns(...oldInterceptor.excludePatterns);
+          }
+          return registration;
+        })
+        .update()
+    });
+}

@@ -13,6 +13,7 @@ import ViewResolverRegistry from './view/ViewResolverRegistry';
 import { RequestMappingAnnotation } from './annotations/mapping/RequestMapping';
 import hot, { HotOptions } from 'nodejs-hmr';
 import ResourceHandlerRegistry from './resources/ResourceHandlerRegistry';
+import ResourceHandlerMapping from './resources/ResourceHandlerMapping';
 
 const runtime = {
   configurer: null,
@@ -22,6 +23,8 @@ const runtime = {
     mimeTypes: 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain',
   } as ResourceOptions
 }
+
+declare type RunMode = 'node' | 'express' | 'koa' | string
 
 declare interface Multipart {
   /**
@@ -50,7 +53,7 @@ export declare interface WebAppConfigurerOptions {
   // 端口
   port?: number
   // 当前类型
-  mode: 'node' | 'express' | 'koa' | string
+  mode: RunMode
   // 是否开启swagger文档
   swagger?: boolean
   // 静态资源配置
@@ -112,7 +115,7 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
   /**
    * 获取当前服务中间件模式
    */
-  public readonly mode: 'node' | 'express' | 'koa' | string
+  public readonly mode: RunMode
 
   /**
    * 静态资源配置
@@ -162,7 +165,7 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
    */
   public onLaunch: () => any
 
-  private options:WebAppConfigurerOptions;
+  private options: WebAppConfigurerOptions;
 
   static get configurer(): WebMvcConfigurationSupport {
     return runtime.configurer;
@@ -185,35 +188,35 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
 
   // 注册拦截器
   public addInterceptors?(registry: HandlerInterceptorRegistry) {
-    if(this.options.addInterceptors){
+    if (this.options.addInterceptors) {
       this.options.addInterceptors(registry);
     }
     this.interceptorRegistry = registry;
   }
   // 添加http消息转换器
   public addMessageConverters?(converters: MessageConverter) {
-    if(this.options.addMessageConverters){
+    if (this.options.addMessageConverters) {
       this.options.addMessageConverters(converters);
     }
     this.messageConverters = converters;
   }
   // 添加参数解析器
   public addArgumentResolvers?(resolvers: ArgumentsResolvers) {
-    if(this.options.addArgumentResolvers){
+    if (this.options.addArgumentResolvers) {
       this.options.addArgumentResolvers(resolvers);
     }
     this.argumentResolver = resolvers;
   }
   // 添加视图解析器
   public addViewResolvers?(registry: ViewResolverRegistry) {
-    if(this.options.addViewResolvers){
+    if (this.options.addViewResolvers) {
       this.options.addViewResolvers(registry);
     }
     this.viewResolvers = registry;
   }
   // 添加静态资源处理器
   public addResourceHandlers?(registry: ResourceHandlerRegistry) {
-    if(this.options.addResourceHandlers){
+    if (this.options.addResourceHandlers) {
       this.options.addResourceHandlers(registry);
     }
     this.resourceHandlerRegistry = registry;
@@ -269,31 +272,31 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     }
     // 初始化配置
     this.initializeConfigurer(configurer);
-    // swagger 开启
-    if (configurer.swagger !== false) {
-      OpenApi.initialize();
-    }
     // 装载模块
     this.readyWorkprogress(configurer.workprogressPaths)
     return configurer;
   }
 
   static initializeConfigurer(configurer: WebMvcConfigurationSupport) {
-    const argumentResolver = new ArgumentsResolvers();
-    const messageConverters = new MessageConverter();
-    const viewResolvers = new ViewResolverRegistry();
-    const interceptorRegistry = new HandlerInterceptorRegistry();
-    const resourceHandlerRegistry = new ResourceHandlerRegistry();
+    configurer.argumentResolver = new ArgumentsResolvers();
+    configurer.messageConverters = new MessageConverter();
+    configurer.viewResolvers = new ViewResolverRegistry();
+    configurer.interceptorRegistry = new HandlerInterceptorRegistry();
+    configurer.resourceHandlerRegistry = new ResourceHandlerRegistry();
     // 注册拦截器
-    configurer.addInterceptors(interceptorRegistry);
+    configurer.addInterceptors(configurer.interceptorRegistry);
     // 注册转换器
-    configurer.addMessageConverters(messageConverters);
+    configurer.addMessageConverters(configurer.messageConverters);
     // 注册参数解析器
-    configurer.addArgumentResolvers(argumentResolver);
+    configurer.addArgumentResolvers(configurer.argumentResolver);
     // 注册视图解析器
-    configurer.addViewResolvers(viewResolvers);
+    configurer.addViewResolvers(configurer.viewResolvers);
     // 注册静态资源
-    configurer.addResourceHandlers(resourceHandlerRegistry);
+    configurer.addResourceHandlers(configurer.resourceHandlerRegistry);
+    // swagger 开启
+    if (configurer.swagger !== false) {
+      OpenApi.initialize();
+    }
   }
 
   /**
@@ -317,18 +320,26 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
 
 hot.create(module).accept((now, old) => {
   // 子模块更新到此结束
+});
+
+hot.create(require.main).accept((now, old) => {
+  // 监听主模块热更新
   const type = old.exports.default || old.exports;
   const MvcConfigurer = now.exports.default || now.exports;
-  if (typeof type === 'function' && type.prototype.constructor === WebMvcConfigurationSupport) {
+  if (typeof type === 'function' && type.prototype.__proto__.constructor === WebMvcConfigurationSupport) {
     // 如果是修改了配置文件 且是无参数构造
     if (MvcConfigurer.length === 0) {
+      // 清空静态资源配置
+      ResourceHandlerMapping.getInstance().getRegistration().clear();
+      // 重新创建配置项
       const oldConfigurer = runtime.configurer as WebMvcConfigurationSupport;
       // 替换配置
       const newConfigurer = runtime.configurer = new MvcConfigurer();
+      runtime.configurer = newConfigurer;
       WebMvcConfigurationSupport.initializeConfigurer(newConfigurer);
       if (oldConfigurer.cwd.toString() !== newConfigurer.cwd.toString()) {
         WebMvcConfigurationSupport.readyWorkprogress(newConfigurer.workprogressPaths);
       }
     }
   }
-});
+})

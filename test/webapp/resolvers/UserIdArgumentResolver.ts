@@ -1,4 +1,4 @@
-import { ServletContext,MethodParameter, HandlerMethodArgumentResolver } from '../../src/index';
+import { ServletContext,MethodParameter, HandlerMethodArgumentResolver } from '../../../src/index';
 import UserIdAnnotation from '../annotations/UserIdAnnotation';
 
 export default class UserIdArgumentResolver implements HandlerMethodArgumentResolver {

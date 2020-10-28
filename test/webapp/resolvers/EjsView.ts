@@ -3,9 +3,9 @@
  * @description Razor视图
  */
 import ejs from 'ejs';
-import View from "../../src/servlets/view/View";
-import HttpServletRequest from "../../src/servlets/http/HttpServletRequest";
-import HttpServletResponse from "../../src/servlets/http/HttpServletResponse";
+import View from "../../../src/servlets/view/View";
+import HttpServletRequest from "../../../src/servlets/http/HttpServletRequest";
+import HttpServletResponse from "../../../src/servlets/http/HttpServletResponse";
 
 export default class EjsView extends View {
 
