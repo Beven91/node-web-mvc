@@ -9,6 +9,8 @@ export declare class ApiOptions {
    */
   description?: string
 
+  externalDocs?:ExternalDocs
+
   /**
    * 接口标签 如果没有定义tags 则默认使用 value
    */
@@ -19,6 +21,8 @@ export declare class ApiTag {
   name: string
 
   description?: string
+
+  externalDocs?:ExternalDocs
 
 }
 
@@ -41,7 +45,10 @@ export declare class ApiOperationOptions {
   httpMethod?
 
   // 返回数据类型
-  returnType?: string
+  returnType?: string | any
+
+  // 返回示例
+  example?: any
 
   /**
    * 返回http结果类型
@@ -81,6 +88,11 @@ export declare class ApiImplicitParamOptions {
   paramType?: 'path' | 'query' | 'body' | 'header' | 'form' | 'formData'
 }
 
+export declare interface ExternalDocs {
+  description: string,
+  url: string
+}
+
 export declare class ApiModelOptions {
   /**
    * model的别名，默认为类名
@@ -91,6 +103,8 @@ export declare class ApiModelOptions {
    * model的详细描述
    */
   description?: string
+
+  externalDocs?: ExternalDocs
 }
 
 export declare class ApiModelPropertyOptions {
@@ -205,7 +219,7 @@ export declare class ApiModelPropertyMeta {
   required: boolean
   example: any
   type: string
-  items?:any
+  items?: any
 }
 
 export declare class ApiModelMeta {

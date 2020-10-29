@@ -84,7 +84,11 @@ export default class OpenApiModel {
     const name = this.clampName(controller.name);
     const api = this.createApi(controller);
     api.option = option;
-    api.option.tags = (option.tags || [{ name: name, description: option.description || name }])
+    api.option.tags = (option.tags || [{
+      name: name,
+      description: option.description || name,
+      externalDocs: option.externalDocs
+    }])
   }
 
   /**
@@ -180,8 +184,16 @@ export default class OpenApiModel {
    * 获取完整的swaager openapi.json
    */
   static build() {
+    const contributor = (pkg.contributors || [])[0] || {};
     const documentation = {
       info: {
+        // contact: {
+        //   email: pkg.author || contributor.email || ''
+        // },
+        // license: {
+        //   name: pkg.license,
+        //   url:pkg.licenseUrl || ''
+        // },
         title: pkg.name,
         version: pkg.version,
         description: pkg.description || ''
@@ -224,7 +236,8 @@ export default class OpenApiModel {
       return;
     }
     const code = 'code' in option ? option.code : '200';
-    const model = Definition.getDefinitionModel(option.returnType);
+    const returnType = option.returnType;
+    const model = returnType ? Definition.getDefinitionModel(returnType) : Definition.getExampleDefinitionModel(option.example);
     const operationDoc = {
       consumes: mapping.consumes || operation.consumes || mapping.consumes,
       deprecated: false,
@@ -240,8 +253,6 @@ export default class OpenApiModel {
         "404": { "description": "Not Found" },
         [code]: {
           "description": "OK",
-          "type": model.type,
-          "items": model.items,
           "schema": model.schema,
         }
       }

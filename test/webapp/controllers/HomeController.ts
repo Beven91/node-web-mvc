@@ -4,14 +4,14 @@ import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
-@Api
+@Api({ value:'你好' })
 @RequestMapping('/home')
 export default class HomeController {
 
   @Autowired
   private orderService: OrderService;
 
-  @ApiOperation({ value: '@RequestParam 测试' })
+  @ApiOperation({ value: '@RequestParam 测试', example: 'string' })
   @GetMapping('/index')
   @ApiImplicitParams([
     { description: '编号', paramType: 'query', name: 'id', required: true }

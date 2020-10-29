@@ -1,13 +1,18 @@
 /**
  * @module Definition
  * @description 用于解决typescript 下泛型等类型解析
+ * https://petstore.swagger.io/v2/swagger.json
+ * https://generator3.swagger.io/openapi.json
  */
 import { ApiModelMeta, DefinitionInfo } from "./declare";
 
 // 所有注册models
 const definitions = {} as { [propName: string]: ApiModelMeta };
 
-let references = {};
+const runtime = {
+  id: 0
+}
+
 
 export default class Definition {
 
@@ -148,7 +153,7 @@ export default class Definition {
    * List<A>
    * Map<K,V>
    */
-  static getDefinitionModel(dataType: string) {
+  static getDefinitionModel(dataType: any) {
     const model = definitions[dataType];
     if (model) {
       return { schema: { '$ref': this.makeRef(dataType) } };
@@ -162,6 +167,43 @@ export default class Definition {
       return isArray ? { type: 'array', items: data.items } : { schema: { '$ref': ref } };
     } else {
       return { empty: true };
+    }
+  }
+
+  static getExampleDefinitionModel(dataType: any) {
+    const model = this.getDefinition2(dataType);
+    if (model.type) {
+      return { schema: model }
+    }
+    return model;
+  }
+
+  static getDefinition2(value) {
+    if (!value) {
+      return { type: 'string', example: value }
+    } else if (value instanceof Array) {
+      return {
+        type: 'array',
+        items: this.getDefinition2(value[0])
+      }
+    } else if (value && typeof value === 'object') {
+      const name = 'Anonymous' + (runtime.id++);
+      const definition = definitions[name] = {
+        title: name,
+        name: name,
+        description: '',
+        ctor: null,
+        properties: {}
+      }
+      Object.keys(value).forEach((key) => {
+        definition.properties[key] = this.getDefinition2(value[key]);
+      })
+      return {
+        schema: { '$ref': this.makeRef(name) }
+      }
+    } else {
+      const v = typeof value;
+      return { type: v === 'undefined' ? 'string' : v, example: value }
     }
   }
 }
