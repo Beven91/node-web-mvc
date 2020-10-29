@@ -15,9 +15,15 @@ import PathMatcher from "../util/PathMatcher";
 
 export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
-  public readonly urlPathHelper: UrlPathHelper
+  public get urlPathHelper(): UrlPathHelper {
+    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
+    return pathMatchConfigurer.getUrlPathHelperOrDefault();
+  }
 
-  public readonly pathMatcher: PathMatcher
+  public get pathMatcher(): PathMatcher {
+    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
+    return pathMatchConfigurer.getPathMatcherOrDefault();
+  }
 
   /**
    * 所有设置的拦截器
@@ -72,9 +78,6 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
    * 初始化拦截器
    */
   constructor() {
-    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
-    this.urlPathHelper = pathMatchConfigurer.getUrlPathHelperOrDefault();
-    this.pathMatcher = pathMatchConfigurer.getPathMatcherOrDefault();
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }

@@ -1,10 +1,12 @@
 import path from 'path';
-import { WebMvcConfigurationSupport } from "../src";
+import { ViewResolverRegistry, WebMvcConfigurationSupport } from "../src";
 import AdminInterceptor from './webapp/interceptor/AdminInterceptor';
 import EncodeInterceptor from './webapp/interceptor/EncodeInterceptor';
 import EjsViewResolver from './webapp/resolvers/EjsViewResolver';
 import XmlHttpMessageConverter from './webapp/converters/XmlHttpMessageConverter';
 import UserIdArgumentResolver from './webapp/resolvers/UserIdArgumentResolver';
+import PathMatchConfigurer from '../src/servlets/config/PathMatchConfigurer';
+import MyUrlPathHelper from './webapp/globalization/MyUrlPathHelper';
 
 export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 
@@ -25,8 +27,8 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
     registry.addInterceptor(new EncodeInterceptor());
   }
 
-  addViewResolvers(registry) {
-    registry.addViewResolver(new EjsViewResolver('test/WEB-INF/', '.ejs'))
+  addViewResolvers(registry: ViewResolverRegistry) {
+    registry.addViewResolver(new EjsViewResolver('test/webapp/WEB-INF/', '.ejs'))
   }
 
   addArgumentResolvers(resolvers) {
@@ -38,6 +40,12 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
   }
 
   addResourceHandlers(registry) {
-    registry.addResourceHandler('/aa/**').addResourceLocations(path.resolve('swagger-ui/aa'));
+    registry
+      .addResourceHandler('/aa/**')
+      .addResourceLocations(path.join(__dirname, 'resources/aa'));
+  }
+
+  configurePathMatch(configurer: PathMatchConfigurer) {
+    configurer.setUrlPathHelper(new MyUrlPathHelper());
   }
 }
