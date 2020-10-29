@@ -33,7 +33,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     const mapping = registraction.getMapping();
     const handlerMethod = registraction.getHandlerMethod();
     const pathPatterns = mapping.value;
-    const matcher = new PathMatcher();
+    const matcher = this.pathMatcher;
     for (let pattern of pathPatterns) {
       const result = matcher.matchPattern(pattern, path);
       // 如果当前路由匹配成功

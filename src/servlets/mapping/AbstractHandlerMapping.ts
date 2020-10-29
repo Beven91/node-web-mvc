@@ -9,9 +9,15 @@ import ServletContext from '../http/ServletContext';
 import HandlerInterceptor from '../interceptor/HandlerInterceptor';
 import MappedInterceptor from '../interceptor/MappedInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
-import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
+import UrlPathHelper from "../util/UrlPathHelper";
+import PathMatcher from "../util/PathMatcher";
 
 export default abstract class AbstractHandlerMapping implements HandlerMapping {
+
+  public readonly urlPathHelper: UrlPathHelper
+
+  public readonly pathMatcher: PathMatcher
 
   /**
    * 所有设置的拦截器
@@ -66,6 +72,9 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
    * 初始化拦截器
    */
   constructor() {
+    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
+    this.urlPathHelper = pathMatchConfigurer.getUrlPathHelperOrDefault();
+    this.pathMatcher = pathMatchConfigurer.getPathMatcherOrDefault();
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
@@ -98,7 +107,7 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
   protected abstract getHandlerInternal(context: ServletContext): any
 
   protected initLookupPath(request: HttpServletRequest) {
-    return request.path;
+    return this.urlPathHelper.getServletPath(request);
   }
 
   /**

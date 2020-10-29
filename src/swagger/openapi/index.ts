@@ -8,7 +8,7 @@ import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathM
 import hot from 'nodejs-hmr';
 import Definition from './definition';
 import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
-import WebMvcConfigurationSupport from '../../servlets/WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../../servlets/config/WebMvcConfigurationSupport';
 
 // 获取当前工程的信息
 const pkg = require(path.resolve('package.json'));
@@ -188,9 +188,10 @@ export default class OpenApiModel {
       },
       tags: [],
       paths: {} as OperationsDoc,
-      servers: [
-        { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
-      ],
+      basePath: WebMvcConfigurationSupport.configurer.contextPath,
+      // servers: [
+      //   { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
+      // ],
       // components: {
       //   parameters: {},
       //   schemas: {}

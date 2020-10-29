@@ -6,7 +6,7 @@ import querystring from 'querystring';
 import View from './View';
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
-import DispatcherServlet from '../DispatcherServlet';
+import DispatcherServlet from '../dispatch/DispatcherServlet';
 import ForwardEndlessLoopError from '../../errors/ForwardEndlessLoopError';
 
 export default class InternalResourceView extends View {

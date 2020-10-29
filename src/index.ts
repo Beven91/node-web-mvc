@@ -70,7 +70,10 @@ import ResourceHandlerRegistry from './servlets/resources/ResourceHandlerRegistr
 import AbstractHandlerMethodAdapter from './servlets/method/AbstractHandlerMethodAdapter';
 import ResourceResolverChain from './servlets/resources/ResourceResolverChain';
 import ResourceTransformerChain from './servlets/resources/ResourceTransformerChain';
-import WebMvcConfigurationSupport from './servlets/WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from './servlets/config/WebMvcConfigurationSupport';
+import PathMatchConfigurers from './servlets/config/PathMatchConfigurer';
+import PathMatcher from './servlets/util/PathMatcher';
+import UrlPathHelpers from './servlets/util/UrlPathHelper';
 
 export {
   hot,
@@ -144,6 +147,9 @@ export {
   ResourceTransformerChain,
   ResourceResolverChain,
   WebMvcConfigurationSupport,
+  PathMatchConfigurers,
+  PathMatcher,
+  UrlPathHelpers,
 }
 
 hot.create(module);

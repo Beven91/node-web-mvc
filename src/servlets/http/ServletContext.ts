@@ -5,7 +5,7 @@
 import { IncomingMessage } from 'http';
 import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
-import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 
 export default abstract class ServletContext {

@@ -74,7 +74,7 @@ function createRouteMappings(target, controllerMapping: RequestMappingInfo) {
       // 合并controller路由
       controllerPaths.forEach((controllerPath) => {
         actionPaths.map((actionPath) => {
-          const exp = (controllerPath + '/' + actionPath).replace(/\/{2,3}/, '/').replace(/\{/g, ':').replace(/\}/g, '')
+          const exp = (controllerPath + '/' + actionPath).replace(/\/{2,3}/, '/');
           values.push(exp);
         })
       });

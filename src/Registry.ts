@@ -2,8 +2,8 @@ import ServletExpressContext from './servlets/platforms/ServletExpressContext';
 import ServletKoaContext from './servlets/platforms/ServletKoaContext';
 import ServletNodeContext from './servlets/platforms/ServletNodeContext';
 import ServletContext from './servlets/http/ServletContext';
-import DispatcherServlet from './servlets/DispatcherServlet';
-import WebMvcConfigurationSupport, { WebAppConfigurerOptions } from './servlets/WebMvcConfigurationSupport';
+import DispatcherServlet from './servlets/dispatch/DispatcherServlet';
+import WebMvcConfigurationSupport, { WebAppConfigurerOptions } from './servlets/config/WebMvcConfigurationSupport';
 
 declare class ContextRegistration {
   [propName: string]: typeof ServletContext
@@ -46,6 +46,9 @@ export default class Registry {
     }
     // 返回中间件
     return HttpContext.launch((request, response, next) => {
+      if(request.path.indexOf(configurer.base) !== 0){
+        return next();
+      }
       new Promise((resolve) => {
         const HttpServletContext = HttpContext as any;
         const context: ServletContext = new HttpServletContext(configurer, request, response, next);

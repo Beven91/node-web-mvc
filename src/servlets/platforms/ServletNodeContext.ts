@@ -4,7 +4,7 @@
  */
 import http from 'http';
 import ServletContext from '../http/ServletContext';
-import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export default class ServletNodeContext extends ServletContext {
   /**

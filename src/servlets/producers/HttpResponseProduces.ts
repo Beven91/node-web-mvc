@@ -6,7 +6,7 @@ import ServletContext from '../http/ServletContext';
 import ServletModel from '../models/ServletModel';
 import RequestMappingInfo from '../mapping/RequestMappingInfo';
 import HandlerMethod from '../method/HandlerMethod';
-import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import MediaType from '../http/MediaType';
 import ModelAndView from '../models/ModelAndView';
 import View from '../view/View';

@@ -6,7 +6,7 @@ import AbstractHandlerMethodAdapter from './AbstractHandlerMethodAdapter';
 import HandlerMethod from './HandlerMethod';
 import ServletContext from '../http/ServletContext';
 import ServletModel from '../models/ServletModel';
-import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import ResourceHttpRequestHandler from '../resources/ResourceHttpRequestHandler';
 
 export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter {

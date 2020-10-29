@@ -7,7 +7,7 @@ import { IncomingMessage, IncomingHttpHeaders } from 'http';
 import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
-import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 declare class Query {
   [propName: string]: any
@@ -64,10 +64,7 @@ export default class HttpServletRequest {
   /**
    * 去除contextPath后的请求路径
    */
-  public get usePath() {
-    const base = WebMvcConfigurationSupport.configurer.contextPath;
-    return base ? this.path.replace(new RegExp('^' + base), '') : this.path;
-  }
+  public readonly usePath: string
 
   /**
    * 请求参数
@@ -140,6 +137,9 @@ export default class HttpServletRequest {
     this.mediaType = new MediaType(this.headers['content-type']);
     this.servletContext = servletContext;
     this._cookies = this.parseCookie(request.headers['cookie']);
+    const base = WebMvcConfigurationSupport.configurer.contextPath;
+    const r = base ? this.path.replace(new RegExp('^' + base), '') : this.path;
+    this.usePath = /^\//.test(r) ? r : '/' + r;
   }
 
   /**

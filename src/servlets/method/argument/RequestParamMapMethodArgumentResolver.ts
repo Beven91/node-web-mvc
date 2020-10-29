@@ -5,7 +5,7 @@
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
-import WebMvcConfigurationSupport from '../../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../../config/WebMvcConfigurationSupport';
 import RequestParam from '../../annotations/params/RequestParam';
 
 export default class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {

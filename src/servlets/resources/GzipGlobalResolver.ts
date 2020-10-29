@@ -7,7 +7,7 @@ import HttpServletRequest from '../http/HttpServletRequest';
 import Resource from './Resource';
 import ResourceResolver from './ResourceResolver';
 import ResourceResolverChain from './ResourceResolverChain';
-import WebMvcConfigurationSupport from '../WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import GzipResource from './GzipResource';
 import GzipResourceResolver from './GzipResourceResolver';
 
