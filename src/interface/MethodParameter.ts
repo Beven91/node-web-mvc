@@ -66,11 +66,18 @@ export default class MethodParameter extends MethodParameterOptions {
   }
 
   /**
-   * 
-   * @param options 
-   * @param paramType 
+   * 获取当前参数注解
    */
+  public getParameterAnnotation<T>(): T {
+    return this.annotation ? this.annotation.nativeAnnotation as T : null;
+  }
 
+  /**
+   * 构造一个方法参数
+   * @param options 参数配置
+   * @param paramType 参数类型
+   * @param annotation 所属原始注解
+   */
   constructor(options, paramType?: string, annotation?: RuntimeAnnotation) {
     super();
     if (options instanceof MethodParameter) {
