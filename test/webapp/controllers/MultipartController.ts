@@ -4,7 +4,7 @@ import { PostMapping } from '../../../src/index';
 import ModelAndView from '../../../src/servlets/models/ModelAndView';
 import GetMapping from '../../../src/servlets/annotations/mapping/GetMapping';
 
-@Api({ description: 'multipart控制器' })
+@Api({ value: '文件上传' })
 @RequestMapping('/multipart')
 export default class MultipartController {
 

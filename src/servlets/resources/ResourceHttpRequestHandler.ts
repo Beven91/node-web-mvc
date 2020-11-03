@@ -23,6 +23,9 @@ import ResourceResolverChain from './ResourceResolverChain';
 import PathResourceResolver from './PathResourceResolver';
 import ResourceResolver from './ResourceResolver';
 import GzipGlobalResolver from './GzipGlobalResolver';
+import UrlPathHelper from '../util/UrlPathHelper';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
+import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
 
 export default class ResourceHttpRequestHandler {
 
@@ -40,6 +43,10 @@ export default class ResourceHttpRequestHandler {
 
   private resourceTransformerChain: ResourceTransformerChain
 
+  public get urlPathHelper(): UrlPathHelper {
+    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
+    return pathMatchConfigurer.getUrlPathHelperOrDefault();
+  }
 
   constructor(registration: ResourceHandlerRegistration) {
     this.registration = registration;
@@ -104,15 +111,16 @@ export default class ResourceHttpRequestHandler {
    * 处理请求url
    * @param request 
    */
-  processPath(resourcePath: string) {
-    return resourcePath.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
+  processPath(request: HttpServletRequest) {
+    const url = request.servletContext.getAttrigute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
+    return url.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
   }
 
   /**
   * 根据请求对象对应的静态资源
   */
   async getResource(request: HttpServletRequest) {
-    const resourcePath = this.processPath(request.usePath);
+    const resourcePath = this.processPath(request);
     const locations = this.registration.resourceLocations.map((url) => {
       url = url.endsWith(path.sep) ? url : url + path.sep;
       return new Resource(url);

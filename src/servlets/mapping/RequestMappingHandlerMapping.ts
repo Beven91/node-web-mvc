@@ -6,7 +6,6 @@
 import AbstractHandlerMethodMapping from "./AbstractHandlerMethodMapping";
 import RequestMappingInfo from './RequestMappingInfo';
 import HttpServletRequest from "../http/HttpServletRequest";
-import PathMatcher from '../util/PathMatcher';
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
 

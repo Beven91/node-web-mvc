@@ -13,10 +13,10 @@ const runtime = {
 export default class AdviceRegistry {
   // 设定全局控制器处理实例
   static register(Advice) {
-    const instance = runtime.controllerAdviceInstance;
-    if (instance) {
-      throw new Error('There has multiple @ControllerAdvice @' + instance.constructor.name + ' @' + Advice.name);
-    }
+    // const instance = runtime.controllerAdviceInstance;
+    // if (instance) {
+    //   throw new Error('There has multiple @ControllerAdvice @' + instance.constructor.name + ' @' + Advice.name);
+    // }
     runtime.Advice = Advice;
     runtime.controllerAdviceInstance = new Advice();
   }

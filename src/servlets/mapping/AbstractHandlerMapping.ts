@@ -15,6 +15,8 @@ import PathMatcher from "../util/PathMatcher";
 
 export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
+  static HANDLE_MAPPING_PATH = '@@HANDLE_MAPPING_PATH@@'
+
   public get urlPathHelper(): UrlPathHelper {
     const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
     return pathMatchConfigurer.getUrlPathHelperOrDefault();
@@ -110,7 +112,9 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
   protected abstract getHandlerInternal(context: ServletContext): any
 
   protected initLookupPath(request: HttpServletRequest) {
-    return this.urlPathHelper.getServletPath(request);
+    const url = this.urlPathHelper.getServletPath(request);
+    request.servletContext.setAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH,url);
+    return url;
   }
 
   /**

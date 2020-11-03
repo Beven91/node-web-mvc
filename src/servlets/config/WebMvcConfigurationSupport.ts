@@ -2,9 +2,6 @@
  * @module WebAppConfigurer
  * @description 服务全局配置
  */
-import path from 'path';
-import glob from 'glob'
-import bytes from 'bytes';
 import OpenApi from '../../swagger/openapi';
 import HandlerInterceptorRegistry from '../interceptor/HandlerInterceptorRegistry';
 import MessageConverter from '../http/converts/MessageConverter';
@@ -15,10 +12,11 @@ import hot, { HotOptions } from 'nodejs-hmr';
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
 import PathMatchConfigurer from './PathMatchConfigurer';
+import Bytes from '../util/Bytes';
+import ModuleLoader from '../util/ModuleLoader';
 
 const runtime = {
   configurer: null,
-  cacheKeys: {},
   defaultMimes: {
     gzipped: false,
     mimeTypes: 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain',
@@ -85,7 +83,7 @@ export declare interface WebAppConfigurerOptions {
 
 export default class WebMvcConfigurationSupport implements WebAppConfigurerOptions {
 
-  public readonly pathMatchConfigurer:PathMatchConfigurer
+  public readonly pathMatchConfigurer: PathMatchConfigurer
 
   /**
    * 参数解析器
@@ -188,8 +186,8 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     this.resource = options.resource || runtime.defaultMimes;
     this.resource.mimeTypes = this.initializeMimeTypes(this.resource.mimeTypes);
     this.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
-    this.multipart.maxFileSize = this.sizeFormat(this.multipart.maxFileSize, bytes.parse('500kb'));
-    this.multipart.maxRequestSize = this.sizeFormat(this.multipart.maxRequestSize, bytes.parse('500kb'));
+    this.multipart.maxFileSize = new Bytes(this.multipart.maxFileSize, '500kb').bytes;
+    this.multipart.maxRequestSize = new Bytes(this.multipart.maxRequestSize, '500kb').bytes;
     this.pathMatchConfigurer = new PathMatchConfigurer();
   }
 
@@ -230,44 +228,18 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
   }
 
   // 提供扩展配置路径匹配相关
-  public configurePathMatch(configurer:PathMatchConfigurer){
-    if(this.options.configurePathMatch){
+  public configurePathMatch(configurer: PathMatchConfigurer) {
+    if (this.options.configurePathMatch) {
       this.options.configurePathMatch(configurer);
     }
   }
 
-  /**
-   * 格式化请求大小
-   * @param size 
-   * @param dv 
-   */
-  protected sizeFormat(size, dv: number) {
-    size = typeof size === 'string' && size ? bytes.parse(size) : size;
-    return size == '' || isNaN(size) ? dv : size;
-  }
-
-  /**
-   * 装载模块
-   * @param dir 
-   */
-  private static launchSpringMvc(dir) {
-    const cacheKeys = runtime.cacheKeys;
-    const files = glob.sync(dir + '/**/*.*').filter((name) => {
-      const ext = path.extname(name);
-      return ext === '.js' || ext === '.ts';
-    });
-    files.forEach((name) => {
-      if (!cacheKeys[name.toLowerCase()]) {
-        require(name);
-      }
-    })
-  }
-
   static readyWorkprogress(cwd: Array<string>) {
     // 存储cacheKeys
-    Object.keys(require.cache).forEach((k) => runtime.cacheKeys[k.replace(/\\/g, '/').toLowerCase()] = true);
+    const cache = {};
+    Object.keys(require.cache).forEach((k) => cache[k.replace(/\\/g, '/').toLowerCase()] = true);
     // 加载controller等
-    cwd.forEach((dir) => this.launchSpringMvc(dir))
+    cwd.forEach((dir) => new ModuleLoader(dir, cache));
     // 初始化没有配置class注解的mapping
     RequestMappingAnnotation.initializeUnClassMappings();
   }

@@ -9,7 +9,7 @@ export declare class ApiOptions {
    */
   description?: string
 
-  externalDocs?:ExternalDocs
+  externalDocs?: ExternalDocs
 
   /**
    * 接口标签 如果没有定义tags 则默认使用 value
@@ -22,7 +22,7 @@ export declare class ApiTag {
 
   description?: string
 
-  externalDocs?:ExternalDocs
+  externalDocs?: ExternalDocs
 
 }
 
@@ -45,7 +45,7 @@ export declare class ApiOperationOptions {
   httpMethod?
 
   // 返回数据类型
-  returnType?: string | any
+  returnType?: string
 
   // 返回示例
   example?: any
@@ -80,7 +80,12 @@ export declare class ApiImplicitParamOptions {
   /**
    * 参数的数据类型
    */
-  dataType?: string
+  dataType?: string | any
+
+  /**
+   * 参数示例值，一定程度上可用于补充dataType
+   */
+  example?: any
 
   /**
    * 参数传入类型 可选的值有path, query, body, header or form
@@ -191,6 +196,11 @@ export declare class ApiOperationParamMeta {
    * 参数原始数据类型
    */
   dataType: string
+
+  /**
+   * 示例值
+   */
+  example: string
 
   /**
    * 参数值类型

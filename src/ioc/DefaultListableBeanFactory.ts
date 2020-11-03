@@ -41,7 +41,10 @@ export default class DefaultListableBeanFactory implements BeanFactory {
      * 内部热更新 
      */
     hot.create(module).preload((old) => {
-      hot.createHotUpdater(this.beanDefinitions, null, old).remove();
+      hot
+        .createHotUpdater<BeanDefinition>(this.beanDefinitions, null, old)
+        .needHot((definition, ctor) => definition.ctor === ctor)
+        .remove();
     });
   }
 

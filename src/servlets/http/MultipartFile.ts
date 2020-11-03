@@ -3,7 +3,7 @@
  * @description 上传的文件对象
  */
 import path from 'path';
-import fs from 'fs-extra';
+import fs from 'fs';
 import MediaType from "./MediaType";
 
 export default class MultipartFile {
@@ -54,7 +54,7 @@ export default class MultipartFile {
     // 临时文件存放区域
     this.id = path.resolve('app_data/temp-files', Date.now().toString());
     // 确认目标目录是否存在
-    fs.ensureDirSync(path.dirname(this.id));
+    this.ensureDirSync(path.dirname(this.id));
 
     this.awaiting = new Promise((resolve) => {
       // 创建一个写出流
@@ -89,9 +89,22 @@ export default class MultipartFile {
       .resolve(this.awaiting)
       .then(() => {
         // 写出文件
-        fs.ensureDirSync(path.dirname(dest));
+        this.ensureDirSync(path.dirname(dest));
         fs.renameSync(this.id, dest);
       })
+  }
+
+  ensureDirSync(dir) {
+    if (fs.existsSync(dir)) {
+      return;
+    }
+    const input = path.resolve(dir);
+    try {
+      fs.mkdirSync(input);
+    } catch (ex) {
+      this.ensureDirSync(path.dirname(input));
+      this.ensureDirSync(input);
+    }
   }
 
   /**
@@ -105,7 +118,7 @@ export default class MultipartFile {
   destory() {
     try {
       if (fs.existsSync(this.id)) {
-        fs.removeSync(this.id);
+        fs.unlinkSync(this.id);
       }
     } catch (ex) {
       console.warn(ex);

@@ -4,7 +4,7 @@ import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
-@Api({ value:'你好' })
+@Api({ value:'首页' })
 @RequestMapping('/home')
 export default class HomeController {
 
@@ -29,7 +29,7 @@ export default class HomeController {
 
   @ApiOperation({ value: '@RequestBody 测试' })
   @ApiImplicitParams([
-    { description: '类型', paramType: 'body', name: 'user' }
+    { description: '类型', paramType: 'body', name: 'user',example:{ name:1} }
   ])
   @PostMapping({ value: '/body', produces: 'application/json' })
   body(@RequestBody user: UserInfo): UserInfo {

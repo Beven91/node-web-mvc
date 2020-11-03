@@ -10,9 +10,6 @@ import Definition from './definition';
 import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
 import WebMvcConfigurationSupport from '../../servlets/config/WebMvcConfigurationSupport';
 
-// 获取当前工程的信息
-const pkg = require(path.resolve('package.json'));
-
 // 所有注册models
 const definitions = Definition.definitions;
 
@@ -126,6 +123,7 @@ export default class OpenApiModel {
     operation.parameters.push({
       name: param.name,
       required: param.required,
+      example: param.example,
       description: param.description || param.value,
       in: param.dataType === 'file' ? 'formData' : param.paramType,
       dataType: param.dataType,
@@ -184,7 +182,10 @@ export default class OpenApiModel {
    * 获取完整的swaager openapi.json
    */
   static build() {
-    const contributor = (pkg.contributors || [])[0] || {};
+    const id = require.resolve(path.resolve('package.json'));
+    delete require.cache[id];
+    const pkg = require(id);
+    // const contributor = (pkg.contributors || [])[0] || {};
     const documentation = {
       info: {
         // contact: {
@@ -272,7 +273,7 @@ export default class OpenApiModel {
   private static buildOperationParameters(operation: ApiOperationMeta) {
     return operation.parameters.map((parameter) => {
       const dataType = parameter.dataType;
-      const model = Definition.getDefinitionModel(dataType);
+      const model = dataType ? Definition.getDefinitionModel(dataType) : Definition.getDefinition2(parameter.example);
       if (dataType === 'file' && !operation.consumes) {
         operation.consumes = ['multipart/form-data'];
       }
