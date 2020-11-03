@@ -2,20 +2,22 @@
  * @module ApiImplicitParams
  * 用于标注接口参数
  */
-import OpenApi from '../openapi/index';
 import { ApiImplicitParamOptions } from '../openapi/declare';
 import MultipartFile from '../../servlets/http/MultipartFile';
 import { parameterReturnable } from '../../servlets/annotations/Target';
 import Javascript from '../../interface/Javascript';
+import Target from '../../servlets/annotations/Target';
+import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
 
-/**
- * 用于标注指定controller为接口类
- * @param {ApiOptions} options 
- */
-export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>) {
-  return (target, name, descriptor) => {
+@Target
+export class ApiImplicitParamsAnnotation {
+
+  parameters?: Array<ApiImplicitParamOptions>
+
+  constructor(meta: RuntimeAnnotation, options: Array<ApiImplicitParamOptions>) {
+    const { target, methodName: name } = meta;
     const parameters = Javascript.resolveParameters(target[name]);
-    params = params.map((param) => {
+    this.parameters = options.map((param) => {
       if (typeof param === 'function') {
         const decorator = param as Function;
         // 执行参数注解
@@ -44,6 +46,11 @@ export default function ApiImplicitParams(params: Array<ApiImplicitParamOptions>
       }
       return param;
     })
-    OpenApi.addOperationParams(params, target.constructor, name);
   }
 }
+
+/**
+ * 用于标注接实体类
+ * @param {ApiOperationOptions} options 配置 
+ */
+export default Target.install<typeof ApiImplicitParamsAnnotation, Array<ApiImplicitParamOptions>>(ApiImplicitParamsAnnotation);

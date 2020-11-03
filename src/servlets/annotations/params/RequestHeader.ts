@@ -4,16 +4,16 @@
  * @description 提取header中的信息作为参数值
  */
 import createParam from './createParam';
-import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import ParamAnnotation from './ParamAnnotation';
 
 @Target
-class RequestHeader {
-
-  public param: MethodParameter
+class RequestHeader extends ParamAnnotation {
 
   constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
+    super();
     this.param = createParam(options, meta, 'header');
   }
 }

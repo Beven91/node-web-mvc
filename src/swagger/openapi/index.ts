@@ -9,6 +9,13 @@ import hot from 'nodejs-hmr';
 import Definition from './definition';
 import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
 import WebMvcConfigurationSupport from '../../servlets/config/WebMvcConfigurationSupport';
+import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import ApiImplicitParams, { ApiImplicitParamsAnnotation } from '../annotations/ApiImplicitParams';
+import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
+import MethodParameter from '../../interface/MethodParameter';
+import MultipartFile from '../../servlets/http/MultipartFile';
+
+const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
 // 所有注册models
 const definitions = Definition.definitions;
@@ -106,10 +113,10 @@ export default class OpenApiModel {
    * @param { Controller } ctor 修饰的控制器
    * @param { String } name 操作名称
    */
-  static addOperationParams(params: Array<ApiImplicitParamOptions>, ctor, name) {
+  static mapOperationParams(params: Array<ApiImplicitParamOptions>) {
     params
       .filter((param) => !!param)
-      .forEach((param) => this.addOperationParam(param, ctor, name))
+      .forEach((param) => this.mapOperationParam(param))
   }
 
   /**
@@ -118,9 +125,8 @@ export default class OpenApiModel {
    * @param { Controller } ctor 修饰的控制器
    * @param { String } name 操作名称
    */
-  static addOperationParam(param: ApiImplicitParamOptions, ctor, name) {
-    const operation = this.createOperation(ctor, name, {});
-    operation.parameters.push({
+  static mapOperationParam(param: ApiImplicitParamOptions) {
+    return {
       name: param.name,
       required: param.required,
       example: param.example,
@@ -131,7 +137,7 @@ export default class OpenApiModel {
       schema: {
         $ref: null,
       }
-    });
+    }
   }
 
   /**
@@ -266,12 +272,40 @@ export default class OpenApiModel {
     })
   }
 
+  private static getOperationParameters(operation: ApiOperationMeta) {
+    const { method } = operation;
+    const ctor = operation.api.class;
+    const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiImplicitParams);
+    const annotations = RuntimeAnnotation.getMethodParamAnnotations(ctor, method);
+    const paramsAnnotation = (apiImplicitAnno ? apiImplicitAnno.nativeAnnotation : {}) as ApiImplicitParamsAnnotation;
+    const parameters2 = annotations.filter((m) => m.nativeAnnotation instanceof ParamAnnotation).map((m) => m.nativeAnnotation.param);
+    const parameters = paramsAnnotation.parameters || [];
+    const parameterNames = parameters.length > parameters2.length ? parameters.map((p) => p.name) : parameters2.map((m) => m.name);
+    return parameterNames.map((name) => {
+      const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
+      const parameter2 = (parameters2.find((m) => m.name === name) || {}) as MethodParameter;
+      const dataType = parameter2.dataType;
+      const isFile = dataType === MultipartFile;
+      const typeName = typeof dataType === 'function' ? dataType.name : emptyOf(dataType, 'string');
+      return this.mapOperationParam({
+        name: emptyOf(parameter.name, parameter2.name),
+        value: emptyOf(parameter.value, parameter2.desc),
+        required: emptyOf(parameter.required, parameter2.required),
+        dataType: emptyOf(parameter.dataType, isFile ? 'file' : typeName),
+        example: emptyOf(parameter.example, parameter2.defaultValue),
+        paramType: emptyOf(parameter2.paramType, parameter.paramType),
+        description: emptyOf(parameter.description, parameter2.desc)
+      });
+    });
+  }
+
   /**
    * 构建api接口操作参数
    * @param operation 
    */
   private static buildOperationParameters(operation: ApiOperationMeta) {
-    return operation.parameters.map((parameter) => {
+    const parameters = this.getOperationParameters(operation);
+    return parameters.map((parameter) => {
       const dataType = parameter.dataType;
       const model = dataType ? Definition.getDefinitionModel(dataType) : Definition.getDefinition2(parameter.example);
       if (dataType === 'file' && !operation.consumes) {

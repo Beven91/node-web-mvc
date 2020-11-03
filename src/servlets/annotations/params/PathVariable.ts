@@ -4,16 +4,16 @@
  * @description 提取path中请求参数值
  */
 import createParam from './createParam';
-import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import ParamAnnotation from './ParamAnnotation';
 
 @Target
-class PathVariable {
-
-  public param: MethodParameter
+class PathVariable extends ParamAnnotation {
 
   constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
+    super();
     this.param = createParam(options, meta, 'path');
   }
 }

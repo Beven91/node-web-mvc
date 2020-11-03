@@ -3,16 +3,16 @@
  * @description 提取body请求参数值
  */
 import createParam from './createParam';
-import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import ParamAnnotation from './ParamAnnotation';
 
 @Target
-class RequestBody {
-
-  public param: MethodParameter
+class RequestBody extends ParamAnnotation {
 
   constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string ) {
+    super();
     this.param = createParam(options, meta, 'body');
   }
 }

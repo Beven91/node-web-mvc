@@ -4,16 +4,16 @@
  * @description 提取query请求参数值
  */
 import createParam from './createParam';
-import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import ParamAnnotation from './ParamAnnotation';
 
 @Target
-class RequestParam {
-
-  public param: MethodParameter
+class RequestParam extends ParamAnnotation {
 
   constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
+    super();
     this.param = createParam(options, meta, 'query');
   }
 }
