@@ -31,17 +31,13 @@ export class ApiImplicitParamsAnnotation {
         if (!annotation || !options) {
           return null;
         }
-        let dataType = options.dataType || { name: undefined };
-        if (dataType === MultipartFile) {
-          dataType = { name: 'file' }
-        }
         return {
           name: options.value,
           description: options.desc,
           required: options.required,
           paramType: options.paramType,
           example: options.example,
-          dataType: dataType.name === 'Object' ? undefined : dataType.name,
+          dataType: options.dataType,
         }
       }
       return param;

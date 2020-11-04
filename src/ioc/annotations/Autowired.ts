@@ -24,4 +24,4 @@ class Autowired {
 }
 
 // 公布注解
-export default Target.install<typeof Autowired, string | AutowiredOptions>(Autowired);
+export default Target.install<typeof Autowired, AutowiredOptions>(Autowired);

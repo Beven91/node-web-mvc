@@ -45,10 +45,7 @@ export declare class ApiOperationOptions {
   httpMethod?
 
   // 返回数据类型
-  returnType?: string
-
-  // 返回示例
-  example?: any
+  returnType?: any
 
   /**
    * 返回http结果类型
@@ -80,7 +77,7 @@ export declare class ApiImplicitParamOptions {
   /**
    * 参数的数据类型
    */
-  dataType?: string | any
+  dataType?: any
 
   /**
    * 参数示例值，一定程度上可用于补充dataType

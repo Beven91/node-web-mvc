@@ -49,6 +49,14 @@ export default class DefaultListableBeanFactory implements BeanFactory {
   }
 
   /**
+   * 判断是否存在对应key的实体定义
+   * @param key
+   */
+  hasDefinition(key) {
+    return this.beanDefinitions.has(key);
+  }
+
+  /**
    * 获取指定名称的 bean定义
    * @param name 
    */

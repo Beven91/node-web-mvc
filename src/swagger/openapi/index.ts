@@ -244,7 +244,7 @@ export default class OpenApiModel {
     }
     const code = 'code' in option ? option.code : '200';
     const returnType = option.returnType;
-    const model = returnType ? Definition.getDefinitionModel(returnType) : Definition.getExampleDefinitionModel(option.example);
+    const model = Definition.getDefinition(returnType);
     const operationDoc = {
       consumes: mapping.consumes || operation.consumes || mapping.consumes,
       deprecated: false,
@@ -284,14 +284,11 @@ export default class OpenApiModel {
     return parameterNames.map((name) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameter2 = (parameters2.find((m) => m.name === name) || {}) as MethodParameter;
-      const dataType = parameter2.dataType;
-      const isFile = dataType === MultipartFile;
-      const typeName = typeof dataType === 'function' ? dataType.name : emptyOf(dataType, 'string');
       return this.mapOperationParam({
         name: emptyOf(parameter.name, parameter2.name),
         value: emptyOf(parameter.value, parameter2.desc),
         required: emptyOf(parameter.required, parameter2.required),
-        dataType: emptyOf(parameter.dataType, isFile ? 'file' : typeName),
+        dataType: emptyOf(parameter.dataType, parameter2.dataType),
         example: emptyOf(parameter.example, parameter2.defaultValue),
         paramType: emptyOf(parameter2.paramType, parameter.paramType),
         description: emptyOf(parameter.description, parameter2.desc)
@@ -306,9 +303,9 @@ export default class OpenApiModel {
   private static buildOperationParameters(operation: ApiOperationMeta) {
     const parameters = this.getOperationParameters(operation);
     return parameters.map((parameter) => {
-      const dataType = parameter.dataType;
-      const model = dataType ? Definition.getDefinitionModel(dataType) : Definition.getDefinition2(parameter.example);
-      if (dataType === 'file' && !operation.consumes) {
+      const dataType = parameter.dataType ? Definition.reflectTypeName(parameter.dataType) : null;
+      const model = Definition.getDefinition(emptyOf(dataType, parameter.example));
+      if (dataType === 'file') {
         operation.consumes = ['multipart/form-data'];
       }
       return {
@@ -316,7 +313,7 @@ export default class OpenApiModel {
         required: parameter.required,
         description: parameter.description,
         in: parameter.in,
-        type: model.schema ? undefined : model.type || dataType,
+        type: model.schema ? undefined : model.type || dataType || 'string',
         items: model.items,
         schema: model.schema,
       }

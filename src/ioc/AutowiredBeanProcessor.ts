@@ -5,21 +5,13 @@
 
 import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
 import DefaultListableBeanFactory from "./DefaultListableBeanFactory";
-import BeanDefinition from "./BeanDefinition";
 
 export class AutowiredOptions {
 
   constructor(options) {
-    if (typeof options === 'string') {
-      this.name = options;
-    } else {
-      options = options || {};
-      this.name = options.name;
-      this.required = options.required !== true;
-    }
+    options = options || {};
+    this.required = options.required !== true;
   }
-
-  name?: string
 
   /**
    * 是否当前装配的实例必须存在，如果无法装配，则抛出异常
@@ -34,15 +26,13 @@ class AutowiredBeanProcessor {
    * 创建bean
    */
   private createBean(meta: RuntimeAnnotation, options: AutowiredOptions) {
-    const name = options.name || meta.name
     const beanFactory = DefaultListableBeanFactory.getInstance();
-    const definition = (beanFactory.getDefinition(name) || {}) as BeanDefinition;
-    const bean = beanFactory.getBean(name);
-    if (!definition) {
-      throw new Error(`Cannot create bean:${name}, definition not found`)
-    }
+    const use = (key) => beanFactory.getBean(key);
+    // 优先级： type > propertyName
+    const bean = use(meta.dataType) || use(meta.name)
     if (options.required && (undefined === bean || null === bean)) {
-      throw new Error(`Cannot create bean:${name}, create null`)
+      const name = meta.dataType ? meta.dataType.name : '';
+      throw new Error(`Autowired Cannot find bean:${meta.name} (${name})`)
     }
     return bean;
   }

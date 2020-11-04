@@ -44,7 +44,7 @@ export default class RuntimeAnnotation {
   public get method() {
     const fn = this.elementType === ElementType.TYPE ? null : this.target[this.methodName];
     if (fn) {
-      Object.defineProperty(fn, 'name', { value:this.methodName });
+      Object.defineProperty(fn, 'name', { value: this.methodName });
     }
     return fn;
   }
@@ -93,6 +93,13 @@ export default class RuntimeAnnotation {
   get paramType() {
     const paramtypes = Reflect.getMetadata('design:paramtypes', this.target, this.name) || [];
     return paramtypes[this.paramIndex];
+  }
+
+  /**
+   * 当注解，作用在属性上时，的类型
+   */
+  get dataType() {
+    return Reflect.getMetadata('design:type', this.target, this.name);
   }
 
   /**

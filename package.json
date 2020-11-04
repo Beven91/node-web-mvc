@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "2.8.31",
+  "version": "2.9.0",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "types": "./src/index",
@@ -8,8 +8,8 @@
     "test": "test"
   },
   "scripts": {
-    "start": "ts-node ./test/www.ts",
-    "start2": "ts-node ./test/index.ts",
+    "start": "ts-node ./test/index.ts",
+    "start2": "ts-node ./test/www.ts",
     "build": "tsc",
     "prepublish": "npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"

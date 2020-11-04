@@ -4,32 +4,36 @@ import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
-@Api({ value:'首页' })
+@Api({ value: '首页' })
 @RequestMapping('/home')
 export default class HomeController {
 
   @Autowired
   private orderService: OrderService;
 
-  @ApiOperation({ value: '@RequestParam 测试', example: 'string' })
+  @Autowired
+  private oService: OrderService
+
+  @ApiOperation({ value: '@RequestParam 测试', returnType: 'string' })
   @GetMapping('/index')
   // @ApiImplicitParams([
   //   { description: '编号', paramType: 'query', name: 'id', required: true }
   // ])
-  index(@RequestParam({ required: true }) id:string,@RequestParam file:MultipartFile) {
+  index(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
+    this.oService.sayHello();
     this.orderService.sayHello();
     return 'home/index...' + id;
   }
 
   @ApiOperation({ value: '@RequestHeader头部' })
   @GetMapping('/header')
-  header(@RequestHeader({ value: 'accept' }) type:string) {
+  header(@RequestHeader({ value: 'accept' }) type: string) {
     return 'home/index...' + type;
   }
 
   @ApiOperation({ value: '@RequestBody 测试' })
   @ApiImplicitParams([
-    { description: '类型', paramType: 'body', name: 'user',example:{ name:1} }
+    { description: '类型', paramType: 'body', name: 'user', example: { name: 1 } }
   ])
   @PostMapping({ value: '/body', produces: 'application/json' })
   body(@RequestBody user: UserInfo): UserInfo {
@@ -41,7 +45,7 @@ export default class HomeController {
   @ApiImplicitParams([
     { description: '编号', paramType: 'path', name: 'id' }
   ])
-  path(@PathVariable id:string) {
+  path(@PathVariable id: string) {
     return 'home/index...' + id;
   }
 
@@ -61,5 +65,11 @@ export default class HomeController {
   @GetMapping('/return2')
   returnData2() {
 
+  }
+
+  @ApiOperation({ value:'自定义返回', returnType:['hello'] })
+  @GetMapping('/demo')
+  demo(){
+    return ['aaa'];
   }
 }

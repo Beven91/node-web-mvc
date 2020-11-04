@@ -14,8 +14,12 @@ class Service {
   constructor(meta: RuntimeAnnotation, options: BeanOptions) {
     options = options || {};
     const beanFactory = DefaultListableBeanFactory.getInstance();
-    const name = options.name || BeanOptions.toBeanName(meta.ctor.name);
-    beanFactory.registerBeanDefinition(name, new BeanDefinition(meta.ctor));
+    const definition = new BeanDefinition(meta.ctor);
+    if (options.name) {
+      beanFactory.registerBeanDefinition(name, definition);
+    }
+    beanFactory.registerBeanDefinition(BeanOptions.toBeanName(meta.ctor.name), definition);
+    beanFactory.registerBeanDefinition(meta.ctor, definition);
   }
 }
 

@@ -4,6 +4,7 @@
  * https://petstore.swagger.io/v2/swagger.json
  * https://generator3.swagger.io/openapi.json
  */
+import MultipartFile from "../../servlets/http/MultipartFile";
 import { ApiModelMeta, DefinitionInfo } from "./declare";
 
 // 所有注册models
@@ -61,7 +62,7 @@ export default class Definition {
     const finalProperties = {};
     Object.keys(properties).forEach((key) => {
       const property = properties[key];
-      const info = this.getDefinitionModel(property.type);
+      const info = this.getDefinitionByName(property.type);
       if (info.type === 'array') {
         finalProperties[key] = info;
       } else if (info.schema) {
@@ -90,7 +91,7 @@ export default class Definition {
       parts.forEach((name, index) => {
         genericName = genericName.replace(`<${index + 1}>`, `<${name}>`);
       })
-      data = this.getDefinitionModel(genericName);
+      data = this.getDefinitionByName(genericName);
     }
     if (data.empty) {
       return isArray ? { type: 'array', items: define.items } : { '$ref': this.makeRef(define.name) };
@@ -147,13 +148,21 @@ export default class Definition {
     }
   }
 
+  static getDefinition(dataType: any) {
+    if (typeof dataType === 'string') {
+      return this.getDefinitionByName(dataType);
+    } else {
+      return this.getDefinitionByType(dataType);
+    }
+  }
+
   /**
    * 解析paramType类型
    * @param {String} paramType 类型字符串
    * List<A>
    * Map<K,V>
    */
-  static getDefinitionModel(dataType: any) {
+  static getDefinitionByName(dataType: any) {
     const model = definitions[dataType];
     if (model) {
       return { schema: { '$ref': this.makeRef(dataType) } };
@@ -170,21 +179,57 @@ export default class Definition {
     }
   }
 
-  static getExampleDefinitionModel(dataType: any) {
-    const model = this.getDefinition2(dataType);
+  static getDefinitionByType(dataType: any) {
+    const model = this.reflectDefinition(dataType);
     if (model.type) {
       return { schema: model }
     }
     return model;
   }
 
-  static getDefinition2(value) {
+  static reflectTypeName(value) {
+    switch (value) {
+      case String:
+        return 'string';
+      case Date:
+        return 'date-time';
+      case Boolean:
+        return 'boolean';
+      case Number:
+        return 'integer';
+      case Function:
+        return value.name || 'string';
+      case Array:
+        return 'array';
+      default:
+        return this.instanceType(value) || 'string';
+    }
+  }
+
+  private static instanceType(value) {
+    const name = typeof value;
+    if (value instanceof MultipartFile || value === MultipartFile) {
+      return 'file';
+    } else if (value instanceof Buffer || value && /Buffer/.test(value.name)) {
+      return 'binary';
+    } else if (value instanceof Date) {
+      return 'date-time';
+    } else if (value instanceof Array || value && /Array/.test(value.name)) {
+      return 'array';
+    } else if (name === 'function') {
+      return value.name;
+    } else {
+      return name;
+    }
+  }
+
+  static reflectDefinition(value) {
     if (!value) {
       return { type: 'string', example: value }
     } else if (value instanceof Array) {
       return {
         type: 'array',
-        items: this.getDefinition2(value[0])
+        items: this.reflectDefinition(value[0])
       }
     } else if (value && typeof value === 'object') {
       const name = 'Anonymous' + (runtime.id++);
@@ -196,7 +241,7 @@ export default class Definition {
         properties: {}
       }
       Object.keys(value).forEach((key) => {
-        definition.properties[key] = this.getDefinition2(value[key]);
+        definition.properties[key] = this.reflectDefinition(value[key]);
       })
       return {
         schema: { '$ref': this.makeRef(name) }
