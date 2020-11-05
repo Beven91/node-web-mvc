@@ -23,7 +23,7 @@ export default class MultipartController {
     RequestParam({ value: 'id', desc: '用户id', required: true })
   ])
   @PostMapping('/upload')
-  async upload(file: MultipartFile, desc, id) {
+  async upload(file: MultipartFile, desc:string, id:number) {
     await file.transferTo('app_data/images/' + file.name);
     return {
       status:0,
@@ -42,7 +42,7 @@ export default class MultipartController {
     RequestParam({ value: 'name', desc: '用户id' })
   ])
   @PostMapping('/upload2')
-  async upload2(@RequestParam files: Array<MultipartFile>, name) {
+  async upload2(@RequestParam files: Array<MultipartFile>, name:string) {
     for (let file of files) {
       await file.transferTo('app_data/images/' + file.name)
     }

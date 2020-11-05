@@ -14,6 +14,8 @@ import ViewNotFoundError from '../../errors/ViewNotFoundError';
 import InterruptModel from '../models/InterruptModel';
 import { RequestMappingAnnotation } from '../annotations/mapping/RequestMapping';
 import { RestControllerAnnotation } from '../annotations/RestController';
+import ResponseEntity from '../models/ResponseEntity';
+import HttpStatus from '../http/HttpStatus';
 
 export default class HttpResponseProduces {
 
@@ -76,10 +78,10 @@ export default class HttpResponseProduces {
       })
   }
 
-  /**
-   * 返回非视图数据
-   */
-  private handleModelResponse(data, handler: HandlerMethod) {
+  private createResponseEntity(data, handler: HandlerMethod) {
+    if (data instanceof ResponseEntity) {
+      return data;
+    }
     const { responseStatus, responseStatusReason } = handler;
     const useStatus = !(responseStatus === null || responseStatus === undefined)
     const status = useStatus ? responseStatus : 200;
@@ -91,15 +93,28 @@ export default class HttpResponseProduces {
     const actProduces = this.actionMapping ? this.actionMapping.produces : '';
     const produces = actProduces || restProduces || ctrlProduces;
     const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain;charset=utf-8');
-    // 设置返回内容类型
-    response.setHeader('Content-Type', mediaType.toString());
-    // 设置返回状态
-    response.setStatus(status, responseStatusReason);
+    return ResponseEntity
+      .status(new HttpStatus(status, responseStatusReason))
+      .body(data)
+      .contentType(mediaType);
+  }
+
+  /**
+   * 返回非视图数据
+   */
+  private handleModelResponse(data, handler: HandlerMethod) {
+    const { servletContext } = this;
+    const { response } = servletContext;
+    const entity = this.createResponseEntity(data, handler);
+    Object.keys(entity.responseHeaders).forEach((key) => {
+      response.setHeader(key, entity.responseHeaders[key]);
+    })
+    response.setStatus(entity.responseStatus);
     // 根据对应的转换器来写出内容到客户端
     return WebMvcConfigurationSupport
       .configurer
       .messageConverters
-      .write(data, mediaType, servletContext)
+      .write(entity.data, entity.mediaType, servletContext)
       .then(() => {
         servletContext.response.end()
       })

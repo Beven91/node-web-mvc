@@ -131,7 +131,7 @@ export default class OpenApiModel {
       required: param.required,
       example: param.example,
       description: param.description || param.value,
-      in: param.dataType === 'file' ? 'formData' : param.paramType,
+      in: param.dataType === MultipartFile ? 'formData' : param.paramType,
       dataType: param.dataType,
       type: '',
       schema: {

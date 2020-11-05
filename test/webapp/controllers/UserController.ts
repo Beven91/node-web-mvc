@@ -19,7 +19,7 @@ export default class UserController {
     RequestParam('name')
   ])
   @RequestMapping('/setUser')
-  setUser(name) {
+  setUser(name:string) {
     this.user = {
       name: name
     }

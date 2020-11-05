@@ -84,10 +84,11 @@ export default class MethodParameter extends MethodParameterOptions {
       return options;
     } else if (typeof options === 'string') {
       this.value = options;
+      this.required = true;
     } else if (options) {
       this.value = options.value;
       this.desc = options.desc;
-      this.required = options.required;
+      this.required = options.required !== false;
       this.name = options.name;
       this.dataType = options.dataType;
       this.defaultValue = options.defaultValue;

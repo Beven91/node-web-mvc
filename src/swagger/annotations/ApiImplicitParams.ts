@@ -3,7 +3,6 @@
  * 用于标注接口参数
  */
 import { ApiImplicitParamOptions } from '../openapi/declare';
-import MultipartFile from '../../servlets/http/MultipartFile';
 import { parameterReturnable } from '../../servlets/annotations/Target';
 import Javascript from '../../interface/Javascript';
 import Target from '../../servlets/annotations/Target';

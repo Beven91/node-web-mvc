@@ -10,6 +10,7 @@ import DefaultMessageConverter from './DefaultMessageConverter';
 import MultipartMessageConverter from './MultipartMessageConverter';
 import UrlencodedMessageConverter from './UrlencodedMessageConverter';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
+import OctetStreamMessageConverter from './OctetStreamMessageConverter';
 import hot from 'nodejs-hmr';
 
 export default class MessageConverter {
@@ -21,7 +22,8 @@ export default class MessageConverter {
       new JsonMessageConverter(),
       new UrlencodedMessageConverter(),
       new MultipartMessageConverter(),
-      new DefaultMessageConverter()
+      new OctetStreamMessageConverter(),
+      new DefaultMessageConverter(),
     ]
     // 热更新
     acceptHot(this.registerConverters);
@@ -58,10 +60,12 @@ export default class MessageConverter {
   /**
    * 写出内容到response中
    */
-  write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
+  write(body: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
     return new Promise((resolve) => {
-      const converter = this.registerConverters.find((converter) => converter.canWrite(mediaType));
-      return resolve(converter.write(data, mediaType, servletContext));
+      Promise.resolve(body).then((data) => {
+        const converter = this.registerConverters.find((converter) => converter.canWrite(mediaType));
+        return resolve(converter.write(data, mediaType, servletContext));
+      })
     })
   }
 }

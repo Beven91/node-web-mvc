@@ -22,7 +22,7 @@ export default class ScopeController {
     RequestParam({ value: 'id', desc: '用户id', required: true })
   ])
   @PostMapping({ value: '/set', produces: 'application/json' })
-  setObj(user: UserInfo, id) {
+  setObj(user: UserInfo, id:number) {
     this.scopeData = user;
     this.scopeData.userId = id;
     return this.scopeData;

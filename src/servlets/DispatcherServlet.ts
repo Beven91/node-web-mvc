@@ -17,6 +17,9 @@ import Middlewares from './models/Middlewares';
 import ResourceHandlerAdapter from './resources/ResourceHandlerAdapter';
 import ResourceHandlerMapping from './resources/ResourceHandlerMapping';
 import NoRequestHandlerMapping from './mapping/NoRequestHandlerMapping';
+import ParameterRequiredError from '../errors/ParameterRequiredError';
+import ResponseEntity from './models/ResponseEntity';
+import HttpStatus from './http/HttpStatus';
 
 export default class DispatcherServlet {
 
@@ -110,6 +113,9 @@ export default class DispatcherServlet {
       // 处理视图渲染或者数据返回
       return (new HttpResponseProduces(servletContext)).produce(runtime.res, mappedHandler.getHandler());
     } catch (ex) {
+      if (ex instanceof ParameterRequiredError) {
+        return new ServletModel(new ResponseEntity(HttpStatus.BAD_REQUEST));
+      }
       runtime.error = ex;
     }
     return runtime.error ? Promise.reject(runtime.error) : runtime.res;

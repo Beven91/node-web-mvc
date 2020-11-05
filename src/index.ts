@@ -74,6 +74,8 @@ import WebMvcConfigurationSupport from './servlets/config/WebMvcConfigurationSup
 import PathMatchConfigurers from './servlets/config/PathMatchConfigurer';
 import PathMatcher from './servlets/util/PathMatcher';
 import UrlPathHelpers from './servlets/util/UrlPathHelper';
+import ResponseEntity from './servlets/models/ResponseEntity';
+import ResponseFile from './servlets/models/ResponseFile';
 
 export {
   hot,
@@ -150,6 +152,8 @@ export {
   PathMatchConfigurers,
   PathMatcher,
   UrlPathHelpers,
+  ResponseEntity,
+  ResponseFile
 }
 
 hot.create(module);

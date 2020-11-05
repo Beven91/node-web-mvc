@@ -1,5 +1,6 @@
 
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile } from '../../../src/index';
+import path from 'path';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile } from '../../../src/index';
 import UserId from '../annotations/UserIdAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
@@ -13,6 +14,24 @@ export default class HomeController {
 
   @Autowired
   private oService: OrderService
+
+  @ApiOperation({ value: '参数必填测试' })
+  @GetMapping('/arg')
+  arg(@RequestParam id:string) {
+    return 'ok';
+  }
+
+  @ApiOperation({ value: '返回文件流' })
+  @GetMapping('/stream')
+  stream() {
+    return new ResponseFile(path.resolve('test/resources/aa/a.txt'));
+  }
+
+  @ApiOperation({ value: '下载文件' })
+  @GetMapping('/download')
+  download() {
+    return new ResponseFile(path.resolve('test/resources/aa/a.txt'), true);
+  }
 
   @ApiOperation({ value: '@RequestParam 测试', returnType: 'string' })
   @GetMapping('/index')
@@ -67,9 +86,9 @@ export default class HomeController {
 
   }
 
-  @ApiOperation({ value:'自定义返回', returnType:['hello'] })
+  @ApiOperation({ value: '自定义返回', returnType: ['hello'] })
   @GetMapping('/demo')
-  demo(){
+  demo() {
     return ['aaa'];
   }
 }

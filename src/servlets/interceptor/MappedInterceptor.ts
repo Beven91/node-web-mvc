@@ -6,6 +6,7 @@ import HandlerInterceptor from './HandlerInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
 import HttpServletResponse from '../http/HttpServletResponse';
 import PathMatcher from '../util/PathMatcher';
+import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
 
 export default class MappedInterceptor implements HandlerInterceptor {
 
@@ -38,7 +39,7 @@ export default class MappedInterceptor implements HandlerInterceptor {
    */
   matches(request: HttpServletRequest): boolean {
     // 这里仅做根据请求路径进行匹配，暂不支持高级路径匹配
-    const path = request.path;
+    const path = request.servletContext.getAttrigute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
     // 1.优先执行排除项
     for (let pattern of this.excludePatterns) {
       if (this.matchPattern(pattern, path)) {
