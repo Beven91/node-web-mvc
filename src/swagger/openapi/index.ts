@@ -14,6 +14,7 @@ import ApiImplicitParams, { ApiImplicitParamsAnnotation } from '../annotations/A
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import MethodParameter from '../../interface/MethodParameter';
 import MultipartFile from '../../servlets/http/MultipartFile';
+import RequestMappingInfo from '../../servlets/mapping/RequestMappingInfo';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -238,6 +239,7 @@ export default class OpenApiModel {
   private static buildOperation(paths, operation: ApiOperationMeta) {
     const option = operation.option;
     const api = operation.api;
+    const topMapping = RequestMappingAnnotation.getMappingInfo(api.class) || {} as RequestMappingInfo;
     const mapping = RequestMappingAnnotation.getMappingInfo(api.class, operation.method);
     if (!mapping) {
       return;
@@ -246,7 +248,7 @@ export default class OpenApiModel {
     const returnType = option.returnType;
     const model = Definition.getDefinition(returnType);
     const operationDoc = {
-      consumes: mapping.consumes || operation.consumes || mapping.consumes,
+      consumes: topMapping.consumes || mapping.consumes || operation.consumes || undefined,
       deprecated: false,
       operationId: operation.method,
       tags: api.option.tags.map((tag) => tag.name),
@@ -266,7 +268,7 @@ export default class OpenApiModel {
     }
     mapping.value.forEach((url) => {
       Object.keys(mapping.method).forEach((method) => {
-        const path = (paths[url] = {}) as OperationPathMap;
+        const path = (paths[url] = paths[url] || {}) as OperationPathMap;
         path[method.toLowerCase()] = operationDoc;
       });
     })
@@ -290,7 +292,7 @@ export default class OpenApiModel {
         required: emptyOf(parameter.required, parameter2.required),
         dataType: emptyOf(parameter.dataType, parameter2.dataType),
         example: emptyOf(parameter.example, parameter2.defaultValue),
-        paramType: emptyOf(parameter2.paramType, parameter.paramType),
+        paramType: emptyOf(parameter.paramType, parameter2.paramType),
         description: emptyOf(parameter.description, parameter2.desc)
       });
     });
@@ -313,6 +315,9 @@ export default class OpenApiModel {
         required: parameter.required,
         description: parameter.description,
         in: parameter.in,
+        collectionFormat: model.collectionFormat,
+        format: model.format,
+        example: emptyOf(parameter.example, undefined),
         type: model.schema ? undefined : model.type || dataType || 'string',
         items: model.items,
         schema: model.schema,

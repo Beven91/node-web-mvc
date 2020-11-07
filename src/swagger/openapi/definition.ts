@@ -173,7 +173,11 @@ export default class Definition {
       const data = parts.reverse().reduce((define, key) => this.parseDefinition(define, key), defaultInfo);
       const ref = this.makeRef(data.name);
       const isArray = data.type === 'array';
-      return isArray ? { type: 'array', items: data.items } : { schema: { '$ref': ref } };
+      return isArray ? { collectionFormat: 'multi', type: 'array', items: data.items } : { schema: { '$ref': ref } };
+    } else if (dataType === 'array') {
+      return { type: 'array', collectionFormat: 'multi', items: { type: 'string' } };
+    } else if (dataType === 'date-time') {
+      return { type: 'string', format: 'date-time' };
     } else {
       return { empty: true };
     }
@@ -201,6 +205,10 @@ export default class Definition {
         return value.name || 'string';
       case Array:
         return 'array';
+      case Set:
+        return 'array';
+      case Map:
+        return 'string';
       default:
         return this.instanceType(value) || 'string';
     }
