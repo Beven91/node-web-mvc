@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "2.9.3",
+  "version": "2.10.0",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "types": "./src/index",
@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/Beven91/node-mvc#readme",
   "dependencies": {
-    "body-parser": "^1.19.0",
     "busboy": "^0.3.1",
     "nodejs-hmr": "^1.1.5",
     "path-to-regexp": "^6.1.0",
