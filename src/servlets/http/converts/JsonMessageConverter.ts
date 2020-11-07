@@ -4,20 +4,26 @@
  */
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
-import parser from 'body-parser';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
+import RequestMemoryStream from '../RequestMemoryStream';
 
 export default class JsonMessageConverter extends AbstractHttpMessageConverter {
 
-  constructor(){
+  constructor() {
     super(new MediaType('application/json'))
   }
 
   read(servletContext: ServletContext, mediaType: MediaType) {
     return new Promise((resolve, reject) => {
-      const { request, response, configurer } = servletContext;
-      parser.json()(request.nativeRequest, response.nativeResponse, (err) => {
-        err ? reject(err) : resolve((request.nativeRequest as any).body)
+      const { request } = servletContext;
+      new RequestMemoryStream(request, (chunks) => {
+        try {
+          const body = chunks.toString('utf8');
+          const data = JSON.parse(body);
+          resolve(data);
+        } catch (ex) {
+          reject(ex);
+        }
       });
     });
   }

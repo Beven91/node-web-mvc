@@ -17,6 +17,10 @@ import Middlewares from '../models/Middlewares';
 import ResourceHandlerAdapter from '../resources/ResourceHandlerAdapter';
 import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
 import NoRequestHandlerMapping from '../mapping/NoRequestHandlerMapping';
+import ArgumentResolvError from '../../errors/ArgumentResolvError';
+import ResponseEntity from '../models/ResponseEntity';
+import HttpStatus from '../http/HttpStatus';
+import MediaType from '../http/MediaType';
 
 export default class DispatcherServlet {
 
@@ -147,6 +151,13 @@ export default class DispatcherServlet {
       // 全局异常处理:
       const res = globalHandler(error);
       return Promise.resolve(new ServletModel(res));
+    } else if (error instanceof ArgumentResolvError) {
+      const mediaType = MediaType.APPLICATION_JSON;
+      const entity = new ResponseEntity(HttpStatus.BAD_REQUEST).contentType(mediaType).body({
+        message: error.message,
+        status: HttpStatus.BAD_REQUEST.code,
+      });
+      return Promise.resolve(new ServletModel(entity));
     } else {
       // 如果没有定义异常处理
       return Promise.reject(error);

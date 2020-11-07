@@ -19,6 +19,9 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
     const name = parameter.value;
     const query = request.query;
     const body = await this.resolveBody(servletContext);
+    if (parameter.dataType === Map) {
+      return { ...query, ...body };
+    }
     return name in query ? query[name] : body[name];
   }
 

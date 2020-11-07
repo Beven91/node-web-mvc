@@ -12,8 +12,8 @@ import RequestHeaderMapMethodArgumentResolver from './RequestHeaderMapMethodArgu
 import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgumentResolver';
 import ServletContextMethodArgumentResolver from './ServletContextMethodArgumentResolver';
 import HandlerMethod from '../HandlerMethod';
-import ParameterRequiredError from '../../../errors/ParameterRequiredError';
 import ArgumentResolvError from '../../../errors/ArgumentResolvError';
+import ArgumentConverter from './ArgumentConverter';
 
 export default class ArgumentsResolvers {
 
@@ -49,29 +49,22 @@ export default class ArgumentsResolvers {
       for (let i = 0, k = signParameters.length; i < k; i++) {
         const parameter = signParameters[i];
         const value = await this.resolveArgument(parameter, servletContext);
-        this.checkArguments(parameter, value);
+        // this.checkArguments(parameter, value);
         const hasResolved = (value !== undefined && value !== null);
         const finalValue = hasResolved ? value : parameter.defaultValue;
-        if (parameter.required && (finalValue === null || finalValue === undefined)) {
+        const hasNotValue = finalValue === null || finalValue === undefined;
+        if (parameter.required && hasNotValue) {
           // 如果缺少参数
-          return Promise.reject(new ParameterRequiredError(parameter.name, servletContext));
+          const message = `Required request parameter: ${parameter.name} is missing @${handler.beanTypeName}.${handler.methodName}`
+          return Promise.reject(new ArgumentResolvError(message));
         }
         // 设置参数值
-        args[i] = finalValue;
+        const converter = new ArgumentConverter(parameter.dataType);
+        args[i] = converter.convert(finalValue);
       }
       return args;
     } catch (ex) {
-      ex = ex instanceof ParameterRequiredError ? ex : new ArgumentResolvError(ex.message);
-      throw ex;
-    }
-  }
-
-  /**
-   * 校验参数
-   */
-  checkArguments(parameter: MethodParameter, value) {
-    if (parameter.dataType === Array && value && !(value instanceof Array)) {
-      throw new ArgumentResolvError(`The parameter 【${parameter.name}】 needs to be an 【Array】`)
+      return Promise.reject(new ArgumentResolvError(ex));
     }
   }
 

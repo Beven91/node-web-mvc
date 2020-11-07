@@ -11,7 +11,7 @@ import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
 export default class MultipartMessageConverter extends AbstractHttpMessageConverter {
 
-  constructor(){
+  constructor() {
     super(new MediaType('multipart/form-data'))
   }
 
@@ -62,7 +62,15 @@ export default class MultipartMessageConverter extends AbstractHttpMessageConver
       });
       busboy.on('field', function (fieldname, val) {
         // 提取字段
-        promise = promise.then(() => form[fieldname] = val);
+        promise = promise.then(() => {
+          if (fieldname in form) {
+            // 如果是多个值
+            form[fieldname] = [form[fieldname]];
+            form[fieldname].push(val);
+            return;
+          }
+          form[fieldname] = val;
+        });
       });
       // 读取完毕
       busboy.on('finish', () => promise.then(() => topResolve(form), topReject));

@@ -14,22 +14,6 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
   }
 
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext) {
-    const T = parameter.dataType as any;
-    const data = await WebMvcConfigurationSupport.configurer.messageConverters.read(servletContext);
-    if (typeof T === 'function') {
-      const instance = new T();
-      Object.keys(data).forEach((key) => {
-        const descriptor = Object.getOwnPropertyDescriptor(instance, key);
-        try {
-          instance[key] = data[key];
-        } catch (ex) {
-          if (ex.message.indexOf('which has only a getter') < 0) {
-            throw ex;
-          }
-        }
-      });
-      return instance;
-    }
-    return data;
+    return await WebMvcConfigurationSupport.configurer.messageConverters.read(servletContext);
   }
 }

@@ -33,7 +33,7 @@ import UrlBasedViewResolver from './servlets/view/resolvers/UrlBasedViewResolver
 import View from './servlets/view/View';
 import HandlerMethod from './servlets/method/HandlerMethod';
 import HandlerAdapter from './servlets/method/HandlerAdapter';
-import RequestMemoryStream from './stream/RequestMemoryStream';
+import RequestMemoryStream from './servlets/http/RequestMemoryStream';
 import Target from './servlets/annotations/Target';
 import createParam from './servlets/annotations/params/createParam';
 import ServletContext from './servlets/http/ServletContext';
@@ -76,6 +76,7 @@ import PathMatcher from './servlets/util/PathMatcher';
 import UrlPathHelpers from './servlets/util/UrlPathHelper';
 import ResponseEntity from './servlets/models/ResponseEntity';
 import ResponseFile from './servlets/models/ResponseFile';
+import Assert from './servlets/util/Assert';
 
 export {
   hot,
@@ -153,7 +154,8 @@ export {
   PathMatcher,
   UrlPathHelpers,
   ResponseEntity,
-  ResponseFile
+  ResponseFile,
+  Assert
 }
 
 hot.create(module);
