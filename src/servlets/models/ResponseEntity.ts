@@ -34,6 +34,7 @@ export default class ResponseEntity<T> {
       this.data = data;
       this.responseStatus = status;
     }
+    this.mediaType = MediaType.TEXT_PLAIN;
     this.responseHeaders = headers || {};
   }
 
