@@ -16,7 +16,7 @@ class Service {
     const beanFactory = DefaultListableBeanFactory.getInstance();
     const definition = new BeanDefinition(meta.ctor);
     if (options.name) {
-      beanFactory.registerBeanDefinition(name, definition);
+      beanFactory.registerBeanDefinition(options.name, definition);
     }
     beanFactory.registerBeanDefinition(BeanOptions.toBeanName(meta.ctor.name), definition);
     beanFactory.registerBeanDefinition(meta.ctor, definition);

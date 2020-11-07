@@ -34,7 +34,7 @@ export default class HomeController {
   }
 
   @ApiOperation({ value: '@RequestParam 测试', returnType: 'string' })
-  @GetMapping('/index')
+  @PostMapping('/index')
   // @ApiImplicitParams([
   //   { description: '编号', paramType: 'query', name: 'id', required: true }
   // ])
