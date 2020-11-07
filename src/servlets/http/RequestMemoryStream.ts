@@ -3,7 +3,7 @@
  * @description 一次性读取整个请求内容
  */
 import { Writable } from 'stream'
-import HttpServletRequest from '../servlets/http/HttpServletRequest';
+import HttpServletRequest from './HttpServletRequest';
 
 export default class RequestMemoryStream extends Writable {
 
