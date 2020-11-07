@@ -3,7 +3,7 @@
 import { HttpMessageConverter } from "../../../src";
 import MediaType from "../../../src/servlets/http/MediaType";
 import ServletContext from "../../../src/servlets/http/ServletContext";
-import RequestWriterStream from '../../../src/stream/RequestMemoryStream';
+import RequestWriterStream from '../../../src/servlets/http/RequestMemoryStream';
 import xml2js from 'xml2js';
 
 export default class XmlHttpMessageConverter implements HttpMessageConverter {

@@ -15,10 +15,75 @@ export default class HomeController {
   @Autowired
   private oService: OrderService
 
-  @ApiOperation({ value: '参数必填测试' })
-  @GetMapping('/arg')
-  arg(@RequestParam id:string) {
-    return 'ok';
+  @ApiOperation({ value: 'RequestParam get参数' })
+  @GetMapping('/rp')
+  requestParamsGet(@RequestParam name: string, @RequestParam id: number) {
+    return `name:${name},id:${id}`;
+  }
+
+  @ApiOperation({ value: 'RequestParam post参数' })
+  @ApiImplicitParams([
+    { name: 'name', paramType: 'formData' },
+    { name: 'id', paramType: 'formData' },
+  ])
+  @PostMapping('/rp')
+  requestParamsPost(@RequestParam name: string, @RequestParam id: number) {
+    return `name:${name},id:${id}`;
+  }
+
+  @ApiOperation({ value: 'RequestParam接收Map' })
+  @ApiImplicitParams([
+    { name: 'name', paramType: 'query' },
+    { name: 'age', paramType: 'query' },
+  ])
+  @GetMapping('/map')
+  mapGet(@RequestParam data: Map<string, any>) {
+    const values = [];
+    data.forEach((value, key) => {
+      values.push(`${key}:${value}`)
+    })
+    return values.join('\n');
+  }
+
+  @ApiOperation({ value: 'RequestBody接收Map' })
+  @PostMapping('/map')
+  mapPost(@RequestBody data: Map<string, any>) {
+    const values = [];
+    data.forEach((value, key) => {
+      values.push(`${key}:${value}`)
+    })
+    return values.join('\n');
+  }
+
+  @ApiOperation({ value: 'Set数据接收' })
+  @PostMapping('/set')
+  set(@RequestParam data: Set<any>) {
+    const values = [];
+    data.forEach((v) => values.push(v));
+    return values.join(',');
+  }
+
+  @ApiOperation({ value: '@RequestParam 接收Array数据接收' })
+  @PostMapping('/array')
+  array(@RequestParam array: Array<string>) {
+    return array.join(',');
+  }
+
+  @ApiOperation({ value: 'Date,Boolean,数据接收' })
+  @PostMapping('/params')
+  others(@RequestParam date: Date, @RequestParam isShow: boolean) {
+    return `date:${date.toLocaleString()},\nisShow:${isShow}`;
+  }
+
+  @ApiOperation({ value: '@RequestParam file测试', returnType: 'string' })
+  @PostMapping('/params2')
+  // @ApiImplicitParams([
+  //   { description: '编号', paramType: 'query', name: 'id', required: true }
+  // ])
+  index(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
+    this.oService.sayHello();
+    this.orderService.sayHello();
+    return 'home/index...' + id;
   }
 
   @ApiOperation({ value: '返回文件流' })
@@ -31,17 +96,6 @@ export default class HomeController {
   @GetMapping('/download')
   download() {
     return new ResponseFile(path.resolve('test/resources/aa/a.txt'), true);
-  }
-
-  @ApiOperation({ value: '@RequestParam 测试', returnType: 'string' })
-  @PostMapping('/index')
-  // @ApiImplicitParams([
-  //   { description: '编号', paramType: 'query', name: 'id', required: true }
-  // ])
-  index(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
-    this.oService.sayHello();
-    this.orderService.sayHello();
-    return 'home/index...' + id;
   }
 
   @ApiOperation({ value: '@RequestHeader头部' })
@@ -89,6 +143,6 @@ export default class HomeController {
   @ApiOperation({ value: '自定义返回', returnType: ['hello'] })
   @GetMapping('/demo')
   demo() {
-    return ['aaa'];
+    return JSON.stringify(['aaa']);
   }
 }
