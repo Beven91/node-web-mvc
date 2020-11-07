@@ -1,10 +1,11 @@
-import RuntimeAnnotation, { AnnotationFunction } from "../annotations/annotation/RuntimeAnnotation";
-import ExceptionHandler, { ExceptionHandlerAnnotation } from '../annotations/ExceptionHandler';
-
 /**
  * @module AdviceRegistry
  * @description 控制器相关建议注册表
  */
+import RuntimeAnnotation, { AnnotationFunction } from "../annotations/annotation/RuntimeAnnotation";
+import ExceptionHandler, { ExceptionHandlerAnnotation } from '../annotations/ExceptionHandler';
+import hot from 'nodejs-hmr';
+
 const runtime = {
   Advice: null,
   controllerAdviceInstance: null
@@ -48,3 +49,11 @@ export default class AdviceRegistry {
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
 }
+
+hot.create(module).preend((old) => {
+  const type = old.exports.default || old.exports;
+  if (runtime.Advice === type) {
+    runtime.Advice = null;
+    runtime.controllerAdviceInstance = null;
+  }
+})
