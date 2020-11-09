@@ -123,6 +123,15 @@ export default class HttpServletRequest {
     this.nativeRequest.pipe(writeStream, options);
   }
 
+  
+  /**
+   * 判断是否存在body
+   */
+  public get hasBody(){
+    const method = this.method;
+    return !(method === HttpMethod.HEAD || method === HttpMethod.GET)
+  }
+
   constructor(request: IncomingMessage, servletContext: ServletContext) {
     const protocol = (request.connection as any).encrypted ? 'https' : 'http';
     const url = new URL(request.url, `${protocol}://${request.headers.host}`);
