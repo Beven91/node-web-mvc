@@ -21,7 +21,7 @@ export default class ModuleLoader {
    * 判断当前模块是否可加载
    * @param id 
    */
-  private isUse(id) {
+  private loadable(id) {
     const ext = path.extname(id);
     return (ext === '.js' || ext === '.ts');
   }
@@ -38,7 +38,7 @@ export default class ModuleLoader {
       if (fs.lstatSync(id).isDirectory()) {
         // 装载子目录
         return this.load(id, cache);
-      } else if (this.isUse(id) && !cache[id.toLowerCase()]) {
+      } else if (this.loadable(id) && !cache[id.toLowerCase()]) {
         // 装载
         require(id);
       }

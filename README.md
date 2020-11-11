@@ -522,10 +522,17 @@ Registry.launch({
       .addResourceHandler('/swagger-ui/**')
       .addResourceLocations('/a/b/swagger-ui/')
       .setCacheControl({ maxAge:0 })
+      // .addResolver(new CustomResolver())
   }
 });
 
 ```
+
+### 自定义ResourceResolver
+
+...
+
+
 
 ## View 视图
 
@@ -675,6 +682,11 @@ Registry.launch({
   // 通过配置来注册拦截器
   addInterceptors(registry) {
     registry.addInterceptors(new AuthorizationInterceptor())
+
+    // registry
+    //   .addInterceptors(new AuthorizationInterceptor())
+    //   .excludePathPatterns('/root/a','/root/b')
+    //   .addPathPatterns('/root')
   }
 });
 ```
@@ -1075,25 +1087,33 @@ class WebAppConfigurerOptions {
   // 端口
   port?: number
   // 当前类型
-  mode: string
+  mode: RunMode
   // 是否开启swagger文档
   swagger?: boolean
+  // 静态资源配置
+  resource?: ResourceOptions
   // 基础路径
   base?: string
   // 配置请求内容大小
   multipart?: Multipart
   // 存放控制器的根目录
-  cwd: string
+  cwd: string | Array<string>
   // 热更新配置
   hot?: HotOptions
   // 注册拦截器
-  addInterceptors?: (registry: typeof HandlerInterceptorRegistry) => void
+  addInterceptors?: (registry: HandlerInterceptorRegistry) => void
   // 添加http消息转换器
-  addMessageConverters?: (converters: typeof MessageConverter) => void
+  addMessageConverters?: (converters: MessageConverter) => void
   // 添加参数解析器
-  addArgumentResolvers?: (resolvers: typeof ArgumentsResolvers) => void
+  addArgumentResolvers?: (resolvers: ArgumentsResolvers) => void
   // 添加视图解析器
-  addViewResolvers?: (registry: typeof ViewResolverRegistry) => void
+  addViewResolvers?: (registry: ViewResolverRegistry) => void
+  // 添加静态资源处理器
+  addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
+  // 配置路径匹配
+  configurePathMatch?: (configurer: PathMatchConfigurer) => void
+  // 应用监听端口，且已启动
+  onLaunch?: () => any
 }
 ```
 

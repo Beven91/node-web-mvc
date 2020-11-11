@@ -36,6 +36,7 @@
     "reflect-metadata": "^0.1.13",
     "zlib": "^1.0.5"
   },
+  "peerDependencies": {},
   "devDependencies": {
     "lodash": "^4.17.19",
     "@types/express": "^4.17.6",

@@ -60,7 +60,11 @@ export default class ArgumentConverter {
   }
 
   toBigInt(value) {
-    return BigInt(value);
+    try {
+      return BigInt(value);
+    } catch (ex) {
+      throw new ArgumentConvertError(value, BigInt);
+    }
   }
 
   toDate(value) {
@@ -110,7 +114,7 @@ export default class ArgumentConverter {
     const instance = new T();
     Object.keys(value).forEach((key) => {
       try {
-        if(!Javascript.protoKeys[key]){
+        if (!Javascript.protoKeys[key]) {
           // 排除原型相关属性,这里只能赋值常规属性
           instance[key] = value[key];
         }
