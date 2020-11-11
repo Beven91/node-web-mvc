@@ -975,6 +975,9 @@ class HomeConntroller {
 ```
 
 - `@ApiImplicitParams` 定义接口操作参数信息
+
+> 如果不需要配置参数详细设定，一般可以不使用`ApiImplicitParams` 因为框架会自动根据每个参数的提取类型来自动生成swagger参数配置。
+
 ```js
 @Api({ description: '首页控制器' })
 class HomeConntroller {
@@ -986,12 +989,12 @@ class HomeConntroller {
 
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @ApiImplicitParams([
-    RequestParam({ value: 'file', desc: '证书', required: true, dataType: MultipartFile }),
-    RequestParam({ value: 'desc', desc: '描述', required: true, paramType: 'formData' }),
-    RequestParam({ value: 'id', desc: '用户id', required: true })
+    { value: 'file', desc: '证书', required: true, dataType: MultipartFile },
+    { value: 'desc', desc: '描述', required: true, paramType: 'formData' },
+    { value: 'id', desc: '用户id', required: true }
   ])
   @PostMapping('/upload')
-  upload(file: MultipartFile, desc, id) {
+  upload(file: MultipartFile,@RequestParam desc,@RequestParam id) {
     return file.transferTo('app_data/images/' + file.name);
   }
 }
