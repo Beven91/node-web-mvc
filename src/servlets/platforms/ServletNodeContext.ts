@@ -32,7 +32,7 @@ export default class ServletNodeContext extends ServletContext {
     });
     server.listen(port, () => {
       if (configurer.onLaunch) {
-        configurer.onLaunch();
+        // configurer.onLaunch();
       } else {
         console.log(`
         -------------------------------------

@@ -102,7 +102,7 @@ export default abstract class ServletContext {
    */
   doReleaseQueues() {
     this.releaseQueues.forEach((handler) => {
-      new Promise((resolve) => {
+      new Promise((resolve: any) => {
         handler()
         resolve();
       })
