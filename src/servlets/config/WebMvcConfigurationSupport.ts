@@ -242,7 +242,9 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     const cache = {};
     Object.keys(require.cache).forEach((k) => cache[k.replace(/\\/g, '/').toLowerCase()] = true);
     // 加载controller等
-    cwd.forEach((dir) => new ModuleLoader(dir, cache));
+    cwd
+      .filter(Boolean)
+      .forEach((dir) => new ModuleLoader(dir, cache));
     // 初始化没有配置class注解的mapping
     RequestMappingAnnotation.initializeUnClassMappings();
   }
