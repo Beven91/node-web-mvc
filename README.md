@@ -919,7 +919,7 @@ export default class DataController {
 
 ### hot.preload
 
-再修改一个文件时，会触发热更，再执行热更新前，会触发`preload`,如果您希望
+在修改一个文件时，会触发热更，在执行热更新前，会触发`preload`,如果您希望
 您的某个依赖模块需要进行特定处理，则可以再该文件中订阅`hot.preload`
 
 > 例如: ControllerFactory.ts 再一些控制器模块修改时，需要进行一些前置处理
