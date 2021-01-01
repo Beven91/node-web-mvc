@@ -184,6 +184,7 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     this.mode = options.mode || 'node';
     this.port = options.port || 8080;
     this.base = options.base || '/';
+    this.onLaunch = options.onLaunch;
     this.swagger = 'swagger' in options ? options.swagger : true;
     this.cwd = options.cwd instanceof Array ? options.cwd : [options.cwd]
     this.resource = options.resource || runtime.defaultMimes;
