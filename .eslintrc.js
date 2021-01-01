@@ -1,13 +1,18 @@
 module.exports = {
-  parser: 'babel-eslint',
-  extends: [ 'google' ],
-  env: {
+  'parser': '@typescript-eslint/parser',
+  'plugins': [ '@typescript-eslint' ],
+  'extends': [
+    'plugin:react/recommended',
+    'plugin:@typescript-eslint/recommended',
+    'google',
+  ],
+  'env': {
     browser: true,
     node: true,
     es6: true,
     commonjs: true,
   },
-  rules: {
+  'rules': {
     'new-cap': 0,
     'no-console': 0,
     'require-jsdoc': 0,
@@ -32,8 +37,6 @@ module.exports = {
     'no-case-declarations': 0,
     'import/extensions': 0,
   },
-  globals: {
-    chrome: true,
-    __webpack_require__: true,
+  'globals': {
   },
 };

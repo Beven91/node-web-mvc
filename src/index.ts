@@ -77,6 +77,8 @@ import UrlPathHelpers from './servlets/util/UrlPathHelper';
 import ResponseEntity from './servlets/models/ResponseEntity';
 import ResponseFile from './servlets/models/ResponseFile';
 import Assert from './servlets/util/Assert';
+import MiddlewareResourceResolver from './servlets/resources/MiddlewareResourceResolver';
+import MiddlewareInterceptor from './servlets/interceptor/MiddlewareInterceptor';
 
 export {
   hot,
@@ -155,7 +157,9 @@ export {
   UrlPathHelpers,
   ResponseEntity,
   ResponseFile,
-  Assert
+  Assert,
+  MiddlewareResourceResolver,
+  MiddlewareInterceptor
 }
 
 hot.create(module);

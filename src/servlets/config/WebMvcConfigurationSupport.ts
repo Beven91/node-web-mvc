@@ -52,7 +52,7 @@ export declare interface WebAppConfigurerOptions {
   // 端口
   port?: number
   // 当前类型
-  mode: RunMode
+  mode?: RunMode
   // 是否开启swagger文档
   swagger?: boolean
   // 静态资源配置
@@ -62,7 +62,7 @@ export declare interface WebAppConfigurerOptions {
   // 配置请求内容大小
   multipart?: Multipart
   // 存放控制器的根目录
-  cwd: string | Array<string>
+  cwd?: string | Array<string>
   // 热更新配置
   hot?: HotOptions
   // 注册拦截器
@@ -153,6 +153,9 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
   }
 
   public get workprogressPaths(): Array<string> {
+    if (!this.cwd) {
+      return []
+    }
     const cwd = this.cwd;
     return cwd instanceof Array ? cwd : [cwd];
   }

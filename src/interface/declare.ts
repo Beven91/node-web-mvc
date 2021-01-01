@@ -67,3 +67,7 @@ export declare class ControllerDescriptors {
   // swagger配置
   swagger: DescriptorSwagger
 }
+
+declare type MiddlewareNext = (reason?: any) => void
+
+export declare type Middleware = (request: any, response: any, ex: MiddlewareNext) => void

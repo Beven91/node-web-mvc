@@ -36,7 +36,7 @@ export default class Registry {
     // 初始化全局配置
     const configurer = WebMvcConfigurationSupport.initialize(options);
     // 获取当前中间件上下文
-    const HttpContext = registration[configurer.mode];
+    const HttpContext = registration[configurer.mode || 'node'];
     if (!HttpContext) {
       throw new Error(`
         当前${options.mode}模式不支持,
@@ -54,7 +54,7 @@ export default class Registry {
         const context: ServletContext = new HttpServletContext(configurer, request, response, next);
         new DispatcherServlet().doService(context);
         // ControllerFactory.defaultFactory.handle(context);
-        resolve();
+        resolve({});
       })
         .catch((ex) => {
           console.error(ex);
