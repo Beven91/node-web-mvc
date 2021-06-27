@@ -2,6 +2,9 @@
  * @module WebAppConfigurer
  * @description 服务全局配置
  */
+import http from 'http';
+import https from 'https';
+import http2 from 'http2';
 import OpenApi from '../../swagger/openapi';
 import HandlerInterceptorRegistry from '../interceptor/HandlerInterceptorRegistry';
 import MessageConverter from '../http/converts/MessageConverter';
@@ -24,6 +27,8 @@ const runtime = {
 }
 
 declare type RunMode = 'node' | 'express' | 'koa' | string
+
+declare type HttpType = 'http' | 'https' | 'http2'
 
 declare interface Multipart {
   /**
@@ -65,6 +70,7 @@ export declare interface WebAppConfigurerOptions {
   cwd?: string | Array<string>
   // 热更新配置
   hot?: HotOptions
+  serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions
   // 注册拦截器
   addInterceptors?: (registry: HandlerInterceptorRegistry) => void
   // 添加http消息转换器
@@ -84,6 +90,13 @@ export declare interface WebAppConfigurerOptions {
 export default class WebMvcConfigurationSupport implements WebAppConfigurerOptions {
 
   public readonly pathMatchConfigurer: PathMatchConfigurer
+
+  public http?: HttpType
+
+  /**
+   * 使用node原生http服务时的配置参数
+   */
+  public serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions
 
   /**
    * 参数解析器
@@ -185,6 +198,7 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     this.port = options.port || 8080;
     this.base = options.base || '/';
     this.onLaunch = options.onLaunch;
+    this.serverOptions = options.serverOptions;
     this.swagger = 'swagger' in options ? options.swagger : true;
     this.cwd = options.cwd instanceof Array ? options.cwd : [options.cwd]
     this.resource = options.resource || runtime.defaultMimes;

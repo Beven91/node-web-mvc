@@ -3,10 +3,26 @@
  * @description node原生框架接入上下文实现
  */
 import http from 'http';
+import https from 'https';
+import http2 from 'http2';
 import ServletContext from '../http/ServletContext';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export default class ServletNodeContext extends ServletContext {
+
+  private static createHttp(handler: any) {
+    const configurer = WebMvcConfigurationSupport.configurer;
+    const options = configurer.serverOptions || {};
+    switch (configurer.http) {
+      case 'https':
+        return https.createServer(options as https.ServerOptions, handler);
+      case 'http2':
+        return http2.createServer(options as http2.ServerOptions, handler);
+      default:
+        return http.createServer(options as http.ServerOptions, handler);
+    }
+  }
+
   /**
    * 用于接入要实现的目标平台的启动入口，主要用于
    * 返回一个启动中间件函数，通过返回的来获取到 request response next
@@ -16,7 +32,7 @@ export default class ServletNodeContext extends ServletContext {
   static launch(callback) {
     const configurer = WebMvcConfigurationSupport.configurer;
     const port = configurer.port;
-    const server = http.createServer((req, res) => {
+    const server = this.createHttp((req, res) => {
       Object.defineProperty(req, 'path', { value: req.url });
       callback(req, res, (err) => {
         if (err) {
