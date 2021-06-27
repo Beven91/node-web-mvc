@@ -66,6 +66,8 @@ export declare interface WebAppConfigurerOptions {
   base?: string
   // 配置请求内容大小
   multipart?: Multipart
+  // http服务类型
+  http?: HttpType
   // 存放控制器的根目录
   cwd?: string | Array<string>
   // 热更新配置
@@ -198,6 +200,7 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     this.port = options.port || 8080;
     this.base = options.base || '/';
     this.onLaunch = options.onLaunch;
+    this.http = options.http;
     this.serverOptions = options.serverOptions;
     this.swagger = 'swagger' in options ? options.swagger : true;
     this.cwd = options.cwd instanceof Array ? options.cwd : [options.cwd]
