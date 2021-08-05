@@ -10,6 +10,8 @@ const elementTypes = Symbol('elementTypes');
 
 declare type ConfigableDecorator<T> = (a: T) => any
 
+type AbstractClassType = abstract new (...args: any) => any
+
 export const parameterReturnable = Symbol('parameterReturnable');
 
 export declare type ReturnableAnnotationFunction<T> = (a: typeof parameterReturnable, callback: Function) => T
@@ -30,7 +32,7 @@ export default function Target(types): any {
   }
 }
 
-Target.install = function <A extends abstract new (...args: any) => any>(ctor: A): CallableAnnotationFunction<A, ConstructorParameters<A>[1]> {
+Target.install = function <A extends AbstractClassType>(ctor: A): CallableAnnotationFunction<A, ConstructorParameters<A>[1]> {
   const decorator = function () {
     const args = Array.prototype.slice.call(arguments);
     const runtime = new AnnotationOptions(ctor, args);
