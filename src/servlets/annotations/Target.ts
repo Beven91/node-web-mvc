@@ -15,6 +15,7 @@ export const parameterReturnable = Symbol('parameterReturnable');
 export declare type ReturnableAnnotationFunction<T> = (a: typeof parameterReturnable, callback: Function) => T
 
 export declare interface CallableAnnotationFunction<A, T> extends ConfigableDecorator<T>, AnnotationFunction<A> {
+  Annotation: A
 }
 
 /**
@@ -29,7 +30,7 @@ export default function Target(types): any {
   }
 }
 
-Target.install = function <T extends abstract new (...args: any) => any>(ctor: T): CallableAnnotationFunction<T, ConstructorParameters<T>[1]> {
+Target.install = function <A extends abstract new (...args: any) => any>(ctor: A): CallableAnnotationFunction<A, ConstructorParameters<A>[1]> {
   const decorator = function () {
     const args = Array.prototype.slice.call(arguments);
     const runtime = new AnnotationOptions(ctor, args);

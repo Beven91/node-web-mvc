@@ -10,7 +10,6 @@ import Javascript from "../../../interface/Javascript";
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
 
 export declare interface AnnotationFunction<A> extends ClassDecorator, PropertyDecorator, MethodDecorator, ParameterDecorator {
-  Annotation: A
 }
 
 type BaseAnnotation = AnnotationFunction<any>
