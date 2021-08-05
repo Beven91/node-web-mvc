@@ -23,5 +23,5 @@ class Service {
   }
 }
 
-export default Target.install<typeof Service, BeanOptions>(Service);
+export default Target.install<typeof Service>(Service);
 

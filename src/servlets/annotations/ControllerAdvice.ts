@@ -20,4 +20,4 @@ export class ControllerAdvice {
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof ControllerAdvice, ControllerAdvice>(ControllerAdvice);
+export default Target.install<typeof ControllerAdvice>(ControllerAdvice);

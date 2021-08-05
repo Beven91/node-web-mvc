@@ -70,4 +70,11 @@ export declare class ControllerDescriptors {
 
 declare type MiddlewareNext = (reason?: any) => void
 
+export declare interface CrossOriginOption {
+  origins: string
+  allowCredentials: boolean
+  allowedHeaders: string
+  allowMethods:string
+}
+
 export declare type Middleware = (request: any, response: any, ex: MiddlewareNext) => void

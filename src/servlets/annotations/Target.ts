@@ -29,7 +29,7 @@ export default function Target(types): any {
   }
 }
 
-Target.install = function <A, T>(ctor: A): CallableAnnotationFunction<A, T> {
+Target.install = function <T extends abstract new (...args: any) => any>(ctor: T): CallableAnnotationFunction<T, ConstructorParameters<T>[1]> {
   const decorator = function () {
     const args = Array.prototype.slice.call(arguments);
     const runtime = new AnnotationOptions(ctor, args);

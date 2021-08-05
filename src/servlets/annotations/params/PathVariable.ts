@@ -25,4 +25,4 @@ class PathVariable extends ParamAnnotation {
  * 
  *  action(@PathVariable({ required: true }) id) 
  */
-export default Target.install<typeof PathVariable, MethodParameterOptions | string>(PathVariable);
+export default Target.install<typeof PathVariable>(PathVariable);

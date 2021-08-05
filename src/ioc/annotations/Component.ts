@@ -22,7 +22,7 @@ class Component {
     beanFactory.registerBeanDefinition(BeanOptions.toBeanName(meta.ctor.name), definition);
     beanFactory.registerBeanDefinition(meta.ctor, definition);
   }
-
+  
 }
 
-export default Target.install<typeof Component, BeanOptions>(Component);
+export default Target.install<typeof Component>(Component);

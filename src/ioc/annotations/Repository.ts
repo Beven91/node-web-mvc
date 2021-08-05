@@ -24,4 +24,4 @@ class Repository {
   }
 }
 
-export default Target.install<typeof Repository, BeanOptions>(Repository);
+export default Target.install<typeof Repository>(Repository);

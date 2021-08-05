@@ -30,4 +30,4 @@ export class ResponseStatusAnnotation {
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof ResponseStatusAnnotation, ResponseStatusAnnotation>(ResponseStatusAnnotation);
+export default Target.install<typeof ResponseStatusAnnotation>(ResponseStatusAnnotation);

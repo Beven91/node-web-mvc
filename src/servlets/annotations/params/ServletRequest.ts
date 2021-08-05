@@ -24,4 +24,4 @@ class ServletRequest {
  * action(@ServletRequest request)
  * 
  */
-export default Target.install<typeof ServletRequest, null>(ServletRequest);
+export default Target.install<typeof ServletRequest>(ServletRequest);

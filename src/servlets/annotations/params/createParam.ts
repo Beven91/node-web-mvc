@@ -14,3 +14,4 @@ export default function (options: MethodParameterOptions | string, meta: Runtime
   const param = new MethodParameter(options, type, meta);
   return param;
 }
+

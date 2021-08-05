@@ -20,4 +20,4 @@ class ApiModelProperty {
  * 用于标注实体类下的指定属性
  * @param {ApiOperationOptions} options 属性配置 
  */
-export default Target.install<typeof ApiModelProperty, ApiModelPropertyOptions>(ApiModelProperty);
+export default Target.install<typeof ApiModelProperty>(ApiModelProperty);

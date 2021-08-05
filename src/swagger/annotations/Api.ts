@@ -20,4 +20,4 @@ class Api {
  * 用于标注接实体类
  * @param {ApiOperationOptions} options 配置 
  */
-export default Target.install<typeof Api, ApiOptions>(Api);
+export default Target.install<typeof Api>(Api);

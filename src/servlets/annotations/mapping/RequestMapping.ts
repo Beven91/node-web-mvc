@@ -55,7 +55,7 @@ export class RequestMappingAnnotation {
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default Target.install<typeof RequestMappingAnnotation, RouteMappingOptions | string>(RequestMappingAnnotation);
+export default Target.install<typeof RequestMappingAnnotation>(RequestMappingAnnotation);
 
 /**
  * 附加控制器类的请求映射

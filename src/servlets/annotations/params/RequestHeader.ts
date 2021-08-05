@@ -24,4 +24,4 @@ class RequestHeader extends ParamAnnotation {
  *  action(@RequestHeader({ value:'accept' }) id)
  * 
  */
-export default Target.install<typeof RequestHeader, MethodParameterOptions | string>(RequestHeader);
+export default Target.install<typeof RequestHeader>(RequestHeader);

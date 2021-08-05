@@ -24,4 +24,4 @@ class ServletRsponse {
  * action(@ServletRequest response)
  * 
  */
-export default Target.install<typeof ServletRsponse, null>(ServletRsponse);
+export default Target.install<typeof ServletRsponse>(ServletRsponse);

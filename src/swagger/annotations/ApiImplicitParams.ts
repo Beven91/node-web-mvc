@@ -48,4 +48,4 @@ export class ApiImplicitParamsAnnotation {
  * 用于标注接实体类
  * @param {ApiOperationOptions} options 配置 
  */
-export default Target.install<typeof ApiImplicitParamsAnnotation, Array<ApiImplicitParamOptions>>(ApiImplicitParamsAnnotation);
+export default Target.install<typeof ApiImplicitParamsAnnotation>(ApiImplicitParamsAnnotation);

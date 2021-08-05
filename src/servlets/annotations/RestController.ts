@@ -22,4 +22,4 @@ export class RestControllerAnnotation {
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof RestControllerAnnotation, string>(RestControllerAnnotation);
+export default Target.install<typeof RestControllerAnnotation>(RestControllerAnnotation);

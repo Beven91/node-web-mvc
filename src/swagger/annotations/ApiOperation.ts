@@ -21,4 +21,4 @@ class ApiOperation {
  * 用于标注接口类下的接口方法
  * @param {ApiOperationOptions} operation 接口方法配置 
  */
-export default Target.install<typeof ApiOperation, ApiOperationOptions>(ApiOperation);
+export default Target.install<typeof ApiOperation>(ApiOperation);

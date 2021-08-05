@@ -26,4 +26,4 @@ class RequestParam extends ParamAnnotation {
  *  action(@RequestParam({ required: true }) id)
  * 
  */
-export default Target.install<typeof RequestParam, MethodParameterOptions | string>(RequestParam);
+export default Target.install<typeof RequestParam>(RequestParam);

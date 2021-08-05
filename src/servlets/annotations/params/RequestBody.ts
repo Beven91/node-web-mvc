@@ -24,4 +24,4 @@ class RequestBody extends ParamAnnotation {
  * 
  *  action(@RequestBody({ required:true }) user)
  */
-export default Target.install<typeof RequestBody, MethodParameterOptions | string>(RequestBody);
+export default Target.install<typeof RequestBody>(RequestBody);

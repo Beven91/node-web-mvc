@@ -21,4 +21,4 @@ class ApiModel {
  * 用于标注接实体类
  * @param {ApiOperationOptions} options 配置 
  */
-export default Target.install<typeof ApiModel, ApiModelOptions>(ApiModel);
+export default Target.install<typeof ApiModel>(ApiModel);

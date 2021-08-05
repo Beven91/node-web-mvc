@@ -16,6 +16,6 @@ export class ExceptionHandlerAnnotation {
 }
 
 /**
- * 标注指定类为一个rest 风格的controller
+ * 标注指定类为一个rest 异常处理函数
  */
-export default Target.install<typeof ExceptionHandlerAnnotation, ExceptionHandlerAnnotation>(ExceptionHandlerAnnotation);
+export default Target.install<typeof ExceptionHandlerAnnotation>(ExceptionHandlerAnnotation);
