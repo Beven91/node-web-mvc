@@ -25,7 +25,7 @@ export default class OctetStreamMessageConverter extends AbstractHttpMessageConv
         stream.on('error', reject);
         stream.on('end', resolve);
       } else {
-        resolve();
+        resolve({});
       }
     });
   }
