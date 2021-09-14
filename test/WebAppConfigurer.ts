@@ -41,8 +41,8 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 
   addResourceHandlers(registry) {
     registry
-      .addResourceHandler('/aa/**')
-      .addResourceLocations(path.join(__dirname, 'resources/aa'));
+      .addResourceHandler('/media/**')
+      .addResourceLocations('F:\\');
   }
 
   configurePathMatch(configurer: PathMatchConfigurer) {

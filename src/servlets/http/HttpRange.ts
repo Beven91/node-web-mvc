@@ -16,7 +16,7 @@ export default class HttpRange {
   constructor(unit: string, start, end) {
     this.unit = unit;
     this.start = Number(start);
-    this.end = Number(end);
+    this.end = end === '' ? -1 : Number(end);
   }
 
   static getRanges(request: HttpServletRequest) {

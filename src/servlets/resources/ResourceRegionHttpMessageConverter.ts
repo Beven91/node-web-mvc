@@ -8,6 +8,7 @@ import HttpServletResponse from "../http/HttpServletResponse";
 import MediaType from "../http/MediaType";
 import ServletContext from "../http/ServletContext";
 import ResourceRegion from "./ResourceRegion";
+import HttpStatus from "../http/HttpStatus";
 
 export default class ResourceRegionHttpMessageConverter extends AbstractHttpMessageConverter {
 
@@ -31,14 +32,19 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
     return new Promise((resolve, reject) => {
       const resource = region.resource;
       const start = region.position;
-      const end = region.end;
+      let end = region.end;
       const resourceLength = resource.contentLength;
+      end = Math.min(end, resourceLength - 1);
       const rangeLength = end - start + 1;
-      const stream = resource.getInputRangeStream(start, end);
       response.setHeader(HttpHeaders.CONTENT_RANGE, `bytes ${start}-${end}/${resourceLength}`);
       response.setHeader(HttpHeaders.CONTENT_LENGTH, rangeLength);
+      const stream = resource.getInputRangeStream(start, end);
+      response.setStatus(HttpStatus.PARTIAL_CONTENT)
+      response.nativeResponse.statusCode = 206;
       stream.pipe(response.nativeResponse);
-      stream.on('end', resolve);
+      stream.on('end', ()=>{
+        resolve({});
+      });
       stream.on('error', reject);
     });
   }

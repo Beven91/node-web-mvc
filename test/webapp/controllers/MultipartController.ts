@@ -1,4 +1,6 @@
-import { RequestMapping, RequestBody, Autowired } from '../../../src/index';
+import fs from 'fs';
+import path from 'path';
+import { RequestMapping, RequestBody, Autowired, ServletResponse, HttpServletResponse, InterruptModel } from '../../../src/index';
 import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../../src/index';
 import { PostMapping } from '../../../src/index';
 import ModelAndView from '../../../src/servlets/models/ModelAndView';
@@ -70,8 +72,21 @@ export default class MultipartController {
     { description: '提交数据', paramType: 'body', name: 'data', required: true, example: example },
   ])
   @PostMapping({ value: '/xml', consumes: 'application/xml', produces: 'application/xml' })
-  xml(@RequestBody data:any) {
+  xml(@RequestBody data: any) {
     console.log('xml', data);
     return data;
+  }
+
+  @ApiOperation({ value: '获取登陆二维码' })
+  @GetMapping('/qrcode')
+  async qrcode(@ServletResponse response: HttpServletResponse) {
+    const buffer = fs.readFileSync(path.join(__dirname, 'aseets', 'qrcode.png'));
+    response.setHeader('Content-Type', 'image/png');
+    response.setHeader('Content-Length',buffer.length)
+    // setTimeout(()=>{
+     return response.setStatus(200).end(buffer);
+    // })
+    return new InterruptModel(true);
+    // return response.setStatus(200).end(buffer);
   }
 }

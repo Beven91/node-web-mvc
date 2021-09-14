@@ -90,7 +90,7 @@ export default class ResourceHttpRequestHandler {
       return;
     }
     const ranges = request.getHeader(HttpHeaders.RANGE);
-    if (!ranges) {
+    if (ranges === null || ranges == undefined) {
       // 非断点下载
       this.setHeaders(response, resource);
       await this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);

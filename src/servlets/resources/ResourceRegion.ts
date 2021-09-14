@@ -35,7 +35,9 @@ export default class ResourceRegion {
 
   static toResourceRegions(ranges: Array<HttpRange>, resource: Resource) {
     return ranges.map((range) => {
-      const count = range.end - range.start + 1;
+      const start = range.start;
+      const end = range.end === -1 ? resource.contentLength - 1 : range.end;
+      const count = end - start + 1;
       return new ResourceRegion(resource, range.start, count);
     })
   }
