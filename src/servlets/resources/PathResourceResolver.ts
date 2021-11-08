@@ -16,7 +16,7 @@ export default class PathResourceResolver implements ResourceResolver {
   }
 
   private getResource(resourcePath: string, locations: Array<Resource>): Resource {
-    const segments = resourcePath.split('/');
+    const segments = (resourcePath).split('/');
     const first = segments.shift();
     for (let location of locations) {
       const resource = location.createRelative(resourcePath);

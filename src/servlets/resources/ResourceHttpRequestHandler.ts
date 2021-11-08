@@ -113,7 +113,7 @@ export default class ResourceHttpRequestHandler {
    */
   processPath(request: HttpServletRequest) {
     const url = request.servletContext.getAttrigute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
-    return url.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, '');
+    return decodeURIComponent(url.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, ''));
   }
 
   /**
