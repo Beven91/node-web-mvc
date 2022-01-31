@@ -4,6 +4,6 @@ import UrlPathHelper from "../../../src/servlets/util/UrlPathHelper";
 export default class MyUrlPathHelper extends UrlPathHelper {
 
   getServletPath(request: HttpServletRequest) {
-    return request.usePath + '/';
+    return request.usePath; // + '/';
   }
 }

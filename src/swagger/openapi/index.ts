@@ -15,6 +15,7 @@ import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import MethodParameter from '../../interface/MethodParameter';
 import MultipartFile from '../../servlets/http/MultipartFile';
 import RequestMappingInfo from '../../servlets/mapping/RequestMappingInfo';
+import { RestControllerAnnotation } from '../../servlets/annotations/RestController';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -239,6 +240,7 @@ export default class OpenApiModel {
   private static buildOperation(paths, operation: ApiOperationMeta) {
     const option = operation.option;
     const api = operation.api;
+    const isRestController = RestControllerAnnotation.isRestController(api.class);
     const topMapping = RequestMappingAnnotation.getMappingInfo(api.class) || {} as RequestMappingInfo;
     const mapping = RequestMappingAnnotation.getMappingInfo(api.class, operation.method);
     if (!mapping) {
@@ -247,8 +249,9 @@ export default class OpenApiModel {
     const code = 'code' in option ? option.code : '200';
     const returnType = option.returnType;
     const model = Definition.getDefinition(returnType);
+    const consumes = isRestController ? ['application/json'] : '';
     const operationDoc = {
-      consumes: topMapping.consumes || mapping.consumes || operation.consumes || undefined,
+      consumes: mapping.consumes || topMapping.consumes || consumes || operation.consumes || undefined,
       deprecated: false,
       operationId: operation.method,
       tags: api.option.tags.map((tag) => tag.name),
