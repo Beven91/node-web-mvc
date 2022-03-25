@@ -70,6 +70,7 @@ export default class MediaType {
 
   toString() {
     const keys = Object.keys(this.parameters);
-    return `${this.name};${keys.map((k) => `${k}=${this.parameters[k]}`)}`
+    const joinChar = keys?.length > 0 ? ';' : '';
+    return `${this.name}${joinChar}${keys.map((k) => `${k}=${this.parameters[k]}`)}`
   }
 }
