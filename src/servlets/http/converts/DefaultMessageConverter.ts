@@ -8,7 +8,7 @@ import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
 export default class DefaultMessageConverter extends AbstractHttpMessageConverter {
 
-  constructor(){
+  constructor() {
     super(MediaType.ALL);
   }
 
@@ -20,9 +20,9 @@ export default class DefaultMessageConverter extends AbstractHttpMessageConverte
     return new Promise((resolve) => {
       data = data === undefined ? '' : data;
       if (data instanceof Buffer || typeof data === 'string') {
-        servletContext.response.write(data, resolve);
+        servletContext.response.end(data, undefined, resolve);
       } else {
-        servletContext.response.write(String(data), resolve);
+        servletContext.response.end(String(data), undefined, resolve);
       }
     })
   }

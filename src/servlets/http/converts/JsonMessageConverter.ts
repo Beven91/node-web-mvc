@@ -35,7 +35,7 @@ export default class JsonMessageConverter extends AbstractHttpMessageConverter {
   write(data: any, mediaType: MediaType, servletContext: ServletContext) {
     return new Promise((resolve) => {
       const out = typeof data === 'string' ? data : JSON.stringify(data);
-      servletContext.response.write(out, resolve);
+      servletContext.response.end(out, undefined, resolve);
     });
   }
 }

@@ -134,7 +134,6 @@ export default class HttpServletResponse {
    * @param response 
    */
   write(chunk, callback?, encoding?) {
-    this.writeStatus();
     this.nativeResponse.write(chunk === undefined ? '' : chunk, encoding || 'utf-8', callback);
   }
 
