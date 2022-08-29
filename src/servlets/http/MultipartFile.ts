@@ -5,6 +5,7 @@
 import path from 'path';
 import fs from 'fs';
 import MediaType from "./MediaType";
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export default class MultipartFile {
   /**
@@ -47,12 +48,13 @@ export default class MultipartFile {
   public mediaType: MediaType
 
   constructor(name, file, encoding, mediaType) {
+    const root = WebMvcConfigurationSupport.configurer?.multipart?.tempRoot || 'app_data/temp-files'
     this.mediaType = new MediaType(mediaType);
     this.encoding = encoding;
     this.name = name;
     this.size = 0;
     // 临时文件存放区域
-    this.id = path.resolve('app_data/temp-files', Date.now().toString());
+    this.id = path.join(root, Date.now().toString());
     // 确认目标目录是否存在
     this.ensureDirSync(path.dirname(this.id));
 

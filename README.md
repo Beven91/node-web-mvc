@@ -292,7 +292,7 @@ class HomeController {
   @PostMapping({ value: '/file', produces: 'application/json' })
   async index(@RequestParam file: MultipartFile,@RequestParam id){
     // 保存文件
-    await file.transferTo('app_data/images/' + file.name);
+    await file.transferTo('appdata/images/' + file.name);
 
     return {
       code:0,
@@ -305,7 +305,7 @@ class HomeController {
   async index(@RequestParam files: Array<MultipartFile>){
     // 保存文件
     for (let file of files) {
-      await file.transferTo('app_data/images/' + file.name)
+      await file.transferTo('appdata/images/' + file.name)
     }
 
     return {
@@ -995,7 +995,7 @@ class HomeConntroller {
   ])
   @PostMapping('/upload')
   upload(file: MultipartFile,@RequestParam desc,@RequestParam id) {
-    return file.transferTo('app_data/images/' + file.name);
+    return file.transferTo('appdata/images/' + file.name);
   }
 }
 ```

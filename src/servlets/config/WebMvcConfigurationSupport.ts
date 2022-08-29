@@ -39,6 +39,10 @@ declare interface Multipart {
    * 单个请求的最大限制
    */
   maxRequestSize: string | number
+  /**
+  * 上传资源文件临时存储目录
+  */
+  tempRoot?: string
 }
 
 declare interface ResourceOptions {

@@ -1,4 +1,5 @@
 .vscode
+appdata
 app_data
 node_modules
 test
