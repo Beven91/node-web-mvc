@@ -79,6 +79,7 @@ import ResponseFile from './servlets/models/ResponseFile';
 import Assert from './servlets/util/Assert';
 import MiddlewareResourceResolver from './servlets/resources/MiddlewareResourceResolver';
 import MiddlewareInterceptor from './servlets/interceptor/MiddlewareInterceptor';
+import CacheControl from './servlets/http/CacheControl';
 
 export {
   hot,
@@ -159,7 +160,8 @@ export {
   ResponseFile,
   Assert,
   MiddlewareResourceResolver,
-  MiddlewareInterceptor
+  MiddlewareInterceptor,
+  CacheControl
 }
 
 hot.create(module);
