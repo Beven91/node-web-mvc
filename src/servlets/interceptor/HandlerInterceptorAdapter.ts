@@ -1,7 +1,7 @@
 
 /**
  * @module HandlerInterceptorAdapter
- * 拦截器抽象类
+ * 拦截器适配器抽象类
  */
 import HandlerInterceptor from './HandlerInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
