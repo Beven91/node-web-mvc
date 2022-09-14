@@ -63,6 +63,7 @@ import ResourceRegion from './servlets/resources/ResourceRegion';
 import HttpMethod from './servlets/http/HttpMethod';
 import HttpHeaders from './servlets/http/HttpHeaders';
 import HttpStatus from './servlets/http/HttpStatus';
+import HttpRange from './servlets/http/HttpRange';
 import HandlerInterceptorRegistry from './servlets/interceptor/HandlerInterceptorRegistry';
 import ArgumentsResolvers from './servlets/method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './servlets/view/ViewResolverRegistry';
@@ -80,6 +81,27 @@ import Assert from './servlets/util/Assert';
 import MiddlewareResourceResolver from './servlets/resources/MiddlewareResourceResolver';
 import MiddlewareInterceptor from './servlets/interceptor/MiddlewareInterceptor';
 import CacheControl from './servlets/http/CacheControl';
+import HandlerMapping from './servlets/mapping/HandlerMapping';
+import AbstractHandlerMapping from './servlets/mapping/AbstractHandlerMapping';
+import AbstractHandlerMethodMapping from './servlets/mapping/AbstractHandlerMethodMapping';
+import NoRequestHandlerMapping from './servlets/mapping/NoRequestHandlerMapping';
+import MappingRegistration from './servlets/mapping/registry/MappingRegistration';
+import AbstractHttpMessageConverter from './servlets/http/converts/AbstractHttpMessageConverter';
+import DefaultMessageConverter from './servlets/http/converts/DefaultMessageConverter';
+import JsonMessageConverter from './servlets/http/converts/JsonMessageConverter';
+import MultipartMessageConverter from './servlets/http/converts/MultipartMessageConverter';
+import OctetStreamMessageConverter from './servlets/http/converts/OctetStreamMessageConverter';
+import UrlencodedMessageConverter from './servlets/http/converts/UrlencodedMessageConverter';
+import MappedInterceptor from './servlets/interceptor/MappedInterceptor';
+import CrossOrigin from './servlets/cors/CrossOrigin';
+import AnnotationElementTypeError from './errors/AnnotationElementTypeError';
+import ArgumentConvertError from './errors/ArgumentConvertError';
+import ArgumentResolvError from './errors/ArgumentResolvError';
+import EntityTooLargeError from './errors/EntityTooLargeError';
+import ForwardEndlessLoopError from './errors/ForwardEndlessLoopError';
+import HttpRequestMethodNotSupportedException from './errors/HttpRequestMethodNotSupportedException';
+import ParameterRequiredError from './errors/ParameterRequiredError';
+import ViewNotFoundError from './errors/ViewNotFoundError';
 
 export {
   hot,
@@ -161,7 +183,29 @@ export {
   Assert,
   MiddlewareResourceResolver,
   MiddlewareInterceptor,
-  CacheControl
+  CacheControl,
+  HandlerMapping,
+  AbstractHandlerMapping,
+  AbstractHandlerMethodMapping,
+  NoRequestHandlerMapping,
+  MappingRegistration,
+  AbstractHttpMessageConverter,
+  DefaultMessageConverter,
+  JsonMessageConverter,
+  MultipartMessageConverter,
+  OctetStreamMessageConverter,
+  UrlencodedMessageConverter,
+  HttpRange,
+  MappedInterceptor,
+  CrossOrigin,
+  AnnotationElementTypeError,
+  ArgumentConvertError,
+  ArgumentResolvError,
+  EntityTooLargeError,
+  ForwardEndlessLoopError,
+  HttpRequestMethodNotSupportedException,
+  ParameterRequiredError,
+  ViewNotFoundError
 }
 
 hot.create(module);

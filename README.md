@@ -292,7 +292,7 @@ class HomeController {
   @PostMapping({ value: '/file', produces: 'application/json' })
   async index(@RequestParam file: MultipartFile,@RequestParam id){
     // 保存文件
-    await file.transferTo('appdata/images/' + file.name);
+    await file.transferTo('appqdata/images/' + file.name);
 
     return {
       code:0,
