@@ -54,6 +54,7 @@ export default class ResourceHandlerRegistration {
 
   setCacheControl(options: CacheControl) {
     this.cacheControl = new CacheControl(options);
+    return this;
   }
 
   resourceChain(cacheResources, cache?) {
