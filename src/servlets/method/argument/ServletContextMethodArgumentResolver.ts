@@ -6,7 +6,7 @@ import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 
-export default class PathVariableMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
+export default class ServletContextMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
     return paramater.paramType === 'request' || paramater.paramType === 'response';

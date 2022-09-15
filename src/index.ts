@@ -7,6 +7,13 @@ import GetMapping from './servlets/annotations/mapping/GetMapping';
 import PutMapping from './servlets/annotations/mapping/PutMapping';
 import PatchMapping from './servlets/annotations/mapping/PatchMapping';
 import DeleteMapping from './servlets/annotations/mapping/DeleteMapping';
+import MappingRegistry from './servlets/mapping/registry/MappingRegistry';
+import HandlerMapping from './servlets/mapping/HandlerMapping';
+import AbstractHandlerMapping from './servlets/mapping/AbstractHandlerMapping';
+import AbstractHandlerMethodMapping from './servlets/mapping/AbstractHandlerMethodMapping';
+import NoRequestHandlerMapping from './servlets/mapping/NoRequestHandlerMapping';
+import MappingRegistration from './servlets/mapping/registry/MappingRegistration';
+import RequestMappingHandlerAdapter from './servlets/method/RequestMappingHandlerAdapter';
 import RestController from './servlets/annotations/RestController';
 import Scope from './servlets/annotations/Scope';
 import ControllerAdvice from './servlets/annotations/ControllerAdvice';
@@ -27,12 +34,20 @@ import PathVariable from './servlets/annotations/params/PathVariable';
 import RequestHeader from './servlets/annotations/params/RequestHeader';
 import MultipartFile from './servlets/http/MultipartFile';
 import HttpMessageConverter from './servlets/http/converts/HttpMessageConverter';
-import HandlerMethodArgumentResolver from './servlets/method/argument/HandlerMethodArgumentResolver';
 import ViewResolver from './servlets/view/resolvers/ViewResolver';
 import UrlBasedViewResolver from './servlets/view/resolvers/UrlBasedViewResolver';
 import View from './servlets/view/View';
 import HandlerMethod from './servlets/method/HandlerMethod';
 import HandlerAdapter from './servlets/method/HandlerAdapter';
+import AbstractHandlerMethodAdapter from './servlets/method/AbstractHandlerMethodAdapter';
+import HandlerMethodArgumentResolver from './servlets/method/argument/HandlerMethodArgumentResolver';
+import ArgumentsResolvers from './servlets/method/argument/ArgumentsResolvers';
+import ArgumentConverter from './servlets/method/argument/ArgumentConverter';
+import PathVariableMapMethodArgumentResolver from './servlets/method/argument/PathVariableMapMethodArgumentResolver';
+import RequestHeaderMapMethodArgumentResolver from './servlets/method/argument/RequestHeaderMapMethodArgumentResolver';
+import RequestParamMapMethodArgumentResolver from './servlets/method/argument/RequestParamMapMethodArgumentResolver';
+import RequestResponseBodyMethodProcessor from './servlets/method/argument/RequestResponseBodyMethodProcessor';
+import ServletContextMethodArgumentResolver from './servlets/method/argument/ServletContextMethodArgumentResolver';
 import RequestMemoryStream from './servlets/http/RequestMemoryStream';
 import Target from './servlets/annotations/Target';
 import createParam from './servlets/annotations/params/createParam';
@@ -65,10 +80,8 @@ import HttpHeaders from './servlets/http/HttpHeaders';
 import HttpStatus from './servlets/http/HttpStatus';
 import HttpRange from './servlets/http/HttpRange';
 import HandlerInterceptorRegistry from './servlets/interceptor/HandlerInterceptorRegistry';
-import ArgumentsResolvers from './servlets/method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from './servlets/view/ViewResolverRegistry';
 import ResourceHandlerRegistry from './servlets/resources/ResourceHandlerRegistry';
-import AbstractHandlerMethodAdapter from './servlets/method/AbstractHandlerMethodAdapter';
 import ResourceResolverChain from './servlets/resources/ResourceResolverChain';
 import ResourceTransformerChain from './servlets/resources/ResourceTransformerChain';
 import WebMvcConfigurationSupport from './servlets/config/WebMvcConfigurationSupport';
@@ -81,11 +94,6 @@ import Assert from './servlets/util/Assert';
 import MiddlewareResourceResolver from './servlets/resources/MiddlewareResourceResolver';
 import MiddlewareInterceptor from './servlets/interceptor/MiddlewareInterceptor';
 import CacheControl from './servlets/http/CacheControl';
-import HandlerMapping from './servlets/mapping/HandlerMapping';
-import AbstractHandlerMapping from './servlets/mapping/AbstractHandlerMapping';
-import AbstractHandlerMethodMapping from './servlets/mapping/AbstractHandlerMethodMapping';
-import NoRequestHandlerMapping from './servlets/mapping/NoRequestHandlerMapping';
-import MappingRegistration from './servlets/mapping/registry/MappingRegistration';
 import AbstractHttpMessageConverter from './servlets/http/converts/AbstractHttpMessageConverter';
 import DefaultMessageConverter from './servlets/http/converts/DefaultMessageConverter';
 import JsonMessageConverter from './servlets/http/converts/JsonMessageConverter';
@@ -102,6 +110,11 @@ import ForwardEndlessLoopError from './errors/ForwardEndlessLoopError';
 import HttpRequestMethodNotSupportedException from './errors/HttpRequestMethodNotSupportedException';
 import ParameterRequiredError from './errors/ParameterRequiredError';
 import ViewNotFoundError from './errors/ViewNotFoundError';
+import PathResourceResolver from './servlets/resources/PathResourceResolver';
+import GzipGlobalResolver from './servlets/resources/GzipGlobalResolver';
+import GzipResource from './servlets/resources/GzipResource';
+import InternalResourceView from './servlets/view/InternalResourceView';
+import RedirectView from './servlets/view/RedirectView';
 
 export {
   hot,
@@ -205,7 +218,20 @@ export {
   ForwardEndlessLoopError,
   HttpRequestMethodNotSupportedException,
   ParameterRequiredError,
-  ViewNotFoundError
+  ViewNotFoundError,
+  PathResourceResolver,
+  GzipGlobalResolver,
+  GzipResource,
+  InternalResourceView,
+  RedirectView,
+  RequestMappingHandlerAdapter,
+  ArgumentConverter,
+  PathVariableMapMethodArgumentResolver,
+  RequestHeaderMapMethodArgumentResolver,
+  RequestParamMapMethodArgumentResolver,
+  RequestResponseBodyMethodProcessor,
+  ServletContextMethodArgumentResolver,
+  MappingRegistry,
 }
 
 hot.create(module);

@@ -44,6 +44,11 @@ export default class HandlerMethod {
   public readonly parameters: Array<MethodParameter>
 
   /**
+   * 调用当前方法的参数值
+   */
+  public argumentValues:any[]
+
+  /**
    * 当前请求返回的状态码
    */
   public responseStatus: number
