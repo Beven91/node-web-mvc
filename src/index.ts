@@ -70,6 +70,8 @@ import RuntimeAnnotation from './servlets/annotations/annotation/RuntimeAnnotati
 import AnnotationOptions from './servlets/annotations/annotation/AnnotationOptions';
 import HttpResource from './servlets/resources/HttpResource';
 import Resource from './servlets/resources/Resource';
+import ResourceHttpRequestHandler from './servlets/resources/ResourceHttpRequestHandler';
+import ResourceHttpMessageConverter from './servlets/resources/ResourceHttpMessageConverter';
 import ResourceChainRegistration from './servlets/resources/ResourceChainRegistration';
 import ResourceHandlerRegistration from './servlets/resources/ResourceHandlerRegistration';
 import ResourceResolver from './servlets/resources/ResourceResolver';
@@ -232,6 +234,8 @@ export {
   RequestResponseBodyMethodProcessor,
   ServletContextMethodArgumentResolver,
   MappingRegistry,
+  ResourceHttpMessageConverter,
+  ResourceHttpRequestHandler
 }
 
 hot.create(module);

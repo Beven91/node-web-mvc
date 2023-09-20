@@ -135,7 +135,8 @@ export default class RuntimeAnnotation {
    */
   static getClassAnnotation(ctor, type) {
     const annotations = this.getClassAnnotations(ctor);
-    return annotations.find((m) => isAnnotationOf(m, type));
+    const isAnnotation = (s: RuntimeAnnotation) => s.elementType === ElementType.TYPE && isAnnotationOf(s, type);
+    return annotations.find((m) => isAnnotation(m));
   }
 
   /**

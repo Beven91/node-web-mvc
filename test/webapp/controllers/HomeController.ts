@@ -2,6 +2,7 @@
 import path from 'path';
 import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile } from '../../../src/index';
 import UserId from '../annotations/UserIdAnnotation';
+import Security from '../annotations/SecurityAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
@@ -21,6 +22,7 @@ export default class HomeController {
     return `name:${name},id:${id}`;
   }
 
+  @Security
   @ApiOperation({ value: 'RequestParam post参数' })
   @ApiImplicitParams([
     { name: 'name', paramType: 'formData' },
@@ -38,7 +40,7 @@ export default class HomeController {
   ])
   @GetMapping('/map')
   mapGet(@RequestParam data: Map<string, any>) {
-    const values = [];
+    const values = [] as string[];
     data.forEach((value, key) => {
       values.push(`${key}:${value}`)
     })
@@ -48,7 +50,7 @@ export default class HomeController {
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
   mapPost(@RequestBody data: Map<string, any>) {
-    const values = [];
+    const values = [] as string[];
     data.forEach((value, key) => {
       values.push(`${key}:${value}`)
     })
@@ -58,7 +60,7 @@ export default class HomeController {
   @ApiOperation({ value: 'Set数据接收' })
   @PostMapping('/set')
   set(@RequestParam data: Set<any>) {
-    const values = [];
+    const values = [] as string[];
     data.forEach((v) => values.push(v));
     return values.join(',');
   }

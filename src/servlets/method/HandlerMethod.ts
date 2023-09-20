@@ -125,7 +125,7 @@ export default class HandlerMethod {
    * @param ctor 要获取的注解类型类
    */
   public getClassAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
-    const annotations = RuntimeAnnotation.getClassAllAnnotations(this.beanType);
+    const annotations = RuntimeAnnotation.getClassAnnotations(this.beanType);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
 
