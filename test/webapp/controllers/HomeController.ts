@@ -136,9 +136,15 @@ export default class HomeController {
 
   }
 
-  @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo>' })
+  @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo[]>' })
   @GetMapping('/return2')
   returnData2() {
+
+  }
+
+  @ApiOperation({ value: '数据返回：属性泛型2', returnType: 'CommonResult<Keneral[]>' })
+  @GetMapping('/return3')
+  returnData3() {
 
   }
 

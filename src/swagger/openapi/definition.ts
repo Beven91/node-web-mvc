@@ -64,6 +64,7 @@ export default class Definition {
       const property = properties[key];
       const info = this.getDefinitionByName(property.type);
       if (info.type === 'array') {
+        info.items = property.items ? property.items : info.items;
         finalProperties[key] = info;
       } else if (info.schema) {
         finalProperties[key] = info.schema;
@@ -79,7 +80,7 @@ export default class Definition {
    * @param dataType 
    */
   private static isArray(dataType) {
-    return dataType === 'List' || dataType === 'Array' || dataType === 'array';
+    return dataType === 'List' || dataType === 'Array' || dataType === 'array' || /\[\]/.test(dataType);
   }
 
   private static createGenericT(property, define) {
@@ -125,17 +126,20 @@ export default class Definition {
 
   private static parseDefinition(define, key): DefinitionInfo {
     const defineModel = definitions[define.name];
+    // console.log(define,key)
     const nowKey = define.name ? `${key}<${define.name}>` : key;
     const model = definitions[key];
     if (definitions[nowKey]) {
       return { name: nowKey, type: '' };
     } else if (this.isArray(key)) {
+      const name = key.replace('[]', '');
+      const model = defineModel || definitions[name];
       return {
         type: 'array',
         name: nowKey,
         items: {
-          '$ref': defineModel ? this.makeRef(define.name) : undefined,
-          'type': defineModel ? undefined : define.name || 'string'
+          '$ref': model ? this.makeRef(define.name || name) : undefined,
+          'type': model ? undefined : define.name || 'string'
         }
       };
     } else if (model) {
@@ -175,7 +179,7 @@ export default class Definition {
       const isArray = data.type === 'array';
       return isArray ? { collectionFormat: 'multi', type: 'array', items: data.items } : { schema: { '$ref': ref } };
     } else if (dataType === 'array') {
-      return { type: 'array', collectionFormat: 'multi', items: { type: 'string' } };
+      return { type: 'array', collectionFormat: 'multi', items: { type: 'string' }, k: true };
     } else if (dataType === 'date-time') {
       return { type: 'string', format: 'date-time' };
     } else {
