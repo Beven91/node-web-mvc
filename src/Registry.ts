@@ -44,12 +44,12 @@ export default class Registry {
         Registry.register('${options.mode}',ContextClass)
       `);
     }
-    if(options.onLaunch){
+    if (options.onLaunch) {
       options.onLaunch();
     }
     // 返回中间件
     return HttpContext.launch((request, response, next) => {
-      if(request.path.indexOf(configurer.base) !== 0){
+      if (request.path.indexOf(configurer.base) !== 0) {
         return next();
       }
       new Promise((resolve) => {

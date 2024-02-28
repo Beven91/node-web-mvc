@@ -28,7 +28,7 @@ export default class RuntimeAnnotation {
   /**
    * 标注类的构造函数
    */
-  get ctor(): Function {
+  get ctor(): Function & { trace?: string[] } {
     switch (this.elementType) {
       case ElementType.TYPE:
         return this.target;
@@ -77,6 +77,8 @@ export default class RuntimeAnnotation {
 
   // 当前标注实际使用的类型
   public readonly elementType: ElementType
+
+  public readonly trace: string[]
 
   /**
    * 如果当前注解为：函数注解，则能获取到返回结果类型
@@ -196,12 +198,12 @@ export default class RuntimeAnnotation {
    * 创建一个运行时注解
    * @param { AnnotationOptions } options 注解参数
    */
-  static create(options: AnnotationOptions) {
+  static create(options: AnnotationOptions, trace?: string[]) {
     // 创建一个运行时注解
-    return new RuntimeAnnotation(options);
+    return new RuntimeAnnotation(options, trace);
   }
 
-  constructor(options: AnnotationOptions) {
+  constructor(options: AnnotationOptions, trace?: string[]) {
     const { meta, types, ctor: RealAnnotation } = options;
     // 检查范围
     const elementType = checkAnnotation(types, meta, RealAnnotation.name);
@@ -236,6 +238,8 @@ export default class RuntimeAnnotation {
         }
         break;
     }
+
+    this.ctor.trace = trace;
 
     // 根据构造创建注解实例
     this.nativeAnnotation = new RealAnnotation(this, ...options.options);

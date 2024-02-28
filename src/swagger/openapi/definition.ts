@@ -40,11 +40,22 @@ export default class Definition {
       .keys(definitions)
       .forEach((key) => {
         const definition = definitions[key];
+        const parentCtor = (definition.ctor as any).__proto__;
+        const parentName = parentCtor?.name;
+        const parent = definitions[parentName];
         const ctorName = definition.name || definition.ctor.name;
         tempDefinitions[key] = {
           title: definition.title ? `${definition.title} - ${ctorName}` : ctorName,
           description: definition.description,
           properties: this.buildFinalDefinitionProperties(definition),
+        }
+        if (parent && parentCtor !== definition.ctor) {
+          tempDefinitions[key] = {
+            allOf: [
+              tempDefinitions[key],
+              { $ref: this.makeRef(parentName) },
+            ]
+          }
         }
       });
     // 筛选，返回最终需要的定义
@@ -198,6 +209,7 @@ export default class Definition {
   static reflectTypeName(value) {
     switch (value) {
       case String:
+      case Symbol:
         return 'string';
       case Date:
         return 'date-time';
@@ -205,17 +217,34 @@ export default class Definition {
         return 'boolean';
       case Number:
         return 'integer';
+      case BigInt:
+        return 'string';
       case Function:
-        return value.name || 'string';
+        return this.functionNameType(value);
       case Array:
+      case SharedArrayBuffer:
+      case Int8Array:
+      case Int32Array:
+      case Int16Array:
+      case Uint16Array:
+      case Uint32Array:
+      case Uint8Array:
+      case Uint8ClampedArray:
         return 'array';
       case Set:
+      case WeakSet:
         return 'array';
+      case WeakMap:
       case Map:
-        return 'string';
+        return 'object';
       default:
         return this.instanceType(value) || 'string';
     }
+  }
+
+  private static functionNameType(value) {
+    const name = value.name;
+    return name === 'Object' ? 'string' : name || 'string';
   }
 
   private static instanceType(value) {
@@ -229,7 +258,7 @@ export default class Definition {
     } else if (value instanceof Array || value && /Array/.test(value.name)) {
       return 'array';
     } else if (name === 'function') {
-      return value.name;
+      return this.functionNameType(value)
     } else {
       return name;
     }

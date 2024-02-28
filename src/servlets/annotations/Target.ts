@@ -7,6 +7,7 @@ import RuntimeAnnotation, { AnnotationFunction } from "./annotation/RuntimeAnnot
 import { reflectAnnotationType } from "./annotation/ElementType";
 
 const elementTypes = Symbol('elementTypes');
+const moduleRuntime = { generate: false }
 
 declare type ConfigableDecorator<T> = (a: T) => any
 
@@ -30,6 +31,10 @@ export default function Target(types): any {
       target[elementTypes] = types
     }
   }
+}
+
+Target.generateTrace = function () {
+  moduleRuntime.generate = true;
 }
 
 Target.install = function <A extends AbstractClassType>(ctor: A): CallableAnnotationFunction<A, ConstructorParameters<A>[1]> {
@@ -62,9 +67,13 @@ Target.install = function <A extends AbstractClassType>(ctor: A): CallableAnnota
   return decorator as any;
 }
 
+function getTrace(error: Error) {
+  return error.stack.split('\n').slice(4, 6).map((m) => m.split('(').pop().split(':').shift());
+}
+
 function createAnnotation(runtime: AnnotationOptions): RuntimeAnnotation {
   const target = runtime.meta[0];
   runtime.types = target[elementTypes] || target.constructor[elementTypes] || [];
   // 创建注解
-  return RuntimeAnnotation.create(runtime)
+  return RuntimeAnnotation.create(runtime, moduleRuntime.generate ? getTrace(new Error()) : null)
 }

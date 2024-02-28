@@ -76,7 +76,9 @@ export default class OpenApiModel {
   private static createApiModel(ctor) {
     const name = ctor.name;
     if (!definitions[name]) {
-      definitions[name] = { title: '', description: '', properties: {}, ctor: ctor }
+      definitions[name] = {
+        title: '', description: '', properties: {}, ctor: ctor
+      }
     }
     return definitions[name];
   }
@@ -162,12 +164,13 @@ export default class OpenApiModel {
   static addModelProperty(propertyOptions: ApiModelPropertyOptions, ctor, name) {
     const model = this.createApiModel(ctor);
     const generic = /<\d+>/.test(propertyOptions.dataType)
+    const dataType = propertyOptions.dataType ? Definition.reflectTypeName(propertyOptions.dataType) : null;
     model.properties[name] = {
       generic: propertyOptions.generic || generic,
       description: propertyOptions.value,
       required: propertyOptions.required,
       example: propertyOptions.example,
-      type: propertyOptions.dataType || typeof (propertyOptions.example || '')
+      type: dataType || typeof (propertyOptions.example || '')
     }
   }
 
@@ -334,37 +337,23 @@ export default class OpenApiModel {
  */
 hot.create(module)
   .preload((old) => {
+    const file = old.filename;
+    type TraceCtor = Function & { trace: string[] }
     // 预更新时，判断当前模块是否为被修饰的类
-    const info = old.exports.default || old.exports;
-    if (typeof info !== 'function') {
-      return;
-    }
-    const api = apiMetaList.find((api) => api.class === info);
-    if (api) {
+    const removeApis = apiMetaList.filter((api) => {
+      const ctor = api.class as TraceCtor;
+      return !!(ctor.trace || []).find((m) => m.indexOf(file) > -1);
+    });
+    const removeDefinitions = Object.keys(definitions).filter((k) => {
+      const ctor = definitions[k].ctor as TraceCtor;
+      return !!(ctor.trace || []).find((m) => m.indexOf(file) > -1);
+    })
+    removeApis.forEach((api) => {
       const index = apiMetaList.indexOf(api);
-      old.__apiIndex = index;
       apiMetaList.splice(index, 1);
-    } else {
-      const keys = Object.keys(definitions).filter((k) => definitions[k].ctor === info);
-      keys.forEach((key) => {
-        // 删除schema
-        delete definitions[key];
-      })
-    }
-  })
-  .postend((now, old) => {
-    const index = old.__apiIndex;
-    if (isNaN(index)) {
-      return;
-    }
-    if (apiMetaList.length > 0) {
-      const last = apiMetaList.pop();
-      const newApiList = [
-        ...apiMetaList.slice(0, index),
-        last,
-        ...apiMetaList.slice(index)
-      ]
-      apiMetaList.length = 0;
-      apiMetaList.push(...newApiList);
-    }
+    })
+    removeDefinitions.forEach((key) => {
+      // 删除schema
+      delete definitions[key];
+    })
   })

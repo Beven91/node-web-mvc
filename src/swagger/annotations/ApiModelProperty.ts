@@ -12,6 +12,7 @@ class ApiModelProperty {
 
   constructor(meta: RuntimeAnnotation, options: ApiModelPropertyOptions) {
     options = options || {} as ApiModelPropertyOptions;
+    options.dataType = options.dataType || meta.dataType;
     OpenApi.addModelProperty(options, meta.ctor, meta.name);
   }
 }
