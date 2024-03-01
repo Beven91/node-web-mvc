@@ -9,6 +9,7 @@ import ResponseStatus, { ResponseStatusAnnotation } from '../annotations/Respons
 import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
 import BeanFactory from '../../ioc/BeanFactory';
 import InterruptModel from '../models/InterruptModel';
+import MultipartFile from '../http/MultipartFile';
 
 export default class HandlerMethod {
 
@@ -46,7 +47,7 @@ export default class HandlerMethod {
   /**
    * 调用当前方法的参数值
    */
-  public argumentValues:any[]
+  public argumentValues: any[]
 
   /**
    * 当前请求返回的状态码
@@ -90,12 +91,15 @@ export default class HandlerMethod {
 
   // 初始化参数
   private initMethodParameters(): Array<MethodParameter> {
-    const parameterNames = Javascript.resolveParameters(this.method);
+    const methodAnno = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName)[0];
+    const parameterNames = methodAnno?.parameters || Javascript.resolveParameters(this.method);
     const annotations = RuntimeAnnotation.getMethodParamAnnotations(this.beanType, this.methodName);
-    return parameterNames.map((name) => {
+    return parameterNames.map((name, i) => {
       const annotation = annotations.find((a) => a.paramName === name);
-      const defaultOptions = { name, paramType: '' };
-      const options = <MethodParameter>(annotation && annotation.nativeAnnotation.param || defaultOptions);
+      const dataType = methodAnno?.paramTypes?.[i];
+      const isFile = dataType && dataType == MultipartFile || dataType instanceof MultipartFile;
+      const defaultOptions = { required: isFile, value: name, name, paramType: 'query', dataType };
+      const options = <MethodParameter>(annotation && annotation.nativeAnnotation.param || annotation || defaultOptions);
       return new MethodParameter(options, options.paramType, annotation);
     });
   }

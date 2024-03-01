@@ -1,28 +1,26 @@
 /**
- * @module RequestParamMapMethodArgumentResolver
- * @description urlencode参数解析器
+ * @module RequestPartMapMethodArgumentResolver
+ * @description part参数解析器
  */
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../../../interface/MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 import WebMvcConfigurationSupport from '../../config/WebMvcConfigurationSupport';
-import RequestParam from '../../annotations/params/RequestParam';
+import RequestPart from '../../annotations/params/RequestPart';
 
-export default class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
+export default class RequestPartMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    return paramater.hasParameterAnnotation(RequestParam) || paramater.paramType == 'query';
+    return paramater.hasParameterAnnotation(RequestPart) || paramater.paramType == 'part'
   }
 
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext): Promise<any> {
-    const { request } = servletContext;
     const name = parameter.value;
-    const query = request.query;
     const body = await this.resolveBody(servletContext);
     if (parameter.dataType === Map) {
-      return { ...query, ...body };
+      return { ...body };
     }
-    return name in query ? query[name] : body[name];
+    return body[name];
   }
 
   resolveBody(servletContext: ServletContext) {
@@ -30,7 +28,6 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
     const mediaType = request.mediaType.name;
     switch (mediaType) {
       case 'multipart/form-data':
-      case 'application/x-www-form-urlencoded':
         return WebMvcConfigurationSupport.configurer.messageConverters.read(servletContext);
       default:
         return {};

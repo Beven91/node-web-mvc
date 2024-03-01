@@ -14,6 +14,7 @@ import ServletContextMethodArgumentResolver from './ServletContextMethodArgument
 import HandlerMethod from '../HandlerMethod';
 import ArgumentResolvError from '../../../errors/ArgumentResolvError';
 import ArgumentConverter from './ArgumentConverter';
+import RequestPartMapMethodArgumentResolver from './RequestPartMapMethodArgumentResolver';
 
 export default class ArgumentsResolvers {
 
@@ -24,6 +25,7 @@ export default class ArgumentsResolvers {
       new PathVariableMapMethodArgumentResolver(),
       new RequestHeaderMapMethodArgumentResolver(),
       new RequestParamMapMethodArgumentResolver(),
+      new RequestPartMapMethodArgumentResolver(),
       new RequestResponseBodyMethodProcessor(),
       new ServletContextMethodArgumentResolver()
     ];
@@ -43,11 +45,12 @@ export default class ArgumentsResolvers {
    * 获取要执行函数的参数值信息
    */
   async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<Array<any>> {
+    let parameter;
     try {
       const signParameters = handler.parameters;
       const args = [];
       for (let i = 0, k = signParameters.length; i < k; i++) {
-        const parameter = signParameters[i];
+        parameter = signParameters[i];
         const value = await this.resolveArgument(parameter, servletContext);
         // this.checkArguments(parameter, value);
         const hasResolved = (value !== undefined && value !== null);
@@ -56,7 +59,7 @@ export default class ArgumentsResolvers {
         if (parameter.required && hasNotValue) {
           // 如果缺少参数
           const message = `Required request parameter: ${parameter.name} is missing @${handler.beanTypeName}.${handler.methodName}`
-          return Promise.reject(new ArgumentResolvError(message));
+          return Promise.reject(new ArgumentResolvError(message, parameter.name));
         }
         // 设置参数值
         const converter = new ArgumentConverter(parameter.dataType);
@@ -64,7 +67,7 @@ export default class ArgumentsResolvers {
       }
       return args;
     } catch (ex) {
-      return Promise.reject(new ArgumentResolvError(ex));
+      return Promise.reject(new ArgumentResolvError(ex, parameter?.name));
     }
   }
 

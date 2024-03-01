@@ -10,7 +10,7 @@ export default class ArgumentConverter {
 
   private readonly dataType;
 
-  constructor(dataType) {
+  constructor(dataType: any) {
     this.dataType = dataType;
   }
 
@@ -109,6 +109,9 @@ export default class ArgumentConverter {
   toClass(value) {
     const T = this.dataType as any;
     if (typeof T !== 'function' || value instanceof T) {
+      return value;
+    }
+    if (this.dataType === Object) {
       return value;
     }
     const instance = new T();

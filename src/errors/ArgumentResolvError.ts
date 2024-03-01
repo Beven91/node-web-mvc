@@ -3,11 +3,11 @@
  */
 
 export default class ArgumentResolvError extends Error {
-  constructor(ex: Error | string) {
+  constructor(ex: Error | string, name: string) {
     if (typeof ex === 'string') {
       super(ex);
     } else {
-      super(`Argument resolve error:\n ${ex.message}`);
+      super(`Argumen '${name}' resolve error:\n ${ex.message}`);
       this.stack = ex.stack;
     }
   }

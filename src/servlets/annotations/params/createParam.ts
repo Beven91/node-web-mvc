@@ -1,8 +1,8 @@
-import MethodParameter, { MethodParameterOptions } from '../../../interface/MethodParameter';
+import MethodParameter, { MethodParameterOptions, RequestParamType } from '../../../interface/MethodParameter';
 import Javascript from '../../../interface/Javascript';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 
-export default function (options: MethodParameterOptions | string, meta: RuntimeAnnotation, type): MethodParameter {
+export default function (options: MethodParameterOptions | string, meta: RuntimeAnnotation, type: RequestParamType): MethodParameter {
   const isString = typeof options === 'string';
   options = ((isString ? { value: options } : options) || {}) as MethodParameterOptions;
   const { paramIndex } = meta;
