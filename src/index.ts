@@ -28,6 +28,7 @@ import ApiImplicitParams from './swagger/annotations/ApiImplicitParams';
 import ResponseStatus from './servlets/annotations/ResponseStatus';
 import RequestBody from './servlets/annotations/params/RequestBody';
 import RequestParam from './servlets/annotations/params/RequestParam';
+import RequestPart from './servlets/annotations/params/RequestPart';
 import ServletRequest from './servlets/annotations/params/ServletRequest';
 import ServletResponse from './servlets/annotations/params/ServletResponse';
 import PathVariable from './servlets/annotations/params/PathVariable';
@@ -140,6 +141,7 @@ export {
   HandlerInterceptorAdapter,
   RequestBody,
   RequestParam,
+  RequestPart,
   PathVariable,
   ServletRequest,
   ServletResponse,
