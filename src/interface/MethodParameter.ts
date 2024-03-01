@@ -5,6 +5,8 @@
 
 import RuntimeAnnotation, { AnnotationFunction } from "../servlets/annotations/annotation/RuntimeAnnotation"
 
+export type RequestParamType = 'path' | 'query' | 'body' | 'header' | 'form' | 'part' | 'request' | 'response' | 'next' | ''
+
 export class MethodParameterOptions {
   /**
    * 需要从请求中提取的参数名称
@@ -52,7 +54,7 @@ export default class MethodParameter extends MethodParameterOptions {
   /**
    * 参数传入类型 可选的值有path, query, body, header or form
    */
-  public paramType?: string
+  public paramType?: RequestParamType
 
   public get ctor() {
     return this.annotation.ctor;
@@ -78,7 +80,7 @@ export default class MethodParameter extends MethodParameterOptions {
    * @param paramType 参数类型
    * @param annotation 所属原始注解
    */
-  constructor(options, paramType?: string, annotation?: RuntimeAnnotation) {
+  constructor(options, paramType?: RequestParamType, annotation?: RuntimeAnnotation) {
     super();
     if (options instanceof MethodParameter) {
       return options;
