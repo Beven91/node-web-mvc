@@ -80,6 +80,8 @@ export default class RuntimeAnnotation {
 
   public readonly trace: string[]
 
+  public parameters: string[]
+
   /**
    * 如果当前注解为：函数注解，则能获取到返回结果类型
    */
@@ -88,11 +90,18 @@ export default class RuntimeAnnotation {
   }
 
   /**
+   * 如果当前为函数注解，则能获取到当前函数的参数类型
+   */
+  get paramTypes(){
+    return Reflect.getMetadata('design:paramtypes', this.target, this.name) || [];
+  }
+
+  /**
    * 如果当前注解为参数注解，则能获取到当前参数的类型
    * @param ctor 
    */
   get paramType() {
-    const paramtypes = Reflect.getMetadata('design:paramtypes', this.target, this.name) || [];
+    const paramtypes = this.paramTypes;
     return paramtypes[this.paramIndex];
   }
 
@@ -222,6 +231,7 @@ export default class RuntimeAnnotation {
         this.target = target;
         this.name = name;
         this.descriptor = descritpor;
+        this.parameters = Javascript.resolveParameters(target[name]);
         break;
       case ElementType.PROPERTY:
         this.target = target;

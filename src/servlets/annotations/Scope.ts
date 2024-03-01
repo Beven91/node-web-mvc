@@ -7,13 +7,15 @@
 import Target from "./Target";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 
+export type ScopeType = 'singleton' | 'prototype' | 'reqeust' | 'session'
+
 @Target
 export class ScopeAnnotation {
 
   // 作用域
-  scope: string
+  scope: ScopeType
 
-  constructor(meta: RuntimeAnnotation, scope: string) {
+  constructor(meta: RuntimeAnnotation, scope: ScopeType) {
     this.scope = scope;
   }
 }

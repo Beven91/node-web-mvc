@@ -44,7 +44,7 @@ export default class MessageConverter {
     const request = servletContext.request;
     const configurer = servletContext.configurer;
     const length = request.nativeRequest.readableLength;
-    if (!isNaN(length) && length > configurer.multipart.maxRequestSize) {
+    if (!isNaN(length) && length > Number(configurer.multipart.maxRequestSize)) {
       // 如果请求超出限制
       return Promise.reject(new EntityTooLargeError());
     }
