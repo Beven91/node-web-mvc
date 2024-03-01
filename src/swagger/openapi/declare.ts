@@ -85,9 +85,9 @@ export declare class ApiImplicitParamOptions {
   example?: any
 
   /**
-   * 参数传入类型 可选的值有path, query, body, header or form
+   * 参数传入类型
    */
-  paramType?: 'path' | 'query' | 'body' | 'header' | 'form' | 'formData'
+  paramType?: 'path' | 'query' | 'body' | 'header' | 'formData'
 }
 
 export declare interface ExternalDocs {
@@ -134,6 +134,10 @@ export declare class ApiModelPropertyOptions {
    * 当前属性是否为泛型，且对应的泛型类型名
    */
   generic?: boolean
+  /**
+   * 枚举
+   */
+  enum?: any
 }
 
 export declare class OperationPath {
@@ -227,6 +231,7 @@ export declare class ApiModelPropertyMeta {
   example: any
   type: string
   items?: any
+  enum?: string[]
 }
 
 export declare class ApiModelMeta {
@@ -237,12 +242,31 @@ export declare class ApiModelMeta {
   properties: ApiModelPropertyMetaMap
 }
 
+export interface SchemaMeta {
+  required?: string[]
+  type: string
+  properties: {
+    [x: string]: {
+      description?: string
+      format?: string
+      type: string
+    }
+  }
+}
+
 export declare class ApiOperationMeta {
   method: string
   api: ApiMeta
   consumes: Array<string>
   option?: ApiOperationOptions
   parameters: Array<ApiOperationParamMeta>
+  requestBody?: {
+    content: {
+      [x: string]: {
+        schema: string | SchemaMeta
+      }
+    }
+  }
 }
 
 export declare class ApiMeta {

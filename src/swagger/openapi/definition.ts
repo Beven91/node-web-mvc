@@ -25,7 +25,7 @@ export default class Definition {
   }
 
   static makeRef(name) {
-    return `#/definitions/${name}`;
+    return `#/components/schemas/${name}`;
   }
 
   /**
@@ -51,6 +51,8 @@ export default class Definition {
         }
         if (parent && parentCtor !== definition.ctor) {
           tempDefinitions[key] = {
+            title: tempDefinitions[key].title,
+            description: definition.description,
             allOf: [
               tempDefinitions[key],
               { $ref: this.makeRef(parentName) },
@@ -82,6 +84,7 @@ export default class Definition {
       } else {
         finalProperties[key] = property;
       }
+      delete finalProperties[key].generic;
     })
     return finalProperties;
   }

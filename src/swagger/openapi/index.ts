@@ -3,7 +3,7 @@
  * @description 用于构建当前环境的openapi.json
  */
 import path from 'path';
-import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiMeta, ApiOperationMeta } from './declare';
+import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiMeta, ApiOperationMeta, SchemaMeta } from './declare';
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
 import hot from 'nodejs-hmr';
 import Definition from './definition';
@@ -16,6 +16,7 @@ import MethodParameter from '../../interface/MethodParameter';
 import MultipartFile from '../../servlets/http/MultipartFile';
 import RequestMappingInfo from '../../servlets/mapping/RequestMappingInfo';
 import { RestControllerAnnotation } from '../../servlets/annotations/RestController';
+import ApiOperation from '../annotations/ApiOperation';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -131,10 +132,10 @@ export default class OpenApiModel {
    */
   static mapOperationParam(param: ApiImplicitParamOptions) {
     return {
-      name: param.name,
+      name: param.value || param.name,
       required: param.required,
       example: param.example,
-      description: param.description || param.value,
+      description: param.description || param.value || undefined,
       in: param.dataType === MultipartFile ? 'formData' : param.paramType,
       dataType: param.dataType,
       type: '',
@@ -170,7 +171,8 @@ export default class OpenApiModel {
       description: propertyOptions.value,
       required: propertyOptions.required,
       example: propertyOptions.example,
-      type: dataType || typeof (propertyOptions.example || '')
+      type: dataType || typeof (propertyOptions.example || ''),
+      enum: !propertyOptions.enum ? undefined : Object.keys(propertyOptions.enum).filter((m: any) => isNaN(m))
     }
   }
 
@@ -196,16 +198,16 @@ export default class OpenApiModel {
     const id = require.resolve(path.resolve('package.json'));
     delete require.cache[id];
     const pkg = require(id);
-    // const contributor = (pkg.contributors || [])[0] || {};
+    const contributor = (pkg.contributors || [])[0] || {};
     const documentation = {
       info: {
-        // contact: {
-        //   email: pkg.author || contributor.email || ''
-        // },
-        // license: {
-        //   name: pkg.license,
-        //   url:pkg.licenseUrl || ''
-        // },
+        contact: {
+          email: pkg.author || contributor.email || ''
+        },
+        license: {
+          name: pkg.license,
+          url: pkg.licenseUrl || ''
+        },
         title: pkg.name,
         version: pkg.version,
         description: pkg.description || ''
@@ -216,13 +218,10 @@ export default class OpenApiModel {
       // servers: [
       //   { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
       // ],
-      // components: {
-      //   parameters: {},
-      //   schemas: {}
-      // },
-      // openapi: '3.0.1',
-      definitions: {},
-      swagger: '2.0',
+      components: {
+        schemas: {}
+      },
+      openapi: '3.0.1',
     };
     // 构建api
     apiMetaList.forEach((api) => {
@@ -233,7 +232,7 @@ export default class OpenApiModel {
       api.operations.forEach((operation) => this.buildOperation(paths, operation));
     });
     // 最后清理definition
-    documentation.definitions = Definition.getFinalDefinitions();
+    documentation.components.schemas = Definition.getFinalDefinitions();
     return documentation;
   }
 
@@ -253,6 +252,8 @@ export default class OpenApiModel {
     const returnType = option.returnType;
     const model = Definition.getDefinition(returnType);
     const consumes = isRestController ? ['application/json'] : '';
+    const parameters = this.buildOperationParameters(operation);
+    const requestBody = operation.requestBody;
     const operationDoc = {
       consumes: mapping.consumes || topMapping.consumes || consumes || operation.consumes || undefined,
       deprecated: false,
@@ -260,7 +261,8 @@ export default class OpenApiModel {
       tags: api.option.tags.map((tag) => tag.name),
       summary: option.value,
       description: option.notes,
-      parameters: this.buildOperationParameters(operation),
+      parameters: parameters,
+      requestBody: Object.keys(requestBody.content).length > 0 ? requestBody : undefined,
       responses: {
         "201": { "description": "Created" },
         "401": { "description": "Unauthorized" },
@@ -268,7 +270,11 @@ export default class OpenApiModel {
         "404": { "description": "Not Found" },
         [code]: {
           "description": "OK",
-          "schema": model.schema,
+          "content": {
+            [mapping.produces || '*/*']: {
+              schema: model.schema || (!returnType ? undefined : { type: returnType })
+            }
+          },
         }
       }
     }
@@ -283,23 +289,24 @@ export default class OpenApiModel {
   private static getOperationParameters(operation: ApiOperationMeta) {
     const { method } = operation;
     const ctor = operation.api.class;
+    const operationAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiOperation);
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiImplicitParams);
     const annotations = RuntimeAnnotation.getMethodParamAnnotations(ctor, method);
     const paramsAnnotation = (apiImplicitAnno ? apiImplicitAnno.nativeAnnotation : {}) as ApiImplicitParamsAnnotation;
     const parameters2 = annotations.filter((m) => m.nativeAnnotation instanceof ParamAnnotation).map((m) => m.nativeAnnotation.param);
     const parameters = paramsAnnotation.parameters || [];
-    const parameterNames = parameters.length > parameters2.length ? parameters.map((p) => p.name) : parameters2.map((m) => m.name);
-    return parameterNames.map((name) => {
+    const parameterNames = operationAnno.parameters || [];
+    return parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameter2 = (parameters2.find((m) => m.name === name) || {}) as MethodParameter;
       return this.mapOperationParam({
-        name: emptyOf(parameter.name, parameter2.name),
-        value: emptyOf(parameter.value, parameter2.desc),
+        name: emptyOf(parameter.name, parameter2.name) || name,
+        value: emptyOf(parameter.value, parameter2.value),
         required: emptyOf(parameter.required, parameter2.required),
-        dataType: emptyOf(parameter.dataType, parameter2.dataType),
+        dataType: emptyOf(parameter.dataType, parameter2.dataType) || operationAnno.paramTypes[i],
         example: emptyOf(parameter.example, parameter2.defaultValue),
-        paramType: emptyOf(parameter.paramType, parameter2.paramType),
-        description: emptyOf(parameter.description, parameter2.desc)
+        paramType: emptyOf(parameter.paramType, parameter2.paramType) || 'query',
+        description: emptyOf(parameter.description, parameter2.desc) || undefined
       });
     });
   }
@@ -310,25 +317,53 @@ export default class OpenApiModel {
    */
   private static buildOperationParameters(operation: ApiOperationMeta) {
     const parameters = this.getOperationParameters(operation);
+    const requestBody = operation.requestBody = {
+      content: {}
+    }
     return parameters.map((parameter) => {
       const dataType = parameter.dataType ? Definition.reflectTypeName(parameter.dataType) : null;
       const model = Definition.getDefinition(emptyOf(dataType, parameter.example));
-      if (dataType === 'file') {
+      const type = model.schema ? undefined : model.type || dataType || 'string';
+      if (dataType === 'file' || (parameter.in as string) == 'part') {
         operation.consumes = ['multipart/form-data'];
+        const info = requestBody.content['multipart/form-data'] = (requestBody.content['multipart/form-data'] || {
+          schema: {
+            required: [],
+            properties: {},
+            type: 'object'
+          }
+        }) as { schema: SchemaMeta };
+        if (parameter.required) {
+          info.schema.required.push(parameter.name);
+        }
+        info.schema.properties[parameter.name] = {
+          description: parameter.description,
+          type: type,
+          format: model.format,
+        }
+        return null;
+      } else if (parameter.in == 'body') {
+        requestBody.content['application/json'] = {
+          schema: model.schema || {
+            type: type
+          }
+        }
+        return null;
       }
       return {
-        name: parameter.name,
+        name:  parameter.name,
         required: parameter.required,
         description: parameter.description,
         in: parameter.in,
         collectionFormat: model.collectionFormat,
         format: model.format,
         example: emptyOf(parameter.example, undefined),
-        type: model.schema ? undefined : model.type || dataType || 'string',
-        items: model.items,
-        schema: model.schema,
+        schema: model.schema || {
+          type: type,
+          items: model.items,
+        }
       }
-    });
+    }).filter(Boolean)
   }
 }
 
