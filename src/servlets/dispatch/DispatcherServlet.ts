@@ -141,7 +141,7 @@ export default class DispatcherServlet {
     const globalHandler = AdviceRegistry.getExceptionHandler();
     const chain = servletContext.chain;
     const handlerMethod = chain.getHandler();
-    const anno = handlerMethod.getClassAnnotation<ExceptionHandlerAnnotation>(ExceptionHandler);
+    const anno = handlerMethod.getClassMethodAnnotation<ExceptionHandlerAnnotation>(ExceptionHandler);
     console.error(error.stack || error);
     if (anno && anno.handleException) {
       // 优先处理：如果存在控制器本身设置的exceptionhandler

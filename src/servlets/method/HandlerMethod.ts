@@ -10,6 +10,7 @@ import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
 import BeanFactory from '../../ioc/BeanFactory';
 import InterruptModel from '../models/InterruptModel';
 import MultipartFile from '../http/MultipartFile';
+import ElementType from '../annotations/annotation/ElementType';
 
 export default class HandlerMethod {
 
@@ -125,13 +126,22 @@ export default class HandlerMethod {
   }
 
   /**
-   * 获取当前方法所在类的指定注解信息
-   * @param ctor 要获取的注解类型类
+   * 获取当前方法所在类的指定类注解信息
+   * @param ctor 要获取的类注解类型类
    */
   public getClassAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
     const annotations = RuntimeAnnotation.getClassAnnotations(this.beanType);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
+
+  /**
+   * 获取当前方法所在类下所有方法的指定注解信息
+   * @param ctor 要获取的注解类型类
+   */
+    public getClassMethodAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
+      const annotations = RuntimeAnnotation.getClassAllAnnotations(this.beanType).filter((m)=>m.elementType == ElementType.METHOD);
+      return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
+    }
 
   public createWithResolvedBean() {
     if (!this.isBeanType) {
