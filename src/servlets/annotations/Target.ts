@@ -25,7 +25,13 @@ export declare interface CallableAnnotationFunction<A, T> extends ConfigableDeco
  * 标注指定类成为指定范围的注解类
  * @param types 
  */
-export default function Target(types): any {
+function Target(type: ElementType): AnnotationFunction
+
+function Target(types: ElementType[]): AnnotationFunction
+
+function Target(target: Function): any;
+
+function Target(types?): any {
   if (types instanceof Array || !!ElementType[types]) {
     types = types instanceof Array ? types : [types];
     return (target) => {
@@ -34,7 +40,9 @@ export default function Target(types): any {
   }
 }
 
-Target.generateTrace = function () {
+export default Target;
+
+export function generateTrace() {
   moduleRuntime.generate = true;
 }
 

@@ -1,6 +1,6 @@
 import { ElementType, Target } from '../../../src/index';
 
-@Target(ElementType.PARAMETER)
+@Target
 class UserId {
   constructor(){
     // 注解构造函数
