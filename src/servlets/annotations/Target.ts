@@ -4,7 +4,7 @@
  */
 import AnnotationOptions from "./annotation/AnnotationOptions";
 import RuntimeAnnotation, { AnnotationFunction } from "./annotation/RuntimeAnnotation";
-import { reflectAnnotationType } from "./annotation/ElementType";
+import ElementType, { reflectAnnotationType } from "./annotation/ElementType";
 
 const elementTypes = Symbol('elementTypes');
 const moduleRuntime = { generate: false }
@@ -26,7 +26,8 @@ export declare interface CallableAnnotationFunction<A, T> extends ConfigableDeco
  * @param types 
  */
 export default function Target(types): any {
-  if (types instanceof Array) {
+  if (types instanceof Array || !!ElementType[types]) {
+    types = types instanceof Array ? types : [types];
     return (target) => {
       target[elementTypes] = types
     }
@@ -72,7 +73,7 @@ function getTrace(error: Error) {
 }
 
 function createAnnotation(runtime: AnnotationOptions): RuntimeAnnotation {
-  const target = runtime.meta[0];
+  const target = runtime.ctor;
   runtime.types = target[elementTypes] || target.constructor[elementTypes] || [];
   // 创建注解
   return RuntimeAnnotation.create(runtime, moduleRuntime.generate ? getTrace(new Error()) : null)

@@ -118,6 +118,7 @@ import GzipGlobalResolver from './servlets/resources/GzipGlobalResolver';
 import GzipResource from './servlets/resources/GzipResource';
 import InternalResourceView from './servlets/view/InternalResourceView';
 import RedirectView from './servlets/view/RedirectView';
+import ElementType from './servlets/annotations/annotation/ElementType';
 
 export {
   hot,
@@ -237,7 +238,8 @@ export {
   ServletContextMethodArgumentResolver,
   MappingRegistry,
   ResourceHttpMessageConverter,
-  ResourceHttpRequestHandler
+  ResourceHttpRequestHandler,
+  ElementType
 }
 
 hot.create(module);
