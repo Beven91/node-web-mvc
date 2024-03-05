@@ -5,6 +5,7 @@ import UserId from '../annotations/UserIdAnnotation';
 import Security from '../annotations/SecurityAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
+import GeneralResult from '../models/GeneralResult';
 
 @Api({ value: '首页' })
 @RequestMapping('/home')
@@ -85,7 +86,7 @@ export default class HomeController {
   index(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
     this.oService.sayHello();
     this.orderService.sayHello();
-    return 'home/index...' + id;
+    return 'home/index...' + id + ',file.name=' + file.name;
   }
 
   @ApiOperation({ value: '返回文件流' })
@@ -117,9 +118,6 @@ export default class HomeController {
 
   @ApiOperation({ value: '@PathVariable 测试' })
   @GetMapping('/path/{id}')
-  @ApiImplicitParams([
-    { description: '编号', paramType: 'path', name: 'id' }
-  ])
   path(@PathVariable id: string) {
     return 'home/index...' + id;
   }
@@ -133,7 +131,6 @@ export default class HomeController {
   @ApiOperation({ value: '数据返回', returnType: 'GeneralResult<List<UserInfo>>' })
   @GetMapping('/return')
   returnData() {
-
   }
 
   @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo[]>' })

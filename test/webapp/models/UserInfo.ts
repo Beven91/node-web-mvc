@@ -5,7 +5,7 @@ import OrderModel from './OrderModel';
 export const score = 121;
 
 class A {
-  name:string
+  name: string
 }
 
 @ApiModel({ value: '用户信息', description: '用户信息。。' })
@@ -23,11 +23,11 @@ export default class UserInfo {
 
   A = A
 
-  @ApiModelProperty({ value:'年龄' })
-  age = 120
+  @ApiModelProperty({ value: '年龄' })
+  age: number = 120
 
-  @ApiModelProperty({ value:'名称' })
-  public get name(){
+  @ApiModelProperty({ value: '名称' })
+  public get name() {
     return '';
   }
 
@@ -41,6 +41,6 @@ export default class UserInfo {
   @ApiModelProperty({ value: '性别' })
   public sex: string
 
-  @ApiModelProperty({ value: '订单', dataType: 'OrderModel' })
+  @ApiModelProperty({ value: '订单' })
   public order: OrderModel
 }

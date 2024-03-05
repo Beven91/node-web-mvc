@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { RequestMapping, RequestBody, Autowired, ServletResponse, HttpServletResponse, InterruptModel } from '../../../src/index';
+import { RequestMapping, RequestBody, Autowired, ServletResponse, HttpServletResponse, InterruptModel, RequestPart } from '../../../src/index';
 import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../../src/index';
 import { PostMapping } from '../../../src/index';
 import ModelAndView from '../../../src/servlets/models/ModelAndView';
@@ -29,13 +29,8 @@ export default class MultipartController {
   public userInfo;
 
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
-  @ApiImplicitParams([
-    RequestParam({ value: 'file', desc: '证书', required: true, dataType: MultipartFile }),
-    RequestParam({ value: 'desc', desc: '描述', required: true, paramType: 'formData' }),
-    RequestParam({ value: 'id', desc: '用户id', required: true })
-  ])
   @PostMapping({ value: '/upload', produces: 'application/json' })
-  async upload(file: MultipartFile, desc: string, id: number) {
+  async upload(@RequestPart file: MultipartFile, @RequestPart desc: string, id: number) {
     await file.transferTo('app_data/images/' + file.name);
     return {
       status: 0,
@@ -82,11 +77,9 @@ export default class MultipartController {
   async qrcode(@ServletResponse response: HttpServletResponse) {
     const buffer = fs.readFileSync(path.join(__dirname, 'aseets', 'qrcode.png'));
     response.setHeader('Content-Type', 'image/png');
-    response.setHeader('Content-Length',buffer.length)
+    response.setHeader('Content-Length', buffer.length)
     // setTimeout(()=>{
-     return response.setStatus(200).end(buffer);
-    // })
-    return new InterruptModel(true);
+    return response.setStatus(200).end(buffer);
     // return response.setStatus(200).end(buffer);
   }
-}
+} 

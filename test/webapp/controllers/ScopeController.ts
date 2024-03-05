@@ -11,9 +11,9 @@ export default class ScopeController {
   private scopeData: UserInfo
 
   @ApiOperation({ value: '获取设置的对象', notes: '获取通过/scope/set设置的值，当前会返回值应该返回空，因为当前控制器类作用域设置成prototype' })
-  @GetMapping('/get')
+  @GetMapping({ value: '/get',produces: 'application/json' })
   getObj() {
-    return this.scopeData || '没有设置值';
+    return this.scopeData || { message: '没有设置值' }
   }
 
   @ApiOperation({ value: '设置数据', returnType: 'UserInfo' })

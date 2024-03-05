@@ -7,12 +7,12 @@ import UserInfo, { score } from '../models/UserInfo';
 @RestController
 export default class UserController {
 
-  private user = null
+  private user: { name: string }
 
   @ApiOperation({ value: '新增用户' })
   @PostMapping('/addUser')
   addUser() {
-    return { "name":"ok" }
+    return { "name": "ok" }
   }
 
   @ApiOperation({ value: '设置用户信息' })
@@ -20,7 +20,7 @@ export default class UserController {
     RequestParam('name')
   ])
   @PostMapping('/setUser')
-  setUser(name:string) {
+  setUser(name: string) {
     this.user = {
       name: name
     }
@@ -46,7 +46,7 @@ export default class UserController {
   @ExceptionHandler
   handleException(ex) {
     console.log(UserInfo);
-    return { code: -99, message: ex.message };
+    return { code: -1, message: ex.message };
   }
 
 }
