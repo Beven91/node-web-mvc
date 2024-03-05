@@ -9,7 +9,7 @@ import { reflectAnnotationType } from "./annotation/ElementType";
 const elementTypes = Symbol('elementTypes');
 const moduleRuntime = { generate: false }
 
-declare type ConfigableDecorator<T> = (a: T) => any
+declare type ConfigableDecorator<T> = (a: T) => AnnotationFunction
 
 type AbstractClassType = abstract new (...args: any) => any
 
@@ -17,7 +17,7 @@ export const parameterReturnable = Symbol('parameterReturnable');
 
 export declare type ReturnableAnnotationFunction<T> = (a: typeof parameterReturnable, callback: Function) => T
 
-export declare interface CallableAnnotationFunction<A, T> extends ConfigableDecorator<T>, AnnotationFunction<A> {
+export declare interface CallableAnnotationFunction<A, T> extends ConfigableDecorator<T>, AnnotationFunction {
   Annotation: A
 }
 

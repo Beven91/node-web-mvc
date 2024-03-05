@@ -9,10 +9,10 @@ import Javascript from "../../../interface/Javascript";
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
 
-export declare interface AnnotationFunction<A> extends ClassDecorator, PropertyDecorator, MethodDecorator, ParameterDecorator {
+export declare interface AnnotationFunction extends ClassDecorator, PropertyDecorator, MethodDecorator, ParameterDecorator {
 }
 
-type BaseAnnotation = AnnotationFunction<any>
+type BaseAnnotation = AnnotationFunction
 
 const isAnnotationOf = (m: RuntimeAnnotation, type) => {
   type = (type as any).Annotation || type;

@@ -63,7 +63,7 @@ export default class MethodParameter extends MethodParameterOptions {
   /**
    * 判断当前参数是否存在指定注解
    */
-  public hasParameterAnnotation(ctor: AnnotationFunction<any>): boolean {
+  public hasParameterAnnotation(ctor: AnnotationFunction): boolean {
     return !!RuntimeAnnotation.getNativeAnnotation(this.annotation, ctor);
   }
 

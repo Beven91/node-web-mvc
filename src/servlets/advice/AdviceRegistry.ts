@@ -41,7 +41,7 @@ export default class AdviceRegistry {
    * 获取当前方法上的指定注解信息
    * @param { Annotation } ctor 要获取的注解类型类
    */
-  static getAnnotation<T>(ctor: AnnotationFunction<any> | RuntimeAnnotation) {
+  static getAnnotation<T>(ctor: AnnotationFunction | RuntimeAnnotation) {
     if (!runtime.Advice) {
       return null;
     }
