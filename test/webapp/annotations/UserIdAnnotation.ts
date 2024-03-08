@@ -1,6 +1,5 @@
 import { ElementType, Target } from '../../../src/index';
 
-@Target
 class UserId {
   constructor(){
     // 注解构造函数
@@ -8,4 +7,4 @@ class UserId {
 }
 
 // 公布注解
-export default Target.install(UserId);
+export default Target(ElementType.PARAMETER)(UserId);

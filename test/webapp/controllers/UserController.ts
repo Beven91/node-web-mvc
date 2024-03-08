@@ -48,5 +48,4 @@ export default class UserController {
     console.log(UserInfo);
     return { code: -1, message: ex.message };
   }
-
 }

@@ -1,11 +1,10 @@
-import { Target } from '../../../src/index';
+import { ElementType, Target } from '../../../src/index';
 
-@Target
 class Security {
-  constructor(){
+  constructor() {
     // 注解构造函数
   }
 }
 
 // 公布注解
-export default Target.install(Security);
+export default Target([ElementType.TYPE, ElementType.METHOD])(Security);
