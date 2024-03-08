@@ -4,7 +4,7 @@
  */
 const ensureArrayPaths = (value) => value instanceof Array ? value : [value];
 
-export declare class RouteMappingOptions {
+export class RouteMappingOptions {
   /**
    * 当前路由路径值
    */

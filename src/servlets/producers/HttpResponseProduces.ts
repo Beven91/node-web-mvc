@@ -13,9 +13,10 @@ import View from '../view/View';
 import ViewNotFoundError from '../../errors/ViewNotFoundError';
 import InterruptModel from '../models/InterruptModel';
 import { RequestMappingAnnotation } from '../annotations/mapping/RequestMapping';
-import { RestControllerAnnotation } from '../annotations/RestController';
+import RestController from '../annotations/RestController';
 import ResponseEntity from '../models/ResponseEntity';
 import HttpStatus from '../http/HttpStatus';
+import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
 
 export default class HttpResponseProduces {
 
@@ -87,7 +88,7 @@ export default class HttpResponseProduces {
     const status = useStatus ? responseStatus : 200;
     const { servletContext } = this;
     const { response } = servletContext;
-    const isRestController = RestControllerAnnotation.isRestController(handler.beanType);
+    const isRestController = !!RuntimeAnnotation.getClassAnnotation(handler.beanType, RestController);
     const restProduces = isRestController ? 'application/json;charset=utf-8' : '';
     const ctrlProduces = this.controllerMapping ? this.controllerMapping.produces : '';
     const actProduces = this.actionMapping ? this.actionMapping.produces : '';

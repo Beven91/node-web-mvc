@@ -8,8 +8,8 @@ import { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 import ParamAnnotation from './ParamAnnotation';
+import ElementType from '../annotation/ElementType';
 
-@Target
 class RequestParam extends ParamAnnotation {
 
   constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
@@ -26,4 +26,4 @@ class RequestParam extends ParamAnnotation {
  *  action(@RequestParam({ required: true }) id)
  * 
  */
-export default Target.install<typeof RequestParam>(RequestParam);
+export default Target(ElementType.PARAMETER)(RequestParam);

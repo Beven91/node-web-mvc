@@ -8,8 +8,8 @@ import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnno
 import DefaultListableBeanFactory from "../DefaultListableBeanFactory";
 import BeanDefinition from "../BeanDefinition";
 import BeanOptions from "./BeanOptions";
+import ElementType from "../../servlets/annotations/annotation/ElementType";
 
-@Target
 class Service {
   constructor(meta: RuntimeAnnotation, options: BeanOptions) {
     options = options || {};
@@ -23,5 +23,5 @@ class Service {
   }
 }
 
-export default Target.install<typeof Service>(Service);
+export default Target(ElementType.TYPE)(Service);
 

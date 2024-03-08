@@ -9,13 +9,12 @@ import hot from 'nodejs-hmr';
 import Definition from './definition';
 import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
 import WebMvcConfigurationSupport from '../../servlets/config/WebMvcConfigurationSupport';
-import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
-import ApiImplicitParams, { ApiImplicitParamsAnnotation } from '../annotations/ApiImplicitParams';
+import RuntimeAnnotation, { TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import MethodParameter from '../../interface/MethodParameter';
 import MultipartFile from '../../servlets/http/MultipartFile';
-import RequestMappingInfo from '../../servlets/mapping/RequestMappingInfo';
-import { RestControllerAnnotation } from '../../servlets/annotations/RestController';
+import RestController from '../../servlets/annotations/RestController';
 import ApiOperation from '../annotations/ApiOperation';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
@@ -48,10 +47,10 @@ export default class OpenApiModel {
    * @param ctor 
    */
   private static createApi(ctor) {
-    let api = apiMetaList.find((api) => api.class === ctor);
+    let api = apiMetaList.find((api) => api.clazz === ctor);
     if (!api) {
       const name = this.clampName(ctor.name);
-      api = { class: ctor, operations: [], option: { tags: [{ name: name }] } };
+      api = { clazz: ctor, operations: [], option: { tags: [{ name: name }] } };
       apiMetaList.push(api);
     }
     return api;
@@ -242,9 +241,9 @@ export default class OpenApiModel {
   private static buildOperation(paths, operation: ApiOperationMeta) {
     const option = operation.option;
     const api = operation.api;
-    const isRestController = RestControllerAnnotation.isRestController(api.class);
-    const topMapping = RequestMappingAnnotation.getMappingInfo(api.class) || {} as RequestMappingInfo;
-    const mapping = RequestMappingAnnotation.getMappingInfo(api.class, operation.method);
+    const isRestController = !!RuntimeAnnotation.getClassAnnotation(api.clazz, RestController);
+    const topMapping = RequestMappingAnnotation.getMappingInfo(api.clazz);
+    const mapping = RequestMappingAnnotation.getMappingInfo(api.clazz, operation.method);
     if (!mapping) {
       return;
     }
@@ -255,7 +254,7 @@ export default class OpenApiModel {
     const parameters = this.buildOperationParameters(operation);
     const requestBody = operation.requestBody;
     const operationDoc = {
-      consumes: mapping.consumes || topMapping.consumes || consumes || operation.consumes || undefined,
+      consumes: mapping.consumes || topMapping?.consumes || consumes || operation.consumes || undefined,
       deprecated: false,
       operationId: operation.method,
       tags: api.option.tags.map((tag) => tag.name),
@@ -288,13 +287,12 @@ export default class OpenApiModel {
 
   private static getOperationParameters(operation: ApiOperationMeta) {
     const { method } = operation;
-    const ctor = operation.api.class;
+    const ctor = operation.api.clazz;
     const operationAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiOperation);
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiImplicitParams);
     const annotations = RuntimeAnnotation.getMethodParamAnnotations(ctor, method);
-    const paramsAnnotation = (apiImplicitAnno ? apiImplicitAnno.nativeAnnotation : {}) as ApiImplicitParamsAnnotation;
     const parameters2 = annotations.filter((m) => m.nativeAnnotation instanceof ParamAnnotation).map((m) => m.nativeAnnotation.param);
-    const parameters = paramsAnnotation.parameters || [];
+    const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
     const parameterNames = operationAnno.parameters || [];
     return parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
@@ -351,7 +349,7 @@ export default class OpenApiModel {
         return null;
       }
       return {
-        name:  parameter.name,
+        name: parameter.name,
         required: parameter.required,
         description: parameter.description,
         in: parameter.in,
@@ -373,15 +371,14 @@ export default class OpenApiModel {
 hot.create(module)
   .preload((old) => {
     const file = old.filename;
-    type TraceCtor = Function & { trace: string[] }
     // 预更新时，判断当前模块是否为被修饰的类
     const removeApis = apiMetaList.filter((api) => {
-      const ctor = api.class as TraceCtor;
-      return !!(ctor.trace || []).find((m) => m.indexOf(file) > -1);
+      const ctor = api.clazz as TracerConstructor;
+      return ctor.tracer?.isDependency?.(file);
     });
     const removeDefinitions = Object.keys(definitions).filter((k) => {
-      const ctor = definitions[k].ctor as TraceCtor;
-      return !!(ctor.trace || []).find((m) => m.indexOf(file) > -1);
+      const ctor = definitions[k].ctor as TracerConstructor;
+      return ctor.tracer?.isDependency?.(file);
     })
     removeApis.forEach((api) => {
       const index = apiMetaList.indexOf(api);

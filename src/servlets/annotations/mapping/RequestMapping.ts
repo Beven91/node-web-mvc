@@ -1,18 +1,18 @@
 import hot from 'nodejs-hmr';
 import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
-import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
+import RuntimeAnnotation, { IAnnotationClazz } from '../annotation/RuntimeAnnotation';
 import ElementType from '../annotation/ElementType';
 import RequestMappingHandlerMapping from '../../mapping/RequestMappingHandlerMapping';
 
 const remainingMappings = new Map<Function, Function>();
 
-@Target
-export class RequestMappingAnnotation {
+export class RequestMappingAnnotation extends RouteMappingOptions {
 
-  mapping: RequestMappingInfo
+  mapping?: RequestMappingInfo
 
   constructor(meta: RuntimeAnnotation, value: RouteMappingOptions | string) {
+    super();
     this.mapping = RequestMappingInfo.create(value, null);
     const { target } = meta;
     remainingMappings.set(meta.ctor, meta.ctor);
@@ -31,7 +31,7 @@ export class RequestMappingAnnotation {
   }
 
   static getMappingInfo(beanType: Function, method?: string): RequestMappingInfo {
-    let annotation = null;
+    let annotation: RuntimeAnnotation<RequestMappingAnnotation> = null;
     if (arguments.length === 1) {
       annotation = RuntimeAnnotation.getClassAnnotation(beanType, RequestMappingAnnotation);
     } else {
@@ -40,8 +40,7 @@ export class RequestMappingAnnotation {
     if (!annotation) {
       return null;
     }
-    const requestAnno = annotation.nativeAnnotation as RequestMappingAnnotation;
-    return requestAnno.mapping;
+    return annotation.nativeAnnotation.mapping;
   }
 }
 
@@ -55,7 +54,7 @@ export class RequestMappingAnnotation {
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default Target.install<typeof RequestMappingAnnotation>(RequestMappingAnnotation);
+export default Target([ElementType.TYPE, ElementType.METHOD])(RequestMappingAnnotation);
 
 /**
  * 附加控制器类的请求映射
@@ -63,10 +62,10 @@ export default Target.install<typeof RequestMappingAnnotation>(RequestMappingAnn
  * @param {*} mapping 配置的映射
  */
 function createRouteMappings(target, controllerMapping: RequestMappingInfo) {
-  const annotations = RuntimeAnnotation.getClassAnnotationsOf<RuntimeAnnotation>(target, RequestMappingAnnotation);
+  const annotations = RuntimeAnnotation.getClassAnnotationsOf(target, RequestMappingAnnotation);
   annotations.forEach((annotation) => {
     const name = `@${target.name}/${annotation.name}`;
-    const requestMapping = annotation.nativeAnnotation.mapping as RequestMappingInfo;
+    const requestMapping = annotation.nativeAnnotation.mapping;
     const actionPaths = requestMapping.value || [];
     const controllerPaths = controllerMapping.value || [''];
     const values = [];

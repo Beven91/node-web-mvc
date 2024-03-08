@@ -2,8 +2,8 @@
  * @module AdviceRegistry
  * @description 控制器相关建议注册表
  */
-import RuntimeAnnotation, { AnnotationFunction } from "../annotations/annotation/RuntimeAnnotation";
-import ExceptionHandler, { ExceptionHandlerAnnotation } from '../annotations/ExceptionHandler';
+import RuntimeAnnotation, { IAnnotation } from "../annotations/annotation/RuntimeAnnotation";
+import ExceptionHandler from '../annotations/ExceptionHandler';
 import hot from 'nodejs-hmr';
 
 const runtime = {
@@ -32,7 +32,7 @@ export default class AdviceRegistry {
    */
   static getExceptionHandler() {
     const instance = runtime.controllerAdviceInstance;
-    const anno = this.getAnnotation<ExceptionHandlerAnnotation>(ExceptionHandler);
+    const anno = this.getAnnotation(ExceptionHandler);
     const handler = anno ? anno.handleException : null;
     return handler ? (...params) => handler.call(instance, ...params) : null;
   }
@@ -41,7 +41,7 @@ export default class AdviceRegistry {
    * 获取当前方法上的指定注解信息
    * @param { Annotation } ctor 要获取的注解类型类
    */
-  static getAnnotation<T>(ctor: AnnotationFunction | RuntimeAnnotation) {
+  static getAnnotation<T extends IAnnotation>(ctor: T) {
     if (!runtime.Advice) {
       return null;
     }

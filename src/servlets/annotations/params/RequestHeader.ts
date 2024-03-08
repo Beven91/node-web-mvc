@@ -8,8 +8,8 @@ import { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 import ParamAnnotation from './ParamAnnotation';
+import ElementType from '../annotation/ElementType';
 
-@Target
 class RequestHeader extends ParamAnnotation {
 
   constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
@@ -24,4 +24,4 @@ class RequestHeader extends ParamAnnotation {
  *  action(@RequestHeader({ value:'accept' }) id)
  * 
  */
-export default Target.install<typeof RequestHeader>(RequestHeader);
+export default Target(ElementType.PARAMETER)(RequestHeader);

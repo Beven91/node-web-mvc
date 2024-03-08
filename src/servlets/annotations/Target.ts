@@ -1,88 +1,156 @@
-/**
- * @module Target
- * @description 用于标注指定类成为一个标注类
- */
-import AnnotationOptions from "./annotation/AnnotationOptions";
-import RuntimeAnnotation, { AnnotationFunction } from "./annotation/RuntimeAnnotation";
-import ElementType, { reflectAnnotationType } from "./annotation/ElementType";
+import RuntimeAnnotation, { IAnnotationClazz, LinkAnnotationType } from "./annotation/RuntimeAnnotation";
+import ElementType, { } from "./annotation/ElementType";
 
-const elementTypes = Symbol('elementTypes');
-const moduleRuntime = { generate: false }
+type ValuePropertyType<A> = A extends { value?: infer V } ? V : never
 
-declare type ConfigableDecorator<T> = (a: T) => AnnotationFunction
+type TargetObject = { [x: string]: any }
 
-type AbstractClassType = abstract new (...args: any) => any
 
-export const parameterReturnable = Symbol('parameterReturnable');
+// Class Decorator
+declare function ClassTargetDecorator<A>(target: Function): any
+declare function ClassTargetDecorator<A>(options: A): ClassDecorator
+declare type ConfigableClassDecorator = <A extends IAnnotationClazz>(target: A) => typeof ClassTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
 
-export declare type ReturnableAnnotationFunction<T> = (a: typeof parameterReturnable, callback: Function) => T
+// Method Decorator
+declare function MethodTargetDecorator<A>(options: A): MethodDecorator
+declare function MethodTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare type ConfigableMethodDecorator = <A extends IAnnotationClazz>(target: A) => typeof MethodTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
 
-export declare interface CallableAnnotationFunction<A, T> extends ConfigableDecorator<T>, AnnotationFunction {
-  Annotation: A
-}
+// Property Decorator 
+declare function PropertyTargetDecorator<A>(options: A): (target: Object, propertyKey: string, p: void) => any
+declare function PropertyTargetDecorator<A>(target: TargetObject, propertyKey: string, p: void): any
+declare type ConfigablePropertyDecorator = <A extends IAnnotationClazz>(target: A) => typeof PropertyTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
 
-/**
- * 标注指定类成为指定范围的注解类
- * @param types 
- */
-function Target(type: ElementType): AnnotationFunction
+// Parameter Decorator
+declare function ParameterTargetDecorator<A>(options: A): ParameterDecorator
+declare function ParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): any
+declare type ConfigableParameterDecorator = <A extends IAnnotationClazz>(target: A) => typeof ParameterTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
 
-function Target(types: ElementType[]): AnnotationFunction
+// Class Or Method Decorator
+declare function ClassMethodTargetDecoratorReturn(target: Function): any
+declare function ClassMethodTargetDecoratorReturn(target: Object, name: string, descriptor: TypedPropertyDescriptor<any>): any
+declare function ClassMethodTargetDecorator<A>(options: A): typeof ClassMethodTargetDecoratorReturn
+declare function ClassMethodTargetDecorator<A>(target: Function): any
+declare function ClassMethodTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare type ConfigableClassMethodDecorator = <A extends IAnnotationClazz>(target: A) => typeof ClassMethodTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
 
-function Target(target: Function): any;
+// Class Or Method Or Property Decorator
+declare function ClassMethodPropertyTargetDecorator<A>(options: A): (target: any, name?: string) => any
+declare function ClassMethodPropertyTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare function ClassMethodPropertyTargetDecorator<A>(target: TargetObject, propertyKey: string): any
+declare function ClassMethodPropertyTargetDecorator<A>(target: Function): any
+declare type ConfigableClassMethodPropertyDecorator = <A extends IAnnotationClazz>(target: A) => typeof ClassMethodPropertyTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
 
-function Target(types?): any {
-  if (types instanceof Array || !!ElementType[types]) {
-    types = types instanceof Array ? types : [types];
-    return (target) => {
-      target[elementTypes] = types
-    }
+// Class Or Method Or Parameter Decorator
+declare function ClassMethodParameterTargetDecoratorReturn(target: Function): any
+declare function ClassMethodParameterTargetDecoratorReturn(target: Object, name: string, descriptor: TypedPropertyDescriptor<any>): any
+declare function ClassMethodParameterTargetDecoratorReturn(target: Object, name: string, parameterIndex: number): any
+declare function ClassMethodParameterTargetDecorator<A>(options: A): typeof ClassMethodParameterTargetDecoratorReturn
+declare function ClassMethodParameterTargetDecorator<A>(target: Function): any
+declare function ClassMethodParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare function ClassMethodParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): any
+declare type ConfigableClassMethodParameterDecorator = <A extends IAnnotationClazz>(target: A) => typeof ClassMethodParameterTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+// Class Or Property Decorator
+declare function ClassPropertyTargetDecorator<A>(options: A): (target: Function | Object, name?: string, p?: void) => any
+declare function ClassPropertyTargetDecorator<A>(target: Function): any
+declare function ClassPropertyTargetDecorator<A>(target: TargetObject, propertyKey: string, p?: void): void
+declare type ConfigableClassPropertyDecorator = <A extends IAnnotationClazz>(target: A) => typeof ClassPropertyTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+// Class Or Property Or Parameter Decorator
+declare function ClassPropertyParameterTargetDecorator<A>(options: A): (target: Function | Object, name?: string, p?: number) => any
+declare function ClassPropertyParameterTargetDecorator<A>(target: Function): any
+declare function ClassPropertyParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, p?: void): void
+declare function ClassPropertyParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): any
+declare type ConfigableClassPropertyParameterDecorator = <A extends IAnnotationClazz>(target: A) => typeof ClassPropertyParameterTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+// Class Or Parameter Decorator
+declare function ClassParameterTargetDecoratorReturn(target: Function): any
+declare function ClassParameterTargetDecoratorReturn(target: Object, propertyKey: string, parameterIndex: number): void
+declare function ClassParameterTargetDecorator<A>(options: A): typeof ClassParameterTargetDecoratorReturn
+declare function ClassParameterTargetDecorator<A>(target: Function): any
+declare function ClassParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): void
+declare type ConfigableClassParameterDecorator = <A extends IAnnotationClazz>(target: A) => typeof ClassParameterTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+// All Decorator
+declare function AllTargetDecorator<A>(options: A): (target: any, name?: string, p?: number | TypedPropertyDescriptor<any>) => any
+declare function AllTargetDecorator<A>(target: Function): any
+declare function AllTargetDecorator<A>(target: TargetObject, propertyKey: string): any
+declare function AllTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare function AllTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): any
+declare type ConfigableAllDecorator = <A extends IAnnotationClazz>(target: A) => typeof AllTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+// Method Or Property Decorator
+declare function MethodPropertyTargetDecorator<A>(options: A): (target: Object, name: string, p?: TypedPropertyDescriptor<any>) => any
+declare function MethodPropertyTargetDecorator<A>(target: TargetObject, propertyKey: string): any
+declare function MethodPropertyTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare type ConfigableMethodPropertyDecorator = <A extends IAnnotationClazz>(target: A) => typeof MethodPropertyTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+
+// Method Or Property Or Parameter Decorator
+declare function MethodPropertyParameterTargetDecorator<A>(options: A): (target: Object, name: string, p?: number | TypedPropertyDescriptor<any>) => any
+declare function MethodPropertyParameterTargetDecorator<A>(target: TargetObject, propertyKey: string): any
+declare function MethodPropertyParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare function MethodPropertyParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): any
+declare type ConfigableMethodPropertyParameterDecorator = <A extends IAnnotationClazz>(target: A) => typeof MethodPropertyParameterTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+// Method Or Parameter Decorator
+declare function MethodParameterTargetDecorator<A>(options: A): (target: Object, name: string, p: TypedPropertyDescriptor<any> | number) => any
+declare function MethodParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, descriptor: TypedPropertyDescriptor<any>): any
+declare function MethodParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): any
+declare type ConfigableMethodParameterDecorator = <A extends IAnnotationClazz>(target: A) => typeof MethodParameterTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+// Property Or Parameter Decorator
+declare function PropertyParameterTargetDecorator<A>(options: A): (target: Object, name: string, p?: number) => any
+declare function PropertyParameterTargetDecorator<A>(target: TargetObject, propertyKey: string): any
+declare function PropertyParameterTargetDecorator<A>(target: TargetObject, propertyKey: string, parameterIndex: number): any
+declare type ConfigablePropertyParameterDecorator = <A extends IAnnotationClazz>(target: A) => typeof PropertyParameterTargetDecorator<InstanceType<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A>
+
+type PushFront<TailT extends any[], HeadT> =
+  ((head: HeadT, ...tail: TailT) => void) extends ((...arr: infer ArrT) => void) ? ArrT : never;
+
+type UnorderTuple<U extends string, ResultT extends any[] = []> = {
+  [k in U]: (
+    [Exclude<U, k>] extends [never] ?
+    PushFront<ResultT, k> :
+    UnorderTuple<Exclude<U, k>, PushFront<ResultT, k>>
+  )
+}[U];
+
+function Target(elementType: ElementType.TYPE | [ElementType.TYPE]): ConfigableClassDecorator
+
+function Target(elementType: ElementType.METHOD | [ElementType.METHOD]): ConfigableMethodDecorator
+
+function Target(elementType: ElementType.PARAMETER | [ElementType.PARAMETER]): ConfigableParameterDecorator
+
+function Target(elementType: ElementType.PROPERTY | [ElementType.PROPERTY]): ConfigablePropertyDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.TYPE | ElementType.METHOD>): ConfigableClassMethodDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.TYPE | ElementType.METHOD | ElementType.PARAMETER>): ConfigableClassMethodParameterDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.TYPE | ElementType.METHOD | ElementType.PROPERTY>): ConfigableClassMethodPropertyDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.TYPE | ElementType.METHOD | ElementType.PROPERTY | ElementType.PARAMETER>): ConfigableAllDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.TYPE | ElementType.PROPERTY>): ConfigableClassPropertyDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.TYPE | ElementType.PROPERTY | ElementType.PARAMETER>): ConfigableClassPropertyParameterDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.TYPE | ElementType.PARAMETER>): ConfigableClassParameterDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.METHOD | ElementType.PROPERTY>): ConfigableMethodPropertyDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.METHOD | ElementType.PROPERTY | ElementType.PARAMETER>): ConfigableMethodPropertyParameterDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.METHOD | ElementType.PARAMETER>): ConfigableMethodParameterDecorator
+
+function Target(elementTypes: UnorderTuple<ElementType.PROPERTY | ElementType.PARAMETER>): ConfigablePropertyParameterDecorator
+
+function Target(types: ElementType | ElementType[]) {
+  return function TargetAnnotation(annotationType: IAnnotationClazz) {
+    return RuntimeAnnotation.create(types, annotationType)
   }
 }
 
 export default Target;
-
-export function generateTrace() {
-  moduleRuntime.generate = true;
-}
-
-Target.install = function <A extends AbstractClassType>(ctor: A): CallableAnnotationFunction<A, ConstructorParameters<A>[1]> {
-  const decorator = function () {
-    const args = Array.prototype.slice.call(arguments);
-    const runtime = new AnnotationOptions(ctor, args);
-    const elementType = reflectAnnotationType(args);
-    if (elementType === 'UNKNOW') {
-      // 如果是执行配置，这里需要返回修饰器函数 例如:  @GetMapping('/home')
-      return (...params) => {
-        runtime.options = runtime.meta;
-        runtime.meta = params;
-        if (params[0] === parameterReturnable) {
-          // 自定义元数据
-          runtime.meta = params[1](runtime.options);
-          // 创建注解
-          return createAnnotation(runtime);
-        }
-        // 创建注解 此处不可返回
-        createAnnotation(runtime);
-      }
-    }
-    // 没有进行配置
-    runtime.options = [];
-    // 如果是按照如下方式使用注解 例如: @GetMapping
-    createAnnotation(runtime);
-  }
-  decorator.Annotation = ctor;
-  Object.defineProperty(decorator, 'name', { value: (ctor as any).name });
-  return decorator as any;
-}
-
-function getTrace(error: Error) {
-  return error.stack.split('\n').slice(4, 6).map((m) => m.split('(').pop().split(':').shift());
-}
-
-function createAnnotation(runtime: AnnotationOptions): RuntimeAnnotation {
-  const target = runtime.ctor;
-  runtime.types = target[elementTypes] || target.constructor[elementTypes] || [];
-  // 创建注解
-  return RuntimeAnnotation.create(runtime, moduleRuntime.generate ? getTrace(new Error()) : null)
-}

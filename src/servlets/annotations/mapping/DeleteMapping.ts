@@ -1,10 +1,10 @@
-import RequestMapping from './RequestMapping';
+import { RequestMappingAnnotation } from './RequestMapping';
 import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
+import ElementType from '../annotation/ElementType';
 
-@Target
-class DeleteMapping extends RequestMapping.Annotation {
-  constructor(value: RouteMappingOptions, meta) {
+class DeleteMapping extends RequestMappingAnnotation {
+  constructor(meta, value: RouteMappingOptions) {
     super(meta, RequestMappingInfo.create(value, 'DELETE'));
   }
 }
@@ -19,4 +19,4 @@ class DeleteMapping extends RequestMapping.Annotation {
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default Target.install<typeof DeleteMapping>(DeleteMapping);
+export default Target([ElementType.TYPE, ElementType.METHOD])(DeleteMapping);

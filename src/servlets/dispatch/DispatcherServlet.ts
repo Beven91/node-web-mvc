@@ -12,7 +12,7 @@ import InterruptModel from '../models/InterruptModel';
 import HandlerMapping from '../mapping/HandlerMapping';
 import RequestMappingHandlerMapping from '../mapping/RequestMappingHandlerMapping'
 import AdviceRegistry from '../advice/AdviceRegistry';
-import ExceptionHandler, { ExceptionHandlerAnnotation } from '../annotations/ExceptionHandler';
+import ExceptionHandler from '../annotations/ExceptionHandler';
 import Middlewares from '../models/Middlewares';
 import ResourceHandlerAdapter from '../resources/ResourceHandlerAdapter';
 import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
@@ -141,7 +141,7 @@ export default class DispatcherServlet {
     const globalHandler = AdviceRegistry.getExceptionHandler();
     const chain = servletContext.chain;
     const handlerMethod = chain.getHandler();
-    const anno = handlerMethod.getClassMethodAnnotation<ExceptionHandlerAnnotation>(ExceptionHandler);
+    const anno = handlerMethod.getClassMethodAnnotation(ExceptionHandler);
     console.error(error.stack || error);
     if (anno && anno.handleException) {
       // 优先处理：如果存在控制器本身设置的exceptionhandler

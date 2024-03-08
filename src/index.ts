@@ -68,7 +68,6 @@ import HttpServletResponse from './servlets/http/HttpServletResponse';
 import MediaType from './servlets/http/MediaType';
 import MessageConverter from './servlets/http/converts/MessageConverter';
 import RuntimeAnnotation from './servlets/annotations/annotation/RuntimeAnnotation';
-import AnnotationOptions from './servlets/annotations/annotation/AnnotationOptions';
 import HttpResource from './servlets/resources/HttpResource';
 import Resource from './servlets/resources/Resource';
 import ResourceHttpRequestHandler from './servlets/resources/ResourceHttpRequestHandler';
@@ -174,7 +173,6 @@ export {
   HandlerMethod,
   HandlerAdapter,
   RuntimeAnnotation,
-  AnnotationOptions,
   HttpResource,
   Resource,
   ResourceChainRegistration,

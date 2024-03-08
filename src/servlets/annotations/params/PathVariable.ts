@@ -8,8 +8,8 @@ import { MethodParameterOptions } from '../../../interface/MethodParameter';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 import ParamAnnotation from './ParamAnnotation';
+import ElementType from '../annotation/ElementType';
 
-@Target
 class PathVariable extends ParamAnnotation {
 
   constructor(meta: RuntimeAnnotation, options: MethodParameterOptions | string) {
@@ -25,4 +25,4 @@ class PathVariable extends ParamAnnotation {
  * 
  *  action(@PathVariable({ required: true }) id) 
  */
-export default Target.install<typeof PathVariable>(PathVariable);
+export default Target(ElementType.PARAMETER)(PathVariable);

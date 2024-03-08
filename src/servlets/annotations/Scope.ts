@@ -5,15 +5,17 @@
  *    prototype (多例： 每次都会创建一个新的Controller)
  */
 import Target from "./Target";
+import ElementType from "./annotation/ElementType";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 
 export type ScopeType = 'singleton' | 'prototype' | 'reqeust' | 'session'
 
-@Target
-export class ScopeAnnotation {
+class Scope {
 
   // 作用域
   scope: ScopeType
+
+  value: string
 
   constructor(meta: RuntimeAnnotation, scope: ScopeType) {
     this.scope = scope;
@@ -23,4 +25,4 @@ export class ScopeAnnotation {
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof ScopeAnnotation>(ScopeAnnotation);
+export default Target(ElementType.TYPE)(Scope);

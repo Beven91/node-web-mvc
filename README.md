@@ -835,9 +835,8 @@ export default class DataController {
 > UserId.ts
 
 ```js
-import { Target } from 'node-web-mvc';
+import { Target, ElementType } from 'node-web-mvc';
 
-@Target
 class UserId {
   constructor(){
     // 注解构造函数
@@ -845,7 +844,7 @@ class UserId {
 }
 
 // 公布注解
-export default Target.install<typeof UserId>(UserId);
+export default Target(ElementType.PARAMETER)(UserId);
 ```
 
 

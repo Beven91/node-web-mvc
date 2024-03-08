@@ -8,8 +8,8 @@ import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnno
 import DefaultListableBeanFactory from "../DefaultListableBeanFactory";
 import BeanDefinition from "../BeanDefinition";
 import BeanOptions from "./BeanOptions";
+import ElementType from "../../servlets/annotations/annotation/ElementType";
 
-@Target
 class Component {
 
   constructor(meta: RuntimeAnnotation, options: BeanOptions) {
@@ -22,7 +22,7 @@ class Component {
     beanFactory.registerBeanDefinition(BeanOptions.toBeanName(meta.ctor.name), definition);
     beanFactory.registerBeanDefinition(meta.ctor, definition);
   }
-  
+
 }
 
-export default Target.install<typeof Component>(Component);
+export default Target(ElementType.TYPE)(Component);

@@ -3,7 +3,7 @@
  * @description bean定义
  */
 import RuntimeAnnotation from '../servlets/annotations/annotation/RuntimeAnnotation';
-import Scope, { ScopeAnnotation } from '../servlets/annotations/Scope';
+import Scope from '../servlets/annotations/Scope';
 
 export type ScopeType  = 'prototype' | 'singleton' | 'request'
 
@@ -24,7 +24,7 @@ export default class BeanDefinition {
     let scope = this.setScope || 'singleton';
     const annotation = RuntimeAnnotation.getClassAnnotation(this.beanCtor, Scope);
     if (annotation) {
-      const scopeAnno = annotation.nativeAnnotation as ScopeAnnotation;
+      const scopeAnno = annotation.nativeAnnotation;
       scope = scopeAnno.scope;
     }
     return scope;

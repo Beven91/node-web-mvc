@@ -8,8 +8,8 @@
 import Target from "./Target";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 import AdviceRegistry from '../advice/AdviceRegistry';
+import ElementType from "./annotation/ElementType";
 
-@Target
 export class ControllerAdvice {
 
   constructor(meta: RuntimeAnnotation) {
@@ -20,4 +20,4 @@ export class ControllerAdvice {
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof ControllerAdvice>(ControllerAdvice);
+export default Target(ElementType.TYPE)(ControllerAdvice);

@@ -26,7 +26,7 @@ export declare class ApiTag {
 
 }
 
-export declare class ApiOperationOptions {
+export class ApiOperationOptions {
 
   /**
    * 具体接口方法的描述
@@ -95,7 +95,7 @@ export declare interface ExternalDocs {
   url: string
 }
 
-export declare class ApiModelOptions {
+export class ApiModelOptions {
   /**
    * model的别名，默认为类名
    */
@@ -109,7 +109,7 @@ export declare class ApiModelOptions {
   externalDocs?: ExternalDocs
 }
 
-export declare class ApiModelPropertyOptions {
+export class ApiModelPropertyOptions {
   /**
    * 属性简短描述
    */
@@ -270,7 +270,7 @@ export declare class ApiOperationMeta {
 }
 
 export declare class ApiMeta {
-  class: Function
+  clazz: Function
   option?: ApiOptions
   operations: Array<ApiOperationMeta>
 }

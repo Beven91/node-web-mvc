@@ -3,10 +3,10 @@
  * @description 异常处理注解
  */
 import Target from "./Target";
+import ElementType from "./annotation/ElementType";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 
-@Target
-export class ExceptionHandlerAnnotation {
+class ExceptionHandler {
 
   handleException: Function
 
@@ -18,4 +18,4 @@ export class ExceptionHandlerAnnotation {
 /**
  * 标注指定类为一个rest 异常处理函数
  */
-export default Target.install<typeof ExceptionHandlerAnnotation>(ExceptionHandlerAnnotation);
+export default Target(ElementType.METHOD)(ExceptionHandler);

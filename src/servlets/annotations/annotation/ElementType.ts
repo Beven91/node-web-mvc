@@ -28,12 +28,12 @@ enum ElementType {
 }
 
 function isPropertyDescritpor(descriptor) {
-  if(descriptor && typeof descriptor === 'object'){
+  if (descriptor && typeof descriptor === 'object') {
     return 'get' in descriptor && 'set' in descriptor;
   }
 }
 
-export function reflectAnnotationType(options: Array<any>) {
+export function reflectAnnotationType(options: Array<any>): ElementType | 'UNKNOW' {
   if (!options || options.length < 0 || options.length > 3 || !options[0]) {
     return 'UNKNOW';
   }
@@ -52,8 +52,8 @@ export function reflectAnnotationType(options: Array<any>) {
   return 'UNKNOW';
 }
 
-export function checkAnnotation(types: Array<string>, options, name) {
-  const elementType = reflectAnnotationType(options);
+export function checkAnnotation(types: ElementType[], options, name) {
+  const elementType = reflectAnnotationType(options) as ElementType;
   if (types.length > 0 && types.indexOf(elementType) < 0) {
     throw new AnnotationElementTypeError(name, types);
   }

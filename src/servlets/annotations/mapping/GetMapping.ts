@@ -1,9 +1,9 @@
-import RequestMapping from './RequestMapping';
+import { RequestMappingAnnotation } from './RequestMapping';
 import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
+import ElementType from '../annotation/ElementType';
 
-@Target
-class GetMapping extends RequestMapping.Annotation {
+class GetMapping extends RequestMappingAnnotation {
   constructor(meta, value: RouteMappingOptions | string) {
     super(meta, RequestMappingInfo.create(value, 'GET'));
   }
@@ -19,4 +19,4 @@ class GetMapping extends RequestMapping.Annotation {
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default Target.install<typeof GetMapping>(GetMapping);
+export default Target([ElementType.TYPE, ElementType.METHOD])(GetMapping);

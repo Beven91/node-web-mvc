@@ -8,7 +8,6 @@ import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnno
 import ElementType from "../../servlets/annotations/annotation/ElementType";
 import AutowiredBeanProcessor, { AutowiredOptions } from "../AutowiredBeanProcessor";
 
-@Target([ElementType.PROPERTY])
 class Autowired {
   constructor(meta: RuntimeAnnotation, options: AutowiredOptions = {}) {
     options = new AutowiredOptions(options);
@@ -24,4 +23,4 @@ class Autowired {
 }
 
 // 公布注解
-export default Target.install<typeof Autowired>(Autowired);
+export default Target(ElementType.PROPERTY)(Autowired);

@@ -8,8 +8,9 @@ import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnno
 import BeanOptions from "./BeanOptions";
 import BeanDefinition from "../BeanDefinition";
 import DefaultListableBeanFactory from "../DefaultListableBeanFactory";
+import ElementType from "../../servlets/annotations/annotation/ElementType";
 
-@Target
+
 class Repository {
 
   constructor(meta: RuntimeAnnotation, options: BeanOptions) {
@@ -24,4 +25,4 @@ class Repository {
   }
 }
 
-export default Target.install<typeof Repository>(Repository);
+export default Target(ElementType.TYPE)(Repository);

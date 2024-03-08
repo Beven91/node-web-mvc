@@ -7,8 +7,8 @@ import createParam from './createParam';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 import MethodParameter from '../../../interface/MethodParameter';
+import ElementType from '../annotation/ElementType';
 
-@Target
 class ServletRequest {
 
   public param: MethodParameter
@@ -24,4 +24,4 @@ class ServletRequest {
  * action(@ServletRequest request)
  * 
  */
-export default Target.install<typeof ServletRequest>(ServletRequest);
+export default Target(ElementType.PARAMETER)(ServletRequest);

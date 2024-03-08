@@ -5,10 +5,10 @@
  */
 
 import Target from "./Target";
+import ElementType from "./annotation/ElementType";
 import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 
-@Target
-export class ResponseStatusAnnotation {
+class ResponseStatus {
 
   /**
   * 返回状态编码
@@ -20,8 +20,8 @@ export class ResponseStatusAnnotation {
    */
   reason: string
 
-  constructor(meta: RuntimeAnnotation, options: ResponseStatusAnnotation) {
-    options = options || {} as ResponseStatusAnnotation;
+  constructor(meta: RuntimeAnnotation, options: ResponseStatus) {
+    options = options || {} as ResponseStatus;
     this.code = 'code' in options ? options.code : 200;
     this.reason = options.reason || '';
   }
@@ -30,4 +30,4 @@ export class ResponseStatusAnnotation {
 /**
  * 标注指定类为一个rest 风格的controller
  */
-export default Target.install<typeof ResponseStatusAnnotation>(ResponseStatusAnnotation);
+export default Target(ElementType.METHOD)(ResponseStatus);

@@ -4,13 +4,17 @@
  */
 import MethodParameter from '../../interface/MethodParameter';
 import Javascript from '../../interface/Javascript';
-import RuntimeAnnotation, { AnnotationFunction } from '../annotations/annotation/RuntimeAnnotation';
-import ResponseStatus, { ResponseStatusAnnotation } from '../annotations/ResponseStatus';
+import RuntimeAnnotation, { IAnnotation } from '../annotations/annotation/RuntimeAnnotation';
+import ResponseStatus from '../annotations/ResponseStatus';
 import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
 import BeanFactory from '../../ioc/BeanFactory';
 import InterruptModel from '../models/InterruptModel';
 import MultipartFile from '../http/MultipartFile';
 import ElementType from '../annotations/annotation/ElementType';
+
+export interface BeanTypeClazz {
+  new(...args: any[]): any
+}
 
 export default class HandlerMethod {
 
@@ -35,7 +39,7 @@ export default class HandlerMethod {
   /**
    * 当前bean的类型
    */
-  public readonly beanType: Function
+  public readonly beanType: BeanTypeClazz
 
   /**
    * 对应controller实例
@@ -109,7 +113,7 @@ export default class HandlerMethod {
    * 从 ResponseStatus 获取当前action设定的返回状态，如果没有获取到则使用默认的
    */
   private evaluateResponseStatus(): void {
-    const annotation = this.getAnnotation<ResponseStatusAnnotation>(ResponseStatus);
+    const annotation = this.getAnnotation(ResponseStatus);
     if (annotation != null) {
       this.responseStatus = annotation.code;
       this.responseStatusReason = annotation.reason;
@@ -120,7 +124,7 @@ export default class HandlerMethod {
    * 获取当前方法上的指定注解信息
    * @param { Annotation } ctor 要获取的注解类型类
    */
-  public getAnnotation<T>(ctor: AnnotationFunction | RuntimeAnnotation) {
+  public getAnnotation<T extends IAnnotation>(ctor: T) {
     const annotations = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
@@ -129,7 +133,7 @@ export default class HandlerMethod {
    * 获取当前方法所在类的指定类注解信息
    * @param ctor 要获取的类注解类型类
    */
-  public getClassAnnotation<T>(ctor: AnnotationFunction | RuntimeAnnotation) {
+  public getClassAnnotation<T extends IAnnotation>(ctor: T) {
     const annotations = RuntimeAnnotation.getClassAnnotations(this.beanType);
     return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
   }
@@ -138,7 +142,7 @@ export default class HandlerMethod {
    * 获取当前方法所在类下所有方法的指定注解信息
    * @param ctor 要获取的注解类型类
    */
-    public getClassMethodAnnotation<T>(ctor: AnnotationFunction | RuntimeAnnotation) {
+    public getClassMethodAnnotation<T extends IAnnotation>(ctor: T) {
       const annotations = RuntimeAnnotation.getClassAllAnnotations(this.beanType).filter((m)=>m.elementType == ElementType.METHOD);
       return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
     }

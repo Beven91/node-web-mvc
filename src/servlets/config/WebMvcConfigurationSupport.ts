@@ -17,7 +17,7 @@ import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
 import PathMatchConfigurer from './PathMatchConfigurer';
 import Bytes from '../util/Bytes';
 import ModuleLoader from '../util/ModuleLoader';
-import { generateTrace } from '../annotations/Target';
+import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
 
 const runtime = {
   configurer: null,
@@ -283,7 +283,7 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     // 热更新
     if (configurer.hot) {
       hot.run(options.hot);
-      generateTrace();
+      RuntimeAnnotation.isHotUpdate = true;
     }
     // 初始化配置
     this.initializeConfigurer(configurer);
