@@ -74,4 +74,12 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
     }
     return methodNotAllowed ? new HttpStatusHandlerMethod(415) : null;
   }
+
+  getMappingForMethod(handler: HandlerMethod) {
+    for (let info of this.mappingRegistry.getRegistration().values()) {
+      if (info.getHandlerMethod() === handler) {
+        return info.getMapping();
+      }
+    }
+  }
 }

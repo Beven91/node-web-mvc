@@ -2,9 +2,11 @@
  * @module RuntimeAnnotation
  * @description 运行时注解类
  */
+import hot from 'nodejs-hmr';
 import ElementType, { checkAnnotation, reflectAnnotationType } from "./ElementType";
 import Javascript from "../../../interface/Javascript";
 import Tracer from "./Tracer";
+import FunctionExtends from "./FunctionExtends";
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
@@ -124,80 +126,97 @@ export default class RuntimeAnnotation<A = any> {
   static isHotUpdate: boolean
 
   /**
-   * 获取指定类的所有注解信息
-   * @param {Function} ctor 被修饰的类 
+   * 获取指定类型的注解
+   * @param type 注解类型
    */
-  static getClassAnnotations(ctor: Function) {
-    return runtimeAnnotations.filter((m) => m.ctor == ctor && m.elementType === ElementType.TYPE);
+  static getTypedRuntimeAnnotations<C extends IAnnotationClazz>(type: C) {
+    return runtimeAnnotations.filter((m) => isAnnotationOf(m, type)) as RuntimeAnnotation<GetTargetAnnotationType<C>>[];
+  }
+
+  /**
+   * 获取指定类的所有注解信息
+   * @param {Function} clazz 被修饰的类 
+   */
+  static getClassAnnotations(clazz: Function) {
+    return runtimeAnnotations.filter((m) => m.ctor == clazz && m.elementType === ElementType.TYPE);
   }
 
   /**
    * 获取指定类下，指定类型的注解
-   * @param {Function} ctor 被修饰的类 
+   * @param {Function} clazz 被修饰的类 
    * @param {Function} type 注解类型
    */
-  static getClassAnnotationsOf<C extends IAnnotationOrClazz>(ctor: Function, type: C) {
-    return this.getClassAllAnnotations(ctor).filter((m) => isAnnotationOf(m, type)) as RuntimeAnnotation<GetTargetAnnotationType<C>>[];
+  static getClassAnnotationsOf<C extends IAnnotationOrClazz>(clazz: Function, type: C) {
+    return this.getClassAllAnnotations(clazz).filter((m) => isAnnotationOf(m, type)) as RuntimeAnnotation<GetTargetAnnotationType<C>>[];
+  }
+
+  /**
+   * 获取指定类下，指定类型的第一个注解
+   * @param {Function} clazz 被修饰的类 
+   * @param {Function} type 注解类型
+   */
+  static getClassAnnotationsOneOf<C extends IAnnotationOrClazz>(clazz: Function, type: C) {
+    return this.getClassAllAnnotations(clazz).filter((m) => isAnnotationOf(m, type))[0] as RuntimeAnnotation<GetTargetAnnotationType<C>>;
   }
 
   /**
    * 获取指定类的所有所有的注解信息（包括函数，属性，参数等)
-   * @param {Function} ctor 被修饰的类 
+   * @param {Function} clazz 被修饰的类 
    * @param {Function} type 注解类型
    */
-  static getClassAllAnnotations(ctor: Function) {
-    return runtimeAnnotations.filter((m) => m.ctor == ctor);
+  static getClassAllAnnotations(clazz: Function) {
+    return runtimeAnnotations.filter((m) => m.ctor == clazz);
   }
 
   /**
    * 获取指定类的指定类型的注解信息
-   * @param {Function} ctor 被修饰的类 
+   * @param {Function} clazz 被修饰的类 
    * @param {Function} type 注解类型
    */
-  static getClassAnnotation<C extends IAnnotationOrClazz>(ctor: Function, type: C) {
-    const annotations = this.getClassAnnotations(ctor);
+  static getClassAnnotation<C extends IAnnotationOrClazz>(clazz: Function, type: C) {
+    const annotations = this.getClassAnnotations(clazz);
     const isAnnotation = (s: RuntimeAnnotation) => s.elementType === ElementType.TYPE && isAnnotationOf(s, type);
     return annotations.find((m) => isAnnotation(m)) as RuntimeAnnotation<GetTargetAnnotationType<C>>;
   }
 
   /**
    * 获取指定函数的注解
-   * @param ctor 函数所在类 
+   * @param clazz 函数所在类 
    * @param method 函数名称
    */
-  static getMethodAnnotations(ctor: Function, method: string) {
+  static getMethodAnnotations(clazz: Function, method: string) {
     const isAnnotation = (s) => s.elementType === ElementType.METHOD && s.name === method;
-    return this.getClassAllAnnotations(ctor).filter(isAnnotation);
+    return this.getClassAllAnnotations(clazz).filter(isAnnotation);
   }
 
   /**
    * 获取指定函数的指定注解
-   * @param ctor 函数所在类 
+   * @param clazz 函数所在类 
    * @param method 函数名称
    */
-  static getMethodAnnotation<C extends IAnnotationOrClazz>(ctor: Function, method: string, type: C) {
-    const annotations = this.getMethodAnnotations(ctor, method);
+  static getMethodAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string, type: C) {
+    const annotations = this.getMethodAnnotations(clazz, method);
     return annotations.find((m) => isAnnotationOf(m, type)) as RuntimeAnnotation<GetTargetAnnotationType<C>>;
   }
 
   /**
    * 获取指定函数的参数注解
-   * @param ctor 函数所在类 
+   * @param clazz 函数所在类 
    * @param method 函数名称
    */
-  static getMethodParamAnnotations(ctor: Function, method: string) {
+  static getMethodParamAnnotations(clazz: Function, method: string) {
     const isAnnotation = (s) => s.elementType === ElementType.PARAMETER && s.name === method;
-    return this.getClassAllAnnotations(ctor).filter(isAnnotation);
+    return this.getClassAllAnnotations(clazz).filter(isAnnotation);
   }
 
   /**
    * 获取指定函数指定名称参数注解
-   * @param ctor 函数所在类 
+   * @param clazz 函数所在类 
    * @param method 函数名称
    * @param paramName 参数下标
    */
-  static getMethodParamAnnotation<C extends IAnnotationOrClazz>(ctor: Function, method: string, paramName: string) {
-    return this.getMethodAnnotations(ctor, method).find((s) => s.paramName === paramName) as RuntimeAnnotation<GetTargetAnnotationType<C>>;
+  static getMethodParamAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string) {
+    return this.getMethodAnnotations(clazz, method).find((s) => s.paramName === paramName) as RuntimeAnnotation<GetTargetAnnotationType<C>>;
   }
 
   /**
@@ -220,8 +239,12 @@ export default class RuntimeAnnotation<A = any> {
   static create(elementTypes: ElementType | ElementType[], annotationType: IAnnotationClazz) {
     const types = elementTypes instanceof Array ? elementTypes : [elementTypes];
     const decorator = function () {
-      const tracer = RuntimeAnnotation.isHotUpdate ? new Tracer(new Error()) : null;
       const args = Array.prototype.slice.call(arguments);
+      if (this instanceof decorator) {
+        // 如果是当做class使用,这里用于从外部继承原始的AnnotationType
+        return FunctionExtends.extendInstance(this, annotationType, args, decorator);
+      }
+      const tracer = RuntimeAnnotation.isHotUpdate ? new Tracer(new Error()) : null;
       const maybeInitializer = args[0];
       const elementType = reflectAnnotationType(args);
       if (elementType === 'UNKNOW') {
@@ -241,6 +264,7 @@ export default class RuntimeAnnotation<A = any> {
       new RuntimeAnnotation(args, annotationType, types, {}, tracer);
     } as unknown as IAnnotation;
     decorator.NativeAnnotation = annotationType;
+    FunctionExtends.extendStatic(decorator, annotationType);
     Object.defineProperty(decorator, 'name', { value: annotationType.name });
     return decorator;
   }
@@ -274,7 +298,7 @@ export default class RuntimeAnnotation<A = any> {
     this.ctor.tracer = tracer
     // 根据构造创建注解实例
     this.nativeAnnotation = new NativeAnnotation(this, initializer);
-    if (initializer && typeof initializer == 'object') {
+    if (Object.prototype.toString.call(initializer) === '[object Object]') {
       // 自动将配置的值赋值到nativeAnnotation上
       Object.keys(initializer).forEach((key) => {
         this.nativeAnnotation[key] = initializer[key];
@@ -287,3 +311,22 @@ export default class RuntimeAnnotation<A = any> {
     runtimeAnnotations.push(this);
   }
 }
+
+hot
+  .create(module)
+  .preload((old) => {
+    const file = old.filename;
+    const removeList = [] as any[];
+    for (let element of runtimeAnnotations) {
+      const ctor = element.ctor as TracerConstructor;
+      if (ctor?.tracer?.isDependency(file)) {
+        removeList.push(element);
+      }
+    }
+    removeList.forEach((item) => {
+      const index = runtimeAnnotations.indexOf(item);
+      if (index > -1) {
+        runtimeAnnotations.splice(index, 1);
+      }
+    });
+  })

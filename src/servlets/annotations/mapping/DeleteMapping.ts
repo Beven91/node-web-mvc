@@ -1,12 +1,10 @@
-import { RequestMappingAnnotation } from './RequestMapping';
-import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
+import RequestMapping from './RequestMapping';
 import Target from '../Target';
 import ElementType from '../annotation/ElementType';
+import HttpMethod from '../../http/HttpMethod';
 
-class DeleteMapping extends RequestMappingAnnotation {
-  constructor(meta, value: RouteMappingOptions) {
-    super(meta, RequestMappingInfo.create(value, 'DELETE'));
-  }
+class DeleteMapping extends RequestMapping {
+  method = HttpMethod.DELETE
 }
 
 /**

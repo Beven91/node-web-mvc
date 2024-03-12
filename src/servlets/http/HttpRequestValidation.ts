@@ -62,6 +62,9 @@ export default class HttpRequestValidation {
         this.response.setHeader(HttpHeaders.ETAG, etag);
       }
     }
+    if (this.notModified) {
+      this.response.end();
+    }
     return this.notModified;
   }
 

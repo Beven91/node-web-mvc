@@ -10,7 +10,7 @@ import HandlerInterceptorRegistry from '../interceptor/HandlerInterceptorRegistr
 import MessageConverter from '../http/converts/MessageConverter';
 import ArgumentsResolvers from '../method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
-import { RequestMappingAnnotation } from '../annotations/mapping/RequestMapping';
+import { registerAllAnnotationMappings } from '../annotations/mapping/RequestMapping';
 import hot, { HotOptions } from 'nodejs-hmr';
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
@@ -268,8 +268,8 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     cwd
       .filter(Boolean)
       .forEach((dir) => new ModuleLoader(dir, cache));
-    // 初始化没有配置class注解的mapping
-    RequestMappingAnnotation.initializeUnClassMappings();
+    // 根据注解注册mapping
+    registerAllAnnotationMappings();
   }
 
   /**

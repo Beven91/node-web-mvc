@@ -1,40 +1,10 @@
+import { HttpMethodKeys } from "../http/HttpMethod";
+
 /**
  * @module RouteMapping
  * @description 路由映射
  */
-const ensureArrayPaths = (value) => value instanceof Array ? value : [value];
-
-export class RouteMappingOptions {
-  /**
-   * 当前路由路径值
-   */
-  value: string | Array<string>
-
-  /**string
-   * 当前路由能处理的Http请求类型
-   */
-  method?: Map<string, boolean>
-
-  /**
-   * 当前路由设置的返回内容类型
-   */
-  produces?: string
-
-  /**
-   * 当前路由能接受的内容类型
-   */
-  consumes?: Array<string> | string
-
-  /**
-   * 当前路由需要的请求头信息
-   */
-  headers?: Map<string, string>
-
-  /**
-   * 当前路由需要的请求参数
-   */
-  params?: Map<string, any>
-}
+export const ensureArrayPaths = (value) => value instanceof Array ? value : [value];
 
 export default class RequestMappingInfo {
 
@@ -46,7 +16,7 @@ export default class RequestMappingInfo {
   /**string
    * 当前路由能处理的Http请求类型
    */
-  public readonly method: Map<string, boolean>
+  public readonly method: Map<HttpMethodKeys, boolean>
 
   /**
    * 当前路由设置的返回内容类型
@@ -89,9 +59,8 @@ export default class RequestMappingInfo {
    * @param {Array} consumes 当前请求能处理的请求类型 例如: ['application/json'] ['application/octstream']
    * @param {String} 
   */
-  constructor(value, method, produces, params, headers, consumes) {
-    method = method || value.method;
-    this.method = {} as Map<string, boolean>;
+  constructor(value: string | string[], method: HttpMethodKeys | HttpMethodKeys[], produces: string, params: Map<string, any>, headers: Map<string, string>, consumes: string | string[]) {
+    this.method = {} as Map<HttpMethodKeys, boolean>;
     this.value = ensureArrayPaths(value);
     this.consumes = typeof consumes === 'string' ? [consumes] : consumes;
     this.produces = produces;

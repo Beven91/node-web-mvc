@@ -6,7 +6,7 @@ export default class Tracer {
 
   constructor(error: Error) {
     if (error) {
-      this.dependencies = error.stack.split('\n').slice(4, 6).map((m) => m.split('(').pop().split(':').shift())
+      this.dependencies = error.stack.split('\n').slice(0, 10).map((m) => m.split('(').pop().split(':').shift())
     }
   }
 

@@ -150,7 +150,6 @@ export default class ResourceHttpRequestHandler {
     }
     const validation = new HttpRequestValidation(request, response);
     if (validation.checkNotModified(null, resource.lastModified)) {
-      response.end();
       return;
     }
     return resource;

@@ -7,7 +7,7 @@ import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiMeta, ApiO
 import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
 import hot from 'nodejs-hmr';
 import Definition from './definition';
-import { RequestMappingAnnotation } from '../../servlets/annotations/mapping/RequestMapping';
+import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
 import WebMvcConfigurationSupport from '../../servlets/config/WebMvcConfigurationSupport';
 import RuntimeAnnotation, { TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
@@ -226,7 +226,15 @@ export default class OpenApiModel {
     apiMetaList.forEach((api) => {
       const paths = documentation.paths;
       // 构建tags
-      documentation.tags = documentation.tags.concat(api.option.tags || []);
+      documentation.tags = documentation.tags.concat(api.option.tags || []).sort((a, b) => {
+        if (a.name > b.name) {
+          return 1;
+        } else if (a.name == b.name) {
+          return 0;
+        } else {
+          return -1;
+        }
+      });
       // 构建paths
       api.operations.forEach((operation) => this.buildOperation(paths, operation));
     });
@@ -242,8 +250,7 @@ export default class OpenApiModel {
     const option = operation.option;
     const api = operation.api;
     const isRestController = !!RuntimeAnnotation.getClassAnnotation(api.clazz, RestController);
-    const topMapping = RequestMappingAnnotation.getMappingInfo(api.clazz);
-    const mapping = RequestMappingAnnotation.getMappingInfo(api.clazz, operation.method);
+    const mapping = RequestMapping.getMappingInfo(api.clazz, operation.method);
     if (!mapping) {
       return;
     }
@@ -254,7 +261,7 @@ export default class OpenApiModel {
     const parameters = this.buildOperationParameters(operation);
     const requestBody = operation.requestBody;
     const operationDoc = {
-      consumes: mapping.consumes || topMapping?.consumes || consumes || operation.consumes || undefined,
+      consumes: mapping.consumes || consumes || operation.consumes || undefined,
       deprecated: false,
       operationId: operation.method,
       tags: api.option.tags.map((tag) => tag.name),
@@ -320,9 +327,9 @@ export default class OpenApiModel {
     }
     return parameters.map((parameter) => {
       const dataType = parameter.dataType ? Definition.reflectTypeName(parameter.dataType) : null;
-      const model = Definition.getDefinition(emptyOf(dataType, parameter.example));
+      const model = Definition.getDefinition(emptyOf(dataType, parameter.example), !!parameter.example);
       const type = model.schema ? undefined : model.type || dataType || 'string';
-      if (dataType === 'file' || (parameter.in as string) == 'part') {
+      if (dataType === 'file' || (parameter.in as string) == 'part' || model?.items?.type == 'file') {
         operation.consumes = ['multipart/form-data'];
         const info = requestBody.content['multipart/form-data'] = (requestBody.content['multipart/form-data'] || {
           schema: {
@@ -337,13 +344,15 @@ export default class OpenApiModel {
         info.schema.properties[parameter.name] = {
           description: parameter.description,
           type: type,
+          items: model.items,
           format: model.format,
         }
         return null;
       } else if (parameter.in == 'body') {
         requestBody.content['application/json'] = {
           schema: model.schema || {
-            type: type
+            type: type,
+            items: model.items,
           }
         }
         return null;

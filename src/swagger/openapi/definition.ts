@@ -38,6 +38,7 @@ export default class Definition {
     // 梳理定义
     Object
       .keys(definitions)
+      .filter((key) => Boolean(definitions[key].ctor))
       .forEach((key) => {
         const definition = definitions[key];
         const parentCtor = (definition.ctor as any).__proto__;
@@ -166,8 +167,11 @@ export default class Definition {
     }
   }
 
-  static getDefinition(dataType: any) {
+  static getDefinition(dataType: any, isExample = false) {
     if (typeof dataType === 'string') {
+      if (isExample) {
+        return { empty: true }
+      }
       return this.getDefinitionByName(dataType);
     } else {
       return this.getDefinitionByType(dataType);
@@ -192,6 +196,13 @@ export default class Definition {
       const ref = this.makeRef(data.name);
       const isArray = data.type === 'array';
       return isArray ? { collectionFormat: 'multi', type: 'array', items: data.items } : { schema: { '$ref': ref } };
+    } else if (/\[\]/.test(dataType)) {
+      const name = dataType.replace(/\[\]/g, '');
+      if (name == 'MultipartFile') {
+        return { collectionFormat: 'multi', type: 'array', items: { type: 'file' } }
+      }
+      const ref = this.makeRef(name);
+      return { collectionFormat: 'multi', type: 'array', items: { schema: { '$ref': ref } } };
     } else if (dataType === 'array') {
       return { type: 'array', collectionFormat: 'multi', items: { type: 'string' }, k: true };
     } else if (dataType === 'date-time') {
@@ -262,6 +273,8 @@ export default class Definition {
       return 'array';
     } else if (name === 'function') {
       return this.functionNameType(value)
+    } else if (/\[\]$/.test(value)) {
+      return value;
     } else {
       return name;
     }

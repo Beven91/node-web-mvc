@@ -1,12 +1,10 @@
-import { RequestMappingAnnotation } from './RequestMapping';
-import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
+import RequestMapping from './RequestMapping';
 import Target from '../Target';
 import ElementType from '../annotation/ElementType';
+import HttpMethod from '../../http/HttpMethod';
 
-class PostMapping extends RequestMappingAnnotation {
-  constructor(meta, value: RouteMappingOptions | string) {
-    super(meta, RequestMappingInfo.create(value, 'POST'));
-  }
+class PostMapping extends RequestMapping {
+  method = HttpMethod.POST
 }
 
 /**

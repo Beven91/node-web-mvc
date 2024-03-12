@@ -1,12 +1,10 @@
-import { RequestMappingAnnotation } from './RequestMapping';
-import RequestMappingInfo, { RouteMappingOptions } from '../../mapping/RequestMappingInfo';
+import RequestMapping from './RequestMapping';
 import Target from '../Target';
 import ElementType from '../annotation/ElementType';
+import HttpMethod from '../../http/HttpMethod';
 
-class PatchMapping extends RequestMappingAnnotation {
-  constructor(meta, value: RouteMappingOptions | string) {
-    super(meta, RequestMappingInfo.create(value, 'PATCH'));
-  }
+class PatchMapping extends RequestMapping {
+  method = HttpMethod.PATCH
 }
 
 /**

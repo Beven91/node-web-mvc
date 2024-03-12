@@ -44,5 +44,7 @@ export default abstract class AbstractHandlerMethodAdapter implements HandlerAda
    * @param request 当前请求信息
    * @param handler 当前HandlerMethod
    */
-  public getLastModified(request, handler) { }
+  public getLastModified(request, handler) { 
+    return -1;
+  }
 }  

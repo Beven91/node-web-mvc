@@ -122,30 +122,46 @@ export default class HandlerMethod {
 
   /**
    * 获取当前方法上的指定注解信息
-   * @param { Annotation } ctor 要获取的注解类型类
+   * @param { Annotation } annotationType 要获取的注解类型类
    */
-  public getAnnotation<T extends IAnnotation>(ctor: T) {
-    const annotations = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName);
-    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
+  public getAnnotation<T extends IAnnotation>(annotationType: T) {
+    return this.getMethodAnnotation<T>(annotationType);
   }
 
   /**
-   * 获取当前方法所在类的指定类注解信息
-   * @param ctor 要获取的类注解类型类
+   * 获取当前方法上的指定注解信息
+   * @param { Annotation } annotationType 要获取的注解类型类
    */
-  public getClassAnnotation<T extends IAnnotation>(ctor: T) {
+  public getMethodAnnotation<T extends IAnnotation>(annotationType: T) {
+    const annotations = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName);
+    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, annotationType);
+  }
+
+
+  /**
+   * 获取当前方法所在类的指定类注解信息
+   * @param annotationType 要获取的类注解类型类
+   */
+  public getClassAnnotation<T extends IAnnotation>(annotationType: T) {
     const annotations = RuntimeAnnotation.getClassAnnotations(this.beanType);
-    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
+    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, annotationType);
   }
 
   /**
    * 获取当前方法所在类下所有方法的指定注解信息
-   * @param ctor 要获取的注解类型类
+   * @param annotationType 要获取的注解类型类
    */
-    public getClassMethodAnnotation<T extends IAnnotation>(ctor: T) {
-      const annotations = RuntimeAnnotation.getClassAllAnnotations(this.beanType).filter((m)=>m.elementType == ElementType.METHOD);
-      return RuntimeAnnotation.getNativeAnnotation<T>(annotations, ctor);
-    }
+  public getClassMethodAnnotation<T extends IAnnotation>(annotationType: T) {
+    const annotations = RuntimeAnnotation.getClassAllAnnotations(this.beanType).filter((m) => m.elementType == ElementType.METHOD);
+    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, annotationType);
+  }
+
+  /**
+   * 判定当前方法是否存在指定类型的注解
+   */
+  public hasMethodAnnotation<T extends IAnnotation>(annotationType: T) {
+    return !!this.getMethodAnnotation(annotationType);
+  }
 
   public createWithResolvedBean() {
     if (!this.isBeanType) {

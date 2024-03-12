@@ -60,7 +60,4 @@ export default class ModelAndView {
     this.model = this.model || {};
     this.model[name] = data;
   }
-
-
-
 }

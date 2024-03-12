@@ -2,12 +2,16 @@
  * @module MultipartMessageConverter
  * @description 一个用于处理http请求格式为multipart/类型内容的处理器
  */
+import path from 'path';
+import fs from 'fs';
 import Busboy from 'busboy';
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
+import WebMvcConfigurationSupport from '../../config/WebMvcConfigurationSupport';
+import { randomUUID } from 'crypto';
 
 export default class MultipartMessageConverter extends AbstractHttpMessageConverter {
 
@@ -24,24 +28,44 @@ export default class MultipartMessageConverter extends AbstractHttpMessageConver
    * @param {String} encoding 文件内容编码
    * @param {String} mimetype 内容类型
    */
-  createMultipartFile(form, fieldname, file, filename, encoding, mimetype, servletContext: ServletContext): Promise<any> {
+  createMultipartFile(form, fieldname, file, filename, encoding, mimetype, servletContext: ServletContext): Promise<void> {
     return new Promise((resolve, reject) => {
       // 将数据添加form上
+      const meta = { size: 0, isOutRange: false };
       const value = form[fieldname];
-      const multipartFile = new MultipartFile(filename, file, encoding, mimetype);
-      if (value) {
-        form[fieldname] = [
-          value,
-          multipartFile
-        ];
-      } else {
-        form[fieldname] = multipartFile;
-      }
-      // 如果超过最大限制，则抛出异常
-      file.on('limit', () => reject(new EntityTooLargeError()));
-      // 常规读取文件完毕
-      file.on('end', resolve);
-      servletContext.addReleaseQueue(() => multipartFile.destory());
+      const root = WebMvcConfigurationSupport.configurer?.multipart?.tempRoot || 'app_data/temp-files';
+      const id = path.join(root, randomUUID());
+      // 创建一个写出流
+      const writter = fs.createWriteStream(id);
+      // 读取文件流
+      file.on('data', (chunk) => {
+        meta.size = chunk.length + meta.size;
+        writter.write(chunk);
+      });
+      // 如果文件超出限制
+      file.on('limit', () => {
+        meta.isOutRange = true;
+        // 结束流
+        writter.end();
+        // 移除临时文件
+        fs.unlinkSync(id);
+        // 如果超过最大限制，则抛出异常
+        reject(new EntityTooLargeError());
+      });
+      // 读取完毕
+      file.on('end', () => {
+        if (meta.isOutRange) return;
+        writter.end(() => {
+          const multipartFile = new MultipartFile(filename, id, encoding, mimetype, meta.size);
+          if (value) {
+            form[fieldname] = [value, multipartFile];
+          } else {
+            form[fieldname] = multipartFile;
+          }
+          servletContext.addReleaseQueue(() => multipartFile.destory());
+          resolve();
+        })
+      });
     })
   }
 

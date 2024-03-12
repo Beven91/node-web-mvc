@@ -13,4 +13,6 @@ enum HttpMethod {
   OPTIONS = 'OPTIONS'
 }
 
+export type HttpMethodKeys = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH' | 'HEAD' | 'OPTIONS'
+
 export default HttpMethod;

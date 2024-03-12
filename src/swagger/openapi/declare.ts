@@ -249,6 +249,7 @@ export interface SchemaMeta {
     [x: string]: {
       description?: string
       format?: string
+      items?: any
       type: string
     }
   }

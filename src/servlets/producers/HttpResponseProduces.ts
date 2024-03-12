@@ -4,7 +4,6 @@
  */
 import ServletContext from '../http/ServletContext';
 import ServletModel from '../models/ServletModel';
-import RequestMappingInfo from '../mapping/RequestMappingInfo';
 import HandlerMethod from '../method/HandlerMethod';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import MediaType from '../http/MediaType';
@@ -12,25 +11,16 @@ import ModelAndView from '../models/ModelAndView';
 import View from '../view/View';
 import ViewNotFoundError from '../../errors/ViewNotFoundError';
 import InterruptModel from '../models/InterruptModel';
-import { RequestMappingAnnotation } from '../annotations/mapping/RequestMapping';
-import RestController from '../annotations/RestController';
 import ResponseEntity from '../models/ResponseEntity';
 import HttpStatus from '../http/HttpStatus';
-import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import RequestMapping from '../annotations/mapping/RequestMapping';
 
 export default class HttpResponseProduces {
 
   private servletContext: ServletContext = null
 
-  private controllerMapping: RequestMappingInfo
-
-  private actionMapping: RequestMappingInfo
-
   constructor(servletContext: ServletContext) {
     this.servletContext = servletContext;
-    const handlerMethod = servletContext.chain.getHandler();
-    this.controllerMapping = RequestMappingAnnotation.getMappingInfo(handlerMethod.beanType);
-    this.actionMapping = RequestMappingAnnotation.getMappingInfo(handlerMethod.beanType, handlerMethod.methodName);
   }
 
   /**
@@ -88,11 +78,8 @@ export default class HttpResponseProduces {
     const status = useStatus ? responseStatus : 200;
     const { servletContext } = this;
     const { response } = servletContext;
-    const isRestController = !!RuntimeAnnotation.getClassAnnotation(handler.beanType, RestController);
-    const restProduces = isRestController ? 'application/json;charset=utf-8' : '';
-    const ctrlProduces = this.controllerMapping ? this.controllerMapping.produces : '';
-    const actProduces = this.actionMapping ? this.actionMapping.produces : '';
-    const produces = actProduces || restProduces || ctrlProduces;
+    // TODO
+    const produces = RequestMapping.getMappingInfo(handler.beanType, handler.methodName)?.produces;
     const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain;charset=utf-8');
     return ResponseEntity
       .status(new HttpStatus(status, responseStatusReason))

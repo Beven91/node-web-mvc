@@ -21,6 +21,8 @@ import ArgumentResolvError from '../../errors/ArgumentResolvError';
 import ResponseEntity from '../models/ResponseEntity';
 import HttpStatus from '../http/HttpStatus';
 import MediaType from '../http/MediaType';
+import HttpRequestValidation from '../http/HttpRequestValidation';
+import HttpMethod from '../http/HttpMethod';
 
 export default class DispatcherServlet {
 
@@ -96,17 +98,28 @@ export default class DispatcherServlet {
         return new InterruptModel();
       }
       try {
+        const request = servletContext.request;
+        const response = servletContext.response;
+        const handler = mappedHandler.getHandler();
         // 获取handler当前执行适配器
-        const ha = this.getHandlerAdapter(mappedHandler.getHandler());
+        const ha = this.getHandlerAdapter(handler);
+        // 304处理
+        if (request.method == HttpMethod.GET || request.method == HttpMethod.HEAD) {
+          const validation = new HttpRequestValidation(request, response);
+          const lastModified = ha.getLastModified(request, handler);
+          if (validation.checkNotModified(null, lastModified)) {
+            return;
+          }
+        }
         // 开始执行handler
-        const res = await ha.handle(servletContext, mappedHandler.getHandler());
-        runtime.res = await this.applyMiddlewares(servletContext, res);
+        const mv = await ha.handle(servletContext, handler);
+        runtime.res = await this.applyMiddlewares(servletContext, mv);
+        // 执行拦截器:postHandler
+        runtime.res = await mappedHandler.applyPostHandle(runtime.res);
       } catch (ex) {
         // 自定义异常处理
         runtime.res = await this.handleException(ex, servletContext);
       }
-      // 执行拦截器:postHandler
-      runtime.res = await mappedHandler.applyPostHandle(runtime.res);
       process.nextTick(() => {
         // 执行拦截器: afterCompletion
         mappedHandler.applyAfterCompletion(runtime.error);

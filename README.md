@@ -156,7 +156,7 @@ class HomeController {
 
 #### 详细配置
 
-通过传入一个对象[`RouteMappingOptions`](#RouteMappingOptions)来进行详细映射。
+通过传入一个对象[`RequestMapping`](#RequestMapping)来进行详细映射。
 
 > 以下例子通过`@RequestMapping`配置 允许在`GET`方式下通过`/home/index`路由来访问 `HomeController`的`index`函数
 
@@ -1156,19 +1156,19 @@ class MethodParameterOptions {
 
 ```
 
-### RouteMappingOptions
+### RequestMapping
 
 ```js
-class RouteMappingOptions {
+class RequestMapping {
  /**
    * 当前路由路径值
    */
-  value: string | Array<string>
+  value: string | string[]
 
   /**
    * 当前路由能处理的Http请求类型
    */
-  method?: Map<string, boolean>
+  method?: string | string[]
 
   /**
    * 当前路由设置的返回内容类型
@@ -1178,7 +1178,7 @@ class RouteMappingOptions {
   /**
    * 当前路由能接受的内容类型
    */
-  consumes?: Array<string>
+  consumes?: string[]
 
   /**
    * 当前路由需要的请求头信息
