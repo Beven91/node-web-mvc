@@ -8,7 +8,7 @@ import { UserInfo } from '../models/';
 import GeneralResult from '../models/GeneralResult';
 
 @Api({ value: '首页' })
-@RequestMapping('/home')
+@RequestMapping({ value: '/home', method: ['GET', 'POST'] })
 export default class HomeController {
 
   @Autowired
@@ -111,7 +111,7 @@ export default class HomeController {
   @ApiImplicitParams([
     { description: '类型', paramType: 'body', name: 'user', example: { name: 1 } }
   ])
-  @PostMapping({ value: '/body', produces: 'application/json' })
+  @PostMapping({ value:'/body',produces:'application/json' })
   body(@RequestBody user: UserInfo): UserInfo {
     return user;
   }

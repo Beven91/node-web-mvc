@@ -6,14 +6,13 @@
 
 import Target from "./Target";
 import ElementType from "./annotation/ElementType";
-import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
+import ResponseBody from "./ResponseBody";
+import Controller from "./Controller";
 
+@Controller
+@ResponseBody
 class RestController {
-
-  static isRestController(beanType: Function) {
-    const annotation = RuntimeAnnotation.getClassAnnotation(beanType, RestController);
-    return !!annotation;
-  }
+  
 }
 
 /**

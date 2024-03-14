@@ -17,4 +17,4 @@ class PatchMapping extends RequestMapping {
  *    RequestMapping({ value:'/user',method:'POST',produces:'application/json',consumes:''  })
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
-export default Target([ElementType.TYPE, ElementType.METHOD])(PatchMapping);
+export default Target([ElementType.METHOD])(PatchMapping);

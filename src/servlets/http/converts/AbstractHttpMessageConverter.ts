@@ -28,7 +28,7 @@ export default abstract class AbstractHttpMessageConverter implements HttpMessag
     });
   }
 
-  canWrite(mediaType: MediaType): boolean {
+  canWrite(dataType: any, mediaType: MediaType): boolean {
     if (mediaType === null) {
       return true;
     }
@@ -42,5 +42,5 @@ export default abstract class AbstractHttpMessageConverter implements HttpMessag
 
   abstract read(servletContext: ServletContext, mediaType: MediaType)
 
-  abstract write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> 
+  abstract write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any>
 }

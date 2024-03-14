@@ -68,6 +68,10 @@ export default abstract class ServletContext {
     return this.params.get(name);
   }
 
+  public isRequestHandled() {
+    return this.response.nativeResponse.writableFinished;
+  }
+
   /**
    * 构造一个上下文实例
    * @param request 当前正在处理的请求实例
@@ -80,6 +84,8 @@ export default abstract class ServletContext {
     this.params = new Map<any, any>();
     this.configurer = configurer;
     this.next = (...params) => {
+      // 如果已经返回了内容，则不进行next处理
+      if (this.response.headersSent) return;
       if (!this.response.nativeResponse.writableFinished) {
         next(...params);
       }

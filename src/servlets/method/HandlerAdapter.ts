@@ -15,7 +15,7 @@ export default interface HandlerAdapter {
   /**
    * 当supports返回true 时，用于执行当前action的函数
    */
-  handle(servletContext: ServletContext, handler): Promise<ServletModel>;
+  handle(servletContext: ServletContext, handler): Promise<any>;
 
   /**
    * 返回上次修改时间，可以返回-1表示不支持

@@ -15,14 +15,14 @@ export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodA
     return !(handlerMethod.bean instanceof ResourceHttpRequestHandler);
   }
 
-  handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<ServletModel> {
+  handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<any> {
     const argumentResolver = WebMvcConfigurationSupport.configurer.argumentResolver
     // 解析参数值
     const resolvedArgs = argumentResolver.resolveArguments(servletContext, handler);
     // 执行接口函数
     return Promise.resolve(resolvedArgs).then((args) => {
       // 返回结果
-      return handler.invoke(...args);
+      return handler.invoke(servletContext, ...args);
     })
   }
 }

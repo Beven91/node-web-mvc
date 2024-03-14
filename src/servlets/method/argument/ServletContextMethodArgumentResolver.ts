@@ -3,25 +3,22 @@
  * @description 用于解析servlet中的request参数和response参数
  */
 import ServletContext from '../../http/ServletContext';
-import MethodParameter from "../../../interface/MethodParameter";
+import MethodParameter from "../MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
+import ServletRequest from '../../annotations/params/ServletRequest';
+import ServletResponse from '../../annotations/params/ServletResponse';
 
 export default class ServletContextMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    return paramater.paramType === 'request' || paramater.paramType === 'response';
+    return paramater.hasParameterAnnotation(ServletRequest) || paramater.hasParameterAnnotation(ServletResponse);
   }
 
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
-    switch (parameter.paramType) {
-      case 'request':
-        return servletContext.request;
-      case 'response':
-        return servletContext.response;
-      case 'next':
-        return servletContext.next;
-      default:
-        return null;
+    if (parameter.hasParameterAnnotation(ServletRequest)) {
+      return servletContext.request;
+    } else if (parameter.hasParameterAnnotation(ServletResponse)) {
+      return servletContext.response;
     }
   }
 }

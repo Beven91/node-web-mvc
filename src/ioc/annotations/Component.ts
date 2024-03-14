@@ -22,7 +22,6 @@ class Component {
     beanFactory.registerBeanDefinition(BeanOptions.toBeanName(meta.ctor.name), definition);
     beanFactory.registerBeanDefinition(meta.ctor, definition);
   }
-
 }
 
 export default Target(ElementType.TYPE)(Component);

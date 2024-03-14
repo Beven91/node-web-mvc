@@ -17,7 +17,7 @@ export default interface HttpMessageConverter {
    * 判断当前内容是否能写
    * @param mediaType 当前内容类型 例如: application/json 
    */
-  canWrite(mediaType: MediaType): boolean
+  canWrite(dataType: any, mediaType: MediaType): boolean
 
   // getSupportedMediaTypes(): Array<string>
 

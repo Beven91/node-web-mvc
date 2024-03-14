@@ -96,7 +96,7 @@ export default class HandlerExecutionChain {
    * 在处理完action后的拦截函数，可对执行完的接口进行处理
    * @param { any } result 执行action返回的结果
    */
-  applyPostHandle(result): Promise<any> {
+  applyPostHandle(result): Promise<void> {
     const servletContext = this.servletContext;
     const interceptors = this.interceptors;
     let promise: Promise<any> = Promise.resolve();
@@ -108,7 +108,7 @@ export default class HandlerExecutionChain {
         return interceptor.postHandle(request, response, this.handler, result);
       });
     }
-    return promise.then((r) => (r || result))
+    return promise;
   }
 
   /**

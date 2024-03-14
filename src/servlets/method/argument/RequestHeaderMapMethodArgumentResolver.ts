@@ -3,7 +3,7 @@
  * @description 请求头参数参数解析器
  */
 import ServletContext from '../../http/ServletContext';
-import MethodParameter from "../../../interface/MethodParameter";
+import MethodParameter from "../MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 import RequestHeader from '../../annotations/params/RequestHeader';
 
@@ -14,6 +14,8 @@ export default class RequestHeaderMapMethodArgumentResolver implements HandlerMe
   }
 
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
-    return servletContext.request.headers[parameter.value];
+    const anno = parameter.getParameterAnnotation(RequestHeader);
+    const name = anno.value || parameter.paramName;
+    return servletContext.request.headers[name];
   }
 }

@@ -6,6 +6,7 @@ import ElementType from '../annotation/ElementType';
 import RequestMappingHandlerMapping from '../../mapping/RequestMappingHandlerMapping';
 import { HttpMethodKeys } from '../../http/HttpMethod';
 import RestController from '../RestController';
+import Controller from '../Controller';
 
 export class RequestMapping {
   /**
@@ -61,12 +62,17 @@ export interface RequestMappingExt {
 export default Target([ElementType.TYPE, ElementType.METHOD])(RequestMapping);
 
 function registerAnnotationMappings(annotation: RuntimeAnnotation<RequestMapping>) {
+  const isNotAction = annotation.elementType !== ElementType.METHOD;
+  const isNotController = !RuntimeAnnotation.hasClassAnnotation(annotation.ctor, Controller);
+  // 仅注册action路由 action路由 = controller路由 + action路由
+  // 如果当前不是控制器类，则不进行注册
+  if (isNotAction || isNotController) return;
   const target = annotation.ctor;
   const name = `@${target.name}/${annotation.name}`;
   const anno = annotation.nativeAnnotation;
   const controllerAnno = RuntimeAnnotation.getClassAnnotation(target, RequestMapping)?.nativeAnnotation;
-  const restAnno = RuntimeAnnotation.getClassAnnotation(target, RestController);
-  const produces = anno.produces || (restAnno ? 'application/json;charset=utf-8' : '') || controllerAnno?.produces || '';
+  const isRestController = RuntimeAnnotation.hasClassAnnotation(target, RestController);
+  const produces = anno.produces || (isRestController ? 'application/json;charset=utf-8' : '') || controllerAnno?.produces || '';
   const requestMapping = new RequestMappingInfo(anno.value, anno.method, produces, anno.params, anno.headers, anno.consumes);
   const actionPaths = requestMapping.value || [];
   const controllerPaths = ensureArrayPaths(controllerAnno?.value || '');

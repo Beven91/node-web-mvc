@@ -1,5 +1,5 @@
 import RequestMappingInfo from '../servlets/mapping/RequestMappingInfo';
-import MethodParameter from './MethodParameter';
+import MethodParameter from '../servlets/method/MethodParameter';
 
 // 动作字典
 export declare class ActionsMap {

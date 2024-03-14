@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { RequestMapping, RequestBody, Autowired, ServletResponse, HttpServletResponse, InterruptModel, RequestPart } from '../../../src/index';
+import { RequestMapping, RequestBody, Autowired, ServletResponse, HttpServletResponse, InterruptModel, RequestPart, RestController } from '../../../src/index';
 import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../../src/index';
 import { PostMapping } from '../../../src/index';
 import ModelAndView from '../../../src/servlets/models/ModelAndView';
@@ -23,6 +23,7 @@ const example = `
 
 @Api({ value: '文件上传' })
 @RequestMapping('/multipart')
+@RestController
 export default class MultipartController {
 
   @Autowired
@@ -47,11 +48,12 @@ export default class MultipartController {
 
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @ApiImplicitParams([
-    RequestParam({ value: 'files', desc: '证书', required: true, dataType: MultipartFile }),
-    RequestParam({ value: 'name', desc: '用户id' })
+    { name: 'files', description: '证书', required: true, dataType: 'MultipartFile[]' },
+    { name: 'name', description: '用户id' }
   ])
   @PostMapping('/upload2')
-  async upload2(@RequestParam files: Array<MultipartFile>, name: string) {
+  async upload2(@RequestPart files: Array<MultipartFile>, name: string) {
+    console.log(files[0].size)
     for (let file of files) {
       await file.transferTo('app_data/images/' + file.name)
     }
@@ -64,7 +66,7 @@ export default class MultipartController {
 
   @ApiOperation({ value: 'xml测试', notes: 'application/json测试' })
   @ApiImplicitParams([
-    { description: '提交数据', paramType: 'body', name: 'data', required: true, example: example },
+    { description: '提交数据', paramType: 'body', name: 'data', required: true, dataType: 'MultipartFile[]' },
   ])
   @PostMapping({ value: '/xml', consumes: 'application/xml', produces: 'application/xml' })
   xml(@RequestBody data: any) {

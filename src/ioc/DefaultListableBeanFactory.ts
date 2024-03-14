@@ -80,10 +80,10 @@ export default class DefaultListableBeanFactory implements BeanFactory {
    * @param beanType bean类型
    * @param args 构造函数参数
    */
-  getBeanOfType(beanType, scope: ScopeType, ...args) {
+  getBeanOfType(beanType: Function, ...args) {
     let definition = this.getDefinition(beanType);
     if (!definition) {
-      definition = new BeanDefinition(beanType, scope);
+      definition = new BeanDefinition(beanType);
       this.registerBeanDefinition(beanType, definition);
     }
     const provider = this.providers.get(definition.scope);

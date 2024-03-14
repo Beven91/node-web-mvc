@@ -6,7 +6,6 @@ import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 import RequestMemoryStream from '../RequestMemoryStream';
-import HttpMethod from '../HttpMethod';
 
 export default class JsonMessageConverter extends AbstractHttpMessageConverter {
 

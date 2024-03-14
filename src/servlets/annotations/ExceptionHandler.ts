@@ -4,15 +4,9 @@
  */
 import Target from "./Target";
 import ElementType from "./annotation/ElementType";
-import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 
 class ExceptionHandler {
 
-  handleException: Function
-
-  constructor(meta: RuntimeAnnotation) {
-    this.handleException = meta.method;
-  }
 }
 
 /**

@@ -2,15 +2,16 @@
  * @module HandlerMethod
  * @description action执行器
  */
-import MethodParameter from '../../interface/MethodParameter';
+import MethodParameter from './MethodParameter';
 import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation, { IAnnotation } from '../annotations/annotation/RuntimeAnnotation';
 import ResponseStatus from '../annotations/ResponseStatus';
 import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
 import BeanFactory from '../../ioc/BeanFactory';
 import InterruptModel from '../models/InterruptModel';
-import MultipartFile from '../http/MultipartFile';
-import ElementType from '../annotations/annotation/ElementType';
+import HandlerMethodReturnValueHandlerComposite from './return/HandlerMethodReturnValueHandlerComposite';
+import ServletContext from '../http/ServletContext';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export interface BeanTypeClazz {
   new(...args: any[]): any
@@ -98,14 +99,9 @@ export default class HandlerMethod {
   private initMethodParameters(): Array<MethodParameter> {
     const methodAnno = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName)[0];
     const parameterNames = methodAnno?.parameters || Javascript.resolveParameters(this.method);
-    const annotations = RuntimeAnnotation.getMethodParamAnnotations(this.beanType, this.methodName);
-    return parameterNames.map((name, i) => {
-      const annotation = annotations.find((a) => a.paramName === name);
+    return parameterNames.map((paramName, i) => {
       const dataType = methodAnno?.paramTypes?.[i];
-      const isFile = dataType && dataType == MultipartFile || dataType instanceof MultipartFile;
-      const defaultOptions = { required: isFile, value: name, name, paramType: 'query', dataType };
-      const options = <MethodParameter>(annotation && annotation.nativeAnnotation.param || annotation || defaultOptions);
-      return new MethodParameter(options, options.paramType, annotation);
+      return new MethodParameter(this.beanType, this.methodName, paramName, i, dataType);
     });
   }
 
@@ -133,27 +129,15 @@ export default class HandlerMethod {
    * @param { Annotation } annotationType 要获取的注解类型类
    */
   public getMethodAnnotation<T extends IAnnotation>(annotationType: T) {
-    const annotations = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName);
-    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, annotationType);
+    return RuntimeAnnotation.getMethodAnnotation(this.beanType, this.methodName, annotationType).nativeAnnotation;
   }
-
 
   /**
    * 获取当前方法所在类的指定类注解信息
    * @param annotationType 要获取的类注解类型类
    */
   public getClassAnnotation<T extends IAnnotation>(annotationType: T) {
-    const annotations = RuntimeAnnotation.getClassAnnotations(this.beanType);
-    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, annotationType);
-  }
-
-  /**
-   * 获取当前方法所在类下所有方法的指定注解信息
-   * @param annotationType 要获取的注解类型类
-   */
-  public getClassMethodAnnotation<T extends IAnnotation>(annotationType: T) {
-    const annotations = RuntimeAnnotation.getClassAllAnnotations(this.beanType).filter((m) => m.elementType == ElementType.METHOD);
-    return RuntimeAnnotation.getNativeAnnotation<T>(annotations, annotationType);
+    return RuntimeAnnotation.getClassAnnotation(this.beanType, annotationType)?.nativeAnnotation;
   }
 
   /**
@@ -167,17 +151,22 @@ export default class HandlerMethod {
     if (!this.isBeanType) {
       return new HandlerMethod(this.bean, this);
     }
-    const bean = this.beanFactory.getBeanOfType(this.beanType, 'singleton');
+    const bean = this.beanFactory.getBeanOfType(this.beanType);
     return new HandlerMethod(bean, this);
   }
 
   /**
    * 执行方法
    */
-  public async invoke(...args) {
-    if (this.method) {
-      return this.method.call(this.bean, ...args);
+  public async invoke(servletContext: ServletContext, ...args: any[]) {
+    if (!this.method) {
+      return new InterruptModel();
     }
-    return new InterruptModel();
+    const returnValue = this.method.call(this.bean, ...args);
+    const returnType = new MethodParameter(this.beanType, this.methodName, '', -1, returnValue?.constructor);
+    const configHandlers = WebMvcConfigurationSupport.configurer.returnValueRegistry.handlers;
+    const returnHandlers = new HandlerMethodReturnValueHandlerComposite(configHandlers);
+    returnHandlers.handleReturnValue(returnValue, returnType, servletContext, this);
+    return returnValue;
   }
 }

@@ -18,6 +18,8 @@ import PathMatchConfigurer from './PathMatchConfigurer';
 import Bytes from '../util/Bytes';
 import ModuleLoader from '../util/ModuleLoader';
 import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import ReturnValueHandlerRegistry from '../method/return/ReturnValueHandlerRegistry';
+import ExceptionResolverRegistry from '../method/exception/ExceptionResolverRegistry';
 
 const runtime = {
   configurer: null,
@@ -88,8 +90,12 @@ export declare interface WebAppConfigurerOptions {
   addViewResolvers?: (registry: ViewResolverRegistry) => void
   // 添加静态资源处理器
   addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
+  // 添加返回值处理器
+  addReturnValueHandlers?: (registry: ReturnValueHandlerRegistry) => void
   // 配置路径匹配
   configurePathMatch?: (configurer: PathMatchConfigurer) => void
+  // 添加异常处理器
+  extendHandlerExceptionResolvers?: (registry: ExceptionResolverRegistry) => void
   // 应用监听端口，且已启动
   onLaunch?: () => any
 }
@@ -129,6 +135,16 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
    * 静态资源注册表
    */
   public resourceHandlerRegistry?: ResourceHandlerRegistry
+
+  /**
+   * 返回值处理器注册表
+   */
+  public returnValueRegistry?: ReturnValueHandlerRegistry
+
+  /**
+   * 异常处理器注册表
+   */
+  public exceptionRegistry?: ExceptionResolverRegistry
 
   /**
    * 获取启动目录
@@ -219,45 +235,46 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
 
   // 注册拦截器
   public addInterceptors?(registry: HandlerInterceptorRegistry) {
-    if (this.options.addInterceptors) {
-      this.options.addInterceptors(registry);
-    }
+    this.options.addInterceptors?.(registry);
     this.interceptorRegistry = registry;
   }
   // 添加http消息转换器
   public addMessageConverters?(converters: MessageConverter) {
-    if (this.options.addMessageConverters) {
-      this.options.addMessageConverters(converters);
-    }
+    this.options.addMessageConverters?.(converters);
     this.messageConverters = converters;
   }
   // 添加参数解析器
   public addArgumentResolvers?(resolvers: ArgumentsResolvers) {
-    if (this.options.addArgumentResolvers) {
-      this.options.addArgumentResolvers(resolvers);
-    }
+    this.options.addArgumentResolvers?.(resolvers);
     this.argumentResolver = resolvers;
   }
   // 添加视图解析器
   public addViewResolvers?(registry: ViewResolverRegistry) {
-    if (this.options.addViewResolvers) {
-      this.options.addViewResolvers(registry);
-    }
+    this.options.addViewResolvers?.(registry);
     this.viewResolvers = registry;
   }
+
   // 添加静态资源处理器
   public addResourceHandlers?(registry: ResourceHandlerRegistry) {
-    if (this.options.addResourceHandlers) {
-      this.options.addResourceHandlers(registry);
-    }
+    this.options.addResourceHandlers?.(registry);
     this.resourceHandlerRegistry = registry;
+  }
+
+  // 添加返回值处理器
+  public addReturnValueHandlers?(registry: ReturnValueHandlerRegistry) {
+    this.options.addReturnValueHandlers?.(registry);
+    this.returnValueRegistry = registry;
   }
 
   // 提供扩展配置路径匹配相关
   public configurePathMatch(configurer: PathMatchConfigurer) {
-    if (this.options.configurePathMatch) {
-      this.options.configurePathMatch(configurer);
-    }
+    this.options.configurePathMatch?.(configurer);
+  }
+
+  // 扩展异常处理器
+  public extendHandlerExceptionResolvers?(registry: ExceptionResolverRegistry) {
+    this.options.extendHandlerExceptionResolvers?.(registry);
+    this.exceptionRegistry = registry;
   }
 
   static readyWorkprogress(cwd: Array<string>) {
@@ -298,6 +315,8 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     configurer.viewResolvers = new ViewResolverRegistry();
     configurer.interceptorRegistry = new HandlerInterceptorRegistry();
     configurer.resourceHandlerRegistry = new ResourceHandlerRegistry();
+    configurer.returnValueRegistry = new ReturnValueHandlerRegistry();
+    configurer.exceptionRegistry = new ExceptionResolverRegistry();
     // 注册拦截器
     configurer.addInterceptors(configurer.interceptorRegistry);
     // 注册转换器
@@ -308,6 +327,10 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     configurer.addViewResolvers(configurer.viewResolvers);
     // 配置路径匹配
     configurer.configurePathMatch(configurer.pathMatchConfigurer);
+    // 返回处理器
+    configurer.addReturnValueHandlers(configurer.returnValueRegistry);
+    //注册异常处理器
+    configurer.extendHandlerExceptionResolvers(configurer.exceptionRegistry);
     // swagger 开启
     if (configurer.swagger !== false) {
       OpenApi.initialize();

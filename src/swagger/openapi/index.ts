@@ -12,7 +12,6 @@ import WebMvcConfigurationSupport from '../../servlets/config/WebMvcConfiguratio
 import RuntimeAnnotation, { TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
-import MethodParameter from '../../interface/MethodParameter';
 import MultipartFile from '../../servlets/http/MultipartFile';
 import RestController from '../../servlets/annotations/RestController';
 import ApiOperation from '../annotations/ApiOperation';
@@ -297,21 +296,20 @@ export default class OpenApiModel {
     const ctor = operation.api.clazz;
     const operationAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiOperation);
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiImplicitParams);
-    const annotations = RuntimeAnnotation.getMethodParamAnnotations(ctor, method);
-    const parameters2 = annotations.filter((m) => m.nativeAnnotation instanceof ParamAnnotation).map((m) => m.nativeAnnotation.param);
     const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
     const parameterNames = operationAnno.parameters || [];
     return parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
-      const parameter2 = (parameters2.find((m) => m.name === name) || {}) as MethodParameter;
+      const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(ctor, method, name, ParamAnnotation);
+      const parameter2 = parameterAnno?.nativeAnnotation; 
       return this.mapOperationParam({
-        name: emptyOf(parameter.name, parameter2.name) || name,
-        value: emptyOf(parameter.value, parameter2.value),
-        required: emptyOf(parameter.required, parameter2.required),
-        dataType: emptyOf(parameter.dataType, parameter2.dataType) || operationAnno.paramTypes[i],
-        example: emptyOf(parameter.example, parameter2.defaultValue),
-        paramType: emptyOf(parameter.paramType, parameter2.paramType) || 'query',
-        description: emptyOf(parameter.description, parameter2.desc) || undefined
+        name: emptyOf(parameter.name, parameter2?.value) || name,
+        value: emptyOf(parameter.value, parameter2?.value),
+        required: emptyOf(parameter.required, parameter2?.required),
+        dataType: emptyOf(parameter.dataType, parameterAnno?.dataType) || operationAnno.paramTypes[i],
+        example: emptyOf(parameter.example, parameter2?.defaultValue),
+        paramType: emptyOf(parameter.paramType, parameter2?.getParamAt()) || 'query',
+        description: parameter.description || undefined
       });
     });
   }

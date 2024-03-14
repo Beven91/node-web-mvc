@@ -63,7 +63,8 @@ export default class MessageConverter {
   write(body: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
     return new Promise((resolve) => {
       Promise.resolve(body).then((data) => {
-        const converter = this.registerConverters.find((converter) => converter.canWrite(mediaType));
+        const dataType = body?.constructor;
+        const converter = this.registerConverters.find((converter) => converter.canWrite(dataType, mediaType));
         return resolve(converter.write(data, mediaType, servletContext));
       })
     })

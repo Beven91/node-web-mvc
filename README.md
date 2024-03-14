@@ -258,7 +258,7 @@ class HomeController {
 }
 ```
 
-同时`@RequestParam` 也可以进行详细配置[`MethodParameterOptions`](#MethodParameterOptions)
+同时`@RequestParam` 也可以进行详细配置[`ParamAnnotation`](#ParamAnnotation)
 
 > 例如： 将url中传递过来的`userName`值提取给`index`中的 `name`参数
 
@@ -1119,39 +1119,24 @@ class WebAppConfigurerOptions {
 }
 ```
 
-### MethodParameterOptions
+### ParamAnnotation
 
 ```js
-class MethodParameterOptions {
+class ParamAnnotation {
   /**
-   * 需要从请求中提取的参数名称
+   * 需要提取的参数名称,默认为：注解目标形参参数名
    */
-  public value: string
+  public value?: string
 
   /**
-   * 当前参数的描述信息
+   * 参数是否必填
    */
-  public desc?: string
-
-  /**
-  * 参数是否必须传递 默认值为 true
-  */
   public required?: boolean
 
   /**
-   * 参数默认值,如果设置了默认值，则会忽略 required = true
+   * 默认值
    */
   public defaultValue?: any
-
-  /**
-   * 参数的数据类型
-   */
-  public dataType?: Function
-
-  /**
-   * 参数传入类型 可选的值有path, query, body, header or form
-   */
-  public paramType?: string
 }
 
 ```

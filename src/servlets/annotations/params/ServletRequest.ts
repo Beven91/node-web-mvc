@@ -3,19 +3,11 @@
  * @module ServletRequest
  * @description 从请求中提取 request对象
  */
-import createParam from './createParam';
 import Target from '../Target';
-import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
-import MethodParameter from '../../../interface/MethodParameter';
 import ElementType from '../annotation/ElementType';
 
 class ServletRequest {
 
-  public param: MethodParameter
-
-  constructor(meta: RuntimeAnnotation) {
-    this.param = createParam({ required: true }, meta, 'request');
-  }
 }
 
 /**

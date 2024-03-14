@@ -13,5 +13,5 @@ export default interface BeanFactory {
    */
   getBean(name, ...args);
 
-  getBeanOfType(beanType, scope: ScopeType, ...args);
+  getBeanOfType(beanType, ...args);
 }

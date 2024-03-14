@@ -7,22 +7,18 @@ import ServletModel from '../models/ServletModel';
 import HandlerAdapter from '../method/HandlerAdapter';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 import RequestMappingHandlerAdapter from '../method/RequestMappingHandlerAdapter';
-import HttpResponseProduces from '../producers/HttpResponseProduces';
 import InterruptModel from '../models/InterruptModel';
 import HandlerMapping from '../mapping/HandlerMapping';
 import RequestMappingHandlerMapping from '../mapping/RequestMappingHandlerMapping'
-import AdviceRegistry from '../advice/AdviceRegistry';
-import ExceptionHandler from '../annotations/ExceptionHandler';
 import Middlewares from '../models/Middlewares';
 import ResourceHandlerAdapter from '../resources/ResourceHandlerAdapter';
 import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
 import NoRequestHandlerMapping from '../mapping/NoRequestHandlerMapping';
-import ArgumentResolvError from '../../errors/ArgumentResolvError';
-import ResponseEntity from '../models/ResponseEntity';
-import HttpStatus from '../http/HttpStatus';
-import MediaType from '../http/MediaType';
 import HttpRequestValidation from '../http/HttpRequestValidation';
 import HttpMethod from '../http/HttpMethod';
+import Normalizer from '../../errors/Normalizer';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
+import HandlerExceptionResolverComposite from '../method/exception/HandlerExceptionResolverComposite';
 
 export default class DispatcherServlet {
 
@@ -69,15 +65,13 @@ export default class DispatcherServlet {
   async doService(servletContext: ServletContext): Promise<ServletModel> {
     try {
       const model = await this.doDispatch(servletContext);
-      if (model instanceof InterruptModel && !servletContext.response.headersSent) {
+      if (model instanceof InterruptModel) {
         // 如果没有执行action,跳转到下一个
         servletContext.next()
       }
     } catch (ex) {
-      if (!servletContext.response.headersSent) {
-        // 如果出现意外异常
-        servletContext.next(ex);
-      }
+      // 如果出现意外异常
+      servletContext.next(ex);
       return Promise.reject(ex);
     } finally {
       servletContext.doReleaseQueues();
@@ -85,51 +79,43 @@ export default class DispatcherServlet {
   }
 
   async doDispatch(servletContext: ServletContext): Promise<ServletModel> {
-    const runtime = { res: null, error: null }
+    const runtime = { result: null, error: null } as { result: ServletModel, error: Error }
     const mappedHandler = this.getHandler(servletContext);
-    if (!mappedHandler) {
+    // 执行拦截器: preHandler
+    const isKeeping = await mappedHandler?.applyPreHandle?.();
+    if (!isKeeping) {
+      // 如果拦截器中断了本次请求
       return new InterruptModel();
     }
     try {
-      // 执行拦截器: preHandler
-      const isKeeping = await mappedHandler.applyPreHandle();
-      if (!isKeeping) {
-        // 如果拦截器中断了本次请求
-        return new InterruptModel();
-      }
-      try {
-        const request = servletContext.request;
-        const response = servletContext.response;
-        const handler = mappedHandler.getHandler();
-        // 获取handler当前执行适配器
-        const ha = this.getHandlerAdapter(handler);
-        // 304处理
-        if (request.method == HttpMethod.GET || request.method == HttpMethod.HEAD) {
-          const validation = new HttpRequestValidation(request, response);
-          const lastModified = ha.getLastModified(request, handler);
-          if (validation.checkNotModified(null, lastModified)) {
-            return;
-          }
+      const request = servletContext.request;
+      const response = servletContext.response;
+      const handler = mappedHandler.getHandler();
+      // 获取handler当前执行适配器
+      const ha = this.getHandlerAdapter(handler);
+      // 304处理
+      if (request.method == HttpMethod.GET || request.method == HttpMethod.HEAD) {
+        const validation = new HttpRequestValidation(request, response);
+        const lastModified = ha.getLastModified(request, handler);
+        if (validation.checkNotModified(null, lastModified)) {
+          return;
         }
-        // 开始执行handler
-        const mv = await ha.handle(servletContext, handler);
-        runtime.res = await this.applyMiddlewares(servletContext, mv);
-        // 执行拦截器:postHandler
-        runtime.res = await mappedHandler.applyPostHandle(runtime.res);
-      } catch (ex) {
-        // 自定义异常处理
-        runtime.res = await this.handleException(ex, servletContext);
       }
-      process.nextTick(() => {
-        // 执行拦截器: afterCompletion
-        mappedHandler.applyAfterCompletion(runtime.error);
-      });
-      // 处理视图渲染或者数据返回
-      return (new HttpResponseProduces(servletContext)).produce(runtime.res, mappedHandler.getHandler());
+      // 开始执行handler
+      const result = await ha.handle(servletContext, handler);
+      runtime.result = await this.applyMiddlewares(servletContext, result);
+      // 执行拦截器:postHandler
+      await mappedHandler.applyPostHandle(runtime.result);
     } catch (ex) {
+      ex = Normalizer.normalizeError(ex);
       runtime.error = ex;
+      await this.handleException(ex, servletContext);
     }
-    return runtime.error ? Promise.reject(runtime.error) : runtime.res;
+    process.nextTick(() => {
+      // 执行拦截器: afterCompletion
+      mappedHandler.applyAfterCompletion(runtime.error);
+    });
+    return runtime.result;
   }
 
   /**
@@ -150,30 +136,12 @@ export default class DispatcherServlet {
    * @param { Error } error 异常信息
    * @param {ControllerContext} servletContext 请求上下文
    */
-  handleException(error, servletContext: ServletContext): Promise<ServletModel> {
-    const globalHandler = AdviceRegistry.getExceptionHandler();
-    const chain = servletContext.chain;
-    const handlerMethod = chain.getHandler();
-    const anno = handlerMethod.getClassMethodAnnotation(ExceptionHandler);
-    console.error(error.stack || error);
-    if (anno && anno.handleException) {
-      // 优先处理：如果存在控制器本身设置的exceptionhandler
-      const res = anno.handleException.call(handlerMethod, error);
-      return Promise.resolve(new ServletModel(res));
-    } else if (globalHandler) {
-      // 全局异常处理:
-      const res = globalHandler(error);
-      return Promise.resolve(new ServletModel(res));
-    } else if (error instanceof ArgumentResolvError) {
-      const mediaType = MediaType.APPLICATION_JSON;
-      const entity = new ResponseEntity(HttpStatus.BAD_REQUEST).contentType(mediaType).body({
-        message: error.message,
-        status: HttpStatus.BAD_REQUEST.code,
-      });
-      return Promise.resolve(new ServletModel(entity));
-    } else {
-      // 如果没有定义异常处理
-      return Promise.reject(error);
+  async handleException(error: Error, servletContext: ServletContext) {
+    const exceptionResolvers = WebMvcConfigurationSupport.configurer.exceptionRegistry.handlers;
+    const resolver = new HandlerExceptionResolverComposite(exceptionResolvers);
+    const isHandled = await resolver.resolveException(servletContext, servletContext.chain.getHandler(), error);
+    if (!isHandled) {
+      throw error;
     }
   }
 }

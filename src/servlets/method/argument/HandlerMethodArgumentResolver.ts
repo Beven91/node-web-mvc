@@ -3,7 +3,7 @@
  * @description 参数解析基类
  */
 import ServletContext from '../../http/ServletContext';
-import MethodParameter from "../../../interface/MethodParameter";
+import MethodParameter from "../MethodParameter";
 
 export default interface HandlerMethodArgumentResolver {
 
