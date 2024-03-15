@@ -7,7 +7,6 @@ import { IncomingMessage, IncomingHttpHeaders } from 'http';
 import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 declare class Query {
   [propName: string]: any
@@ -123,17 +122,16 @@ export default class HttpServletRequest {
     this.nativeRequest.pipe(writeStream, options);
   }
 
-  
   /**
    * 判断是否存在body
    */
-  public get hasBody(){
+  public get hasBody() {
     const method = this.method;
     return !(method === HttpMethod.HEAD || method === HttpMethod.GET)
   }
 
   constructor(request: IncomingMessage, servletContext: ServletContext) {
-    const protocol = (request.connection as any).encrypted ? 'https' : 'http';
+    const protocol = (request.socket as any).encrypted ? 'https' : 'http';
     const url = new URL(request.url, `${protocol}://${request.headers.host}`);
     this.headers = request.headers;
     this.method = HttpMethod[(request.method).toUpperCase()];
@@ -146,7 +144,7 @@ export default class HttpServletRequest {
     this.mediaType = new MediaType(this.headers['content-type']);
     this.servletContext = servletContext;
     this._cookies = this.parseCookie(request.headers['cookie']);
-    const base = WebMvcConfigurationSupport.configurer.contextPath;
+    const base = servletContext.configurer.contextPath;
     const r = base ? this.path.replace(new RegExp('^' + base), '') : this.path;
     this.usePath = /^\//.test(r) ? r : '/' + r;
   }
@@ -171,6 +169,11 @@ export default class HttpServletRequest {
 
   public getHeader(name: string) {
     return this.nativeRequest.headers[(name || '').toLowerCase()]
+  }
+
+  public getHeaderValue(name: string) {
+    const v = this.getHeader(name);
+    return v instanceof Array ? v : [v];
   }
 
   public getDateHeader(name) {

@@ -8,13 +8,13 @@ import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathM
 import hot from 'nodejs-hmr';
 import Definition from './definition';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
-import WebMvcConfigurationSupport from '../../servlets/config/WebMvcConfigurationSupport';
 import RuntimeAnnotation, { TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import MultipartFile from '../../servlets/http/MultipartFile';
 import RestController from '../../servlets/annotations/RestController';
 import ApiOperation from '../annotations/ApiOperation';
+import ResourceHandlerRegistry from '../../servlets/resources/ResourceHandlerRegistry';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -28,12 +28,10 @@ export default class OpenApiModel {
   /**
    * 初始化swagger文档配置
    */
-  static initialize() {
+  static initialize(registry: ResourceHandlerRegistry) {
     // 如果使用swagger
     const swaggerLocation = path.join(__dirname, '../../../swagger-ui/');
-    WebMvcConfigurationSupport
-      .configurer
-      .resourceHandlerRegistry
+    registry
       .addResourceHandler('/swagger-ui/**')
       .addResourceLocations(swaggerLocation)
       .setCacheControl({ maxAge: 0 })
@@ -192,7 +190,7 @@ export default class OpenApiModel {
   /**
    * 获取完整的swaager openapi.json
    */
-  static build() {
+  static build(contextPath: string) {
     const id = require.resolve(path.resolve('package.json'));
     delete require.cache[id];
     const pkg = require(id);
@@ -212,7 +210,7 @@ export default class OpenApiModel {
       },
       tags: [],
       paths: {} as OperationsDoc,
-      basePath: WebMvcConfigurationSupport.configurer.contextPath,
+      basePath: contextPath,
       // servers: [
       //   { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
       // ],
@@ -301,7 +299,7 @@ export default class OpenApiModel {
     return parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(ctor, method, name, ParamAnnotation);
-      const parameter2 = parameterAnno?.nativeAnnotation; 
+      const parameter2 = parameterAnno?.nativeAnnotation;
       return this.mapOperationParam({
         name: emptyOf(parameter.name, parameter2?.value) || name,
         value: emptyOf(parameter.value, parameter2?.value),

@@ -3,28 +3,13 @@
  * @description Ioc 容器
  */
 import hot from "nodejs-hmr";
-import BeanDefinition, { ScopeType } from "./BeanDefinition";
-import BeanFactory from './BeanFactory';
+import BeanDefinition from "./BeanDefinition";
 import ObjectProvider from "./provider/ObjectProvider";
 import SingletonBeanProvider from './provider/SingletonBeanProvider';
 import RequestBeanProvider from "./provider/RequestBeanProvider";
 import PrototypeBeanProvider from "./provider/PrototypeBeanProvider";
 
-const runtime = {
-  instance: null
-}
-
-export default class DefaultListableBeanFactory implements BeanFactory {
-  /**
-   * 获取注册
-   */
-  static getInstance(): DefaultListableBeanFactory {
-    if (!runtime.instance) {
-      runtime.instance = new DefaultListableBeanFactory();
-    }
-    return runtime.instance;
-  }
-
+export default class DefaultListableBeanFactory {
   /**
    * 已注册bean定义字典
    */
@@ -52,7 +37,7 @@ export default class DefaultListableBeanFactory implements BeanFactory {
    * 判断是否存在对应key的实体定义
    * @param key
    */
-  hasDefinition(key) {
+  containsBeanDefinition(key) {
     return this.beanDefinitions.has(key);
   }
 
@@ -60,7 +45,7 @@ export default class DefaultListableBeanFactory implements BeanFactory {
    * 获取指定名称的 bean定义
    * @param name 
    */
-  getDefinition(name): BeanDefinition {
+  getBeanDefinition(name): BeanDefinition {
     return this.beanDefinitions.get(name);
   }
 
@@ -70,7 +55,7 @@ export default class DefaultListableBeanFactory implements BeanFactory {
    * @param {Array<any>} args 参数
    */
   getBean(name, ...args) {
-    const definition = (this.getDefinition(name) || {}) as BeanDefinition;
+    const definition = (this.getBeanDefinition(name) || {}) as BeanDefinition;
     const provider = this.providers.get(definition.scope);
     return provider ? provider.createInstance(definition.ctor, args) : null;
   }
@@ -81,7 +66,7 @@ export default class DefaultListableBeanFactory implements BeanFactory {
    * @param args 构造函数参数
    */
   getBeanOfType(beanType: Function, ...args) {
-    let definition = this.getDefinition(beanType);
+    let definition = this.getBeanDefinition(beanType);
     if (!definition) {
       definition = new BeanDefinition(beanType);
       this.registerBeanDefinition(beanType, definition);

@@ -2,15 +2,10 @@ import MethodParameter from "../MethodParameter";
 import ServletContext from "../../http/ServletContext";
 import HandlerMethodReturnValueHandler from "./HandlerMethodReturnValueHandler";
 import ModelAndView from "../../models/ModelAndView";
-import WebMvcConfigurationSupport from "../../config/WebMvcConfigurationSupport";
 import View from "../../view/View";
 import ViewNotFoundError from "../../../errors/ViewNotFoundError";
 
 export default class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
-
-  get viewResolvers() {
-    return WebMvcConfigurationSupport.configurer.viewResolvers.viewResolvers;
-  }
 
   supportsReturnType(returnType: MethodParameter): boolean {
     return returnType.isParamAssignableOf(ModelAndView);
@@ -30,7 +25,8 @@ export default class ModelAndViewMethodReturnValueHandler implements HandlerMeth
 
   private resolveView(mv: ModelAndView, servletContext: ServletContext): View {
     const { request } = servletContext;
-    for (let resolver of this.viewResolvers) {
+    const viewResolvers = servletContext.configurer.viewResolvers.viewResolvers;
+    for (let resolver of viewResolvers) {
       const view = resolver.resolveViewName(mv.view, mv.model, request);
       if (view) {
         return view;

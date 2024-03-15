@@ -23,8 +23,6 @@ import ResourceResolverChain from './ResourceResolverChain';
 import PathResourceResolver from './PathResourceResolver';
 import ResourceResolver from './ResourceResolver';
 import GzipGlobalResolver from './GzipGlobalResolver';
-import UrlPathHelper from '../util/UrlPathHelper';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
 
 export default class ResourceHttpRequestHandler {
@@ -42,11 +40,6 @@ export default class ResourceHttpRequestHandler {
   private resourceResolverChain: ResourceResolverChain
 
   private resourceTransformerChain: ResourceTransformerChain
-
-  public get urlPathHelper(): UrlPathHelper {
-    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
-    return pathMatchConfigurer.getUrlPathHelperOrDefault();
-  }
 
   constructor(registration: ResourceHandlerRegistration) {
     this.registration = registration;

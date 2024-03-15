@@ -4,13 +4,17 @@
  */
 import MappingRegistration from './MappingRegistration';
 import HandlerMethod from '../../method/HandlerMethod';
+import WebMvcConfigurationSupport from '../../config/WebMvcConfigurationSupport';
 
 export default class MappingRegistry<T> {
 
   private readonly registry: Map<T, MappingRegistration<T>>
 
-  constructor() {
+  private readonly configurer: WebMvcConfigurationSupport;
+
+  constructor(configurer: WebMvcConfigurationSupport) {
     this.registry = new Map<T, MappingRegistration<T>>();
+    this.configurer = configurer;
   }
 
   /**
@@ -24,7 +28,7 @@ export default class MappingRegistry<T> {
    * 登记一个映射配置。
    */
   register(name: string, mapping: T, bean: object, method: Function) {
-    const methodHandler = new HandlerMethod(bean, method);
+    const methodHandler = new HandlerMethod(bean, method, this.configurer);
     this.registry.set(mapping, new MappingRegistration<T>(mapping, methodHandler, name));
   }
 

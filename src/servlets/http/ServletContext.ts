@@ -2,11 +2,18 @@
  * @module ServletContext
  * @description 请求上下文
  */
-import { IncomingMessage } from 'http';
+import { IncomingMessage, ServerResponse } from 'http';
 import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
+
+type NodeMiddleware = (request: IncomingMessage & { path: string }, response: ServerResponse, next: (error?: any) => any) => any
+
+export interface ServerLaunchOptions {
+  handler: NodeMiddleware
+  config: WebMvcConfigurationSupport
+}
 
 export default abstract class ServletContext {
 
@@ -79,10 +86,10 @@ export default abstract class ServletContext {
    * @param next 跳转到下一个请求处理器
    */
   constructor(configurer: WebMvcConfigurationSupport, request: IncomingMessage, response, next) {
+    this.configurer = configurer;
     this.request = new HttpServletRequest(request, this);
     this.response = new HttpServletResponse(response, this);
     this.params = new Map<any, any>();
-    this.configurer = configurer;
     this.next = (...params) => {
       // 如果已经返回了内容，则不进行next处理
       if (this.response.headersSent) return;
@@ -122,7 +129,8 @@ export default abstract class ServletContext {
    * 然后调用 callback(request,response,next) 即可
    * @param callback 
    */
-  static launch(callback: Function): (request, response, next) => any {
+  static launch(options: ServerLaunchOptions): NodeMiddleware {
+    const callback = options.handler;
     return (request, response, next) => callback(request, response, next);
   }
 }

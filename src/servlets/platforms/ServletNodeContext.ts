@@ -5,13 +5,12 @@
 import http from 'http';
 import https from 'https';
 import http2 from 'http2';
-import ServletContext from '../http/ServletContext';
+import ServletContext, { ServerLaunchOptions } from '../http/ServletContext';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export default class ServletNodeContext extends ServletContext {
 
-  private static createHttp(handler: any) {
-    const configurer = WebMvcConfigurationSupport.configurer;
+  private static createHttp(configurer: WebMvcConfigurationSupport, handler: any) {
     const options = configurer.serverOptions || {};
     switch (configurer.http) {
       case 'https':
@@ -27,12 +26,12 @@ export default class ServletNodeContext extends ServletContext {
    * 用于接入要实现的目标平台的启动入口，主要用于
    * 返回一个启动中间件函数，通过返回的来获取到 request response next
    * 然后调用 callback(request,response,next) 即可
-   * @param callback 
+   * @param options 
    */
-  static launch(callback) {
-    const configurer = WebMvcConfigurationSupport.configurer;
-    const port = configurer.port;
-    const server = this.createHttp((req, res) => {
+  static launch(options: ServerLaunchOptions) {
+    const callback = options.handler;
+    const port = options.config.port;
+    const server = this.createHttp(options.config, (req, res) => {
       Object.defineProperty(req, 'path', { value: req.url });
       callback(req, res, (err) => {
         if (err) {
@@ -47,7 +46,7 @@ export default class ServletNodeContext extends ServletContext {
       socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
     });
     server.listen(port, () => {
-      if (configurer.onLaunch) {
+      if (options.config?.onLaunch) {
         // configurer.onLaunch();
       } else {
         console.log(`

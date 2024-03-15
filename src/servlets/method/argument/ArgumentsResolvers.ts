@@ -28,7 +28,7 @@ export default class ArgumentsResolvers {
       new RequestHeaderMapMethodArgumentResolver(),
       new RequestParamMapMethodArgumentResolver(),
       new RequestResponseBodyMethodProcessor(),
-      new ServletContextMethodArgumentResolver()
+      new ServletContextMethodArgumentResolver(),
     ];
     this.fallbackResolvers = [
       new RequestParamMapMethodArgumentResolver(true)

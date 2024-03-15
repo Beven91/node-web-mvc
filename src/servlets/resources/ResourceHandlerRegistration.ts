@@ -3,7 +3,6 @@
  * @description 
  */
 import CacheControl from '../http/CacheControl';
-import ResourceHandlerMapping from './ResourceHandlerMapping';
 import ResourceChainRegistration from './ResourceChainRegistration';
 
 export default class ResourceHandlerRegistration {

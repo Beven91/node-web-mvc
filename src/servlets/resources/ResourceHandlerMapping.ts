@@ -9,23 +9,17 @@ import PathMatcher from '../util/PathMatcher';
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
 import ResourceHandlerRegistration from './ResourceHandlerRegistration';
-
-const runtime = {
-  instance: null as ResourceHandlerMapping
-}
+import WebMvcConfigurationSupport from "../config/WebMvcConfigurationSupport";
+import ResourceHttpRequestHandler from "./ResourceHttpRequestHandler";
 
 export default class ResourceHandlerMapping extends AbstractHandlerMethodMapping<ResourceHandlerRegistration> {
 
-  static getInstance() {
-    if (!runtime.instance) {
-      return runtime.instance = new ResourceHandlerMapping();
-    }
-    return runtime.instance;
-  }
-
-  constructor() {
-    super();
+  constructor(configurer: WebMvcConfigurationSupport) {
+    super(configurer);
     this.setDefaultHandler(null);
+    configurer.resourceHandlerRegistry?.registrations?.forEach?.((registration) => {
+      this.registerHandlerMethod('resource', registration, new ResourceHttpRequestHandler(registration))
+    })
   }
 
   match(registraction: MappingRegistration<ResourceHandlerRegistration>, path: string, request: HttpServletRequest): HandlerMethod {

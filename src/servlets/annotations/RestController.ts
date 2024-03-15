@@ -8,11 +8,14 @@ import Target from "./Target";
 import ElementType from "./annotation/ElementType";
 import ResponseBody from "./ResponseBody";
 import Controller from "./Controller";
+import Merge from "./Merge";
 
-@Controller
-@ResponseBody
+@Merge(
+  Controller,
+  ResponseBody
+)
 class RestController {
-  
+
 }
 
 /**

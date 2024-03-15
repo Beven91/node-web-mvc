@@ -15,7 +15,7 @@ export default class GzipGlobalResolver implements ResourceResolver {
 
   async resolveResource(request: HttpServletRequest, requestPath: string, locations, nextChain: ResourceResolverChain): Promise<Resource> {
     const resource = await nextChain.resolveResource(request, requestPath, locations);
-    const gzipped = WebMvcConfigurationSupport.configurer.resource.gzipped;
+    const gzipped = request.servletContext.configurer.resource.gzipped;
     if (!gzipped || resource instanceof GzipResource) {
       return resource;
     }

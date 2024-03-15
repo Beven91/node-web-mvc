@@ -9,6 +9,8 @@ export default class HttpStatus {
     this.message = message;
   }
 
+  static AllStatus: Map<number, HttpStatus>;
+
   // 1xx Informational
 
   /**
@@ -447,3 +449,13 @@ export default class HttpStatus {
    */
   static NETWORK_AUTHENTICATION_REQUIRED = new HttpStatus(511, "Network Authentication Required")
 }
+
+
+HttpStatus.AllStatus = new Map<number, HttpStatus>();
+
+Object.keys(HttpStatus).forEach((key) => {
+  const v = HttpStatus[key];
+  if (v instanceof HttpStatus) {
+    HttpStatus.AllStatus.set(v.code, v);
+  }
+})

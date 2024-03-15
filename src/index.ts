@@ -103,7 +103,7 @@ export { default as MultipartMessageConverter } from './servlets/http/converts/M
 export { default as OctetStreamMessageConverter } from './servlets/http/converts/OctetStreamMessageConverter';
 export { default as UrlencodedMessageConverter } from './servlets/http/converts/UrlencodedMessageConverter';
 export { default as MappedInterceptor } from './servlets/interceptor/MappedInterceptor';
-export { default as CrossOrigin } from './servlets/cors/CrossOrigin';
+export { default as CrossOrigin } from './servlets/annotations/cors/CrossOrigin';
 export { default as AnnotationElementTypeError } from './errors/AnnotationElementTypeError';
 export { default as ArgumentConvertError } from './errors/ArgumentConvertError';
 export { default as ArgumentResolvError } from './errors/ArgumentResolvError';

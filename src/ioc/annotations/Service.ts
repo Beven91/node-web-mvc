@@ -4,24 +4,13 @@
  */
 
 import Target from "../../servlets/annotations/Target";
-import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
-import DefaultListableBeanFactory from "../DefaultListableBeanFactory";
-import BeanDefinition from "../BeanDefinition";
-import BeanOptions from "./BeanOptions";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
+import Component from "./Component";
 
-class Service {
-  constructor(meta: RuntimeAnnotation, options: BeanOptions) {
-    options = options || {};
-    const beanFactory = DefaultListableBeanFactory.getInstance();
-    const definition = new BeanDefinition(meta.ctor);
-    if (options.name) {
-      beanFactory.registerBeanDefinition(options.name, definition);
-    }
-    beanFactory.registerBeanDefinition(BeanOptions.toBeanName(meta.ctor.name), definition);
-    beanFactory.registerBeanDefinition(meta.ctor, definition);
-  }
+class Service extends Component {
+
+  value?: string
+
 }
 
 export default Target(ElementType.TYPE)(Service);
-

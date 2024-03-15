@@ -7,6 +7,7 @@ import ElementType, { checkAnnotation, reflectAnnotationType } from "./ElementTy
 import Javascript from "../../../interface/Javascript";
 import Tracer from "./Tracer";
 import FunctionExtends from "./FunctionExtends";
+import { mergeAnnotationSymbol, MergeDecorator } from '../Merge';
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
@@ -254,12 +255,6 @@ export default class RuntimeAnnotation<A = any> {
       if (elementType === 'UNKNOW') {
         // 如果是执行配置，这里需要返回修饰器函数 例如:  @GetMapping('/home')
         return (...params) => {
-          // if (params[0] === parameterReturnable) {
-          //   // 自定义元数据
-          //   runtime.meta = params[1](runtime.options);
-          //   // 创建注解
-          //   return createAnnotation(runtime);
-          // }
           // 配置后创建注解
           new RuntimeAnnotation(params, annotationType, types, maybeInitializer, tracer);
         }
@@ -301,7 +296,7 @@ export default class RuntimeAnnotation<A = any> {
     // 热更新追踪
     this.ctor.tracer = tracer
     // 根据构造创建注解实例
-    this.nativeAnnotation = new NativeAnnotation(this, initializer);
+    this.nativeAnnotation = new NativeAnnotation(this, initializer, meta);
     if (Object.prototype.toString.call(initializer) === '[object Object]') {
       // 自动将配置的值赋值到nativeAnnotation上
       Object.keys(initializer).forEach((key) => {
@@ -310,6 +305,12 @@ export default class RuntimeAnnotation<A = any> {
     } else if (initializer) {
       (this.nativeAnnotation as any).value = initializer;
     }
+
+    // 合并注解
+    const mergeAnnotations = (NativeAnnotation[mergeAnnotationSymbol] || []) as Function[]
+    mergeAnnotations.forEach((decorator) => {
+      decorator(...meta);
+    });
 
     // 将注解添加到注解列表
     runtimeAnnotations.push(this);

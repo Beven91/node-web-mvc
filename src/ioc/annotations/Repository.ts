@@ -4,25 +4,11 @@
  */
 
 import Target from "../../servlets/annotations/Target";
-import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
-import BeanOptions from "./BeanOptions";
-import BeanDefinition from "../BeanDefinition";
-import DefaultListableBeanFactory from "../DefaultListableBeanFactory";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
+import Component from "./Component";
 
-
-class Repository {
-
-  constructor(meta: RuntimeAnnotation, options: BeanOptions) {
-    options = options || {};
-    const beanFactory = DefaultListableBeanFactory.getInstance();
-    const definition = new BeanDefinition(meta.ctor);
-    if (options.name) {
-      beanFactory.registerBeanDefinition(options.name, definition);
-    }
-    beanFactory.registerBeanDefinition(BeanOptions.toBeanName(meta.ctor.name), definition);
-    beanFactory.registerBeanDefinition(meta.ctor, definition);
-  }
+class Repository extends Component {
+  
 }
 
 export default Target(ElementType.TYPE)(Repository);

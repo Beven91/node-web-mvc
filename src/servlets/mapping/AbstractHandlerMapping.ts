@@ -15,15 +15,23 @@ import PathMatcher from "../util/PathMatcher";
 
 export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
+  private readonly configurer: WebMvcConfigurationSupport;
+
+  constructor(configurer: WebMvcConfigurationSupport) {
+    this.configurer = configurer;
+    // 扩展拦截器配置，使用于子类
+    this.extendInterceptors();
+  }
+
   static HANDLE_MAPPING_PATH = '@@HANDLE_MAPPING_PATH@@'
 
   public get urlPathHelper(): UrlPathHelper {
-    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
+    const pathMatchConfigurer = this.configurer.pathMatchConfigurer;
     return pathMatchConfigurer.getUrlPathHelperOrDefault();
   }
 
   public get pathMatcher(): PathMatcher {
-    const pathMatchConfigurer = WebMvcConfigurationSupport.configurer.pathMatchConfigurer;
+    const pathMatchConfigurer = this.configurer.pathMatchConfigurer;
     return pathMatchConfigurer.getPathMatcherOrDefault();
   }
 
@@ -31,7 +39,7 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
    * 所有设置的拦截器
    */
   private get interceptors() {
-    return WebMvcConfigurationSupport.configurer.interceptorRegistry.getInterceptors();
+    return this.configurer.interceptorRegistry.getInterceptors();
   }
 
   // 默认处理器,如果 getHandlerInternal 没有返回handler，则使用当前配置的默认处理器
@@ -77,14 +85,6 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
   }
 
   /**
-   * 初始化拦截器
-   */
-  constructor() {
-    // 扩展拦截器配置，使用于子类
-    this.extendInterceptors();
-  }
-
-  /**
    * 扩展拦截器,主要用于子类使用。
    */
   protected extendInterceptors() {
@@ -113,7 +113,7 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
   protected initLookupPath(request: HttpServletRequest) {
     const url = this.urlPathHelper.getServletPath(request);
-    request.servletContext.setAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH,url);
+    request.servletContext.setAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH, url);
     return url;
   }
 

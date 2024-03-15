@@ -27,7 +27,7 @@ class AutowiredBeanProcessor {
    */
   private createBean(meta: RuntimeAnnotation, options: AutowiredOptions) {
     const beanFactory = DefaultListableBeanFactory.getInstance();
-    const use = (key) => beanFactory.getBean(key);
+    const use = (key) => beanFactory.createBean(key);
     // 优先级： type > propertyName
     const bean = use(meta.dataType) || use(meta.name)
     if (options.required && (undefined === bean || null === bean)) {

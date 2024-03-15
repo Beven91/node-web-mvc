@@ -5,7 +5,6 @@
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
-import WebMvcConfigurationSupport from '../../config/WebMvcConfigurationSupport';
 import RequestParam from '../../annotations/params/RequestParam';
 import RequestPart from '../../annotations/params/RequestPart';
 import MultipartFile from '../../http/MultipartFile';
@@ -46,7 +45,7 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
     switch (mediaType) {
       case 'multipart/form-data':
       case 'application/x-www-form-urlencoded':
-        return WebMvcConfigurationSupport.configurer.messageConverters.read(servletContext);
+        return servletContext.configurer.messageConverters.read(servletContext);
       default:
         return {};
     }

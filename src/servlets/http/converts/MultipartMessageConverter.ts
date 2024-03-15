@@ -10,7 +10,6 @@ import MediaType from '../MediaType';
 import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
-import WebMvcConfigurationSupport from '../../config/WebMvcConfigurationSupport';
 import { randomUUID } from 'crypto';
 
 export default class MultipartMessageConverter extends AbstractHttpMessageConverter {
@@ -33,7 +32,7 @@ export default class MultipartMessageConverter extends AbstractHttpMessageConver
       // 将数据添加form上
       const meta = { size: 0, isOutRange: false };
       const value = form[fieldname];
-      const root = WebMvcConfigurationSupport.configurer?.multipart?.tempRoot || 'app_data/temp-files';
+      const root = servletContext.configurer?.multipart?.tempRoot || 'app_data/temp-files';
       const id = path.join(root, randomUUID());
       // 创建一个写出流
       const writter = fs.createWriteStream(id);

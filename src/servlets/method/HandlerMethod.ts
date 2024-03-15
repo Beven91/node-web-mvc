@@ -6,11 +6,10 @@ import MethodParameter from './MethodParameter';
 import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation, { IAnnotation } from '../annotations/annotation/RuntimeAnnotation';
 import ResponseStatus from '../annotations/ResponseStatus';
-import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
-import BeanFactory from '../../ioc/BeanFactory';
 import InterruptModel from '../models/InterruptModel';
 import HandlerMethodReturnValueHandlerComposite from './return/HandlerMethodReturnValueHandlerComposite';
 import ServletContext from '../http/ServletContext';
+import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export interface BeanTypeClazz {
@@ -29,7 +28,9 @@ export default class HandlerMethod {
   private readonly method: Function;
 
   // bean创建工厂
-  private readonly beanFactory: BeanFactory
+  private readonly beanFactory: DefaultListableBeanFactory
+
+  private configurer: WebMvcConfigurationSupport
 
   public readonly methodName: string
 
@@ -69,7 +70,7 @@ export default class HandlerMethod {
   /**
    * 构造一个方法执行器
    */
-  constructor(bean: any, method: Function | HandlerMethod) {
+  constructor(bean: any, method: Function | HandlerMethod, configurer: WebMvcConfigurationSupport) {
     this.supportThisMethod = true;
     if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;
@@ -89,7 +90,8 @@ export default class HandlerMethod {
       this.methodName = method ? method.name : '@@handler@@';
       this.bean = isType ? null : bean;
       this.beanType = isType ? bean : bean.constructor;
-      this.beanFactory = DefaultListableBeanFactory.getInstance();
+      this.beanFactory = configurer.beanFactory;
+      this.configurer = configurer;
       this.parameters = this.initMethodParameters();
       this.evaluateResponseStatus();
     }
@@ -129,7 +131,7 @@ export default class HandlerMethod {
    * @param { Annotation } annotationType 要获取的注解类型类
    */
   public getMethodAnnotation<T extends IAnnotation>(annotationType: T) {
-    return RuntimeAnnotation.getMethodAnnotation(this.beanType, this.methodName, annotationType).nativeAnnotation;
+    return RuntimeAnnotation.getMethodAnnotation(this.beanType, this.methodName, annotationType)?.nativeAnnotation;
   }
 
   /**
@@ -149,10 +151,10 @@ export default class HandlerMethod {
 
   public createWithResolvedBean() {
     if (!this.isBeanType) {
-      return new HandlerMethod(this.bean, this);
+      return new HandlerMethod(this.bean, this, this.configurer);
     }
     const bean = this.beanFactory.getBeanOfType(this.beanType);
-    return new HandlerMethod(bean, this);
+    return new HandlerMethod(bean, this, this.configurer);
   }
 
   /**
@@ -164,7 +166,7 @@ export default class HandlerMethod {
     }
     const returnValue = this.method.call(this.bean, ...args);
     const returnType = new MethodParameter(this.beanType, this.methodName, '', -1, returnValue?.constructor);
-    const configHandlers = WebMvcConfigurationSupport.configurer.returnValueRegistry.handlers;
+    const configHandlers = servletContext.configurer.returnValueRegistry.handlers;
     const returnHandlers = new HandlerMethodReturnValueHandlerComposite(configHandlers);
     returnHandlers.handleReturnValue(returnValue, returnType, servletContext, this);
     return returnValue;

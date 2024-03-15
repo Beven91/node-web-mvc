@@ -2,9 +2,9 @@
  * @module CrossOrigin
  * @description  用于标注单个接口跨域
  */
-import Target from '../annotations/Target';
-import ElementType from '../annotations/annotation/ElementType';
-import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import Target from '../../annotations/Target';
+import ElementType from '../../annotations/annotation/ElementType';
+import RuntimeAnnotation from '../../annotations/annotation/RuntimeAnnotation';
 
 class CrossOrigin {
 

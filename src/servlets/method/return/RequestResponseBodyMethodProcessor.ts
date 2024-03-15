@@ -4,16 +4,11 @@ import HandlerMethodReturnValueHandler from "./HandlerMethodReturnValueHandler";
 import ResponseBody from "../../annotations/ResponseBody";
 import HandlerMethod from "../HandlerMethod";
 import ResponseEntity from "../../models/ResponseEntity";
-import WebMvcConfigurationSupport from "../../config/WebMvcConfigurationSupport";
 import RequestMapping from "../../annotations/mapping/RequestMapping";
 import MediaType from "../../http/MediaType";
 import HttpStatus from "../../http/HttpStatus";
 
 export default class RequestResponseBodyMethodProcessor implements HandlerMethodReturnValueHandler {
-
-  get messageConverters() {
-    return WebMvcConfigurationSupport.configurer.messageConverters;
-  }
 
   supportsReturnType(returnType: MethodParameter): boolean {
     return returnType.hasParameterAnnotation(ResponseBody)
@@ -21,6 +16,7 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
 
   async handleReturnValue(returnValue: any, returnType: MethodParameter, servletContext: ServletContext, method: HandlerMethod): Promise<void> {
     const { response } = servletContext;
+    const messageConverters = servletContext.configurer.messageConverters;
     const entity = this.createResponseEntity(returnValue, method, servletContext);
     // 合并Http返回头
     Object.keys(entity.responseHeaders).forEach((key) => {
@@ -29,7 +25,7 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
     // 设置Http返回状态码
     response.setStatus(entity.responseStatus);
     // 根据对应的转换器来写出内容到客户端
-    await this.messageConverters.write(entity.data, entity.mediaType, servletContext);
+    await messageConverters.write(entity.data, entity.mediaType, servletContext);
     // 结束返回流
     servletContext.response.end()
   }

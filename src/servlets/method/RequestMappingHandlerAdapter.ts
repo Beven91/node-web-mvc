@@ -5,8 +5,6 @@
 import AbstractHandlerMethodAdapter from './AbstractHandlerMethodAdapter';
 import HandlerMethod from './HandlerMethod';
 import ServletContext from '../http/ServletContext';
-import ServletModel from '../models/ServletModel';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import ResourceHttpRequestHandler from '../resources/ResourceHttpRequestHandler';
 
 export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter {
@@ -16,7 +14,7 @@ export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodA
   }
 
   handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<any> {
-    const argumentResolver = WebMvcConfigurationSupport.configurer.argumentResolver
+    const argumentResolver = servletContext.configurer.argumentResolver
     // 解析参数值
     const resolvedArgs = argumentResolver.resolveArguments(servletContext, handler);
     // 执行接口函数

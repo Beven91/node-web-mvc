@@ -10,6 +10,7 @@ import HttpServletRequest from "../http/HttpServletRequest";
 import MappingRegistration from './registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod';
 import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping {
 
@@ -17,8 +18,8 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
 
   protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod
 
-  constructor() {
-    super();
+  constructor(configurer: WebMvcConfigurationSupport) {
+    super(configurer);
     hot.create(module)
       .preload((old) => {
         hot

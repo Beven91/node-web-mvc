@@ -24,7 +24,7 @@ export default class GzipResourceResolver implements ResourceResolver {
   }
 
   isGzipAccepted(resource: Resource, request: HttpServletRequest) {
-    const supportMimeTypes = WebMvcConfigurationSupport.configurer.resource.mimeTypes || {};
+    const supportMimeTypes = request.servletContext.configurer.resource.mimeTypes || {};
     const supportGzip = /gzip/.test(request.getHeader(HttpHeaders.ACCEPT_ENCODING) as string);
     if (!supportGzip || !resource.mediaType || !supportMimeTypes[resource.mediaType.name]) {
       return resource;

@@ -17,8 +17,14 @@ import NoRequestHandlerMapping from '../mapping/NoRequestHandlerMapping';
 import HttpRequestValidation from '../http/HttpRequestValidation';
 import HttpMethod from '../http/HttpMethod';
 import Normalizer from '../../errors/Normalizer';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import HandlerExceptionResolverComposite from '../method/exception/HandlerExceptionResolverComposite';
+import InternalErrorHandler from './error/InternalErrorHandler';
+import HttpStatus from '../http/HttpStatus';
+import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
+import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import Component from '../../ioc/annotations/Component';
+import BeanDefinition from '../../ioc/BeanDefinition';
+import BeanOptions from '../../ioc/annotations/BeanOptions';
 
 export default class DispatcherServlet {
 
@@ -27,21 +33,37 @@ export default class DispatcherServlet {
 
   private handlerAdapters: Array<HandlerAdapter>
 
-  constructor() {
+  constructor(configurer: WebMvcConfigurationSupport) {
     this.handlerMappings = [
-      RequestMappingHandlerMapping.getInstance(),
-      ResourceHandlerMapping.getInstance(),
-      NoRequestHandlerMapping.getInstance(),
+      new RequestMappingHandlerMapping(configurer),
+      new ResourceHandlerMapping(configurer),
+      new NoRequestHandlerMapping(configurer),
       // RouterFunctionMapping  --> FilteredRouterFunctions
       // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
       // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
       // AbstractDetectingUrlHandlerMapping
-    ]
+    ];
 
     this.handlerAdapters = [
       new RequestMappingHandlerAdapter(),
       new ResourceHandlerAdapter(),
-    ]
+    ];
+
+    this.registerAllBeans(configurer);
+  }
+
+  registerAllBeans(configurer: WebMvcConfigurationSupport) {
+    const beanFactory = configurer.beanFactory;
+    const annotations = RuntimeAnnotation.getAnnotations(Component);
+    annotations.forEach((annotation) => {
+      const definition = new BeanDefinition(annotation.ctor);
+      const name = annotation.nativeAnnotation.value;
+      if (name) {
+        beanFactory.registerBeanDefinition(name, definition);
+      }
+      beanFactory.registerBeanDefinition(BeanOptions.toBeanName(definition.ctor.name), definition);
+      beanFactory.registerBeanDefinition(annotation.ctor, definition);
+    });
   }
 
   getHandler(servletContext: ServletContext): HandlerExecutionChain {
@@ -62,7 +84,7 @@ export default class DispatcherServlet {
     return this.handlerAdapters.find((adapter) => adapter.supports(handler));
   }
 
-  async doService(servletContext: ServletContext): Promise<ServletModel> {
+  async doService(servletContext: ServletContext) {
     try {
       const model = await this.doDispatch(servletContext);
       if (model instanceof InterruptModel) {
@@ -70,9 +92,12 @@ export default class DispatcherServlet {
         servletContext.next()
       }
     } catch (ex) {
-      // 如果出现意外异常
-      servletContext.next(ex);
-      return Promise.reject(ex);
+      if (servletContext.response.statusCode == 200) {
+        // 如果是200状态，则需要设置成500
+        servletContext.response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+      // 框架统一异常兜底
+      await (new InternalErrorHandler()).resolveException(servletContext, ex);
     } finally {
       servletContext.doReleaseQueues();
     }
@@ -137,7 +162,7 @@ export default class DispatcherServlet {
    * @param {ControllerContext} servletContext 请求上下文
    */
   async handleException(error: Error, servletContext: ServletContext) {
-    const exceptionResolvers = WebMvcConfigurationSupport.configurer.exceptionRegistry.handlers;
+    const exceptionResolvers = servletContext.configurer.exceptionRegistry.handlers;
     const resolver = new HandlerExceptionResolverComposite(exceptionResolvers);
     const isHandled = await resolver.resolveException(servletContext, servletContext.chain.getHandler(), error);
     if (!isHandled) {

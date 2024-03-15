@@ -37,6 +37,11 @@ export default class HttpServletResponse {
     return this.nativeResponse.headersSent;
   }
 
+  public get status() {
+    const code = this.statusCode;
+    return HttpStatus.AllStatus.get(code) || new HttpStatus(code, this.statusMessage);
+  }
+
   /**
    * 获取当前设置的返回状态编码
    */

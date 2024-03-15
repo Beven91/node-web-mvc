@@ -10,19 +10,17 @@ import HandlerInterceptorRegistry from '../interceptor/HandlerInterceptorRegistr
 import MessageConverter from '../http/converts/MessageConverter';
 import ArgumentsResolvers from '../method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
-import { registerAllAnnotationMappings } from '../annotations/mapping/RequestMapping';
 import hot, { HotOptions } from 'nodejs-hmr';
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
-import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
 import PathMatchConfigurer from './PathMatchConfigurer';
 import Bytes from '../util/Bytes';
 import ModuleLoader from '../util/ModuleLoader';
 import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
 import ReturnValueHandlerRegistry from '../method/return/ReturnValueHandlerRegistry';
 import ExceptionResolverRegistry from '../method/exception/ExceptionResolverRegistry';
+import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
 
 const runtime = {
-  configurer: null,
   defaultMimes: {
     gzipped: false,
     mimeTypes: 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain',
@@ -147,6 +145,11 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
   public exceptionRegistry?: ExceptionResolverRegistry
 
   /**
+   * bean工厂
+   */
+  public beanFactory: DefaultListableBeanFactory
+
+  /**
    * 获取启动目录
    */
   public readonly cwd: string | Array<string>
@@ -208,10 +211,6 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
   public onLaunch: () => any
 
   private options: WebAppConfigurerOptions;
-
-  static get configurer(): WebMvcConfigurationSupport {
-    return runtime.configurer;
-  }
 
   constructor(a?: WebAppConfigurerOptions) {
     const options = a || {} as WebAppConfigurerOptions;
@@ -286,17 +285,15 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
       .filter(Boolean)
       .forEach((dir) => new ModuleLoader(dir, cache));
     // 根据注解注册mapping
-    registerAllAnnotationMappings();
   }
 
   /**
    * 初始化配置
    * @param options 
    */
-  static initialize(options: WebMvcConfigurationSupport | WebAppConfigurerOptions) {
+  static initialize(options: WebMvcConfigurationSupport | WebAppConfigurerOptions, beanFactory: DefaultListableBeanFactory) {
     const configurer = options instanceof WebMvcConfigurationSupport ? options : new WebMvcConfigurationSupport(options);
-    // 设置成全局配置
-    runtime.configurer = configurer;
+    configurer.beanFactory = beanFactory;
     // 热更新
     if (configurer.hot) {
       hot.run(options.hot);
@@ -333,7 +330,7 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     configurer.extendHandlerExceptionResolvers(configurer.exceptionRegistry);
     // swagger 开启
     if (configurer.swagger !== false) {
-      OpenApi.initialize();
+      OpenApi.initialize(configurer.resourceHandlerRegistry);
     }
     // 注册静态资源
     configurer.addResourceHandlers(configurer.resourceHandlerRegistry);
@@ -358,28 +355,35 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
   }
 }
 
+
+
 hot.create(module).accept((now, old) => {
   // 子模块更新到此结束
 });
 
-hot.create(require.main).accept((now, old) => {
-  // 监听主模块热更新
-  const type = old.exports.default || old.exports;
-  const MvcConfigurer = now.exports.default || now.exports;
-  if (typeof type === 'function' && type.prototype.__proto__.constructor === WebMvcConfigurationSupport) {
-    // 如果是修改了配置文件 且是无参数构造
-    if (MvcConfigurer.length === 0) {
-      // 清空静态资源配置
-      ResourceHandlerMapping.getInstance().getRegistration().clear();
-      // 重新创建配置项
-      const oldConfigurer = runtime.configurer as WebMvcConfigurationSupport;
-      // 替换配置
-      const newConfigurer = runtime.configurer = new MvcConfigurer();
-      runtime.configurer = newConfigurer;
-      WebMvcConfigurationSupport.initializeConfigurer(newConfigurer);
-      if (oldConfigurer.cwd.toString() !== newConfigurer.cwd.toString()) {
-        WebMvcConfigurationSupport.readyWorkprogress(newConfigurer.workprogressPaths);
-      }
-    }
-  }
-})
+// TODO
+// function hotUpdate(configurer: WebMvcConfigurationSupport) {
+//   hot.create(require.main).accept((now, old) => {
+//     // 监听主模块热更新
+//     const type = old.exports.default || old.exports;
+//     const MvcConfigurer = now.exports.default || now.exports;
+//     if (typeof type === 'function' && type.prototype.__proto__.constructor === WebMvcConfigurationSupport) {
+//       // 如果是修改了配置文件 且是无参数构造
+//       if (MvcConfigurer.length === 0) {
+//         // 清空静态资源配置 TODO
+//         // ResourceHandlerMapping.getInstance().getRegistration().clear();
+//         // 重新创建配置项
+//         const oldConfigurer = runtime.configurer as WebMvcConfigurationSupport;
+//         // 替换配置
+//         const newConfigurer = runtime.configurer = new MvcConfigurer();
+//         runtime.configurer = newConfigurer;
+//         WebMvcConfigurationSupport.initializeConfigurer(newConfigurer);
+//         if (oldConfigurer.cwd.toString() !== newConfigurer.cwd.toString()) {
+//           WebMvcConfigurationSupport.readyWorkprogress(newConfigurer.workprogressPaths);
+//         }
+//       }
+//     }
+//   })
+// }
+
+

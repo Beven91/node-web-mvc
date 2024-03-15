@@ -1,23 +1,15 @@
 import hot from 'nodejs-hmr';
-import RequestMappingInfo, { ensureArrayPaths } from '../../mapping/RequestMappingInfo';
+import RequestMappingInfo from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
-import RuntimeAnnotation, { TracerConstructor } from '../annotation/RuntimeAnnotation';
+import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 import ElementType from '../annotation/ElementType';
-import RequestMappingHandlerMapping from '../../mapping/RequestMappingHandlerMapping';
 import { HttpMethodKeys } from '../../http/HttpMethod';
-import RestController from '../RestController';
-import Controller from '../Controller';
 
-export class RequestMapping {
+export class BaseRequestMapping {
   /**
-   * 当前路由路径值
-   */
+     * 当前路由路径值
+     */
   value: string | string[]
-
-  /**string
-   * 当前路由能处理的Http请求类型
-   */
-  method?: HttpMethodKeys | HttpMethodKeys[]
 
   /**
    * 当前路由设置的返回内容类型
@@ -38,6 +30,13 @@ export class RequestMapping {
    * 当前路由需要的请求参数
    */
   params?: Map<string, any>
+}
+
+export class RequestMapping extends BaseRequestMapping {
+  /**string
+   * 当前路由能处理的Http请求类型
+   */
+  method?: HttpMethodKeys | HttpMethodKeys[]
 
   static getMappingInfo(clazz: Function, method: string) {
     const anno = RuntimeAnnotation.getMethodAnnotation(clazz, method, RequestMapping);
@@ -60,69 +59,3 @@ export interface RequestMappingExt {
  * @param {String/Object/Array} value 可以为对象，或者为path的字符串数组 '/user'  ['/user' ] { value:'xxx',method:'' }
  */
 export default Target([ElementType.TYPE, ElementType.METHOD])(RequestMapping);
-
-function registerAnnotationMappings(annotation: RuntimeAnnotation<RequestMapping>) {
-  const isNotAction = annotation.elementType !== ElementType.METHOD;
-  const isNotController = !RuntimeAnnotation.hasClassAnnotation(annotation.ctor, Controller);
-  // 仅注册action路由 action路由 = controller路由 + action路由
-  // 如果当前不是控制器类，则不进行注册
-  if (isNotAction || isNotController) return;
-  const target = annotation.ctor;
-  const name = `@${target.name}/${annotation.name}`;
-  const anno = annotation.nativeAnnotation;
-  const controllerAnno = RuntimeAnnotation.getClassAnnotation(target, RequestMapping)?.nativeAnnotation;
-  const isRestController = RuntimeAnnotation.hasClassAnnotation(target, RestController);
-  const produces = anno.produces || (isRestController ? 'application/json;charset=utf-8' : '') || controllerAnno?.produces || '';
-  const requestMapping = new RequestMappingInfo(anno.value, anno.method, produces, anno.params, anno.headers, anno.consumes);
-  const actionPaths = requestMapping.value || [];
-  const controllerPaths = ensureArrayPaths(controllerAnno?.value || '');
-  const values = [];
-  if (controllerPaths.length > 0) {
-    // 合并controller路由
-    controllerPaths.forEach((controllerPath) => {
-      actionPaths.map((actionPath) => {
-        const exp = (controllerPath + '/' + actionPath).replace(/\/{2,3}/, '/');
-        values.push(exp);
-      })
-    });
-    requestMapping.value = values;
-  }
-  // 覆盖为标准的produces
-  (anno as RequestMappingExt).mapping = requestMapping;
-  // 注册mapping
-  RequestMappingHandlerMapping
-    .getInstance()
-    .registerHandlerMethod(name, requestMapping, target, annotation.method);
-}
-
-export function registerAllAnnotationMappings() {
-  const annotations = RuntimeAnnotation.getTypedRuntimeAnnotations(RequestMapping);
-  annotations.forEach((annotation) => {
-    registerAnnotationMappings(annotation);
-  })
-}
-
-hot
-  .create(module)
-  .preload((old) => {
-    const file = old.filename;
-    const registration = RequestMappingHandlerMapping.getInstance().getRegistration();
-    const removeList = [] as any[];
-    for (let element of registration.values()) {
-      const ctor = element.getHandlerMethod()?.beanType as TracerConstructor;
-      if (ctor?.tracer?.isDependency(file)) {
-        removeList.push(element.getMapping());
-      }
-    }
-    removeList.forEach((item) => registration.delete(item));
-  })
-  .postend((latest) => {
-    const file = latest.filename;
-    const annotations = RuntimeAnnotation.getTypedRuntimeAnnotations(RequestMapping);
-    annotations.forEach((annotation) => {
-      const ctor = annotation.ctor as TracerConstructor;
-      if (ctor.tracer?.isDependency(file)) {
-        registerAnnotationMappings(annotation);
-      }
-    });
-  })
