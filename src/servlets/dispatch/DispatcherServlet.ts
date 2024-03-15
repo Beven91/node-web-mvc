@@ -97,7 +97,7 @@ export default class DispatcherServlet {
         servletContext.response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
       }
       // 框架统一异常兜底
-      await (new InternalErrorHandler()).resolveException(servletContext, ex);
+      await (new InternalErrorHandler(servletContext.configurer)).resolveException(servletContext, ex);
     } finally {
       servletContext.doReleaseQueues();
     }

@@ -14,12 +14,13 @@ import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping {
 
-  private mappingRegistry = new MappingRegistry<T>()
+  private readonly mappingRegistry:MappingRegistry<T>
 
   protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod
 
   constructor(configurer: WebMvcConfigurationSupport) {
     super(configurer);
+    this.mappingRegistry = new MappingRegistry<T>(configurer)
     hot.create(module)
       .preload((old) => {
         hot
