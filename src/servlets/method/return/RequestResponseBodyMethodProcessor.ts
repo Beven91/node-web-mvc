@@ -11,7 +11,7 @@ import HttpStatus from "../../http/HttpStatus";
 export default class RequestResponseBodyMethodProcessor implements HandlerMethodReturnValueHandler {
 
   supportsReturnType(returnType: MethodParameter): boolean {
-    return returnType.hasParameterAnnotation(ResponseBody)
+    return returnType.hasClassAnnotation(ResponseBody) || returnType.hasParameterAnnotation(ResponseBody);
   }
 
   async handleReturnValue(returnValue: any, returnType: MethodParameter, servletContext: ServletContext, method: HandlerMethod): Promise<void> {
@@ -35,12 +35,9 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
       return data;
     }
     const { response } = servletContext;
-    const { responseStatus, responseStatusReason } = handler;
-    const useStatus = !(responseStatus === null || responseStatus === undefined)
-    const status = useStatus ? responseStatus : 200;
+    const status = HttpStatus.OK;
     const produces = RequestMapping.getMappingInfo(handler.beanType, handler.methodName)?.produces;
     const mediaType = new MediaType(produces || response.nativeContentType || 'text/plain;charset=utf-8');
-    const httpStatus = new HttpStatus(status, responseStatusReason);
-    return ResponseEntity.status(httpStatus).body(data).contentType(mediaType);
+    return ResponseEntity.status(status).body(data).contentType(mediaType);
   }
 }

@@ -2,9 +2,14 @@ import RequestMapping from './RequestMapping';
 import Target from '../Target';
 import ElementType from '../annotation/ElementType';
 import HttpMethod from '../../http/HttpMethod';
+import Merge from '../Merge';
+import BasicMapping from './BasicMapping';
 
-class GetMapping extends RequestMapping {
-  method = HttpMethod.GET
+@Merge(
+  RequestMapping({ method: HttpMethod.GET, value: '' })
+)
+class GetMapping extends BasicMapping {
+ 
 }
 
 /**

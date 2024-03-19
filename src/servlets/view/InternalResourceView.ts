@@ -35,6 +35,6 @@ export default class InternalResourceView extends View {
       ...(request.pathVariables || {})
     }
     // 重新执行
-    return (new DispatcherServlet()).doService(request.servletContext)
+    return (new DispatcherServlet(servletContext.configurer)).doService(request.servletContext)
   }
 }

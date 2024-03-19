@@ -3,11 +3,11 @@
  * @description 运行时注解类
  */
 import hot from 'nodejs-hmr';
-import ElementType, { checkAnnotation, reflectAnnotationType } from "./ElementType";
+import ElementType, { checkAnnotation } from "./ElementType";
 import Javascript from "../../../interface/Javascript";
 import Tracer from "./Tracer";
-import FunctionExtends from "./FunctionExtends";
-import { mergeAnnotationSymbol, MergeDecorator } from '../Merge';
+import { mergeAnnotationSymbol } from '../Merge';
+import AliasFor from '../AliasFor';
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
@@ -32,6 +32,13 @@ const isAnnotationTypeOf = (m: RuntimeAnnotation, type: IAnnotation | IAnnotatio
   const NativeAnnotation = (type as IAnnotation).NativeAnnotation;
   return nativeAnnotation instanceof type || (NativeAnnotation && nativeAnnotation instanceof NativeAnnotation);
 };
+
+const isMatchType = (m: RuntimeAnnotation, clazz: Function) => {
+  if (m.ctor === clazz) {
+    return true;
+  }
+  return Javascript.getClass(clazz).isExtendOf(m.ctor);
+}
 
 export default class RuntimeAnnotation<A = any> {
   /**
@@ -67,7 +74,12 @@ export default class RuntimeAnnotation<A = any> {
   }
 
   /**
-   * 标注的函数
+   * 标注目标名称
+   * 当elementType为以下值分别对应
+   * Type: 无值
+   * Property: 属性名
+   * Method: 方法名
+   * Parameter: 参数名
    */
   public readonly name: string
 
@@ -91,6 +103,9 @@ export default class RuntimeAnnotation<A = any> {
 
   // 当前标注实际使用的类型
   public readonly elementType: ElementType
+
+  // 如果是注解合并，则表示当前注解所属的注解
+  public readonly ownerAnnotation: RuntimeAnnotation<A>
 
   public parameters: string[]
 
@@ -143,7 +158,7 @@ export default class RuntimeAnnotation<A = any> {
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function): RuntimeAnnotation[]
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType?: C) {
-    const isClassAnnotation = (m: RuntimeAnnotation) => m.ctor === clazz && m.elementType == ElementType.TYPE;
+    const isClassAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.elementType == ElementType.TYPE;
     if (annotationType) {
       return runtimeAnnotations.filter((m) => isClassAnnotation(m) && isAnnotationTypeOf(m, annotationType));
     }
@@ -174,8 +189,8 @@ export default class RuntimeAnnotation<A = any> {
    * @param {Function} clazz 被修饰的类 
    */
   static getAnnotations<C extends IAnnotationOrClazz>(annotationType: C, clazz?: Function): RuntimeAnnotation<GetTargetAnnotationType<C>>[] {
-    const isScope = clazz ? (m: RuntimeAnnotation) => m.ctor === clazz : () => true;
-    return runtimeAnnotations.filter((m) => isAnnotationTypeOf(m, annotationType) && isScope(m));
+    const isScope = clazz ? (m: RuntimeAnnotation) => isMatchType(m, clazz) : () => true;
+    return runtimeAnnotations.filter((m) => isScope(m) && isAnnotationTypeOf(m, annotationType));
   }
 
   /**
@@ -195,7 +210,7 @@ export default class RuntimeAnnotation<A = any> {
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string): RuntimeAnnotation[]
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, annotationType?: C): RuntimeAnnotation[] {
-    const isMethodAnnotation = (m: RuntimeAnnotation) => m.ctor === clazz && m.name == method && m.elementType == ElementType.METHOD;
+    const isMethodAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.name == method && m.elementType == ElementType.METHOD;
     if (annotationType) {
       return runtimeAnnotations.filter((m) => isMethodAnnotation(m) && isAnnotationTypeOf(m, annotationType));
     }
@@ -219,7 +234,7 @@ export default class RuntimeAnnotation<A = any> {
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string): RuntimeAnnotation[]
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType?: C) {
-    const isMethodParamAnnotation = (m: RuntimeAnnotation) => m.ctor === clazz && m.name == method && m.elementType == ElementType.PARAMETER && m.paramName === paramName;
+    const isMethodParamAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.name == method && m.elementType == ElementType.PARAMETER && m.paramName === paramName;
     if (annotationType) {
       return runtimeAnnotations.filter((m) => isMethodParamAnnotation(m) && isAnnotationTypeOf(m, annotationType));
     } else {
@@ -238,38 +253,41 @@ export default class RuntimeAnnotation<A = any> {
   }
 
   /**
-   * 创建一个运行时注解
-   * @param { AnnotationOptions } options 注解参数
+   * 合并配置值到nativeAnnotation上
+   * @param nativeAnnotation 
+   * @param initializer 
    */
-  static create(elementTypes: ElementType | ElementType[], annotationType: IAnnotationClazz) {
-    const types = elementTypes instanceof Array ? elementTypes : [elementTypes];
-    const decorator = function () {
-      const args = Array.prototype.slice.call(arguments);
-      if (this instanceof decorator) {
-        // 如果是当做class使用,这里用于从外部继承原始的AnnotationType
-        return FunctionExtends.extendInstance(this, annotationType, args, decorator);
-      }
-      const tracer = RuntimeAnnotation.isHotUpdate ? new Tracer(new Error()) : null;
-      const maybeInitializer = args[0];
-      const elementType = reflectAnnotationType(args);
-      if (elementType === 'UNKNOW') {
-        // 如果是执行配置，这里需要返回修饰器函数 例如:  @GetMapping('/home')
-        return (...params) => {
-          // 配置后创建注解
-          new RuntimeAnnotation(params, annotationType, types, maybeInitializer, tracer);
+  private static mergeAnnotationValues(annotation: RuntimeAnnotation<any>, initializer: Record<string, any>) {
+    const nativeAnnotation = annotation.nativeAnnotation;
+    const aliasAnnotations = RuntimeAnnotation.getAnnotations(AliasFor, nativeAnnotation.constructor);
+    const mergeAnnotations = runtimeAnnotations.filter((m) => m.ownerAnnotation == annotation)
+    const mappings: Record<string, InstanceType<typeof AliasFor>> = {};
+    aliasAnnotations.forEach((m) => {
+      mappings[m.name] = m.nativeAnnotation;
+    });
+    // 自动将配置的值赋值到nativeAnnotation上
+    Object.keys(initializer).forEach((key) => {
+      const aliasAnno = mappings[key];
+      const value = initializer[key];
+      nativeAnnotation[key] = value;
+      if (aliasAnno) {
+        const target = aliasAnno.annotation ? mergeAnnotations.find((m) => isAnnotationTypeOf(m, aliasAnno.annotation))?.nativeAnnotation : nativeAnnotation;
+        if (target) {
+          const aliasKey = aliasAnno.value || key;
+          // 如果有别名,则执行别名赋值
+          target[aliasKey] = value;
         }
       }
-      // 创建注解
-      new RuntimeAnnotation(args, annotationType, types, {}, tracer);
-    } as unknown as IAnnotation;
-    decorator.NativeAnnotation = annotationType;
-    FunctionExtends.extendStatic(decorator, annotationType);
-    Object.defineProperty(decorator, 'name', { value: annotationType.name });
-    return decorator;
+    });
   }
 
-  constructor(meta: any[], NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, tracer?: Tracer) {
-    const [target, name, descritpor] = meta;
+  constructor(meta: any[], NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, tracer?: Tracer, ownerAnnotation?: RuntimeAnnotation) {
+    const [target, name, descritpor,] = meta;
+
+    if (ownerAnnotation && ownerAnnotation instanceof RuntimeAnnotation) {
+      this.ownerAnnotation = ownerAnnotation;
+    }
+
     this.target = target;
     this.elementType = checkAnnotation(elementTypes, meta, NativeAnnotation.name);
 
@@ -297,20 +315,18 @@ export default class RuntimeAnnotation<A = any> {
     this.ctor.tracer = tracer
     // 根据构造创建注解实例
     this.nativeAnnotation = new NativeAnnotation(this, initializer, meta);
-    if (Object.prototype.toString.call(initializer) === '[object Object]') {
-      // 自动将配置的值赋值到nativeAnnotation上
-      Object.keys(initializer).forEach((key) => {
-        this.nativeAnnotation[key] = initializer[key];
-      })
-    } else if (initializer) {
-      (this.nativeAnnotation as any).value = initializer;
-    }
 
     // 合并注解
     const mergeAnnotations = (NativeAnnotation[mergeAnnotationSymbol] || []) as Function[]
     mergeAnnotations.forEach((decorator) => {
-      decorator(...meta);
+      decorator(...meta, this);
     });
+
+    if (Object.prototype.toString.call(initializer) === '[object Object]') {
+      RuntimeAnnotation.mergeAnnotationValues(this, initializer);
+    } else if (initializer) {
+      RuntimeAnnotation.mergeAnnotationValues(this, { value: initializer });
+    }
 
     // 将注解添加到注解列表
     runtimeAnnotations.push(this);

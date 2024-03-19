@@ -5,6 +5,10 @@ import ViewResolver from "./ViewResolver";
 
 export default class BeanNameViewResolver implements ViewResolver {
   resolveViewName(viewName: string, model: any, request: HttpServletRequest): View {
-    request.servletContext.configurer.beanFactory.getBeanOfType()
+    const beanFactory = request.servletContext.configurer.beanFactory;
+    if (!beanFactory.isTypeMatch(viewName, View)) {
+      return null;
+    }
+    return beanFactory.getBean<View>(viewName);
   }
 }

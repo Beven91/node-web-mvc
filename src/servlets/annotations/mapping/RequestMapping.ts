@@ -1,14 +1,18 @@
-import hot from 'nodejs-hmr';
 import RequestMappingInfo from '../../mapping/RequestMappingInfo';
 import Target from '../Target';
 import RuntimeAnnotation from '../annotation/RuntimeAnnotation';
 import ElementType from '../annotation/ElementType';
 import { HttpMethodKeys } from '../../http/HttpMethod';
 
-export class BaseRequestMapping {
+export class RequestMapping {
+  /**string
+   * 当前路由能处理的Http请求类型
+   */
+  method?: HttpMethodKeys | HttpMethodKeys[]
+
   /**
-     * 当前路由路径值
-     */
+   * 当前路由路径值
+   */
   value: string | string[]
 
   /**
@@ -30,13 +34,6 @@ export class BaseRequestMapping {
    * 当前路由需要的请求参数
    */
   params?: Map<string, any>
-}
-
-export class RequestMapping extends BaseRequestMapping {
-  /**string
-   * 当前路由能处理的Http请求类型
-   */
-  method?: HttpMethodKeys | HttpMethodKeys[]
 
   static getMappingInfo(clazz: Function, method: string) {
     const anno = RuntimeAnnotation.getMethodAnnotation(clazz, method, RequestMapping);

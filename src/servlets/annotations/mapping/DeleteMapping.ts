@@ -2,9 +2,14 @@ import RequestMapping from './RequestMapping';
 import Target from '../Target';
 import ElementType from '../annotation/ElementType';
 import HttpMethod from '../../http/HttpMethod';
+import Merge from '../Merge';
+import BasicMapping from './BasicMapping';
 
-class DeleteMapping extends RequestMapping {
-  method = HttpMethod.DELETE
+@Merge(
+  RequestMapping({ method: HttpMethod.DELETE, value: '' })
+)
+class DeleteMapping extends BasicMapping {
+
 }
 
 /**

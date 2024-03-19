@@ -14,7 +14,7 @@ import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 
 export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping {
 
-  private readonly mappingRegistry:MappingRegistry<T>
+  private readonly mappingRegistry: MappingRegistry<T>
 
   protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod
 
@@ -74,7 +74,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
         return handler;
       }
     }
-    return methodNotAllowed ? new HttpStatusHandlerMethod(415) : null;
+    return methodNotAllowed ? new HttpStatusHandlerMethod(415, request.servletContext.configurer) : null;
   }
 
   getMappingForMethod(handler: HandlerMethod) {

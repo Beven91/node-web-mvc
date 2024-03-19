@@ -8,17 +8,22 @@ import HandlerExceptionResolver from "./HandlerExceptionResolver";
 export default class ExceptionHandlerExceptionResolver implements HandlerExceptionResolver {
 
   async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error) {
-    const chain = servletContext.chain;
-    const handlerMethod = chain.getHandler();
-    const adviceAnnotation = RuntimeAnnotation.getAnnotations(ControllerAdvice)[0];
-    const globalAnnotation = RuntimeAnnotation.getClassAnnotation(adviceAnnotation?.ctor, ExceptionHandler);
-    const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod.beanType);
-    const exceptionAnnotation = scopeAnnotation || globalAnnotation;
-    if (exceptionAnnotation) {
-      const exceptionHandlerMethod = new HandlerMethod(exceptionAnnotation.ctor, exceptionAnnotation.method, servletContext.configurer);
-      // 自定义异常处理
-      await exceptionHandlerMethod.invoke(servletContext, error);
-      return servletContext.isRequestHandled();
+    try {
+      const chain = servletContext.chain;
+      const handlerMethod = chain.getHandler();
+      const adviceAnnotation = RuntimeAnnotation.getAnnotations(ControllerAdvice)[0];
+      const globalAnnotation = RuntimeAnnotation.getClassAnnotation(adviceAnnotation?.ctor, ExceptionHandler);
+      const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod.beanType);
+      const exceptionAnnotation = scopeAnnotation || globalAnnotation;
+      if (exceptionAnnotation) {
+        const exceptionHandlerMethod = new HandlerMethod(exceptionAnnotation.ctor, exceptionAnnotation.method, servletContext.configurer);
+        // 自定义异常处理
+        await exceptionHandlerMethod.invoke(servletContext, error);
+        return servletContext.isRequestHandled();
+      }
+    } catch (ex) {
+      console.warn(`${ExceptionHandlerExceptionResolver.name} resolveException failure:`);
+      console.warn(ex);
     }
     return false;
   }

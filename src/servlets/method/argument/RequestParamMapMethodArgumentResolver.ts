@@ -28,9 +28,9 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
   }
 
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext): Promise<any> {
-    const anno = parameter.getParameterAnnotation(RequestParam);
+    const anno = parameter.getParameterAnnotation(RequestParam) || parameter.getParameterAnnotation(RequestPart);
     const { request } = servletContext;
-    const name = anno.value || parameter.paramName;
+    const name = anno?.value || parameter.paramName;
     const query = request.query;
     const body = await this.resolveBody(servletContext);
     if (parameter.isParamAssignableOf(Map)) {

@@ -59,13 +59,20 @@ export default class HandlerMethod {
   /**
    * 当前请求返回的状态码
    */
-  public responseStatus: number
+  protected internalResponseStatus: number
+
+  public get responseStatus() {
+    return this.internalResponseStatus;
+  }
+
+  protected internalResponseStatusReason: string
 
   /**
-   * 当前状态码产生的原因，
-   * TODO: 这里不进行实现
+   * 当前状态码产生的原因
    */
-  public responseStatusReason: string
+  public get responseStatusReason() {
+    return this.internalResponseStatusReason;
+  }
 
   /**
    * 构造一个方法执行器
@@ -81,8 +88,8 @@ export default class HandlerMethod {
       this.beanType = bean.constructor;
       this.beanFactory = handler.beanFactory;
       this.parameters = handler.parameters;
-      this.responseStatus = handler.responseStatus;
-      this.responseStatusReason = handler.responseStatusReason;
+      this.internalResponseStatus = handler.responseStatus;
+      this.internalResponseStatusReason = handler.responseStatusReason;
     } else {
       const isType = typeof bean === 'function';
       this.isBeanType = isType;
@@ -113,8 +120,8 @@ export default class HandlerMethod {
   private evaluateResponseStatus(): void {
     const annotation = this.getAnnotation(ResponseStatus);
     if (annotation != null) {
-      this.responseStatus = annotation.code;
-      this.responseStatusReason = annotation.reason;
+      this.internalResponseStatus = annotation.code;
+      this.internalResponseStatusReason = annotation.reason;
     }
   }
 
@@ -157,6 +164,18 @@ export default class HandlerMethod {
     return new HandlerMethod(bean, this, this.configurer);
   }
 
+  private setResponseStatus(servletContext: ServletContext) {
+    const response = servletContext.response;
+    if (!this.responseStatus) {
+      return;
+    }
+    if (this.responseStatusReason) {
+      response.sendError({ code: this.responseStatus, message: this.responseStatusReason });
+    } else {
+      response.setStatus(this.responseStatus);
+    }
+  }
+
   /**
    * 执行方法
    */
@@ -165,6 +184,15 @@ export default class HandlerMethod {
       return new InterruptModel();
     }
     const returnValue = this.method.call(this.bean, ...args);
+    this.setResponseStatus(servletContext);
+    // 如果通过ResponseStatus指定了返回状态原因,则不执行返回处理
+    if (this.responseStatusReason) {
+      return;
+    }
+    if (returnValue && returnValue instanceof InterruptModel) {
+      // 如果是不执行任何操作
+      return;
+    }
     const returnType = new MethodParameter(this.beanType, this.methodName, '', -1, returnValue?.constructor);
     const configHandlers = servletContext.configurer.returnValueRegistry.handlers;
     const returnHandlers = new HandlerMethodReturnValueHandlerComposite(configHandlers);

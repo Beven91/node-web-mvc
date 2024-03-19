@@ -4,22 +4,14 @@
  */
 
 import Target from "../../servlets/annotations/Target";
-import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
-import AutowiredBeanProcessor, { AutowiredOptions } from "../AutowiredBeanProcessor";
-
 class Autowired {
-  constructor(meta: RuntimeAnnotation, options: AutowiredOptions = {}) {
-    options = new AutowiredOptions(options);
-    switch (meta.elementType) {
-      case ElementType.PROPERTY:
-        AutowiredBeanProcessor.processPropertyBean(meta, options);
-        break;
-        // case ElementType.METHOD:
-        //   AutowiredBeanProcessor.processMethodBeans(meta, options);
-        break;
-    }
-  }
+
+  /**
+   * 是否当前装配的实例必须存在，如果无法装配，则抛出异常
+   * 默认为:treu
+   */
+  required? = true
 }
 
 // 公布注解

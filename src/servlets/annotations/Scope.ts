@@ -6,7 +6,6 @@
  */
 import Target from "./Target";
 import ElementType from "./annotation/ElementType";
-import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
 
 export type ScopeType = 'singleton' | 'prototype' | 'reqeust' | 'session'
 
@@ -16,10 +15,6 @@ class Scope {
   scope: ScopeType
 
   value: string
-
-  constructor(meta: RuntimeAnnotation, scope: ScopeType) {
-    this.scope = scope;
-  }
 }
 
 /**

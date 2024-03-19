@@ -25,6 +25,9 @@ import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
 import Component from '../../ioc/annotations/Component';
 import BeanDefinition from '../../ioc/BeanDefinition';
 import BeanOptions from '../../ioc/annotations/BeanOptions';
+import HttpStatusError from '../../errors/HttpStatusError';
+import Autowired from '../../ioc/annotations/Autowired';
+import AutowiredBeanProcessor from '../../ioc/AutowiredBeanProcessor';
 
 export default class DispatcherServlet {
 
@@ -55,6 +58,8 @@ export default class DispatcherServlet {
   registerAllBeans(configurer: WebMvcConfigurationSupport) {
     const beanFactory = configurer.beanFactory;
     const annotations = RuntimeAnnotation.getAnnotations(Component);
+    const autowireds = RuntimeAnnotation.getAnnotations(Autowired);
+    const processor = new AutowiredBeanProcessor(beanFactory);
     annotations.forEach((annotation) => {
       const definition = new BeanDefinition(annotation.ctor);
       const name = annotation.nativeAnnotation.value;
@@ -64,6 +69,9 @@ export default class DispatcherServlet {
       beanFactory.registerBeanDefinition(BeanOptions.toBeanName(definition.ctor.name), definition);
       beanFactory.registerBeanDefinition(annotation.ctor, definition);
     });
+    autowireds.forEach((annotation) => {
+      processor.processPropertyBean(annotation);
+    })
   }
 
   getHandler(servletContext: ServletContext): HandlerExecutionChain {
@@ -131,6 +139,10 @@ export default class DispatcherServlet {
       runtime.result = await this.applyMiddlewares(servletContext, result);
       // 执行拦截器:postHandler
       await mappedHandler.applyPostHandle(runtime.result);
+
+      // 判定http status
+      await this.handleHttpStatus(servletContext);
+
     } catch (ex) {
       ex = Normalizer.normalizeError(ex);
       runtime.error = ex;
@@ -167,6 +179,14 @@ export default class DispatcherServlet {
     const isHandled = await resolver.resolveException(servletContext, servletContext.chain.getHandler(), error);
     if (!isHandled) {
       throw error;
+    }
+  }
+
+  async handleHttpStatus(servletContext: ServletContext) {
+    const response = servletContext.response;
+    if (!response.headersSent && response.hasError) {
+      const error = new HttpStatusError(response.status, servletContext.request.path);
+      return this.handleException(error, servletContext);
     }
   }
 }

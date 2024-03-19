@@ -70,6 +70,13 @@ export default class HttpServletResponse {
   }
 
   /**
+   * 当前请求是否有错误
+   */
+  public get hasError() {
+    return String(this.statusCode)[0] != '2';
+  }
+
+  /**
    * 获取设置的返回头
    * @param name 
    */

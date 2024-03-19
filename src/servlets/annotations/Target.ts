@@ -1,5 +1,6 @@
-import RuntimeAnnotation, { IAnnotationClazz, LinkAnnotationType } from "./annotation/RuntimeAnnotation";
+import { IAnnotationClazz, LinkAnnotationType } from "./annotation/RuntimeAnnotation";
 import ElementType, { } from "./annotation/ElementType";
+import create from "./annotation/create";
 
 type ValuePropertyType<A> = A extends { value?: infer V } ? unknown extends V ? never : V : never
 
@@ -9,7 +10,7 @@ type IsOptionKey<X, Y, A, B, C> = B extends Function ? never : (<T>() => T exten
 type GetOptionKeys<T> = {
   [P in keyof T]: IsOptionKey<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, T[P], never>
 }[keyof T];
-type CreateOptions<T extends abstract new (...args: []) => any> = Pick<InstanceType<T>, GetOptionKeys<InstanceType<T>>>
+export type CreateOptions<T extends abstract new (...args: []) => any> = Pick<InstanceType<T>, GetOptionKeys<InstanceType<T>>>
 
 // Class Decorator
 declare function ClassTargetDecorator<A>(target: Function): any
@@ -22,8 +23,8 @@ declare function MethodTargetDecorator<A>(target: TargetObject, propertyKey: str
 declare type ConfigableMethodDecorator = <A extends IAnnotationClazz>(target: A) => typeof MethodTargetDecorator<CreateOptions<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A> & A
 
 // Property Decorator 
-declare function PropertyTargetDecorator<A>(options: A): (target: Object, propertyKey: string, p: void) => any
-declare function PropertyTargetDecorator<A>(target: TargetObject, propertyKey: string, p: void): any
+declare function PropertyTargetDecorator<A>(options: A): (target: Object, propertyKey: string) => any
+declare function PropertyTargetDecorator<A>(target: TargetObject, propertyKey: string): any
 declare type ConfigablePropertyDecorator = <A extends IAnnotationClazz>(target: A) => typeof PropertyTargetDecorator<CreateOptions<A> | ValuePropertyType<InstanceType<A>>> & LinkAnnotationType<A> & A
 
 // Parameter Decorator
@@ -154,7 +155,7 @@ function Target<E = never>(elementTypes: UnorderTuple<ElementType.PROPERTY | Ele
 
 function Target(types: ElementType | ElementType[]) {
   return function TargetAnnotation(annotationType: IAnnotationClazz) {
-    return RuntimeAnnotation.create(types, annotationType)
+    return create(types, annotationType)
   }
 }
 

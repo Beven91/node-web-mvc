@@ -2,9 +2,14 @@ import RequestMapping from './RequestMapping';
 import Target from '../Target';
 import ElementType from '../annotation/ElementType';
 import HttpMethod from '../../http/HttpMethod';
+import Merge from '../Merge';
+import BasicMapping from './BasicMapping';
 
-class PostMapping extends RequestMapping {
-  method? = HttpMethod.POST
+@Merge(
+  RequestMapping({ method: HttpMethod.POST, value: '' })
+)
+class PostMapping extends BasicMapping {
+
 }
 
 /**

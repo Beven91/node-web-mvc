@@ -37,7 +37,6 @@ export default class UserController {
     };
   }
 
-  @ApiOperation({ value: '异常测试' })
   @PostMapping('/business')
   doBusiness() {
     throw new Error('出错啦');

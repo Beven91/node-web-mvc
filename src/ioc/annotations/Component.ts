@@ -7,9 +7,10 @@ import Target from "../../servlets/annotations/Target";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
 
 class Component {
-
+  /**
+   * bean名称
+   */
   value?: string
-
 }
 
 export default Target(ElementType.TYPE)(Component);

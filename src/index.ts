@@ -39,6 +39,7 @@ export { default as MultipartFile } from './servlets/http/MultipartFile';
 export { default as HttpMessageConverter } from './servlets/http/converts/HttpMessageConverter';
 export { default as ViewResolver } from './servlets/view/resolvers/ViewResolver';
 export { default as UrlBasedViewResolver } from './servlets/view/resolvers/UrlBasedViewResolver';
+export { default as BeanNameViewResolver } from './servlets/view/resolvers/BeanNameViewResolver';
 export { default as View } from './servlets/view/View';
 export { default as HandlerMethod } from './servlets/method/HandlerMethod';
 export { default as HandlerAdapter } from './servlets/method/HandlerAdapter';
@@ -130,7 +131,6 @@ export { default as ModelAndViewMethodReturnValueHandler } from './servlets/meth
 export { default as RequestResponseBodyMethodProcessor } from './servlets/method/return/RequestResponseBodyMethodProcessor';
 export { default as IllegalArgumentException } from './errors/IllegalArgumentException';
 export { default as Normalizer } from './errors/Normalizer';
-
-
+export { default as DefaultErrorView } from './servlets/dispatch/error/DefaultErrorView';
 
 hot.create(module);

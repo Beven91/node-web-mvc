@@ -1,8 +1,10 @@
+import RestController from '../../servlets/annotations/RestController';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
 import RequestContext from '../../servlets/annotations/params/RequestContext';
 import ServletContext from '../../servlets/http/ServletContext';
 import OpenApi from '../openapi/index';
 
+@RestController
 export default class SwaggerController {
 
   /**

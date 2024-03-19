@@ -2,9 +2,13 @@ import RequestMapping from './RequestMapping';
 import Target from '../Target';
 import ElementType from '../annotation/ElementType';
 import HttpMethod from '../../http/HttpMethod';
+import Merge from '../Merge';
+import BasicMapping from './BasicMapping';
 
-class PatchMapping extends RequestMapping {
-  method = HttpMethod.PATCH
+@Merge(
+  RequestMapping({ method: HttpMethod.PATCH, value: '' })
+)
+class PatchMapping extends BasicMapping {
 }
 
 /**

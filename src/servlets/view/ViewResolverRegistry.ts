@@ -5,13 +5,18 @@
 
 import hot from 'nodejs-hmr';
 import ViewResolver from './resolvers/ViewResolver';
+import UrlBasedViewResolver from './resolvers/UrlBasedViewResolver';
+import BeanNameViewResolver from './resolvers/BeanNameViewResolver';
 
 export default class ViewResolverRegistry {
 
-  private readonly registerResolvers: Array<ViewResolver>;
+  private readonly registerResolvers: ViewResolver[]
 
   constructor() {
-    this.registerResolvers = new Array<ViewResolver>();
+    this.registerResolvers = [
+      new UrlBasedViewResolver(),
+      new BeanNameViewResolver(),
+    ];
     hotAccepted(this.registerResolvers);
   }
 

@@ -1,3 +1,4 @@
+import Javascript from "../../../interface/Javascript";
 import Component from "../../../ioc/annotations/Component";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
 import WebMvcConfigurationSupport from "../../config/WebMvcConfigurationSupport";
@@ -13,7 +14,7 @@ export default class InternalErrorHandler {
   private readonly errorAttributes: ErrorAttributes;
 
   constructor(configurer: WebMvcConfigurationSupport) {
-    const isExtendErrorAttributes = (m: RuntimeAnnotation) => ErrorAttributes.prototype.isPrototypeOf(m.ctor?.prototype);
+    const isExtendErrorAttributes = (m: RuntimeAnnotation) => Javascript.getClass(m.ctor).isExtendOf(ErrorAttributes);
     const MyErrorAttributes = RuntimeAnnotation.getAnnotations(Component).find(isExtendErrorAttributes)?.ctor;
     if (MyErrorAttributes) {
       this.errorAttributes = configurer.beanFactory.getBeanOfType(MyErrorAttributes);

@@ -5,34 +5,27 @@
 
 import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
 import DefaultListableBeanFactory from "./DefaultListableBeanFactory";
+import Autowired from "./annotations/Autowired";
 
-export class AutowiredOptions {
+export default class AutowiredBeanProcessor {
 
-  constructor(options) {
-    options = options || {};
-    this.required = options.required !== true;
+  private readonly beanFactory: DefaultListableBeanFactory;
+
+  constructor(beanFactory: DefaultListableBeanFactory) {
+    this.beanFactory = beanFactory;
   }
-
-  /**
-   * 是否当前装配的实例必须存在，如果无法装配，则抛出异常
-   * 默认为:treu
-   */
-  required?: boolean
-}
-
-class AutowiredBeanProcessor {
 
   /**
    * 创建bean
    */
-  private createBean(meta: RuntimeAnnotation, options: AutowiredOptions) {
-    const beanFactory = DefaultListableBeanFactory.getInstance();
-    const use = (key) => beanFactory.getBean(key);
+  private createBean(anno: RuntimeAnnotation) {
+    const nativeAnno = anno.nativeAnnotation as InstanceType<typeof Autowired>;
+    const use = (key) => this.beanFactory.getBean(key);
     // 优先级： type > propertyName
-    const bean = use(meta.dataType) || use(meta.name)
-    if (options.required && (undefined === bean || null === bean)) {
-      const name = meta.dataType ? meta.dataType.name : '';
-      throw new Error(`Autowired Cannot find bean:${meta.name} (${name})`)
+    const bean = use(anno.dataType) || use(anno.name)
+    if (nativeAnno.required && (undefined === bean || null === bean)) {
+      const name = anno.dataType ? anno.dataType.name : '';
+      throw new Error(`Autowired Cannot find bean:${anno.name} (${name})`)
     }
     return bean;
   }
@@ -40,12 +33,10 @@ class AutowiredBeanProcessor {
   /**
    * 处理属性的依赖bean
    */
-  processPropertyBean(meta: RuntimeAnnotation, options: AutowiredOptions) {
-    const { ctor, name } = meta;
+  processPropertyBean(anno: RuntimeAnnotation) {
+    const { ctor, name } = anno;
     Object.defineProperty(ctor.prototype, name, {
-      get: () => this.createBean(meta, options || {}),
+      get: () => this.createBean(anno),
     })
   }
 }
-
-export default new AutowiredBeanProcessor();

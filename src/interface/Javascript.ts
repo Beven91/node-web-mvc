@@ -29,4 +29,13 @@ export default class Javascript {
     }
     return handler[symbol];
   }
+
+  static getClass(childType: Function) {
+    return {
+      type: childType,
+      isExtendOf: (parentType: Function) => {
+        return parentType?.prototype?.isPrototypeOf?.(childType?.prototype);
+      }
+    }
+  }
 }

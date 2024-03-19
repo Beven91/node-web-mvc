@@ -3,6 +3,7 @@
  * @description 请求参数配置类
  */
 
+import Javascript from "../../interface/Javascript"
 import RuntimeAnnotation, { IAnnotationClazz } from "../annotations/annotation/RuntimeAnnotation"
 
 export type RequestParamType = 'path' | 'query' | 'body' | 'header' | 'form' | ''
@@ -35,33 +36,30 @@ export default class MethodParameter {
   public readonly parameterType: any
 
   /**
-   * 当前参数的所有注解
-   */
-  private annotations: RuntimeAnnotation[];
-
-  /**
    * 判断当前参数是否存在指定注解
    */
   public hasParameterAnnotation<C extends IAnnotationClazz>(annotationType: C): boolean {
     return !!this.getParameterAnnotation(annotationType);
   }
 
+  public hasClassAnnotation<C extends IAnnotationClazz>(annotationType: C): boolean {
+    return !!RuntimeAnnotation.getClassAnnotation(this.beanType, annotationType);
+  }
+
   /**
    * 获取当前参数注解
    */
-  public getParameterAnnotation<T extends IAnnotationClazz>(annotationType: T): InstanceType<T> {
-    return this.annotations.find((m) => RuntimeAnnotation.isAnnotationTypeOf(m, annotationType))?.nativeAnnotation;
+  public getParameterAnnotation<T extends IAnnotationClazz>(annotationType: T) {
+    return RuntimeAnnotation.getMethodParamAnnotation(this.beanType, this.method, this.paramName, annotationType)?.nativeAnnotation;
   }
 
   /**
    * 判断当前paramterType类型是否为指定类型（包含继承判定)
    */
-  public isParamAssignableOf(parentType: { prototype: any }) {
-    if (!parentType?.prototype) {
-      return false;
-    }
+  public isParamAssignableOf(parentType: Function) {
+    if (!parentType) return false;
     // 判断 参数类型是否继承与parentType或者等于parentType
-    return parentType === this.parameterType || parentType.prototype.isPrototypeOf(this.parameterType?.prototype);
+    return parentType === this.parameterType || Javascript.getClass(this.parameterType).isExtendOf(parentType);
   }
 
   /**
@@ -76,6 +74,5 @@ export default class MethodParameter {
     this.paramName = paramName;
     this.paramIndex = paramIndex;
     this.parameterType = parameterType;
-    this.annotations = RuntimeAnnotation.getMethodParamAnnotations(beanType, method, paramName);
   }
 }
