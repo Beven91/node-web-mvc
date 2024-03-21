@@ -5,7 +5,7 @@
 
 import { ApiModel, ApiModelProperty } from "../../../src";
 
-@ApiModel({ value: '返回结果' })
+@ApiModel({ description: '返回结果' })
 export default class CommonResult<T> {
 
   /**
@@ -23,7 +23,7 @@ export default class CommonResult<T> {
   /**
    * 返回的数据
    */
-  @ApiModelProperty({ value: '数据', generic: true })
+  @ApiModelProperty({ value: '数据', dataType: '?' })
   public data: T
 
   /**

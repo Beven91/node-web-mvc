@@ -2,24 +2,37 @@
  * @module ApiModelProperty
  * 用于标注实体类下的指定属性
  */
-import OpenApi from '../openapi/index';
-import { ApiModelPropertyOptions } from '../openapi/declare';
 import Target from '../../servlets/annotations/Target';
-import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ElementType from '../../servlets/annotations/annotation/ElementType';
 
-class ApiModelProperty extends ApiModelPropertyOptions {
+class ApiModelProperty {
+  /**
+   * 属性简短描述
+   */
+  value: string
 
-  constructor(meta: RuntimeAnnotation, options: ApiModelPropertyOptions) {
-    super();
-    options = options || {} as ApiModelPropertyOptions;
-    options.dataType = options.dataType || meta.dataType;
-    OpenApi.addModelProperty(options, meta.ctor, meta.name);
-  }
+  /**
+   * 属性的示例值
+   */
+  example?: string | number | Date | boolean | Object
+
+  /**
+   * 是否为必须值
+   */
+  required?: boolean
+
+  /**
+   * 数据类型
+   */
+  dataType?: string
+
+  /**
+   * 枚举
+   */
+  enum?: any
 }
 
 /**
  * 用于标注实体类下的指定属性
- * @param {ApiOperationOptions} options 属性配置 
  */
 export default Target(ElementType.PROPERTY)(ApiModelProperty);

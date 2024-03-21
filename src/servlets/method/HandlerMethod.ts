@@ -20,8 +20,6 @@ export default class HandlerMethod {
 
   private isBeanType: boolean
 
-  public supportThisMethod: boolean
-
   /**
    * 对应的action
    */
@@ -78,7 +76,6 @@ export default class HandlerMethod {
    * 构造一个方法执行器
    */
   constructor(bean: any, method: Function | HandlerMethod, configurer: WebMvcConfigurationSupport) {
-    this.supportThisMethod = true;
     if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;
       this.isBeanType = handler.isBeanType;

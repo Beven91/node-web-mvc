@@ -69,9 +69,7 @@ export default class RuntimeAnnotation<A = any> {
     return fn;
   }
 
-  public get methodName() {
-    return this.name;
-  }
+  public readonly methodName
 
   /**
    * 标注目标名称
@@ -136,6 +134,9 @@ export default class RuntimeAnnotation<A = any> {
    * 当注解，作用在属性上时，的类型
    */
   get dataType() {
+    if (this.elementType == ElementType.PARAMETER) {
+      return this.paramType;
+    }
     return Reflect.getMetadata('design:type', this.target, this.name);
   }
 
@@ -297,6 +298,7 @@ export default class RuntimeAnnotation<A = any> {
         break;
       case ElementType.METHOD:
         this.name = name;
+        this.methodName = name;
         this.descriptor = descritpor;
         this.parameters = Javascript.resolveParameters(target[name]);
         break;

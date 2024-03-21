@@ -6,25 +6,25 @@
 import { ApiModel, ApiModelProperty } from "../../../src";
 import Paged from "./Paged";
 
-@ApiModel({ value: '返回结果' })
+@ApiModel({ description: '返回结果' })
 export default class GeneralResult<T> {
 
   /**
    * 返回的：业务编码 
    */
-  @ApiModelProperty({ value:'编码' })
+  @ApiModelProperty({ value: '编码' })
   public code: number
 
   /**
    * 返回的消息
    */
-  @ApiModelProperty({ value:'消息' })
+  @ApiModelProperty({ value: '消息' })
   public message: string
 
   /**
    * 返回的数据
    */
-  @ApiModelProperty({ value: '数据', generic: true,dataType:'Paged<1>' })
+  @ApiModelProperty({ value: '数据', dataType: 'Paged<?>' })
   public data: Paged<T>
 
   /**

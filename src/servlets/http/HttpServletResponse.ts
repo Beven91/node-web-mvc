@@ -123,7 +123,7 @@ export default class HttpServletResponse {
    * @param response 
    */
   setStatus(status: number | HttpStatus, statusMessage?) {
-    if (status instanceof HttpStatus) {
+    if (status instanceof HttpStatus || (status && typeof status === 'object')) {
       this.tempStatusCode = status.code;
       this.tempStatusMessage = status.message;
     } else {

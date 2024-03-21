@@ -3,23 +3,29 @@
  * 用于标注接实体类
  */
 
-import OpenApi from '../openapi/index';
-import { ApiModelOptions } from '../openapi/declare';
+import { ExternalDocs } from '../openapi/declare';
 import Target from '../../servlets/annotations/Target';
-import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ElementType from '../../servlets/annotations/annotation/ElementType';
 
-class ApiModel extends ApiModelOptions {
+class ApiModel {
 
-  constructor(meta: RuntimeAnnotation, options: ApiModelOptions) {
-    super();
-    options = options || {} as ApiModelOptions;
-    OpenApi.addModel(options, meta.ctor);
-  }
+  /**
+   * model的别名，默认为类名
+   */
+  value?: string
+
+  /**
+   * model的详细描述
+   */
+  description?: string
+
+  /**
+   * 外部文档信息
+   */
+  externalDocs?: ExternalDocs
 }
 
 /**
  * 用于标注接实体类
- * @param {ApiOperationOptions} options 配置 
  */
 export default Target(ElementType.TYPE)(ApiModel);

@@ -14,7 +14,7 @@ export default class InternalErrorHandler {
   private readonly errorAttributes: ErrorAttributes;
 
   constructor(configurer: WebMvcConfigurationSupport) {
-    const isExtendErrorAttributes = (m: RuntimeAnnotation) => Javascript.getClass(m.ctor).isExtendOf(ErrorAttributes);
+    const isExtendErrorAttributes = (m: RuntimeAnnotation) => Javascript.getClass(m.ctor).isEqualOrExtendOf(ErrorAttributes);
     const MyErrorAttributes = RuntimeAnnotation.getAnnotations(Component).find(isExtendErrorAttributes)?.ctor;
     if (MyErrorAttributes) {
       this.errorAttributes = configurer.beanFactory.getBeanOfType(MyErrorAttributes);

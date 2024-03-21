@@ -24,6 +24,7 @@ export { default as HandlerInterceptor } from './servlets/interceptor/HandlerInt
 export { default as HandlerInterceptorAdapter } from './servlets/interceptor/HandlerInterceptorAdapter';
 export { default as Api } from './swagger/annotations/Api';
 export { default as ApiOperation } from './swagger/annotations/ApiOperation';
+export { default as ApiIgnore } from './swagger/annotations/ApiIgnore';
 export { default as ApiModel } from './swagger/annotations/ApiModel';
 export { default as ApiModelProperty } from './swagger/annotations/ApiModelProperty';
 export { default as ApiImplicitParams } from './swagger/annotations/ApiImplicitParams';

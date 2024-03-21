@@ -49,7 +49,7 @@ export default class DefaultListableBeanFactory {
    */
   isTypeMatch(beanName: string, beanType: Function) {
     const definition = this.beanDefinitions.get(beanName);
-    return Javascript.getClass(definition?.ctor).isExtendOf(beanType);
+    return Javascript.getClass(definition?.ctor).isEqualOrExtendOf(beanType);
   }
 
   /**

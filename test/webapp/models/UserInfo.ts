@@ -4,12 +4,24 @@ import OrderModel from './OrderModel';
 
 export const score = 121;
 
-class A {
-  name: string
+@ApiModel
+class Super {
+  @ApiModelProperty
+  rootId: number
+
 }
 
-@ApiModel({ value: '用户信息', description: '用户信息。。' })
-export default class UserInfo {
+@ApiModel
+class A extends Super {
+  @ApiModelProperty
+  parentId: number
+
+  @ApiModelProperty
+  parentName: string
+}
+
+@ApiModel({ description: '用户信息。。' })
+export default class UserInfo extends A {
 
   static desc = 'hellos38'
 

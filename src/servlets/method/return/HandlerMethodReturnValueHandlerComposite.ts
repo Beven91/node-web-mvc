@@ -15,7 +15,8 @@ export default class HandlerMethodReturnValueHandlerComposite {
   handleReturnValue(returnValue: any, returnType: MethodParameter, servletContext: ServletContext, method: HandlerMethod) {
     const handler = this.returnvalueHandlers.find((m) => m.supportsReturnType(returnType));
     if (!handler) {
-      throw new UnsupportReturnValueHandlerError('Unknow return value type:' + returnType.parameterType , returnValue);
+      const path = servletContext.request.path;
+      throw new UnsupportReturnValueHandlerError(`Unknow return value type:${returnType.parameterType} @${path}`, returnValue);
     }
     return handler.handleReturnValue(returnValue, returnType, servletContext, method);
   }

@@ -13,6 +13,9 @@ import RequestMapping, { RequestMappingExt } from "../annotations/mapping/Reques
 import RuntimeAnnotation, { TracerConstructor } from "../annotations/annotation/RuntimeAnnotation";
 import ElementType from "../annotations/annotation/ElementType";
 import RestController from "../annotations/RestController";
+import ServletContext from '../http/ServletContext';
+import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
+import HttpStatus from '../http/HttpStatus';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> {
 
@@ -59,6 +62,25 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     })
   }
 
+  private isConsumeable(servletContext: ServletContext, mapping: RequestMappingInfo) {
+    const request = servletContext.request;
+    const consumes = mapping.consumes || [];
+    const contentType = request.headers['content-type'];
+    if (consumes.length < 1) {
+      return true;
+    }
+    return !!consumes.find((m) => contentType.indexOf(m) > -1);
+  }
+
+  public checkRequest(servletContext: ServletContext, mapping: RequestMappingInfo, handler: HandlerMethod) {
+    const request = servletContext.request;
+    if (!mapping.method[request.method]) {
+      return new HttpStatusHandlerMethod(HttpStatus.METHOD_NOT_ALLOWED, servletContext.configurer);
+    } else if (!this.isConsumeable(servletContext, mapping)) {
+      return new HttpStatusHandlerMethod(HttpStatus.UNSUPPORTED_MEDIA_TYPE, servletContext.configurer);
+    }
+    return handler;
+  }
 
   match(registraction: MappingRegistration<RequestMappingInfo>, path: string, request: HttpServletRequest): HandlerMethod {
     const mapping = registraction.getMapping();
@@ -69,10 +91,9 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
       const result = matcher.matchPattern(pattern, path);
       // 如果当前路由匹配成功
       if (result) {
-        handlerMethod.supportThisMethod = mapping.method[request.method];
         // 将匹配的路径变量值，设置到pathVariables
         request.pathVariables = result.params;
-        return handlerMethod;
+        return this.checkRequest(request.servletContext, mapping, handlerMethod);
       }
     }
   }

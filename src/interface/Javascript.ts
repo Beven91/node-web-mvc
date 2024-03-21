@@ -35,6 +35,9 @@ export default class Javascript {
       type: childType,
       isExtendOf: (parentType: Function) => {
         return parentType?.prototype?.isPrototypeOf?.(childType?.prototype);
+      },
+      isEqualOrExtendOf: (parentType: Function) => {
+        return childType && parentType === childType || parentType?.prototype?.isPrototypeOf?.(childType?.prototype);
       }
     }
   }

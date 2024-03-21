@@ -23,7 +23,6 @@ export declare class ApiTag {
   description?: string
 
   externalDocs?: ExternalDocs
-
 }
 
 export class ApiOperationOptions {
@@ -167,12 +166,12 @@ export declare class OperationPath {
   responses: any
 }
 
-export declare class OperationPathMap {
+export declare class ApiOperationPaths {
   [propName: string]: OperationPath
 }
 
-export declare class OperationsDoc {
-  [propName: string]: OperationPathMap
+export declare class ApiPaths {
+  [propName: string]: ApiOperationPaths
 }
 
 export declare class ApiOperationParamMeta {
@@ -220,26 +219,32 @@ export declare class ApiOperationParamMeta {
   }
 }
 
-export declare class ApiModelPropertyMetaMap {
-  [propName: string]: ApiModelPropertyMeta
+
+export interface SchemeRef {
+  $ref: string
 }
 
-export declare class ApiModelPropertyMeta {
-  generic?: boolean
-  description: string
-  required: boolean
-  example: any
-  type: string
-  items?: any
-  enum?: string[]
-}
-
-export declare class ApiModelMeta {
+export interface ApiModelInfo {
   title: string
   name?: string
   description: string
-  ctor: Function
-  properties: ApiModelPropertyMetaMap
+  allOf?: Array<ApiModelInfo | SchemeRef>
+  properties?: {
+    [x: string]: ApiModelPropertyInfo | SchemeRef
+  }
+}
+
+export interface ApiModelPropertyInfo {
+  type: string
+  items?: any
+  format?: string
+  title?: string
+  enum?: string[]
+  example?: any
+  description?: string
+  additionalProperties?: {
+    [x: string]: ApiModelPropertyInfo
+  }
 }
 
 export interface SchemaMeta {
@@ -261,11 +266,13 @@ export declare class ApiOperationMeta {
   consumes: Array<string>
   option?: ApiOperationOptions
   parameters: Array<ApiOperationParamMeta>
-  requestBody?: {
-    content: {
-      [x: string]: {
-        schema: string | SchemaMeta
-      }
+  requestBody?: ApiOperationResponseBody
+}
+
+export interface ApiOperationResponseBody {
+  content: {
+    [x: string]: {
+      schema: string | SchemaMeta
     }
   }
 }

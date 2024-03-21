@@ -2,8 +2,10 @@ import RestController from '../../servlets/annotations/RestController';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
 import RequestContext from '../../servlets/annotations/params/RequestContext';
 import ServletContext from '../../servlets/http/ServletContext';
+import ApiIgnore from '../annotations/ApiIgnore';
 import OpenApi from '../openapi/index';
 
+@ApiIgnore
 @RestController
 export default class SwaggerController {
 
@@ -12,6 +14,6 @@ export default class SwaggerController {
    */
   @RequestMapping({ value: '/swagger-ui/openapi.json', produces: 'application/json' })
   openapi(@RequestContext context: ServletContext) {
-    return OpenApi.build(context.configurer.contextPath);
+    return (new OpenApi()).build(context.configurer.contextPath);
   }
 }

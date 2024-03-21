@@ -18,6 +18,5 @@ class ApiImplicitParams {
 
 /**
  * 用于标注接实体类
- * @param {ApiOperationOptions} options 配置 
  */
 export default Target(ElementType.METHOD)(ApiImplicitParams);

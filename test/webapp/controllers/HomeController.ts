@@ -1,13 +1,13 @@
 
 import path from 'path';
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile } from '../../../src/index';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController } from '../../../src/index';
 import UserId from '../annotations/UserIdAnnotation';
 import Security from '../annotations/SecurityAnnotation';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
-import GeneralResult from '../models/GeneralResult';
 
-@Api({ value: '首页' })
+@Api({ description: '首页' })
+@RestController
 @RequestMapping({ value: '/home', method: ['GET', 'POST'] })
 export default class HomeController {
 

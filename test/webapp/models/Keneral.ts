@@ -4,7 +4,7 @@ import OrderModel from './OrderModel';
 
 export const score = 121;
 
-@ApiModel({ value: '数据', description: '我的数据' })
+@ApiModel({ value: 'KeneralV2', description: '我的数据' })
 export default class Keneral {
 
   @ApiModelProperty({ value: '用户名', required: true, example: '张三' })

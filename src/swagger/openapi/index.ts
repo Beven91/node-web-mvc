@@ -3,26 +3,23 @@
  * @description 用于构建当前环境的openapi.json
  */
 import path from 'path';
-import { ApiOptions, ApiOperationOptions, ApiImplicitParamOptions, ApiMeta, ApiOperationMeta, SchemaMeta } from './declare';
-import { ApiModelOptions, ApiModelPropertyOptions, OperationsDoc, OperationPathMap } from './declare';
-import hot from 'nodejs-hmr';
-import Definition from './definition';
+import { ApiImplicitParamOptions, SchemaMeta, ApiTag, ApiOperationResponseBody } from './declare';
+import { ApiPaths, ApiOperationPaths } from './declare';
+import Schemas from './schemas';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
-import RuntimeAnnotation, { TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import MultipartFile from '../../servlets/http/MultipartFile';
 import RestController from '../../servlets/annotations/RestController';
 import ApiOperation from '../annotations/ApiOperation';
 import ResourceHandlerRegistry from '../../servlets/resources/ResourceHandlerRegistry';
+import Controller from '../../servlets/annotations/Controller';
+import Api from '../annotations/Api';
+import ElementType from '../../servlets/annotations/annotation/ElementType';
+import ApiIgnore from '../annotations/ApiIgnore';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
-
-// 所有注册models
-const definitions = Definition.definitions;
-
-// 所有注册的接口
-const apiMetaList = [] as Array<ApiMeta>
 
 export default class OpenApiModel {
   /**
@@ -40,81 +37,12 @@ export default class OpenApiModel {
   }
 
   /**
-   * 获取或创建指定api定义
-   * @param ctor 
-   */
-  private static createApi(ctor) {
-    let api = apiMetaList.find((api) => api.clazz === ctor);
-    if (!api) {
-      const name = this.clampName(ctor.name);
-      api = { clazz: ctor, operations: [], option: { tags: [{ name: name }] } };
-      apiMetaList.push(api);
-    }
-    return api;
-  }
-
-  /**
-   * 获取或者创建一个api操作定义
-   */
-  private static createOperation(ctor, name, option: ApiOperationOptions) {
-    const api = this.createApi(ctor);
-    let operation = api.operations.find((operation) => operation.method === name);
-    if (!operation) {
-      operation = { api, consumes: null, method: name, option, parameters: [] };
-      api.operations.push(operation);
-    }
-    return operation;
-  }
-
-  /**
-   * 创建或者获取一个model定义
-   * @param ctor model构造函数 
-   */
-  private static createApiModel(ctor) {
-    const name = ctor.name;
-    if (!definitions[name]) {
-      definitions[name] = {
-        title: '', description: '', properties: {}, ctor: ctor
-      }
-    }
-    return definitions[name];
-  }
-
-  /**
-   * 新增api
-   * @param { ApiOptions  } option 修饰的接口配置
-   * @param { Controller } controller 修饰的控制器
-   */
-  static addApi(option: ApiOptions, controller) {
-    const name = this.clampName(controller.name);
-    const api = this.createApi(controller);
-    api.option = option;
-    api.option.tags = (option.tags || [{
-      name: name,
-      description: option.description || name,
-      externalDocs: option.externalDocs
-    }])
-  }
-
-  /**
-   * 添加接口操作
-   * @param { ApiOptions  } option 修饰的接口方法配置
-   * @param { Controller } ctor 修饰的控制器
-   * @param { String } name 操作名称
-   */
-  static addOperation(option: ApiOperationOptions, ctor, name) {
-    const operation = this.createOperation(ctor, name, option);
-    // option 强制使用当前配置的option
-    operation.option = option;
-  }
-
-  /**
-   * 添加接口操作参数定义
-   * @param { ApiOptions  } params 修饰的接口方法的参数配置
-   * @param { Controller } ctor 修饰的控制器
-   * @param { String } name 操作名称
-   */
-  static mapOperationParams(params: Array<ApiImplicitParamOptions>) {
+  * 添加接口操作参数定义
+  * @param { ApiOptions  } params 修饰的接口方法的参数配置
+  * @param { Controller } ctor 修饰的控制器
+  * @param { String } name 操作名称
+  */
+  mapOperationParams(params: Array<ApiImplicitParamOptions>) {
     params
       .filter((param) => !!param)
       .forEach((param) => this.mapOperationParam(param))
@@ -126,7 +54,7 @@ export default class OpenApiModel {
    * @param { Controller } ctor 修饰的控制器
    * @param { String } name 操作名称
    */
-  static mapOperationParam(param: ApiImplicitParamOptions) {
+  mapOperationParam(param: ApiImplicitParamOptions) {
     return {
       name: param.value || param.name,
       required: param.required,
@@ -142,40 +70,9 @@ export default class OpenApiModel {
   }
 
   /**
-   * 添加实体类
-   * @param { ApiModelOptions } modelOptions 修饰的实体类配置
-   * @param { Constructor } ctor 修饰的实体类类
-   */
-  static addModel(modelOptions: ApiModelOptions, ctor) {
-    const model = this.createApiModel(ctor);
-    model.title = modelOptions.value;
-    model.description = modelOptions.description;
-  }
-
-  /**
-   * 添加实体类字段
-   * @param { ApiModelOptions } propertyOptions 修饰的实体类属性配置
-   * @param { model } 修饰的实体类类
-   * @param { Sting } name 修饰的属性名
-   */
-  static addModelProperty(propertyOptions: ApiModelPropertyOptions, ctor, name) {
-    const model = this.createApiModel(ctor);
-    const generic = /<\d+>/.test(propertyOptions.dataType)
-    const dataType = propertyOptions.dataType ? Definition.reflectTypeName(propertyOptions.dataType) : null;
-    model.properties[name] = {
-      generic: propertyOptions.generic || generic,
-      description: propertyOptions.value,
-      required: propertyOptions.required,
-      example: propertyOptions.example,
-      type: dataType || typeof (propertyOptions.example || ''),
-      enum: !propertyOptions.enum ? undefined : Object.keys(propertyOptions.enum).filter((m: any) => isNaN(m))
-    }
-  }
-
-  /**
    * 驼峰命名转换成 - 符号链接
    */
-  static clampName(name) {
+  clampName(name) {
     const k = name.length;
     let newName = '';
     for (let i = 0; i < k; i++) {
@@ -187,15 +84,43 @@ export default class OpenApiModel {
     return newName.replace(/^-/, '');
   }
 
+  createTags(annotation: RuntimeAnnotation<InstanceType<typeof Controller>>) {
+    const apiAnno = RuntimeAnnotation.getClassAnnotation(annotation.ctor, Api)?.nativeAnnotation;
+    const name = this.clampName(annotation.ctor.name);
+    return (apiAnno?.tags || [{
+      name: name,
+      description: apiAnno?.description || name,
+      externalDocs: apiAnno?.externalDocs
+    }]);
+  }
+
   /**
    * 获取完整的swaager openapi.json
    */
-  static build(contextPath: string) {
+  build(contextPath: string) {
     const id = require.resolve(path.resolve('package.json'));
     delete require.cache[id];
     const pkg = require(id);
+    const tags: ApiTag[] = [];
+    const paths: ApiPaths = {};
     const contributor = (pkg.contributors || [])[0] || {};
-    const documentation = {
+    const controllers = RuntimeAnnotation.getAnnotations(Controller);
+    const definition = new Schemas();
+    for (let controller of controllers) {
+      if (RuntimeAnnotation.hasClassAnnotation(controller.ctor, ApiIgnore)) {
+        // 如果忽略该控制器
+        continue;
+      }
+      // 创建tags
+      const controllerTags = this.createTags(controller);
+      const actions = RuntimeAnnotation.getAnnotations(RequestMapping, controller.ctor).filter((m) => m.elementType === ElementType.METHOD);
+      for (let action of actions) {
+        // 构建操作
+        this.buildOperation(paths, action, controllerTags, definition);
+      }
+      tags.push(...controllerTags);
+    }
+    return {
       info: {
         contact: {
           email: pkg.author || contributor.email || ''
@@ -208,22 +133,7 @@ export default class OpenApiModel {
         version: pkg.version,
         description: pkg.description || ''
       },
-      tags: [],
-      paths: {} as OperationsDoc,
-      basePath: contextPath,
-      // servers: [
-      //   { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
-      // ],
-      components: {
-        schemas: {}
-      },
-      openapi: '3.0.1',
-    };
-    // 构建api
-    apiMetaList.forEach((api) => {
-      const paths = documentation.paths;
-      // 构建tags
-      documentation.tags = documentation.tags.concat(api.option.tags || []).sort((a, b) => {
+      tags: tags.sort((a, b) => {
         if (a.name > b.name) {
           return 1;
         } else if (a.name == b.name) {
@@ -231,39 +141,42 @@ export default class OpenApiModel {
         } else {
           return -1;
         }
-      });
-      // 构建paths
-      api.operations.forEach((operation) => this.buildOperation(paths, operation));
-    });
-    // 最后清理definition
-    documentation.components.schemas = Definition.getFinalDefinitions();
-    return documentation;
+      }),
+      paths: paths,
+      basePath: contextPath,
+      // servers: [
+      //   { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
+      // ],
+      components: {
+        schemas: definition.build()
+      },
+      openapi: '3.0.1',
+    };
   }
 
   /**
    * 创建api操作的所有paths
    */
-  private static buildOperation(paths, operation: ApiOperationMeta) {
-    const option = operation.option;
-    const api = operation.api;
-    const isRestController = !!RuntimeAnnotation.getClassAnnotation(api.clazz, RestController);
-    const mapping = RequestMapping.getMappingInfo(api.clazz, operation.method);
+  private buildOperation(paths: ApiPaths, action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, tags: ApiTag[], definition: Schemas) {
+    const apiOperation = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation)?.nativeAnnotation;
+    const isRestController = !!RuntimeAnnotation.getClassAnnotation(action.ctor, RestController);
+    const mapping = RequestMapping.getMappingInfo(action.ctor, action.methodName);
     if (!mapping) {
       return;
     }
-    const code = 'code' in option ? option.code : '200';
-    const returnType = option.returnType;
-    const model = Definition.getDefinition(returnType);
-    const consumes = isRestController ? ['application/json'] : '';
-    const parameters = this.buildOperationParameters(operation);
-    const requestBody = operation.requestBody;
+    const code = apiOperation?.code || '200';
+    const returnType = apiOperation?.returnType || action.returnType;
+    const requestBody: ApiOperationResponseBody = { content: {} };
+    const parameters = this.buildOperationParameters(action, requestBody, definition);
+    const requestContents = Object.keys(requestBody.content).filter(Boolean);
+    const consumes = requestContents.length > 0 ? requestBody : (isRestController ? ['application/json'] : '')
     const operationDoc = {
-      consumes: mapping.consumes || consumes || operation.consumes || undefined,
+      consumes: mapping.consumes || consumes || apiOperation?.consumes || undefined,
       deprecated: false,
-      operationId: operation.method,
-      tags: api.option.tags.map((tag) => tag.name),
-      summary: option.value,
-      description: option.notes,
+      operationId: action.methodName,
+      tags: apiOperation?.tags || tags.map((tag) => tag.name),
+      summary: apiOperation?.value,
+      description: apiOperation?.notes,
       parameters: parameters,
       requestBody: Object.keys(requestBody.content).length > 0 ? requestBody : undefined,
       responses: {
@@ -275,7 +188,7 @@ export default class OpenApiModel {
           "description": "OK",
           "content": {
             [mapping.produces || '*/*']: {
-              schema: model.schema || (!returnType ? undefined : { type: returnType })
+              schema: returnType ? definition.typemappings.make(returnType) : undefined
             }
           },
         }
@@ -283,22 +196,24 @@ export default class OpenApiModel {
     }
     mapping.value.forEach((url) => {
       Object.keys(mapping.method).forEach((method) => {
-        const path = (paths[url] = paths[url] || {}) as OperationPathMap;
+        const path = (paths[url] = paths[url] || {}) as ApiOperationPaths;
         path[method.toLowerCase()] = operationDoc;
       });
     })
   }
 
-  private static getOperationParameters(operation: ApiOperationMeta) {
-    const { method } = operation;
-    const ctor = operation.api.clazz;
-    const operationAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiOperation);
-    const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(ctor, method, ApiImplicitParams);
+  /**
+   * 构建api接口操作参数
+   * @param operation 
+   */
+  private buildOperationParameters(action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, requestBody: ApiOperationResponseBody, definition: Schemas) {
+    const operationAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation);
+    const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiImplicitParams);
     const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
-    const parameterNames = operationAnno.parameters || [];
-    return parameterNames.map((name, i) => {
+    const parameterNames = operationAnno?.parameters || [];
+    const finalParameters = parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
-      const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(ctor, method, name, ParamAnnotation);
+      const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ParamAnnotation);
       const parameter2 = parameterAnno?.nativeAnnotation;
       return this.mapOperationParam({
         name: emptyOf(parameter.name, parameter2?.value) || name,
@@ -310,23 +225,9 @@ export default class OpenApiModel {
         description: parameter.description || undefined
       });
     });
-  }
-
-  /**
-   * 构建api接口操作参数
-   * @param operation 
-   */
-  private static buildOperationParameters(operation: ApiOperationMeta) {
-    const parameters = this.getOperationParameters(operation);
-    const requestBody = operation.requestBody = {
-      content: {}
-    }
-    return parameters.map((parameter) => {
-      const dataType = parameter.dataType ? Definition.reflectTypeName(parameter.dataType) : null;
-      const model = Definition.getDefinition(emptyOf(dataType, parameter.example), !!parameter.example);
-      const type = model.schema ? undefined : model.type || dataType || 'string';
-      if (dataType === 'file' || (parameter.in as string) == 'part' || model?.items?.type == 'file') {
-        operation.consumes = ['multipart/form-data'];
+    return finalParameters.map((parameter) => {
+      const typeInfo = definition.typemappings.make(parameter.dataType || parameter.example?.constructor);
+      if (typeInfo.type === 'file' || (parameter.in as string) == 'part' || typeInfo?.items?.type == 'file') {
         const info = requestBody.content['multipart/form-data'] = (requestBody.content['multipart/form-data'] || {
           schema: {
             required: [],
@@ -339,17 +240,12 @@ export default class OpenApiModel {
         }
         info.schema.properties[parameter.name] = {
           description: parameter.description,
-          type: type,
-          items: model.items,
-          format: model.format,
+          ...typeInfo,
         }
         return null;
       } else if (parameter.in == 'body') {
         requestBody.content['application/json'] = {
-          schema: model.schema || {
-            type: type,
-            items: model.items,
-          }
+          schema: typeInfo
         }
         return null;
       }
@@ -358,39 +254,9 @@ export default class OpenApiModel {
         required: parameter.required,
         description: parameter.description,
         in: parameter.in,
-        collectionFormat: model.collectionFormat,
-        format: model.format,
         example: emptyOf(parameter.example, undefined),
-        schema: model.schema || {
-          type: type,
-          items: model.items,
-        }
+        schema: typeInfo
       }
-    }).filter(Boolean)
+    }).filter(Boolean);
   }
 }
-
-/**
- * 内部热更新 
- */
-hot.create(module)
-  .preload((old) => {
-    const file = old.filename;
-    // 预更新时，判断当前模块是否为被修饰的类
-    const removeApis = apiMetaList.filter((api) => {
-      const ctor = api.clazz as TracerConstructor;
-      return ctor.tracer?.isDependency?.(file);
-    });
-    const removeDefinitions = Object.keys(definitions).filter((k) => {
-      const ctor = definitions[k].ctor as TracerConstructor;
-      return ctor.tracer?.isDependency?.(file);
-    })
-    removeApis.forEach((api) => {
-      const index = apiMetaList.indexOf(api);
-      apiMetaList.splice(index, 1);
-    })
-    removeDefinitions.forEach((key) => {
-      // 删除schema
-      delete definitions[key];
-    })
-  })

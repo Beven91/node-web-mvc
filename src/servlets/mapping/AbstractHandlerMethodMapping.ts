@@ -11,6 +11,7 @@ import MappingRegistration from './registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod';
 import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
+import HttpStatus from '../http/HttpStatus';
 
 export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping {
 
@@ -63,18 +64,12 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
    */
   lookupHandlerMethod(lookupPath: string, request: HttpServletRequest): HandlerMethod {
     const registry = this.mappingRegistry.getRegistration();
-    let methodNotAllowed = false;
     for (let registration of registry.values()) {
       const handler = this.match(registration, lookupPath, request);
-      if (handler && !handler.supportThisMethod) {
-        methodNotAllowed = true;
-        continue;
-      }
-      if (handler) {
-        return handler;
-      }
+      // 如果没有找到，则继续查找
+      if (!handler) continue;
+      return handler;
     }
-    return methodNotAllowed ? new HttpStatusHandlerMethod(415, request.servletContext.configurer) : null;
   }
 
   getMappingForMethod(handler: HandlerMethod) {
