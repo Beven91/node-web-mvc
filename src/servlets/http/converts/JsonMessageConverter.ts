@@ -5,34 +5,28 @@
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
-import RequestMemoryStream from '../RequestMemoryStream';
 
-export default class JsonMessageConverter extends AbstractHttpMessageConverter {
+export default class JsonMessageConverter extends AbstractHttpMessageConverter<Object> {
 
   constructor() {
-    super(new MediaType('application/json'))
+    super(MediaType.APPLICATION_JSON, new MediaType('application', '*+json'))
   }
 
-  read(servletContext: ServletContext, mediaType: MediaType) {
+  supports(clazz: Function): boolean {
+    return true;
+  }
+
+  async readInternal(servletContext: ServletContext) {
     if (!servletContext.request.hasBody) {
       return null;
     }
-    return new Promise((resolve, reject) => {
-      const { request } = servletContext;
-      new RequestMemoryStream(request, (chunks) => {
-        try {
-          const body = chunks.toString('utf8');
-          const data = JSON.parse(body);
-          resolve(data);
-        } catch (ex) {
-          reject(ex);
-        }
-      });
-    });
+    const buffer = await servletContext.request.readBody();
+    const body = buffer.toString('utf8');
+    return JSON.parse(body);
   }
 
-  write(data: any, mediaType: MediaType, servletContext: ServletContext) {
-    return new Promise((resolve) => {
+  writeInternal(data: Object, servletContext: ServletContext) {
+    return new Promise<void>((resolve) => {
       const out = typeof data === 'string' ? data : JSON.stringify(data);
       servletContext.response.end(out, undefined, resolve);
     });

@@ -2,6 +2,7 @@
  * @module MessageConverter
  * @description 内容转换器
  */
+import hot from 'nodejs-hmr';
 import MediaType from '../MediaType';
 import ServletContext from '../ServletContext';
 import HttpMessageConverter from './HttpMessageConverter';
@@ -10,19 +11,25 @@ import DefaultMessageConverter from './DefaultMessageConverter';
 import MultipartMessageConverter from './MultipartMessageConverter';
 import UrlencodedMessageConverter from './UrlencodedMessageConverter';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
-import OctetStreamMessageConverter from './OctetStreamMessageConverter';
-import hot from 'nodejs-hmr';
+import ResourceHttpMessageConverter from './ResourceHttpMessageConverter';
+import ByteArrayHttpMessageConverter from './ByteArrayHttpMessageConverter';
+import StringHttpMessageConverter from './StringHttpMessageConverter';
+import ResourceRegionHttpMessageConverter from './ResourceRegionHttpMessageConverter';
 
 export default class MessageConverter {
 
-  private readonly registerConverters: Array<HttpMessageConverter>
+  private readonly registerConverters: Array<HttpMessageConverter<any>>
 
   constructor() {
     this.registerConverters = [
-      new JsonMessageConverter(),
+      new ByteArrayHttpMessageConverter(),
+      new StringHttpMessageConverter(),
+      new ResourceHttpMessageConverter(),
+      new ResourceRegionHttpMessageConverter(),
+      // SourceHttpMessageConverter
       new UrlencodedMessageConverter(),
       new MultipartMessageConverter(),
-      new OctetStreamMessageConverter(),
+      new JsonMessageConverter(),
       new DefaultMessageConverter(),
     ]
     // 热更新
@@ -33,14 +40,18 @@ export default class MessageConverter {
    * 注册一个消息转换器
    * @param servletContext 
    */
-  addMessageConverters(converter: HttpMessageConverter) {
+  addMessageConverters(converter: HttpMessageConverter<any>) {
     this.registerConverters.unshift(converter);
+  }
+
+  forEach(handler: (converter: HttpMessageConverter) => void) {
+    return this.registerConverters.forEach(handler);
   }
 
   /**
    * 当前当前http的内容
    */
-  read(servletContext: ServletContext): Promise<any> {
+  read(servletContext: ServletContext, dataType: Function): Promise<any> {
     const request = servletContext.request;
     const configurer = servletContext.configurer;
     const length = request.nativeRequest.readableLength;
@@ -53,8 +64,8 @@ export default class MessageConverter {
       return Promise.resolve(request.body);
     }
     const mediaType = servletContext.request.mediaType;
-    const converter = this.registerConverters.find((converter) => converter.canRead(mediaType));
-    return request.body = Promise.resolve(converter.read(servletContext, mediaType));
+    const converter = this.registerConverters.find((converter) => converter.canRead(dataType, mediaType));
+    return request.body = Promise.resolve(converter.read(servletContext));
   }
 
   /**
@@ -65,7 +76,7 @@ export default class MessageConverter {
       Promise.resolve(body).then((data) => {
         const dataType = body?.constructor;
         const converter = this.registerConverters.find((converter) => converter.canWrite(dataType, mediaType));
-        return resolve(converter.write(data, mediaType, servletContext));
+        return resolve(converter.write(data, servletContext));
       })
     })
   }

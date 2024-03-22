@@ -2,25 +2,32 @@
  * @module ResourceRegionHttpMessageConverter
  */
 
-import AbstractHttpMessageConverter from "../http/converts/AbstractHttpMessageConverter";
-import HttpHeaders from "../http/HttpHeaders";
-import HttpServletResponse from "../http/HttpServletResponse";
-import MediaType from "../http/MediaType";
-import ServletContext from "../http/ServletContext";
-import ResourceRegion from "./ResourceRegion";
-import HttpStatus from "../http/HttpStatus";
+import AbstractHttpMessageConverter from "./AbstractHttpMessageConverter";
+import HttpHeaders from "../HttpHeaders";
+import HttpStatus from "../HttpStatus";
+import ResourceRegion from "../../resources/ResourceRegion";
+import ServletContext from "../ServletContext";
+import MediaType from "../MediaType";
+import HttpServletResponse from "../HttpServletResponse";
+import Javascript from "../../../interface/Javascript";
+import RegionsResource from "../../resources/RegionsResource";
 
-export default class ResourceRegionHttpMessageConverter extends AbstractHttpMessageConverter {
+export default class ResourceRegionHttpMessageConverter extends AbstractHttpMessageConverter<RegionsResource> {
 
   constructor() {
     super(MediaType.ALL);
   }
 
-  read(servletContext: ServletContext, mediaType: MediaType) {
+  supports(clazz: Function): boolean {
+    return Javascript.getClass(clazz).isEqualOrExtendOf(RegionsResource);
+  }
+
+  async readInternal(servletContext: ServletContext): Promise<any> {
     throw new Error("ResourceRegionHttpMessageConverter not support read");
   }
 
-  async write(regions: Array<ResourceRegion>, mediaType: MediaType, servletContext: ServletContext) {
+  async writeInternal(resource: RegionsResource, servletContext: ServletContext) {
+    const regions = resource.regions;
     const response = servletContext.response;
     for (let region of regions) {
       await this.writeRegion(region, servletContext.response);
@@ -42,7 +49,7 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
       response.setStatus(HttpStatus.PARTIAL_CONTENT)
       response.nativeResponse.statusCode = 206;
       stream.pipe(response.nativeResponse);
-      stream.on('end', ()=>{
+      stream.on('end', () => {
         resolve({});
       });
       stream.on('error', reject);

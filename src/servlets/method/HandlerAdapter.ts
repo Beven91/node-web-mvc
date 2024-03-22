@@ -2,9 +2,8 @@
  * @module HandlerAdapter 
  * @description action操作适配器接口
  */
-import ServletModel from '../models/ServletModel';
+import HttpServletRequest from '../http/HttpServletRequest';
 import ServletContext from '../http/ServletContext';
-import { HttpServletRequest } from '../..';
 
 export default interface HandlerAdapter {
   /**

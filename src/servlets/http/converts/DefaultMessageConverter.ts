@@ -6,18 +6,22 @@ import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
-export default class DefaultMessageConverter extends AbstractHttpMessageConverter {
+export default class DefaultMessageConverter extends AbstractHttpMessageConverter<any> {
 
   constructor() {
     super(MediaType.ALL);
   }
 
-  read(servletContext: ServletContext, mediaType: MediaType): any {
+  supports(clazz: Function): boolean {
+    return true;
+  }
+
+  readInternal(servletContext: ServletContext): any {
     return null;
   }
 
-  write(data: any, mediaType: MediaType, servletContext: ServletContext) {
-    return new Promise((resolve) => {
+  writeInternal(data: any, servletContext: ServletContext) {
+    return new Promise<void>((resolve) => {
       data = data === undefined ? '' : data;
       if (data instanceof Buffer || typeof data === 'string') {
         servletContext.response.end(data, undefined, resolve);

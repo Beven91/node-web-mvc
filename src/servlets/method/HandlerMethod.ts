@@ -193,7 +193,7 @@ export default class HandlerMethod {
     const returnType = new MethodParameter(this.beanType, this.methodName, '', -1, returnValue?.constructor);
     const configHandlers = servletContext.configurer.returnValueRegistry.handlers;
     const returnHandlers = new HandlerMethodReturnValueHandlerComposite(configHandlers);
-    returnHandlers.handleReturnValue(returnValue, returnType, servletContext, this);
+    await returnHandlers.handleReturnValue(returnValue, returnType, servletContext, this);
     return returnValue;
   }
 }

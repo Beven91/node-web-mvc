@@ -6,30 +6,33 @@ import querystring from 'querystring';
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
-import RequestMemoryStream from '../RequestMemoryStream';
+import Javascript from '../../../interface/Javascript';
+import MultiValueMap from '../../util/MultiValueMap';
 
-export default class UrlencodedMessageConverter extends AbstractHttpMessageConverter {
+export default class UrlencodedMessageConverter extends AbstractHttpMessageConverter<Object> {
 
   constructor() {
     super(new MediaType('application/x-www-form-urlencoded'));
   }
 
-  read(servletContext: ServletContext, mediaType: MediaType) {
-    return new Promise((resolve, reject) => {
-      const { request } = servletContext;
-      new RequestMemoryStream(request, (chunks) => {
-        try {
-          const body = chunks.toString('utf8');
-          const data = querystring.parse(body);
-          resolve(data);
-        } catch (ex) {
-          reject(ex);
-        }
-      });
-    });
+  supports(clazz: Function): boolean {
+    return true;
   }
 
-  write(data, mediaType: MediaType, servletContext: ServletContext) {
+  canWrite(clazz: Function, mediaType: MediaType): boolean {
+    if (!Javascript.getClass(clazz).isEqualOrExtendOf(MultiValueMap)) {
+      return false;
+    }
+    return super.canWrite(clazz, mediaType);
+  }
+
+  async readInternal(servletContext: ServletContext) {
+    const buffer = await servletContext.request.readBody();
+    const body = buffer.toString('utf-8');
+    return querystring.parse(body);
+  }
+
+  writeInternal(data: Object, servletContext: ServletContext) {
     // 暂不实现
     return Promise.resolve();
   }

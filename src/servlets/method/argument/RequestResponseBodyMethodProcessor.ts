@@ -13,6 +13,6 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
   }
 
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext) {
-    return await servletContext.configurer.messageConverters.read(servletContext);
+    return await servletContext.configurer.messageConverters.read(servletContext, parameter.parameterType);
   }
 }

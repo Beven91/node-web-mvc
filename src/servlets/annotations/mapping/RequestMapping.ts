@@ -18,7 +18,7 @@ export class RequestMapping {
   /**
    * 当前路由设置的返回内容类型
    */
-  produces?: string
+  produces?: string | string[]
 
   /**
    * 当前路由能接受的内容类型

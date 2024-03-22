@@ -11,11 +11,24 @@ import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 import { randomUUID } from 'crypto';
+import Javascript from '../../../interface/Javascript';
+import MultiValueMap from '../../util/MultiValueMap';
 
-export default class MultipartMessageConverter extends AbstractHttpMessageConverter {
+export default class MultipartMessageConverter extends AbstractHttpMessageConverter<Object> {
 
   constructor() {
     super(new MediaType('multipart/form-data'))
+  }
+
+  supports(clazz: Function): boolean {
+    return true;
+  }
+
+  canWrite(clazz: Function, mediaType: MediaType): boolean {
+    if (!Javascript.getClass(clazz).isEqualOrExtendOf(MultiValueMap)) {
+      return false;
+    }
+    return super.canWrite(clazz, mediaType);
   }
 
   /**
@@ -68,7 +81,7 @@ export default class MultipartMessageConverter extends AbstractHttpMessageConver
     })
   }
 
-  read(servletContext: ServletContext, mediaType: MediaType) {
+  readInternal(servletContext: ServletContext) {
     return new Promise((topResolve, topReject) => {
       let promise = Promise.resolve();
       const form = {};
@@ -102,7 +115,7 @@ export default class MultipartMessageConverter extends AbstractHttpMessageConver
     });
   }
 
-  write(data: any, mediaType: MediaType, servletContext: ServletContext) {
+  writeInternal(data: any, servletContext: ServletContext) {
     // 暂不实现写出
     return Promise.resolve();
   }

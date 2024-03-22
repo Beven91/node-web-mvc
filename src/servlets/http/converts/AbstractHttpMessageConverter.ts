@@ -6,7 +6,7 @@ import MediaType from "../MediaType";
 import ServletContext from "../ServletContext";
 import HttpMessageConverter from "./HttpMessageConverter";
 
-export default abstract class AbstractHttpMessageConverter implements HttpMessageConverter {
+export default abstract class AbstractHttpMessageConverter<T> implements HttpMessageConverter<T> {
 
   private supportedMediaTypes: Array<MediaType>
 
@@ -15,32 +15,36 @@ export default abstract class AbstractHttpMessageConverter implements HttpMessag
     this.supportedMediaTypes.push(...mediaTypes);
   }
 
-
-  canRead(mediaType: MediaType): boolean {
-    if (mediaType === null) {
-      return true;
-    }
-    return !!this.supportedMediaTypes.find((m) => {
-      if (m.name === '*/*') {
-        return true;
-      }
-      return m.name === mediaType.name
-    });
+  getSupportedMediaTypes(): MediaType[] {
+    return this.supportedMediaTypes;
   }
 
-  canWrite(dataType: any, mediaType: MediaType): boolean {
-    if (mediaType === null) {
+  private matchMediaType(mediaType: MediaType) {
+    if (!mediaType) {
       return true;
     }
-    return !!this.supportedMediaTypes.find((m) => {
-      if (m.name === '*/*') {
-        return true;
-      }
-      return m.name === mediaType.name
-    });
+    return !!this.supportedMediaTypes.find((m) => m.isCompatibleWith(mediaType));
   }
 
-  abstract read(servletContext: ServletContext, mediaType: MediaType)
+  canRead(clazz: any, mediaType: MediaType): boolean {
+    return this.supports(clazz) && this.matchMediaType(mediaType);
+  }
 
-  abstract write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any>
+  canWrite(clazz: Function, mediaType: MediaType): boolean {
+    return this.supports(clazz) && this.matchMediaType(mediaType);
+  }
+
+  read(servletContext: ServletContext): Promise<T> {
+    return this.readInternal(servletContext);
+  }
+
+  async write(data: T, servletContext: ServletContext): Promise<void> {
+    await this.writeInternal(data, servletContext);
+  }
+
+  abstract supports(clazz: Function): boolean
+
+  abstract readInternal(servletContext: ServletContext): Promise<T>
+
+  abstract writeInternal(data: T, servletContext: ServletContext): Promise<void>
 }

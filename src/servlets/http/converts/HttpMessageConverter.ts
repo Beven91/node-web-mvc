@@ -6,12 +6,18 @@
 import ServletContext from "../ServletContext";
 import MediaType from "../MediaType";
 
-export default interface HttpMessageConverter {
+export default interface HttpMessageConverter<T = any> {
+
+  /**
+   * 获取当前支持支持的mediaType列表
+   */
+  getSupportedMediaTypes(): MediaType[]
+
   /**
    * 判断当前转换器是否能处理当前内容类型
    * @param mediaType 当前内容类型 例如: application/json
    */
-  canRead(mediaType: MediaType): boolean
+  canRead(dataType: any, mediaType: MediaType): boolean
 
   /**
    * 判断当前内容是否能写
@@ -25,7 +31,7 @@ export default interface HttpMessageConverter {
    * 读取当前消息内容
    * @param servletRequest 
    */
-  read(servletContext: ServletContext, mediaType: MediaType): any;
+  read(servletContext: ServletContext): Promise<T>
 
   /**
    * 写出当前内容
@@ -33,5 +39,5 @@ export default interface HttpMessageConverter {
    * @param mediaType 当前内容类型
    * @param servletContext 当前请求上下文
    */
-  write(data: any, mediaType: MediaType, servletContext: ServletContext): Promise<any>
+  write(data: any, servletContext: ServletContext): Promise<any>
 }

@@ -14,9 +14,7 @@ import ResourceCacheControl from './ResourceCacheControl';
 import HttpHeaders from '../http/HttpHeaders';
 import HttpResource from './HttpResource';
 import HttpStatus from '../http/HttpStatus';
-import ResourceHttpMessageConverter from './ResourceHttpMessageConverter';
 import ResourceRegion from './ResourceRegion';
-import ResourceRegionHttpMessageConverter from './ResourceRegionHttpMessageConverter';
 import ResourceTransformerChain from './ResourceTransformerChain';
 import GzipResource from './GzipResource';
 import ResourceResolverChain from './ResourceResolverChain';
@@ -24,6 +22,9 @@ import PathResourceResolver from './PathResourceResolver';
 import ResourceResolver from './ResourceResolver';
 import GzipGlobalResolver from './GzipGlobalResolver';
 import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
+import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageConverter';
+import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
+import RegionsResource from './RegionsResource';
 
 export default class ResourceHttpRequestHandler {
 
@@ -86,14 +87,15 @@ export default class ResourceHttpRequestHandler {
     if (ranges === null || ranges == undefined) {
       // 非断点下载
       this.setHeaders(response, resource);
-      await this.resourceHttpMessageConverter.write(resource, resource.mediaType, servletContext);
+      await this.resourceHttpMessageConverter.write(resource, servletContext);
       return;
     }
     // 断点下载
     response.setHeader(HttpHeaders.ACCEPT_RANGES, 'bytes');
     try {
       const regions = ResourceRegion.getRangeRegions(request, resource);
-      await this.resourceRegionHttpMessageConverter.write(regions, resource.mediaType, servletContext);
+      const regionsResource = new RegionsResource(regions, resource);
+      await this.resourceRegionHttpMessageConverter.write(regionsResource, servletContext);
     } catch (ex) {
       response.setHeader("Content-Range", "bytes */" + resource.contentLength);
       response.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);

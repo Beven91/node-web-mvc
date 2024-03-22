@@ -4,7 +4,7 @@
  */
 import hot from 'nodejs-hmr';
 import AbstractHandlerMethodMapping from "./AbstractHandlerMethodMapping";
-import RequestMappingInfo, { ensureArrayPaths } from './RequestMappingInfo';
+import RequestMappingInfo, { ensureArray } from './RequestMappingInfo';
 import HttpServletRequest from "../http/HttpServletRequest";
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
@@ -12,7 +12,6 @@ import WebMvcConfigurationSupport from "../config/WebMvcConfigurationSupport";
 import RequestMapping, { RequestMappingExt } from "../annotations/mapping/RequestMapping";
 import RuntimeAnnotation, { TracerConstructor } from "../annotations/annotation/RuntimeAnnotation";
 import ElementType from "../annotations/annotation/ElementType";
-import RestController from "../annotations/RestController";
 import ServletContext from '../http/ServletContext';
 import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
 import HttpStatus from '../http/HttpStatus';
@@ -33,11 +32,10 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     const name = `@${target.name}/${annotation.name}`;
     const anno = annotation.nativeAnnotation;
     const controllerAnno = RuntimeAnnotation.getClassAnnotation(target, RequestMapping)?.nativeAnnotation;
-    const isRestController = RuntimeAnnotation.hasClassAnnotation(target, RestController);
-    const produces = anno.produces || (isRestController ? 'application/json;charset=utf-8' : '') || controllerAnno?.produces || '';
-    const requestMapping = new RequestMappingInfo(anno.value, anno.method, produces, anno.params, anno.headers, anno.consumes);
+    const produces = anno.produces || controllerAnno?.produces || '';
+    const requestMapping = new RequestMappingInfo(anno.value, anno.method, ensureArray(produces), anno.params, anno.headers, anno.consumes);
     const actionPaths = requestMapping.value || [];
-    const controllerPaths = ensureArrayPaths(controllerAnno?.value || '');
+    const controllerPaths = ensureArray(controllerAnno?.value || ['']);
     const values = [];
     if (controllerPaths.length > 0) {
       // 合并controller路由

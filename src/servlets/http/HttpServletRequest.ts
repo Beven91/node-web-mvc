@@ -7,6 +7,7 @@ import { IncomingMessage, IncomingHttpHeaders } from 'http';
 import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
+import RequestMemoryStream from './RequestMemoryStream';
 
 declare class Query {
   [propName: string]: any
@@ -182,5 +183,13 @@ export default class HttpServletRequest {
       return Date.parse(v as string);
     }
     return null;
+  }
+
+  /**
+   * 读取body内容为buffer
+   * @returns 
+   */
+  public readBody() {
+    return RequestMemoryStream.readBody(this)
   }
 }

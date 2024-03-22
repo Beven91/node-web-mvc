@@ -18,6 +18,7 @@ import Controller from '../../servlets/annotations/Controller';
 import Api from '../annotations/Api';
 import ElementType from '../../servlets/annotations/annotation/ElementType';
 import ApiIgnore from '../annotations/ApiIgnore';
+import RequestMappingInfo from '../../servlets/mapping/RequestMappingInfo';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -164,12 +165,12 @@ export default class OpenApiModel {
     if (!mapping) {
       return;
     }
-    const code = apiOperation?.code || '200';
     const returnType = apiOperation?.returnType || action.returnType;
+    const code = apiOperation?.code || '200';
     const requestBody: ApiOperationResponseBody = { content: {} };
     const parameters = this.buildOperationParameters(action, requestBody, definition);
     const requestContents = Object.keys(requestBody.content).filter(Boolean);
-    const consumes = requestContents.length > 0 ? requestBody : (isRestController ? ['application/json'] : '')
+    const consumes = requestContents.length > 0 ? requestBody : (isRestController ? ['application/json'] : '');
     const operationDoc = {
       consumes: mapping.consumes || consumes || apiOperation?.consumes || undefined,
       deprecated: false,
@@ -186,11 +187,7 @@ export default class OpenApiModel {
         "404": { "description": "Not Found" },
         [code]: {
           "description": "OK",
-          "content": {
-            [mapping.produces || '*/*']: {
-              schema: returnType ? definition.typemappings.make(returnType) : undefined
-            }
-          },
+          "content": this.buildOperationProduces(returnType, mapping, definition)
         }
       }
     }
@@ -258,5 +255,19 @@ export default class OpenApiModel {
         schema: typeInfo
       }
     }).filter(Boolean);
+  }
+
+  private buildOperationProduces(returnType: any, mapping: RequestMappingInfo, definition: Schemas) {
+    const produces = mapping.produces?.length < 1 ? ['*/*'] : mapping.produces;
+    const contents = {};
+    produces.forEach((name) => {
+      const schema = returnType ? definition.typemappings.make(returnType) : undefined;
+      if (schema) {
+        contents[name] = {
+          schema: schema
+        }
+      }
+    })
+    return Object.keys(contents).length < 1 ? undefined : contents;
   }
 }
