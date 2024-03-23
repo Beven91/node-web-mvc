@@ -15,6 +15,7 @@ import HandlerMethod from '../HandlerMethod';
 import ArgumentResolvError from '../../../errors/ArgumentResolvError';
 import ArgumentConverter from './ArgumentConverter';
 import IllegalArgumentException from '../../../errors/IllegalArgumentException';
+import ParamAnnotation from '../../annotations/params/ParamAnnotation';
 
 export default class ArgumentsResolvers {
 
@@ -49,23 +50,24 @@ export default class ArgumentsResolvers {
    * 获取要执行函数的参数值信息
    */
   async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<any[]> {
-    let parameter;
+    let parameter: MethodParameter;
     try {
       const signParameters = handler.parameters;
       const args = [];
       for (let i = 0, k = signParameters.length; i < k; i++) {
         parameter = signParameters[i];
+        const anno = parameter.getParameterAnnotation(ParamAnnotation);
         const value = await this.resolveArgument(parameter, servletContext);
         const hasResolved = (value !== undefined && value !== null);
-        const finalValue = hasResolved ? value : parameter.defaultValue;
+        const finalValue = hasResolved ? value : anno?.defaultValue;
         const hasNotValue = finalValue === null || finalValue === undefined;
-        if (parameter.required && hasNotValue) {
+        if (anno?.required && hasNotValue) {
           // 如果缺少参数
-          const message = `Required request parameter: ${parameter.name} is missing @${handler.beanTypeName}.${handler.methodName}`
-          throw new ArgumentResolvError(message, parameter.name);
+          const message = `Required request parameter: ${parameter.paramName} is missing @${handler.beanTypeName}.${handler.methodName}`
+          throw new ArgumentResolvError(message, parameter.paramName);
         }
         // 设置参数值
-        const converter = new ArgumentConverter(parameter.dataType);
+        const converter = new ArgumentConverter(parameter.parameterType);
         args[i] = converter.convert(finalValue);
       }
       return args;
@@ -73,7 +75,7 @@ export default class ArgumentsResolvers {
       if (ex instanceof Error && ex.constructor !== Error) {
         return Promise.reject(ex);
       }
-      return Promise.reject(new ArgumentResolvError(ex, parameter?.name));
+      return Promise.reject(new ArgumentResolvError(ex, parameter?.paramName));
     }
   }
 

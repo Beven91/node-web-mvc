@@ -88,7 +88,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     for (let pattern of pathPatterns) {
       const result = matcher.matchPattern(pattern, path);
       // 如果当前路由匹配成功
-      if (result) {
+      if (result && mapping.method[request.method]) {
         // 将匹配的路径变量值，设置到pathVariables
         request.pathVariables = result.params;
         return this.checkRequest(request.servletContext, mapping, handlerMethod);

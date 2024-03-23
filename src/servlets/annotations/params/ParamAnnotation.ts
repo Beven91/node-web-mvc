@@ -11,7 +11,7 @@ export default class ParamAnnotation {
   /**
    * 参数是否必填
    */
-  public required?: boolean
+  public required?: boolean = true
 
   /**
    * 默认值
