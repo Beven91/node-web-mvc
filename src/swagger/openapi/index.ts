@@ -208,8 +208,8 @@ export default class OpenApiModel {
     const finalParameters = parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ParamAnnotation);
-      const isRequest = !!RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ServletResponse);
-      const isResponse = !!RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ServletRequest);
+      const isRequest = !!RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ServletRequest);
+      const isResponse = !!RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ServletResponse);
       const parameter2 = parameterAnno?.nativeAnnotation;
       if (isRequest || isResponse) {
         return;
