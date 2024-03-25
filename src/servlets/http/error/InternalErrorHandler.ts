@@ -23,8 +23,7 @@ export default class InternalErrorHandler {
     }
   }
 
-  async resolveException(servletContext: ServletContext, error: Error): Promise<any> {
-    console.error(error);
+  async resolveException(servletContext: ServletContext): Promise<any> {
     const accept = servletContext.request.getHeaderValue('accept').join(',')
     const acceptHtml = accept.toLowerCase().indexOf("text/html") > -1;
     return acceptHtml ? this.handleErrorHtml(servletContext) : this.handleError(servletContext);

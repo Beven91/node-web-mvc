@@ -18,7 +18,6 @@ import HttpRequestValidation from '../http/HttpRequestValidation';
 import HttpMethod from '../http/HttpMethod';
 import Normalizer from '../../errors/Normalizer';
 import HandlerExceptionResolverComposite from '../method/exception/HandlerExceptionResolverComposite';
-import InternalErrorHandler from './error/InternalErrorHandler';
 import HttpStatus from '../http/HttpStatus';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
@@ -100,12 +99,8 @@ export default class DispatcherServlet {
         servletContext.next()
       }
     } catch (ex) {
-      if (servletContext.response.statusCode == 200) {
-        // 如果是200状态，则需要设置成500
-        servletContext.response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-      }
-      // 框架统一异常兜底
-      await (new InternalErrorHandler(servletContext.configurer)).resolveException(servletContext, ex);
+      console.error(ex);
+      servletContext.response.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       servletContext.doReleaseQueues();
     }

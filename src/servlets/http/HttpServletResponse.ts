@@ -6,12 +6,15 @@ import { ServerResponse } from 'http';
 import InterruptModel from '../models/InterruptModel';
 import HttpStatus from './HttpStatus';
 import ServletContext from './ServletContext';
+import type InternalErrorHandler from './error/InternalErrorHandler';
 
 export default class HttpServletResponse {
 
   private tempStatusCode;
 
   private tempStatusMessage;
+
+  private readonly internalErrorHandler: InternalErrorHandler
 
   /**
    * 当前请求对象
@@ -99,7 +102,8 @@ export default class HttpServletResponse {
    * @param name 
    */
   sendError(status: HttpStatus) {
-    this.setStatus(status).end();
+    this.setStatus(status);
+    this.internalErrorHandler.resolveException(this.servletContext);
   }
 
   /**
@@ -171,7 +175,7 @@ export default class HttpServletResponse {
     this.nativeResponse.writeHead(status, { 'Location': redirectUrl })
   }
 
-  constructor(response: ServerResponse, servletContext: ServletContext) {
+  constructor(response: ServerResponse, servletContext: ServletContext, errorHandler: InternalErrorHandler) {
     this.nativeResponse = response;
     this.servletContext = servletContext;
   }

@@ -1,4 +1,4 @@
-import ServletContext from "../../http/ServletContext";
+import type ServletContext from "../../http/ServletContext";
 import ErrorAttributes from "./ErrorAttributes";
 
 

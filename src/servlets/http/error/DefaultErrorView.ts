@@ -1,6 +1,6 @@
 import Component from "../../../ioc/annotations/Component";
-import HttpServletRequest from "../../http/HttpServletRequest";
-import HttpServletResponse from "../../http/HttpServletResponse";
+import type HttpServletRequest from "../../http/HttpServletRequest";
+import type HttpServletResponse from "../../http/HttpServletResponse";
 import View from "../../view/View";
 
 @Component("error")

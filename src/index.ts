@@ -136,7 +136,7 @@ export { default as ModelAndViewMethodReturnValueHandler } from './servlets/meth
 export { default as RequestResponseBodyMethodProcessor } from './servlets/method/return/RequestResponseBodyMethodProcessor';
 export { default as IllegalArgumentException } from './errors/IllegalArgumentException';
 export { default as Normalizer } from './errors/Normalizer';
-export { default as DefaultErrorView } from './servlets/dispatch/error/DefaultErrorView';
+export { default as DefaultErrorView } from './servlets/http/error/DefaultErrorView';
 export { default as ByteArrayResource } from './servlets/resources/ByteArrayResource';
 export { default as ByteArrayInputStream } from './servlets/resources/ByteArrayInputStream';
 

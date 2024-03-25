@@ -170,7 +170,7 @@ export default class OpenApiModel {
     const requestBody: ApiOperationResponseBody = { content: {} };
     const parameters = this.buildOperationParameters(action, requestBody, definition);
     const requestContents = Object.keys(requestBody.content).filter(Boolean);
-    const consumes = requestContents.length > 0 ? requestBody : (isRestController ? ['application/json'] : '');
+    const consumes = requestContents.length > 0 ? requestContents : '';
     const operationDoc = {
       consumes: mapping.consumes || consumes || apiOperation?.consumes || undefined,
       deprecated: false,

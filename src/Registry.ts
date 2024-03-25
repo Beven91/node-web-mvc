@@ -7,6 +7,7 @@ import WebMvcConfigurationSupport, { WebAppConfigurerOptions } from './servlets/
 import HttpStatus from './servlets/http/HttpStatus';
 import { IncomingMessage, ServerResponse } from 'http';
 import DefaultListableBeanFactory from './ioc/DefaultListableBeanFactory';
+import InternalErrorHandler from './servlets/http/error/InternalErrorHandler';
 
 const runtime = {
   isLaunched: false
@@ -57,6 +58,7 @@ export default class Registry {
     if (options.onLaunch) {
       options.onLaunch();
     }
+    const errorHandler = new InternalErrorHandler(configurer);
     const handler = (request: IncomingMessage, response: ServerResponse, next: (error?: any) => any) => {
       const protocol = (request.socket as any).encrypted ? 'https' : 'http';
       const url = new URL(request.url, `${protocol}://${request.headers.host}`);
@@ -66,7 +68,7 @@ export default class Registry {
       }
       new Promise((resolve) => {
         const HttpServletContext = HttpContext as any;
-        const context: ServletContext = new HttpServletContext(configurer, request, response, next);
+        const context: ServletContext = new HttpServletContext(configurer, request, response, next, errorHandler);
         resolve(dispatcher.doService(context));
       }).catch((ex) => {
         console.error(ex);

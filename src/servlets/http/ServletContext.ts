@@ -7,6 +7,7 @@ import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
+import type InternalErrorHandler from './error/InternalErrorHandler';
 
 type NodeMiddleware = (request: IncomingMessage & { path: string }, response: ServerResponse, next: (error?: any) => any) => any
 
@@ -85,10 +86,10 @@ export default abstract class ServletContext {
    * @param response 当前正在处理的请求的返回实例
    * @param next 跳转到下一个请求处理器
    */
-  constructor(configurer: WebMvcConfigurationSupport, request: IncomingMessage, response, next) {
+  constructor(configurer: WebMvcConfigurationSupport, request: IncomingMessage, response, next, errorHandler: InternalErrorHandler) {
     this.configurer = configurer;
     this.request = new HttpServletRequest(request, this);
-    this.response = new HttpServletResponse(response, this);
+    this.response = new HttpServletResponse(response, this, errorHandler);
     this.params = new Map<any, any>();
     this.next = (...params) => {
       // 如果已经返回了内容，则不进行next处理
