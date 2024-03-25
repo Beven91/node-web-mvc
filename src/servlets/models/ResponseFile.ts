@@ -7,8 +7,9 @@ import path from 'path';
 import HttpStatus from '../http/HttpStatus';
 import MediaType from '../http/MediaType';
 import ResponseEntity from './ResponseEntity';
+import Resource from '../resources/Resource';
 
-export default class ResponseFile extends ResponseEntity<fs.ReadStream> {
+export default class ResponseFile extends ResponseEntity<Resource> {
 
   private readonly file: string
 
@@ -19,7 +20,7 @@ export default class ResponseFile extends ResponseEntity<fs.ReadStream> {
     if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) {
       this.responseStatus = HttpStatus.NOT_FOUND;
     } else {
-      this.data = fs.createReadStream(file);
+      this.data = new Resource(file);
       this.contentType(new MediaType('application/octet-stream'));
     }
     if (attachment) {

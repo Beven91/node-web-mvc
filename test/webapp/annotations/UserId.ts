@@ -1,9 +1,9 @@
 import { ElementType, Target } from '../../../src/index';
 
 class UserId {
-  constructor(){
-    // 注解构造函数
-  }
+
+  required?: boolean = true
+
 }
 
 // 公布注解

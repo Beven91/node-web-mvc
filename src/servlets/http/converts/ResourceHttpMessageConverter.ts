@@ -20,7 +20,7 @@ export default class ResourceHttpMessageConverter extends AbstractHttpMessageCon
   }
 
   async readInternal(servletContext: ServletContext) {
-    const buffer = await servletContext.request.readBody();
+    const buffer = await servletContext.request.readBodyAsBuffer();
     return new ByteArrayResource(buffer);
   }
 

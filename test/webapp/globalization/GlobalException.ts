@@ -1,10 +1,12 @@
-import { ControllerAdvice, ExceptionHandler } from '../../../src/index';
+import { ControllerAdvice, ExceptionHandler, ResponseBody } from '../../../src/index';
 
 @ControllerAdvice
 export default class GlobalException {
 
+  @ResponseBody
   @ExceptionHandler
   handleException(ex) {
-    return JSON.stringify({ code: 99, message: ex.message, reason: 'global handle' })
+    console.error(ex);
+    return { code: 99, message: ex.message, reason: 'global handle' }
   }
 }

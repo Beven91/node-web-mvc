@@ -18,7 +18,7 @@ export default class ByteArrayHttpMessageConverter extends AbstractHttpMessageCo
   }
 
   readInternal(servletContext: ServletContext): Promise<Buffer> {
-    return servletContext.request.readBody();
+    return servletContext.request.readBodyAsBuffer();
   }
 
   async writeInternal(data: any, servletContext: ServletContext) {

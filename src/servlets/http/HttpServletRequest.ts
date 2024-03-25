@@ -8,6 +8,7 @@ import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
 import RequestMemoryStream from './RequestMemoryStream';
+import RequestBodyReader from './body/RequestBodyReader';
 
 declare class Query {
   [propName: string]: any
@@ -26,6 +27,8 @@ export default class HttpServletRequest {
   public get cookies() {
     return this._cookies;
   }
+
+  public readonly reader: RequestBodyReader
 
   /**
    * 当前请求上下文
@@ -148,6 +151,7 @@ export default class HttpServletRequest {
     const base = servletContext.configurer.contextPath;
     const r = base ? this.path.replace(new RegExp('^' + base), '') : this.path;
     this.usePath = /^\//.test(r) ? r : '/' + r;
+    this.reader = new RequestBodyReader();
   }
 
   /**
@@ -189,7 +193,7 @@ export default class HttpServletRequest {
    * 读取body内容为buffer
    * @returns 
    */
-  public readBody() {
+  public readBodyAsBuffer() {
     return RequestMemoryStream.readBody(this)
   }
 }

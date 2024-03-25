@@ -1,8 +1,8 @@
 
 import path from 'path';
 import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController } from '../../../src/index';
-import UserId from '../annotations/UserIdAnnotation';
-import Security from '../annotations/SecurityAnnotation';
+import UserId from '../annotations/UserId';
+import Security from '../annotations/Security';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
@@ -35,10 +35,6 @@ export default class HomeController {
   }
 
   @ApiOperation({ value: 'RequestParam接收Map' })
-  @ApiImplicitParams([
-    { name: 'name', paramType: 'query' },
-    { name: 'age', paramType: 'query' },
-  ])
   @GetMapping('/map')
   mapGet(@RequestParam data: Map<string, any>) {
     const values = [] as string[];
@@ -86,6 +82,8 @@ export default class HomeController {
   index(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
     this.oService.sayHello();
     this.orderService.sayHello();
+    // TODO
+    file.transferTo('a.jpg')
     return 'home/index...' + id + ',file.name=' + file.name;
   }
 
@@ -111,7 +109,7 @@ export default class HomeController {
   @ApiImplicitParams([
     { description: '类型', paramType: 'body', name: 'user', example: { name: 1 } }
   ])
-  @PostMapping({ value:'/body',produces:'application/json' })
+  @PostMapping({ value: '/body', produces: 'application/json' })
   body(@RequestBody user: UserInfo): UserInfo {
     return user;
   }

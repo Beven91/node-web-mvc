@@ -44,8 +44,6 @@ export { default as JsonMessageConverter } from './servlets/http/converts/JsonMe
 export { default as ByteArrayHttpMessageConverter } from './servlets/http/converts/ByteArrayHttpMessageConverter';
 export { default as MessageConverter } from './servlets/http/converts/MessageConverter';
 export { default as ResourceHttpMessageConverter } from './servlets/http/converts/ResourceHttpMessageConverter';
-export { default as UrlencodedMessageConverter } from './servlets/http/converts/UrlencodedMessageConverter';
-export { default as MultipartMessageConverter } from './servlets/http/converts/MultipartMessageConverter';
 export { default as ResourceRegionHttpMessageConverter } from './servlets/http/converts/ResourceRegionHttpMessageConverter';
 export { default as StringHttpMessageConverter } from './servlets/http/converts/StringHttpMessageConverter';
 export { default as ViewResolver } from './servlets/view/resolvers/ViewResolver';

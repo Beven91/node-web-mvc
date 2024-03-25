@@ -15,7 +15,7 @@ export default class UserController {
     return { "name": "ok" }
   }
 
-  @ApiOperation({ value: '设置用户信息' })
+  @ApiOperation({ value: '设置用户信息,缓存到控制器实例上' })
   @ApiImplicitParams([
     RequestParam('name')
   ])
@@ -27,7 +27,7 @@ export default class UserController {
     return this.user;
   }
 
-  @ApiOperation({ value: '获取用户信息' })
+  @ApiOperation({ value: '获取从控制器实例上获取用户信息' })
   @GetMapping('/getUser')
   getUser() {
     return this.user || {

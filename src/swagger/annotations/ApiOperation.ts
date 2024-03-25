@@ -34,7 +34,7 @@ class ApiOperation {
    */
   code?: number
 
-  consumes?: string
+  consumes?: string[]
 }
 
 /**

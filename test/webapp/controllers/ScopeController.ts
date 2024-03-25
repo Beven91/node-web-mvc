@@ -1,24 +1,25 @@
-import { RequestMapping, GetMapping, Scope } from '../../../src/index';
+import { RequestMapping, GetMapping, Scope, RestController } from '../../../src/index';
 import { Api, ApiOperation, RequestBody, RequestParam, ApiImplicitParams } from '../../../src/index';
 import UserInfo from '../models/UserInfo';
 import { PostMapping } from '../../../src/index';
 import { CreateOptions } from '../../../src/servlets/annotations/Target';
 
 
-@Api({ description: '作用域测试' })
+@Api({ description: '作用域测试(原型模式)' })
 @Scope('prototype')
 @RequestMapping('/scope')
+@RestController
 export default class ScopeController {
 
   private scopeData: UserInfo
 
-  @ApiOperation({ value: '获取设置的对象', notes: '获取通过/scope/set设置的值，当前会返回值应该返回空，因为当前控制器类作用域设置成prototype' })
+  @ApiOperation({ value: '获取控制器实例设置的对象', notes: '获取通过/scope/set设置的值，当前会返回值应该返回空，因为当前控制器类作用域设置成prototype' })
   @GetMapping({ value: '/get', produces: 'application/json' })
   getObj() {
     return this.scopeData || { message: '没有设置值' }
   }
 
-  @ApiOperation({ value: '设置数据', returnType: 'UserInfo' })
+  @ApiOperation({ value: '设置数据到控制器实例上', returnType: 'UserInfo' })
   @ApiImplicitParams([
     { name: 'user', description: '用户信息', required: true, dataType: UserInfo },
     { name: 'id', description: '用户id', required: true }

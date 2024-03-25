@@ -47,6 +47,10 @@ export default class MethodParameter {
     return !!RuntimeAnnotation.getClassAnnotation(this.beanType, annotationType);
   }
 
+  public hasMethodAnnotation<C extends IAnnotationClazz>(annotationType: C): boolean {
+    return !!RuntimeAnnotation.getMethodAnnotation(this.beanType, this.method, annotationType);
+  }
+
   /**
    * 获取当前参数注解
    */

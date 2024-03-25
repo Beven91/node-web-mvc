@@ -18,7 +18,7 @@ export default class StringHttpMessageConverter extends AbstractHttpMessageConve
   }
 
   async readInternal(servletContext: ServletContext): Promise<String> {
-    const buffer = await servletContext.request.readBody();
+    const buffer = await servletContext.request.readBodyAsBuffer();
     return buffer?.toString?.('utf-8');
   }
 

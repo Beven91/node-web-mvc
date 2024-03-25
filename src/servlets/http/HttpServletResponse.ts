@@ -7,6 +7,7 @@ import InterruptModel from '../models/InterruptModel';
 import HttpStatus from './HttpStatus';
 import ServletContext from './ServletContext';
 import type InternalErrorHandler from './error/InternalErrorHandler';
+import RequestBodyReader from './body/RequestBodyReader';
 
 export default class HttpServletResponse {
 
@@ -178,5 +179,6 @@ export default class HttpServletResponse {
   constructor(response: ServerResponse, servletContext: ServletContext, errorHandler: InternalErrorHandler) {
     this.nativeResponse = response;
     this.servletContext = servletContext;
+    this.internalErrorHandler = errorHandler;
   }
 }

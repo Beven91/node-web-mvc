@@ -17,8 +17,8 @@ export default class EjsView extends View {
    */
   render(model, request: HttpServletRequest, response: HttpServletResponse) {
     return ejs.renderFile(this.url, model).then((html) => {
-      response.setHeader('Content-Type', 'text/html');
-      response.setStatus(200).end(html, 'utf8');
+      response.setHeader('Content-Type', 'text/html;charset=utf-8');
+      response.setStatus(200).end(html);
     })
 
   }

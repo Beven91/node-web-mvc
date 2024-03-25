@@ -17,7 +17,7 @@ const ALL_APPLICATION_MEDIA_TYPES = [
 export default class RequestResponseBodyMethodProcessor implements HandlerMethodReturnValueHandler {
 
   supportsReturnType(returnType: MethodParameter): boolean {
-    return returnType.hasClassAnnotation(ResponseBody) || returnType.hasParameterAnnotation(ResponseBody);
+    return returnType.hasClassAnnotation(ResponseBody) || returnType.hasMethodAnnotation(ResponseBody);
   }
 
   private hasValue(returnValue: any) {
@@ -37,6 +37,8 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
       response.setStatus(entity.responseStatus);
       // 根据对应的转换器来写出内容到客户端
       await messageConverters.write(entity.data, entity.mediaType, servletContext);
+    } else {
+      servletContext.response.setStatus(HttpStatus.OK);
     }
     // 结束返回流
     servletContext.response.end()
@@ -52,7 +54,7 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
   }
 
   private getProducibleMediaTypes(servletContext: ServletContext, handler: HandlerMethod, data: any) {
-    const produces = RequestMapping.getMappingInfo(handler.beanType, handler.methodName)?.produces;
+    const produces = RequestMapping.getMappingInfo(handler.beanType, handler.methodName)?.produces || [];
     if (produces.length > 0) {
       return produces.map((m) => new MediaType(m));
     }

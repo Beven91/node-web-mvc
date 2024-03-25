@@ -32,22 +32,11 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
     const { request } = servletContext;
     const name = anno?.value || parameter.paramName;
     const query = request.query;
-    const body = await this.resolveBody(servletContext, parameter);
+    const res = await request.reader.read(servletContext);
+    const body = res || {};
     if (parameter.isParamAssignableOf(Map)) {
       return { ...query, ...body };
     }
     return name in query ? query[name] : body[name];
-  }
-
-  resolveBody(servletContext: ServletContext, parameter: MethodParameter) {
-    const { request } = servletContext;
-    const mediaType = request.mediaType.name;
-    switch (mediaType) {
-      case 'multipart/form-data':
-      case 'application/x-www-form-urlencoded':
-        return servletContext.configurer.messageConverters.read(servletContext, parameter.parameterType);
-      default:
-        return {};
-    }
   }
 }

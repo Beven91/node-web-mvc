@@ -5,6 +5,7 @@
  * https://generator3.swagger.io/openapi.json
  */
 import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
+import MultipartFile from "../../servlets/http/MultipartFile";
 import ApiModel from "../annotations/ApiModel";
 import ApiModelProperty from "../annotations/ApiModelProperty";
 import { ApiModelInfo, ApiModelPropertyInfo, SchemeRef } from "./declare";
@@ -81,14 +82,19 @@ export default class Schemas {
     const typeInfo = refType as any as ApiModelPropertyInfo;
     const genericType = new GenericType(name);
     const typeName = genericType.isArray ? genericType.childName : name;
+    const isFile = typeName == MultipartFile.name;
     if (genericType.isArray) {
       delete refType.$ref;
       typeInfo.type = 'array';
-      typeInfo.items = {
-        $ref: this.typemappings.makeRef(typeName)
+      if (isFile) {
+        typeInfo.items = { type: 'file' };
+      } else {
+        typeInfo.items = {
+          $ref: this.typemappings.makeRef(typeName)
+        }
       }
     }
-    if (schemas[typeName]) {
+    if (schemas[typeName] || isFile) {
       // 如果已存在该类型,则直接忽略
       return;
     }

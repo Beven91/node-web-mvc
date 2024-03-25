@@ -1,8 +1,8 @@
 import Javascript from "../../interface/Javascript";
 import MultipartFile from "../../servlets/http/MultipartFile";
-import { SchemeRef } from "./declare";
+import { ApiModelPropertyInfo, SchemeRef } from "./declare";
 
-const alias = {
+const alias: Record<string, any> = {
   'undefined': { type: 'string' },
   'object': { type: 'object' },
   'boolean': { type: 'boolean' },
@@ -11,6 +11,8 @@ const alias = {
   'string': { type: 'string' },
   'symbol': { type: 'string' },
   'function': { type: 'function' },
+  'MultipartFile': { type: 'file' },
+  'MultipartFile[]': { type: 'array', items: { type: 'file' } },
 }
 
 const mappings = [
@@ -20,7 +22,7 @@ const mappings = [
   { clazz: Boolean, data: { type: 'boolean' } },
   { clazz: Number, data: { type: 'integer' } },
   { clazz: BigInt, data: { type: 'number', format: 'biginteger' } },
-  { clazz: Array, data: { type: 'array' } },
+  { clazz: Array, data: { type: 'array', items: { type: 'stirng' } } },
   { clazz: SharedArrayBuffer, data: { type: 'array', items: { type: 'binary' } } },
   { clazz: Int8Array, data: { type: 'array', items: { type: 'integer' } } },
   { clazz: Int32Array, data: { type: 'array', items: { type: 'integer' } } },
@@ -29,8 +31,8 @@ const mappings = [
   { clazz: Uint32Array, data: { type: 'array', items: { type: 'integer' } } },
   { clazz: Uint8Array, data: { type: 'array', items: { type: 'integer' } } },
   { clazz: Uint8ClampedArray, data: { type: 'array', items: { type: 'integer' } } },
-  { clazz: Set, data: { type: 'array' } },
-  { clazz: WeakSet, data: { type: 'array' } },
+  { clazz: Set, data: { type: 'array', items: { type: 'stirng' } } },
+  { clazz: WeakSet, data: { type: 'array', items: { type: 'stirng' } } },
   { clazz: WeakMap, data: { type: 'object' } },
   { clazz: Map, data: { type: 'object' } },
   { clazz: MultipartFile, data: { type: 'file' } },
@@ -61,14 +63,16 @@ export default class TypeMappings {
     }
   }
 
-  make(type: any) {
+  make(type: any): SchemeRef | ApiModelPropertyInfo {
     const clazz = Javascript.getClass(type);
     const basicType = mappings.find((m) => clazz.isEqualOrExtendOf(m.clazz))?.data;
-    if (basicType) {
+    if (type === Object) {
+      return { type: 'object' };
+    } else if (basicType) {
       return basicType;
     } else if (typeof type === 'string') {
       return this.makeRefType(type);
-    } else if (type?.name) {
+    } else if (type?.name && clazz.isEqualOrExtendOf(Object)) {
       return { '$ref': this.makeRef(type.name) };
     } else {
       return { type: 'string' }

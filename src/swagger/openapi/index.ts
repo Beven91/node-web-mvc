@@ -3,7 +3,7 @@
  * @description 用于构建当前环境的openapi.json
  */
 import path from 'path';
-import { ApiImplicitParamOptions, SchemaMeta, ApiTag, ApiOperationResponseBody } from './declare';
+import { ApiImplicitParamOptions, SchemaMeta, ApiTag, ApiOperationResponseBody, ApiOperationParameter, SchemeRef, ApiModelPropertyInfo } from './declare';
 import { ApiPaths, ApiOperationPaths } from './declare';
 import Schemas from './schemas';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
@@ -11,7 +11,6 @@ import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnno
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import MultipartFile from '../../servlets/http/MultipartFile';
-import RestController from '../../servlets/annotations/RestController';
 import ApiOperation from '../annotations/ApiOperation';
 import ResourceHandlerRegistry from '../../servlets/resources/ResourceHandlerRegistry';
 import Controller from '../../servlets/annotations/Controller';
@@ -160,26 +159,22 @@ export default class OpenApiModel {
    */
   private buildOperation(paths: ApiPaths, action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, tags: ApiTag[], definition: Schemas) {
     const apiOperation = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation)?.nativeAnnotation;
-    const isRestController = !!RuntimeAnnotation.getClassAnnotation(action.ctor, RestController);
     const mapping = RequestMapping.getMappingInfo(action.ctor, action.methodName);
     if (!mapping) {
       return;
     }
     const returnType = apiOperation?.returnType || action.returnType;
     const code = apiOperation?.code || '200';
-    const requestBody: ApiOperationResponseBody = { content: {} };
-    const parameters = this.buildOperationParameters(action, requestBody, definition);
-    const requestContents = Object.keys(requestBody.content).filter(Boolean);
-    const consumes = requestContents.length > 0 ? requestContents : '';
+    const consumes = apiOperation?.consumes || mapping.consumes || [];
+    const parameters = this.buildOperationParameters(action, definition);
     const operationDoc = {
-      consumes: mapping.consumes || consumes || apiOperation?.consumes || undefined,
       deprecated: false,
       operationId: action.methodName,
       tags: apiOperation?.tags || tags.map((tag) => tag.name),
       summary: apiOperation?.value,
       description: apiOperation?.notes,
-      parameters: parameters,
-      requestBody: Object.keys(requestBody.content).length > 0 ? requestBody : undefined,
+      parameters: parameters.filter((m) => !this.isMultipartFile(m.schema)),
+      requestBody: this.buildOperationConsumes(action, parameters, consumes),
       responses: {
         "201": { "description": "Created" },
         "401": { "description": "Unauthorized" },
@@ -203,7 +198,7 @@ export default class OpenApiModel {
    * 构建api接口操作参数
    * @param operation 
    */
-  private buildOperationParameters(action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, requestBody: ApiOperationResponseBody, definition: Schemas) {
+  private buildOperationParameters(action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, definition: Schemas) {
     const operationAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation);
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiImplicitParams);
     const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
@@ -224,28 +219,7 @@ export default class OpenApiModel {
     });
     return finalParameters.map((parameter) => {
       const typeInfo = definition.typemappings.make(parameter.dataType || parameter.example?.constructor);
-      if (typeInfo.type === 'file' || (parameter.in as string) == 'part' || typeInfo?.items?.type == 'file') {
-        const info = requestBody.content['multipart/form-data'] = (requestBody.content['multipart/form-data'] || {
-          schema: {
-            required: [],
-            properties: {},
-            type: 'object'
-          }
-        }) as { schema: SchemaMeta };
-        if (parameter.required) {
-          info.schema.required.push(parameter.name);
-        }
-        info.schema.properties[parameter.name] = {
-          description: parameter.description,
-          ...typeInfo,
-        }
-        return null;
-      } else if (parameter.in == 'body') {
-        requestBody.content['application/json'] = {
-          schema: typeInfo
-        }
-        return null;
-      }
+      if (parameter.in === 'body') return null;
       return {
         name: parameter.name,
         required: parameter.required,
@@ -253,8 +227,54 @@ export default class OpenApiModel {
         in: parameter.in,
         example: emptyOf(parameter.example, undefined),
         schema: typeInfo
-      }
+      } as ApiOperationParameter
     }).filter(Boolean);
+  }
+
+  private isMultipartFile(schema: ApiOperationParameter['schema']) {
+    const ref = (schema as SchemeRef)?.$ref;
+    const type = schema as ApiModelPropertyInfo;
+    if (!type) {
+      return false;
+    } else if (ref) {
+      return ref.indexOf('MultipartFile') > -1;
+    } else {
+      return type.type == 'file' || type.items?.type == 'file';
+    }
+  }
+
+  private buildOperationConsumes(action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, parameters: ApiOperationParameter[], consumes: string[]) {
+    const requestBody = { content: {} } as ApiOperationResponseBody;
+    const body = parameters.find((m) => m.in == 'body');
+    const multiparts = parameters.filter((m) => this.isMultipartFile(m.schema))
+    if (multiparts.length > 0) {
+      const meta = requestBody.content['multipart/form-data'] = {
+        schema: {
+          required: multiparts.filter((m) => m.required).map((m) => m.name),
+          properties: {},
+          type: 'object'
+        }
+      }
+      multiparts.forEach((m) => {
+        meta.schema.properties[m.name] = {
+          ...m.schema,
+        }
+      })
+    }
+    if (body && (body.schema as SchemeRef)?.$ref) {
+      requestBody.content['application/json'] = {
+        schema: body.schema as SchemeRef
+      }
+    }
+    consumes.forEach((m) => {
+      if (requestBody.content[m]) return;
+      requestBody.content[m] = {
+        schema: {
+          type: 'string'
+        }
+      }
+    })
+    return requestBody;
   }
 
   private buildOperationProduces(returnType: any, mapping: RequestMappingInfo, definition: Schemas) {
@@ -262,10 +282,8 @@ export default class OpenApiModel {
     const contents = {};
     produces.forEach((name) => {
       const schema = returnType ? definition.typemappings.make(returnType) : undefined;
-      if (schema) {
-        contents[name] = {
-          schema: schema
-        }
+      contents[name] = {
+        schema: schema || { type: 'string' }
       }
     })
     return Object.keys(contents).length < 1 ? undefined : contents;

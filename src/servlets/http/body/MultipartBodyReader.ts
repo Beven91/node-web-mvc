@@ -5,30 +5,23 @@
 import path from 'path';
 import fs from 'fs';
 import Busboy from 'busboy';
-import ServletContext from '../ServletContext';
+import type ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
-import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 import { randomUUID } from 'crypto';
-import Javascript from '../../../interface/Javascript';
-import MultiValueMap from '../../util/MultiValueMap';
+import AbstractBodyReader from './AbstractBodyReader';
 
-export default class MultipartMessageConverter extends AbstractHttpMessageConverter<Object> {
+export default class MultipartBodyReader extends AbstractBodyReader {
 
   constructor() {
-    super(new MediaType('multipart/form-data'))
+    super(MediaType.MULTIPART_FORM_DATA)
   }
 
-  supports(clazz: Function): boolean {
-    return true;
-  }
-
-  canWrite(clazz: Function, mediaType: MediaType): boolean {
-    if (!Javascript.getClass(clazz).isEqualOrExtendOf(MultiValueMap)) {
-      return false;
+  ensureDir(dir: string) {
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir,{ recursive: true });
     }
-    return super.canWrite(clazz, mediaType);
   }
 
   /**
@@ -47,6 +40,7 @@ export default class MultipartMessageConverter extends AbstractHttpMessageConver
       const value = form[fieldname];
       const root = servletContext.configurer?.multipart?.tempRoot || 'app_data/temp-files';
       const id = path.join(root, randomUUID());
+      this.ensureDir(root);
       // 创建一个写出流
       const writter = fs.createWriteStream(id);
       // 读取文件流
@@ -109,14 +103,11 @@ export default class MultipartMessageConverter extends AbstractHttpMessageConver
         });
       });
       // 读取完毕
-      busboy.on('finish', () => promise.then(() => topResolve(form), topReject));
+      busboy.on('finish', () => {
+        promise.then(() => topResolve(form), topReject)
+      });
       // 托管到busboy读取
       servletContext.request.pipe(busboy);
     });
-  }
-
-  writeInternal(data: any, servletContext: ServletContext) {
-    // 暂不实现写出
-    return Promise.resolve();
   }
 }

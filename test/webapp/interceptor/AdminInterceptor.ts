@@ -1,5 +1,5 @@
 import { HandlerInterceptorAdapter, HandlerMethod } from '../../../src/index';
-import Security from '../annotations/SecurityAnnotation';
+import Security from '../annotations/Security';
 
 
 export default class AdminInterceptor extends HandlerInterceptorAdapter {

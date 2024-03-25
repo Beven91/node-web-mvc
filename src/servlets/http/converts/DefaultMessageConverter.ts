@@ -16,8 +16,9 @@ export default class DefaultMessageConverter extends AbstractHttpMessageConverte
     return true;
   }
 
-  readInternal(servletContext: ServletContext): any {
-    return null;
+  async readInternal(servletContext: ServletContext): Promise<any> {
+    const buffer = await servletContext.request.readBodyAsBuffer();
+    return buffer.toString('utf-8');
   }
 
   writeInternal(data: any, servletContext: ServletContext) {

@@ -20,7 +20,7 @@ export default class JsonMessageConverter extends AbstractHttpMessageConverter<O
     if (!servletContext.request.hasBody) {
       return null;
     }
-    const buffer = await servletContext.request.readBody();
+    const buffer = await servletContext.request.readBodyAsBuffer();
     const body = buffer.toString('utf8');
     return JSON.parse(body);
   }
