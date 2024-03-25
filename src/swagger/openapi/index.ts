@@ -18,6 +18,8 @@ import Api from '../annotations/Api';
 import ElementType from '../../servlets/annotations/annotation/ElementType';
 import ApiIgnore from '../annotations/ApiIgnore';
 import RequestMappingInfo from '../../servlets/mapping/RequestMappingInfo';
+import ServletResponse from '../../servlets/annotations/params/ServletResponse';
+import ServletRequest from '../../servlets/annotations/params/ServletRequest';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -206,7 +208,12 @@ export default class OpenApiModel {
     const finalParameters = parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ParamAnnotation);
+      const isRequest = !!RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ServletResponse);
+      const isResponse = !!RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ServletRequest);
       const parameter2 = parameterAnno?.nativeAnnotation;
+      if (isRequest || isResponse) {
+        return;
+      }
       return this.mapOperationParam({
         name: emptyOf(parameter.name, parameter2?.value) || name,
         value: emptyOf(parameter.value, parameter2?.value),
@@ -216,7 +223,7 @@ export default class OpenApiModel {
         paramType: emptyOf(parameter.paramType, parameter2?.getParamAt()) || 'query',
         description: parameter.description || undefined
       });
-    });
+    }).filter(Boolean);
     return finalParameters.map((parameter) => {
       const typeInfo = definition.typemappings.make(parameter.dataType || parameter.example?.constructor);
       if (parameter.in === 'body') return null;

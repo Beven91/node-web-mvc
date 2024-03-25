@@ -82,7 +82,7 @@ export default class HomeController {
   index(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
     this.oService.sayHello();
     this.orderService.sayHello();
-    // TODO
+    // TODO 如何防止恶意写入
     file.transferTo('a.jpg')
     return 'home/index...' + id + ',file.name=' + file.name;
   }
