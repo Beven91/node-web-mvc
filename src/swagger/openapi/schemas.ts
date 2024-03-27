@@ -49,7 +49,7 @@ export default class Schemas {
       }
     }
     // 处理引用类型
-    this.buildGenericModels(schemas);
+    this.buildRefrerences(schemas);
     // 返回定义
     return schemas;
   }
@@ -71,13 +71,14 @@ export default class Schemas {
     return modelProperties;
   }
 
-  private buildGenericModels(schemas: Record<string, ApiModelInfo>) {
-    for (let genericType of this.typemappings.genericTypes) {
+  private buildRefrerences(schemas: Record<string, ApiModelInfo>) {
+    for (let genericType of this.typemappings.referenceTypes) {
       this.buildGenericModel(schemas, genericType);
     }
   }
 
   private buildGenericModel(schemas: Record<string, ApiModelInfo>, refType: SchemeRef) {
+    if (!refType.$ref) return;
     const name = refType.$ref.split('schemas/').pop();
     const typeInfo = refType as any as ApiModelPropertyInfo;
     const genericType = new GenericType(name);
@@ -89,9 +90,7 @@ export default class Schemas {
       if (isFile) {
         typeInfo.items = { type: 'file' };
       } else {
-        typeInfo.items = {
-          $ref: this.typemappings.makeRef(typeName)
-        }
+        typeInfo.items = this.typemappings.makeRef(typeName)
       }
     }
     if (schemas[typeName] || isFile) {
@@ -103,13 +102,14 @@ export default class Schemas {
     const properties = {};
     if (!baseModel) {
       // 如果没有baseModel，无法生成，跳过
+      console.warn('OpenApi: Cannot found ref:' + type2.name)
       return;
     }
     Object.keys(baseModel.properties).map((name: string) => {
       const item = baseModel.properties[name] as ApiModelPropertyInfo;
       if (GenericType.isGeneric(item.type)) {
         const pGenericType = type2.fillTo(item.type);
-        properties[name] = { $ref: this.typemappings.makeRef(pGenericType.toString()) };
+        properties[name] = this.typemappings.makeRef(pGenericType.toString());
         this.buildGenericModel(schemas, properties[name]);
       } else {
         properties[name] = item;

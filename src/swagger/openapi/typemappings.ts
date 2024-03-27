@@ -38,28 +38,30 @@ const mappings = [
   { clazz: MultipartFile, data: { type: 'file' } },
   { clazz: Buffer, data: { type: 'binary' } },
   { clazz: Function, data: { type: 'object' } },
+  { clazz: Promise, data: { type: 'object' } },
 ]
 
 export default class TypeMappings {
 
-  public readonly genericTypes: SchemeRef[] = [];
+  public readonly referenceTypes: SchemeRef[] = [];
 
   makeRef(name) {
-    return `#/components/schemas/${name}`;
+    const type = { '$ref': `#/components/schemas/${name}` };
+    this.referenceTypes.push(type);
+    return type;
   }
+
 
   makeRefType(typeName: string) {
     if (!typeName) {
       return null;
     } else if (/</.test(typeName)) {
       // 泛型处理
-      const genericType = { '$ref': this.makeRef(typeName) };
-      this.genericTypes.push(genericType);
-      return genericType;
+      return this.makeRef(typeName);
     } else if (alias[typeName]) {
       return alias[typeName];
     } else {
-      return { '$ref': this.makeRef(typeName) };
+      return this.makeRef(typeName);
     }
   }
 
@@ -73,7 +75,7 @@ export default class TypeMappings {
     } else if (typeof type === 'string') {
       return this.makeRefType(type);
     } else if (type?.name && clazz.isEqualOrExtendOf(Object)) {
-      return { '$ref': this.makeRef(type.name) };
+      return this.makeRef(type.name);
     } else {
       return { type: 'string' }
     }
