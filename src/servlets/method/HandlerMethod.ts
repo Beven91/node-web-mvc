@@ -180,15 +180,19 @@ export default class HandlerMethod {
     if (!this.method) {
       return new InterruptModel();
     }
-    const returnValue = this.method.call(this.bean, ...args);
+    const returnValue = await Promise.resolve(this.method.call(this.bean, ...args));
     this.setResponseStatus(servletContext);
+    // 如果response已处理结束
+    if (servletContext.response.headersSent) {
+      return new InterruptModel();
+    }
     // 如果通过ResponseStatus指定了返回状态原因,则不执行返回处理
     if (this.responseStatusReason) {
       return;
     }
     if (returnValue && returnValue instanceof InterruptModel) {
       // 如果是不执行任何操作
-      return;
+      return returnValue;
     }
     const returnType = new MethodParameter(this.beanType, this.methodName, '', -1, returnValue?.constructor);
     const configHandlers = servletContext.configurer.returnValueRegistry.handlers;
