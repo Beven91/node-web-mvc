@@ -81,7 +81,7 @@ export default class MultipartController {
     response.setHeader('Content-Type', 'image/png');
     response.setHeader('Content-Length', buffer.length)
     // setTimeout(()=>{
-    return response.setStatus(200).end(buffer);
+    response.setStatus(200).end(buffer);
     // return response.setStatus(200).end(buffer);
   }
 } 
