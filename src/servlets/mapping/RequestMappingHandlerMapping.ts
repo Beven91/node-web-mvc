@@ -8,7 +8,6 @@ import RequestMappingInfo, { ensureArray } from './RequestMappingInfo';
 import HttpServletRequest from "../http/HttpServletRequest";
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
-import WebMvcConfigurationSupport from "../config/WebMvcConfigurationSupport";
 import RequestMapping, { RequestMappingExt } from "../annotations/mapping/RequestMapping";
 import RuntimeAnnotation, { TracerConstructor } from "../annotations/annotation/RuntimeAnnotation";
 import ElementType from "../annotations/annotation/ElementType";
@@ -18,8 +17,8 @@ import HttpStatus from '../http/HttpStatus';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> {
 
-  constructor(configurer: WebMvcConfigurationSupport) {
-    super(configurer);
+  constructor() {
+    super();
     hotUpdate(this);
     this.registerAllAnnotationMappings();
   }
@@ -73,9 +72,9 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
   public checkRequest(servletContext: ServletContext, mapping: RequestMappingInfo, handler: HandlerMethod) {
     const request = servletContext.request;
     if (!mapping.method[request.method]) {
-      return new HttpStatusHandlerMethod(HttpStatus.METHOD_NOT_ALLOWED, servletContext.configurer);
+      return new HttpStatusHandlerMethod(HttpStatus.METHOD_NOT_ALLOWED);
     } else if (!this.isConsumeable(servletContext, mapping)) {
-      return new HttpStatusHandlerMethod(HttpStatus.UNSUPPORTED_MEDIA_TYPE, servletContext.configurer);
+      return new HttpStatusHandlerMethod(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
     }
     return handler;
   }
@@ -103,7 +102,7 @@ function hotUpdate(handlerMapping: RequestMappingHandlerMapping) {
     .create(module)
     .preload((old) => {
       const file = old.filename;
-      const registration = handlerMapping.getRegistration();
+      const registration = handlerMapping.getRegistrations();
       const removeList = [] as any[];
       for (let element of registration.values()) {
         const ctor = element.getHandlerMethod()?.beanType as TracerConstructor;

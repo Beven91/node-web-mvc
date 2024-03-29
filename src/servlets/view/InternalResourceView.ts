@@ -6,7 +6,6 @@ import querystring from 'querystring';
 import View from './View';
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
-import DispatcherServlet from '../dispatch/DispatcherServlet';
 import ForwardEndlessLoopError from '../../errors/ForwardEndlessLoopError';
 
 export default class InternalResourceView extends View {
@@ -34,7 +33,8 @@ export default class InternalResourceView extends View {
       ...pathVariables,
       ...(request.pathVariables || {})
     }
+    const newServletContext = request.servletContext;
     // 重新执行
-    return (new DispatcherServlet(servletContext.configurer)).doService(request.servletContext)
+    return request.servletContext.dispatcher.doService(newServletContext);
   }
 }

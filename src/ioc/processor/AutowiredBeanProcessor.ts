@@ -3,15 +3,15 @@
  * @description 自动装配处理
  */
 
-import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
-import DefaultListableBeanFactory from "./DefaultListableBeanFactory";
-import Autowired from "./annotations/Autowired";
+import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
+import { BeanFactory } from "../factory/BeanFactory";
+import Autowired from "../annotations/Autowired";
 
 export default class AutowiredBeanProcessor {
 
-  private readonly beanFactory: DefaultListableBeanFactory;
+  private readonly beanFactory: BeanFactory;
 
-  constructor(beanFactory: DefaultListableBeanFactory) {
+  constructor(beanFactory: BeanFactory) {
     this.beanFactory = beanFactory;
   }
 
@@ -34,6 +34,9 @@ export default class AutowiredBeanProcessor {
    * 处理属性的依赖bean
    */
   processPropertyBean(anno: RuntimeAnnotation) {
+    // 1. 处理构造 --> 在createBean
+    // 2. 处理方法 或者参数 
+    // 3. 处理属性
     const { ctor, name } = anno;
     Object.defineProperty(ctor.prototype, name, {
       get: () => this.createBean(anno),

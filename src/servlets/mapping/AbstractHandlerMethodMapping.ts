@@ -2,40 +2,29 @@
  * @module AbstractHandlerMethodMapping
  * @description 抽象请求方法映射
  */
-import hot from 'nodejs-hmr';
 import AbstractHandlerMapping from "./AbstractHandlerMapping";
-import MappingRegistry from './registry/MappingRegistry';
 import ServletContext from "../http/ServletContext";
 import HttpServletRequest from "../http/HttpServletRequest";
 import MappingRegistration from './registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod';
-import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
-import HttpStatus from '../http/HttpStatus';
 
 export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping {
 
-  private readonly mappingRegistry: MappingRegistry<T>
+  private readonly registrations: Map<T, MappingRegistration<T>>
 
   protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod
 
-  constructor(configurer: WebMvcConfigurationSupport) {
-    super(configurer);
-    this.mappingRegistry = new MappingRegistry<T>(configurer)
-    hot.create(module)
-      .preload((old) => {
-        hot
-          .createHotUpdater<MappingRegistration<T>>(this.mappingRegistry.getRegistration(), null, old)
-          .needHot((m, ctor) => m.getHandlerMethod().beanType === ctor)
-          .remove();
-      });
+  constructor() {
+    super();
+    this.registrations = new Map<T, MappingRegistration<T>>();
   }
 
   /**
    * 注册一个映射方法
    */
   registerHandlerMethod(name: string, mapping: T, handler: any, method?: Function) {
-    this.mappingRegistry.register(name, mapping, handler, method);
+    const methodHandler = new HandlerMethod(handler, method);
+    this.registrations.set(mapping, new MappingRegistration<T>(mapping, methodHandler, name));
   }
 
   /**
@@ -43,11 +32,15 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
    * @param mapping 
    */
   removeHandlerMethod(mapping: T) {
-    this.mappingRegistry.unregister(mapping);
+    this.registrations.delete(mapping);
   }
 
-  getRegistration() {
-    return this.mappingRegistry.getRegistration();
+  /**
+   * 获取所有注册的Mappings
+   * @returns 
+   */
+  getRegistrations() {
+    return this.registrations;
   }
 
   /**
@@ -63,8 +56,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
    * 根据请求查找对应的HandlerMethod
    */
   lookupHandlerMethod(lookupPath: string, request: HttpServletRequest): HandlerMethod {
-    const registry = this.mappingRegistry.getRegistration();
-    for (let registration of registry.values()) {
+    for (let registration of this.registrations.values()) {
       const handler = this.match(registration, lookupPath, request);
       // 如果没有找到，则继续查找
       if (!handler) continue;
@@ -73,7 +65,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
   }
 
   getMappingForMethod(handler: HandlerMethod) {
-    for (let info of this.mappingRegistry.getRegistration().values()) {
+    for (let info of this.registrations.values()) {
       if (info.getHandlerMethod() === handler) {
         return info.getMapping();
       }

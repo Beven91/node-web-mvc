@@ -36,11 +36,6 @@ export interface ApiImplicitParamOptions {
    * 参数示例值，一定程度上可用于补充dataType
    */
   example?: any
-
-  /**
-   * 参数传入类型
-   */
-  paramType?: 'path' | 'query' | 'body' | 'header' | 'formData'
 }
 
 export declare interface ExternalDocs {
@@ -126,6 +121,7 @@ export interface SchemaMeta {
 export interface ApiOperationResponseBody {
   content: {
     [x: string]: {
+      example?: string
       schema: SchemeRef | SchemaMeta
     }
   }
@@ -141,7 +137,7 @@ export interface ApiOperationParameter {
   name: string
   required: boolean
   description: string
-  in: ApiImplicitParamOptions['paramType']
+  in: 'path' | 'query' | 'body' | 'header' | 'formData'
   example: string
   schema: SchemeRef | ApiModelPropertyInfo
 }

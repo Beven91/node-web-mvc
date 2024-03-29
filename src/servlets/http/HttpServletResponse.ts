@@ -7,7 +7,6 @@ import InterruptModel from '../models/InterruptModel';
 import HttpStatus from './HttpStatus';
 import ServletContext from './ServletContext';
 import type InternalErrorHandler from './error/InternalErrorHandler';
-import RequestBodyReader from './body/RequestBodyReader';
 
 export default class HttpServletResponse {
 

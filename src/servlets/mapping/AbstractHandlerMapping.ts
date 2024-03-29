@@ -9,37 +9,39 @@ import ServletContext from '../http/ServletContext';
 import HandlerInterceptor from '../interceptor/HandlerInterceptor';
 import MappedInterceptor from '../interceptor/MappedInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import UrlPathHelper from "../util/UrlPathHelper";
 import PathMatcher from "../util/PathMatcher";
 
 export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
-  private readonly configurer: WebMvcConfigurationSupport;
+  protected urlPathHelper: UrlPathHelper = new UrlPathHelper();
 
-  constructor(configurer: WebMvcConfigurationSupport) {
-    this.configurer = configurer;
+  protected pathMatcher: PathMatcher = new PathMatcher();
+
+  protected interceptors: HandlerInterceptor[]
+
+  constructor() {
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
 
   static HANDLE_MAPPING_PATH = '@@HANDLE_MAPPING_PATH@@'
 
-  public get urlPathHelper(): UrlPathHelper {
-    const pathMatchConfigurer = this.configurer.pathMatchConfigurer;
-    return pathMatchConfigurer.getUrlPathHelperOrDefault();
+  public setUrlPathHelper(value: UrlPathHelper) {
+    this.urlPathHelper = value;
   }
 
-  public get pathMatcher(): PathMatcher {
-    const pathMatchConfigurer = this.configurer.pathMatchConfigurer;
-    return pathMatchConfigurer.getPathMatcherOrDefault();
+  public setPathMatcher(value: PathMatcher) {
+    this.pathMatcher = value;
   }
 
   /**
    * 所有设置的拦截器
    */
-  private get interceptors() {
-    return this.configurer.interceptorRegistry.getInterceptors();
+  public setInterceptors(interceptors: HandlerInterceptor[]) {
+    this.interceptors = interceptors;
+    // TODO
+    // return this.pathMatchConfigurer.interceptorRegistry.getInterceptors();
   }
 
   // 默认处理器,如果 getHandlerInternal 没有返回handler，则使用当前配置的默认处理器

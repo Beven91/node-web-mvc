@@ -16,7 +16,7 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
       const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod.beanType);
       const exceptionAnnotation = scopeAnnotation || globalAnnotation;
       if (exceptionAnnotation) {
-        const exceptionHandlerMethod = new HandlerMethod(exceptionAnnotation.ctor, exceptionAnnotation.method, servletContext.configurer);
+        const exceptionHandlerMethod = new HandlerMethod(exceptionAnnotation.ctor, exceptionAnnotation.method);
         // 自定义异常处理
         await exceptionHandlerMethod.invoke(servletContext, error);
         return servletContext.isRequestHandled();

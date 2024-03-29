@@ -66,7 +66,7 @@ export default class MultipartController {
 
   @ApiOperation({ value: 'xml测试', notes: 'application/json测试' })
   @ApiImplicitParams([
-    { description: '提交数据', paramType: 'body', name: 'data', required: true },
+    { description: '提交数据', name: 'data', required: true },
   ])
   @PostMapping({ value: '/xml', consumes: 'application/xml', produces: 'application/xml' })
   xml(@RequestBody data: any) {

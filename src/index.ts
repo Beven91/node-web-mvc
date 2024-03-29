@@ -8,7 +8,6 @@ export { default as GetMapping } from './servlets/annotations/mapping/GetMapping
 export { default as PutMapping } from './servlets/annotations/mapping/PutMapping';
 export { default as PatchMapping } from './servlets/annotations/mapping/PatchMapping';
 export { default as DeleteMapping } from './servlets/annotations/mapping/DeleteMapping';
-export { default as MappingRegistry } from './servlets/mapping/registry/MappingRegistry';
 export { default as HandlerMapping } from './servlets/mapping/HandlerMapping';
 export { default as AbstractHandlerMapping } from './servlets/mapping/AbstractHandlerMapping';
 export { default as AbstractHandlerMethodMapping } from './servlets/mapping/AbstractHandlerMethodMapping';
@@ -69,10 +68,6 @@ export { default as ModelAndView } from './servlets/models/ModelAndView';
 export { default as InterruptModel } from './servlets/models/InterruptModel';
 export { default as ServletModel } from './servlets/models/ServletModel';
 export { default as Middlewares } from './servlets/models/Middlewares';
-export { default as Autowired } from './ioc/annotations/Autowired';
-export { default as Component } from './ioc/annotations/Component';
-export { default as Repository } from './ioc/annotations/Repository';
-export { default as Service } from './ioc/annotations/Service';
 export { default as HttpServletRequest } from './servlets/http/HttpServletRequest';
 export { default as HttpServletResponse } from './servlets/http/HttpServletResponse';
 export { default as MediaType } from './servlets/http/MediaType';
@@ -124,7 +119,6 @@ export { default as RedirectView } from './servlets/view/RedirectView';
 export { default as ElementType } from './servlets/annotations/annotation/ElementType';
 export { default as ResponseBody } from './servlets/annotations/ResponseBody';
 export { default as HandlerExceptionResolver } from './servlets/method/exception/HandlerExceptionResolver';
-export { default as ExceptionResolverRegistry } from './servlets/method/exception/ExceptionResolverRegistry';
 export { default as DefaultHandlerExceptionResolver } from './servlets/method/exception/DefaultHandlerExceptionResolver';
 export { default as ExceptionHandlerExceptionResolver } from './servlets/method/exception/ExceptionHandlerExceptionResolver';
 export { default as ResponseStatusExceptionResolver } from './servlets/method/exception/ResponseStatusExceptionResolver';
@@ -137,6 +131,20 @@ export { default as Normalizer } from './errors/Normalizer';
 export { default as DefaultErrorView } from './servlets/http/error/DefaultErrorView';
 export { default as ByteArrayResource } from './servlets/resources/ByteArrayResource';
 export { default as ByteArrayInputStream } from './servlets/resources/ByteArrayInputStream';
+export { default as Autowired } from './ioc/annotations/Autowired';
+export { default as Component } from './ioc/annotations/Component';
+export { default as Repository } from './ioc/annotations/Repository';
+export { default as Service } from './ioc/annotations/Service';
+export { default as DefaultListableBeanFactory } from './ioc/factory/DefaultListableBeanFactory';
+export { BeanFactory } from './ioc/factory/BeanFactory'
+export { default as BeanDefinition } from './ioc/factory/BeanDefinition';
+export { default as AbstractBeanFactory } from './ioc/factory/AbstractBeanFactory';
+export { default as CommonAnnotationBeanPostProcessor } from './ioc/processor/CommonAnnotationBeanPostProcessor';
+export { default as BeanPostProcessor } from './ioc/processor/BeanPostProcessor';
+export { default as Javascript } from './interface/Javascript';
+export { default as AbstractApplicationContext } from './servlets/context/AbstractApplicationContext';
+export { default as GenericApplicationContext } from './servlets/context/GenericApplicationContext';
+export { default as ServletApplication } from './servlets/ServletApplication';
 
 
 hot.create(module);

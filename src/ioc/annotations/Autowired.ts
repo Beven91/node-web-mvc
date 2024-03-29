@@ -12,7 +12,8 @@ class Autowired {
    * 默认为:treu
    */
   required? = true
+
 }
 
 // 公布注解
-export default Target(ElementType.PROPERTY)(Autowired);
+export default Target([ElementType.PROPERTY, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE])(Autowired);

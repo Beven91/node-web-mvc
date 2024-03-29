@@ -3,14 +3,13 @@
  * @description 用于构建当前环境的openapi.json
  */
 import path from 'path';
-import { ApiImplicitParamOptions, SchemaMeta, ApiTag, ApiOperationResponseBody, ApiOperationParameter, SchemeRef, ApiModelPropertyInfo } from './declare';
+import { ApiImplicitParamOptions, ApiTag, ApiOperationResponseBody, ApiOperationParameter, SchemeRef, ApiModelPropertyInfo } from './declare';
 import { ApiPaths, ApiOperationPaths } from './declare';
 import Schemas from './schemas';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
 import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
-import MultipartFile from '../../servlets/http/MultipartFile';
 import ApiOperation from '../annotations/ApiOperation';
 import ResourceHandlerRegistry from '../../servlets/resources/ResourceHandlerRegistry';
 import Controller from '../../servlets/annotations/Controller';
@@ -36,39 +35,6 @@ export default class OpenApiModel {
       .setCacheControl({ maxAge: 0 })
     // 加载swagger-controller
     require('../controllers/SwaggerController');
-  }
-
-  /**
-  * 添加接口操作参数定义
-  * @param { ApiOptions  } params 修饰的接口方法的参数配置
-  * @param { Controller } ctor 修饰的控制器
-  * @param { String } name 操作名称
-  */
-  mapOperationParams(params: Array<ApiImplicitParamOptions>) {
-    params
-      .filter((param) => !!param)
-      .forEach((param) => this.mapOperationParam(param))
-  }
-
-  /**
-   * 添加接口操作参数
-   * @param { ApiImplicitParamOptions  } param 修饰的接口方法的参数配置
-   * @param { Controller } ctor 修饰的控制器
-   * @param { String } name 操作名称
-   */
-  mapOperationParam(param: ApiImplicitParamOptions) {
-    return {
-      name: param.value || param.name,
-      required: param.required,
-      example: param.example,
-      description: param.description || param.value || undefined,
-      in: param.dataType === MultipartFile ? 'formData' : param.paramType,
-      dataType: param.dataType,
-      type: '',
-      schema: {
-        $ref: null,
-      }
-    }
   }
 
   /**
@@ -175,7 +141,7 @@ export default class OpenApiModel {
       tags: apiOperation?.tags || tags.map((tag) => tag.name),
       summary: apiOperation?.value,
       description: apiOperation?.notes,
-      parameters: parameters.filter((m) => !this.isMultipartFile(m.schema)),
+      parameters: parameters.filter((m) => !this.isMultipartFile(m.schema) && m.in !== 'body'),
       requestBody: this.buildOperationConsumes(action, parameters, consumes),
       responses: {
         "201": { "description": "Created" },
@@ -204,7 +170,7 @@ export default class OpenApiModel {
     const operationAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation);
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiImplicitParams);
     const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
-    const parameterNames = operationAnno?.parameters || [];
+    const parameterNames = action.parameters;
     const finalParameters = parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ParamAnnotation);
@@ -214,19 +180,22 @@ export default class OpenApiModel {
       if (isRequest || isResponse) {
         return;
       }
-      return this.mapOperationParam({
-        name: emptyOf(parameter.name, parameter2?.value) || name,
-        value: emptyOf(parameter.value, parameter2?.value),
+      const value = emptyOf(parameter.value, parameter2?.value) || emptyOf(parameter.name, parameter2?.value) || name;
+      return {
+        name: value || name,
         required: emptyOf(parameter.required, parameter2?.required),
-        dataType: emptyOf(parameter.dataType, parameterAnno?.dataType) || operationAnno.paramTypes[i],
         example: emptyOf(parameter.example, parameter2?.defaultValue),
-        paramType: emptyOf(parameter.paramType, parameter2?.getParamAt()) || 'query',
-        description: parameter.description || undefined
-      });
+        description: parameter.description || undefined,
+        in: parameter2?.getParamAt() || 'query',
+        dataType: emptyOf(parameter.dataType, parameterAnno?.dataType) || operationAnno?.paramTypes?.[i],
+        type: '',
+        schema: {
+          $ref: null,
+        }
+      }
     }).filter(Boolean);
     return finalParameters.map((parameter) => {
       const typeInfo = definition.typemappings.make(parameter.dataType || parameter.example?.constructor);
-      if (parameter.in === 'body') return null;
       return {
         name: parameter.name,
         required: parameter.required,
@@ -268,8 +237,9 @@ export default class OpenApiModel {
         }
       })
     }
-    if (body && (body.schema as SchemeRef)?.$ref) {
+    if (body) {
       requestBody.content['application/json'] = {
+        example: emptyOf(body.example, undefined),
         schema: body.schema as SchemeRef
       }
     }

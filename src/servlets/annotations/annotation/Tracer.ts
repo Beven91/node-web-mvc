@@ -11,6 +11,6 @@ export default class Tracer {
   }
 
   isDependency(file: string) {
-    return this.dependencies.find((m) => m.indexOf(file) > -1)
+    return !!this.dependencies.find((m) => m.indexOf(file) > -1)
   }
 }

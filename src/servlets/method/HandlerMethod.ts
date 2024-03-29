@@ -9,8 +9,7 @@ import ResponseStatus from '../annotations/ResponseStatus';
 import InterruptModel from '../models/InterruptModel';
 import HandlerMethodReturnValueHandlerComposite from './return/HandlerMethodReturnValueHandlerComposite';
 import ServletContext from '../http/ServletContext';
-import DefaultListableBeanFactory from '../../ioc/DefaultListableBeanFactory';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
+import { BeanFactory } from '../../ioc/factory/BeanFactory';
 
 export interface BeanTypeClazz {
   new(...args: any[]): any
@@ -20,15 +19,12 @@ export default class HandlerMethod {
 
   private isBeanType: boolean
 
+  public readonly beanFactory: BeanFactory
+
   /**
    * 对应的action
    */
   private readonly method: Function;
-
-  // bean创建工厂
-  private readonly beanFactory: DefaultListableBeanFactory
-
-  private configurer: WebMvcConfigurationSupport
 
   public readonly methodName: string
 
@@ -75,7 +71,9 @@ export default class HandlerMethod {
   /**
    * 构造一个方法执行器
    */
-  constructor(bean: any, method: Function | HandlerMethod, configurer: WebMvcConfigurationSupport) {
+  constructor(bean: InstanceType<BeanTypeClazz>, method: Function, beanFactory?: BeanFactory)
+  constructor(bean: InstanceType<BeanTypeClazz>, method: HandlerMethod)
+  constructor(bean: InstanceType<BeanTypeClazz>, method: Function | HandlerMethod, beanFactory?: BeanFactory) {
     if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;
       this.isBeanType = handler.isBeanType;
@@ -83,8 +81,8 @@ export default class HandlerMethod {
       this.methodName = handler.methodName;
       this.bean = bean;
       this.beanType = bean.constructor;
-      this.beanFactory = handler.beanFactory;
       this.parameters = handler.parameters;
+      this.beanFactory = method.beanFactory;
       this.internalResponseStatus = handler.responseStatus;
       this.internalResponseStatusReason = handler.responseStatusReason;
     } else {
@@ -94,9 +92,8 @@ export default class HandlerMethod {
       this.methodName = method ? method.name : '@@handler@@';
       this.bean = isType ? null : bean;
       this.beanType = isType ? bean : bean.constructor;
-      this.beanFactory = configurer.beanFactory;
-      this.configurer = configurer;
       this.parameters = this.initMethodParameters();
+      this.beanFactory = beanFactory;
       this.evaluateResponseStatus();
     }
   }
@@ -155,10 +152,10 @@ export default class HandlerMethod {
 
   public createWithResolvedBean() {
     if (!this.isBeanType) {
-      return new HandlerMethod(this.bean, this, this.configurer);
+      return new HandlerMethod(this.bean, this);
     }
-    const bean = this.beanFactory.getBeanOfType(this.beanType);
-    return new HandlerMethod(bean, this, this.configurer);
+    const bean = this.beanFactory.getBean(this.beanType);
+    return new HandlerMethod(bean, this);
   }
 
   private setResponseStatus(servletContext: ServletContext) {

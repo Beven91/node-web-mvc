@@ -2,75 +2,49 @@
  * @module DispatcherServlet
  * @description controller请求执行入口
  */
-import ServletContext from '../http/ServletContext';
-import ServletModel from '../models/ServletModel';
-import HandlerAdapter from '../method/HandlerAdapter';
-import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
-import RequestMappingHandlerAdapter from '../method/RequestMappingHandlerAdapter';
-import InterruptModel from '../models/InterruptModel';
-import HandlerMapping from '../mapping/HandlerMapping';
-import RequestMappingHandlerMapping from '../mapping/RequestMappingHandlerMapping'
-import Middlewares from '../models/Middlewares';
-import ResourceHandlerAdapter from '../resources/ResourceHandlerAdapter';
-import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
-import NoRequestHandlerMapping from '../mapping/NoRequestHandlerMapping';
-import HttpRequestValidation from '../http/HttpRequestValidation';
-import HttpMethod from '../http/HttpMethod';
-import Normalizer from '../../errors/Normalizer';
-import HandlerExceptionResolverComposite from '../method/exception/HandlerExceptionResolverComposite';
-import HttpStatus from '../http/HttpStatus';
-import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
-import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
-import Component from '../../ioc/annotations/Component';
-import BeanDefinition from '../../ioc/BeanDefinition';
-import BeanOptions from '../../ioc/annotations/BeanOptions';
-import HttpStatusError from '../../errors/HttpStatusError';
-import Autowired from '../../ioc/annotations/Autowired';
-import AutowiredBeanProcessor from '../../ioc/AutowiredBeanProcessor';
+import ServletContext from './http/ServletContext';
+import ServletModel from './models/ServletModel';
+import HandlerAdapter from './method/HandlerAdapter';
+import HandlerExecutionChain from './interceptor/HandlerExecutionChain';
+import RequestMappingHandlerAdapter from './method/RequestMappingHandlerAdapter';
+import InterruptModel from './models/InterruptModel';
+import HandlerMapping from './mapping/HandlerMapping';
+import Middlewares from './models/Middlewares';
+import ResourceHandlerAdapter from './resources/ResourceHandlerAdapter';
+import NoRequestHandlerMapping from './mapping/NoRequestHandlerMapping';
+import HttpRequestValidation from './http/HttpRequestValidation';
+import HttpMethod from './http/HttpMethod';
+import Normalizer from './../errors/Normalizer';
+import HandlerExceptionResolverComposite from './method/exception/HandlerExceptionResolverComposite';
+import HttpStatus from './http/HttpStatus';
+import HttpStatusError from './../errors/HttpStatusError';
+import { IDispatcher } from './http/IDispatcher';
+import WebMvcConfigurationSupport from './config/WebMvcConfigurationSupport';
 
-export default class DispatcherServlet {
+export default class DispatcherServlet implements IDispatcher {
 
   // 所有映射处理器
   private handlerMappings: Array<HandlerMapping>
 
   private handlerAdapters: Array<HandlerAdapter>
 
+  private exceptionResolver: HandlerExceptionResolverComposite
+
   constructor(configurer: WebMvcConfigurationSupport) {
     this.handlerMappings = [
-      new RequestMappingHandlerMapping(configurer),
-      new ResourceHandlerMapping(configurer),
-      new NoRequestHandlerMapping(configurer),
+      configurer.requestMappingHandlerMapping(),
+      configurer.resourceHandlerMapping(),
+      new NoRequestHandlerMapping(),
       // RouterFunctionMapping  --> FilteredRouterFunctions
       // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
       // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
       // AbstractDetectingUrlHandlerMapping
     ];
-
+    this.exceptionResolver = configurer.handlerExceptionResolver();
     this.handlerAdapters = [
       new RequestMappingHandlerAdapter(),
       new ResourceHandlerAdapter(),
     ];
-
-    this.registerAllBeans(configurer);
-  }
-
-  registerAllBeans(configurer: WebMvcConfigurationSupport) {
-    const beanFactory = configurer.beanFactory;
-    const annotations = RuntimeAnnotation.getAnnotations(Component);
-    const autowireds = RuntimeAnnotation.getAnnotations(Autowired);
-    const processor = new AutowiredBeanProcessor(beanFactory);
-    annotations.forEach((annotation) => {
-      const definition = new BeanDefinition(annotation.ctor);
-      const name = annotation.nativeAnnotation.value;
-      if (name) {
-        beanFactory.registerBeanDefinition(name, definition);
-      }
-      beanFactory.registerBeanDefinition(BeanOptions.toBeanName(definition.ctor.name), definition);
-      beanFactory.registerBeanDefinition(annotation.ctor, definition);
-    });
-    autowireds.forEach((annotation) => {
-      processor.processPropertyBean(annotation);
-    })
   }
 
   getHandler(servletContext: ServletContext): HandlerExecutionChain {
@@ -169,9 +143,7 @@ export default class DispatcherServlet {
    * @param {ControllerContext} servletContext 请求上下文
    */
   async handleException(error: Error, servletContext: ServletContext) {
-    const exceptionResolvers = servletContext.configurer.exceptionRegistry.handlers;
-    const resolver = new HandlerExceptionResolverComposite(exceptionResolvers);
-    const isHandled = await resolver.resolveException(servletContext, servletContext.chain.getHandler(), error);
+    const isHandled = await this.exceptionResolver.resolveException(servletContext, servletContext.chain.getHandler(), error);
     if (!isHandled) {
       throw error;
     }

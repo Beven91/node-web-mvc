@@ -63,7 +63,7 @@ export default class ArgumentsResolvers {
         const hasNotValue = finalValue === null || finalValue === undefined;
         if (anno?.required && hasNotValue) {
           // 如果缺少参数
-          const message = `Required request parameter: ${parameter.paramName} is missing @${handler.beanTypeName}.${handler.methodName}`
+          const message = `Required request parameter: ${parameter.paramName} for method parameter type ${parameter.parameterType.name} is not present @${handler.beanTypeName}.${handler.methodName}`
           throw new ArgumentResolvError(message, parameter.paramName);
         }
         // 设置参数值

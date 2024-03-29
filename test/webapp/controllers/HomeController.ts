@@ -2,7 +2,6 @@
 import path from 'path';
 import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController } from '../../../src/index';
 import UserId from '../annotations/UserId';
-import Security from '../annotations/Security';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
@@ -17,37 +16,53 @@ export default class HomeController {
   @Autowired
   private oService: OrderService
 
-  @ApiOperation({ value: 'RequestParam get参数' })
-  @GetMapping('/rp')
+  @ApiOperation({ value: 'RequestParam get参数ss' })
+  @GetMapping('/requestParamsGet')
   requestParamsGet(@RequestParam name: string, @RequestParam id: number) {
     return `name:${name},id:${id}`;
   }
 
-  @Security
   @ApiOperation({ value: 'RequestParam post参数' })
-  @ApiImplicitParams([
-    { name: 'name', paramType: 'formData' },
-    { name: 'id', paramType: 'formData' },
-  ])
-  @PostMapping('/rp')
+  @PostMapping('/requestParamsPost')
   requestParamsPost(@RequestParam name: string, @RequestParam id: number) {
     return `name:${name},id:${id}`;
   }
+  
+  @PostMapping('/requestParamsNoAnnosWithGet')
+  requestParamsNoAnnosWithGet(name: string, id: number) {
+    return `name:${name},id:${id}`;
+  }
 
+
+  @PostMapping('/requestParamsNoAnnosWithPost')
+  requestParamsNoAnnosWithPost(name: string, id: number) {
+    return `name:${name},id:${id}`;
+  }
+
+  @ApiImplicitParams([
+    { name: 'data', example: JSON.stringify({ name: '张三', age: 18, enabled: false }, null, 2) }
+  ])
   @ApiOperation({ value: 'RequestParam接收Map' })
   @GetMapping('/map')
   mapGet(@RequestParam data: Map<string, any>) {
-    const values = [] as string[];
+    const values:string[] = [
+      `Type: ${Object.prototype.toString.call(data)}`
+    ];
     data.forEach((value, key) => {
       values.push(`${key}:${value}`)
     })
     return values.join('\n');
   }
 
+  @ApiImplicitParams([
+    { name: 'data', example: JSON.stringify({ name: '张三', age: 18, enabled: false }, null, 2) }
+  ])
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
   mapPost(@RequestBody data: Map<string, any>) {
-    const values = [] as string[];
+    const values:string[] = [
+      `Type: ${Object.prototype.toString.call(data)}`
+    ];
     data.forEach((value, key) => {
       values.push(`${key}:${value}`)
     })
@@ -57,29 +72,37 @@ export default class HomeController {
   @ApiOperation({ value: 'Set数据接收' })
   @PostMapping('/set')
   set(@RequestParam data: Set<any>) {
-    const values = [] as string[];
+    const values:string[] = [
+      `Type: ${Object.prototype.toString.call(data)}`
+    ];
     data.forEach((v) => values.push(v));
-    return values.join(',');
+    return values.join(',\n');
   }
 
   @ApiOperation({ value: '@RequestParam 接收Array数据接收' })
   @PostMapping('/array')
   array(@RequestParam array: Array<string>) {
-    return array.join(',');
+    // TODO 如何补偿泛型运行时的类型参数
+    const values:string[] = [
+      `Type: ${Object.prototype.toString.call(array)}`,
+      ...array
+    ];
+    return values.join(',\n');
   }
 
   @ApiOperation({ value: 'Date,Boolean,数据接收' })
-  @PostMapping('/params')
-  others(@RequestParam date: Date, @RequestParam isShow: boolean) {
+  @PostMapping('/booleanDate')
+  booleanDate(@RequestParam date: Date, @RequestParam isShow: boolean) {
+    // TODO 关于Date converter
     return `date:${date.toLocaleString()},\nisShow:${isShow}`;
   }
 
-  @ApiOperation({ value: '@RequestParam file测试', returnType: 'string' })
-  @PostMapping('/params2')
+  @ApiOperation({ value: '使用@RequestParam 接收file参数', returnType: 'string' })
+  @PostMapping('/requestParamWithMultipartFile')
   // @ApiImplicitParams([
   //   { description: '编号', paramType: 'query', name: 'id', required: true }
   // ])
-  index(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
+  requestParamWithMultipartFile(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
     this.oService.sayHello();
     this.orderService.sayHello();
     // TODO 如何防止恶意写入
@@ -107,7 +130,7 @@ export default class HomeController {
 
   @ApiOperation({ value: '@RequestBody 测试' })
   @ApiImplicitParams([
-    { description: '类型', paramType: 'body', name: 'user', example: { name: 1 } }
+    { description: '类型', name: 'user', example: { name: 1 } }
   ])
   @PostMapping({ value: '/body', produces: 'application/json' })
   body(@RequestBody user: UserInfo): UserInfo {

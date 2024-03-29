@@ -8,6 +8,7 @@ import HttpServletResponse from './HttpServletResponse';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 import type InternalErrorHandler from './error/InternalErrorHandler';
+import { IDispatcher } from './IDispatcher';
 
 type NodeMiddleware = (request: IncomingMessage & { path: string }, response: ServerResponse, next: (error?: any) => any) => any
 
@@ -19,6 +20,8 @@ export interface ServerLaunchOptions {
 export default abstract class ServletContext {
 
   private releaseQueues = new Array<Function>();
+
+  public readonly dispatcher: IDispatcher
 
   /**
    * 是否next函数被调用
@@ -86,7 +89,15 @@ export default abstract class ServletContext {
    * @param response 当前正在处理的请求的返回实例
    * @param next 跳转到下一个请求处理器
    */
-  constructor(configurer: WebMvcConfigurationSupport, request: IncomingMessage, response, next, errorHandler: InternalErrorHandler) {
+  constructor(
+    configurer: WebMvcConfigurationSupport,
+    request: IncomingMessage,
+    response,
+    next,
+    errorHandler: InternalErrorHandler,
+    dispatcher: IDispatcher
+  ) {
+    this.dispatcher = dispatcher;
     this.configurer = configurer;
     this.request = new HttpServletRequest(request, this);
     this.response = new HttpServletResponse(response, this, errorHandler);

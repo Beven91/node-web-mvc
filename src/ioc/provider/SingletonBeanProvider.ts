@@ -7,6 +7,20 @@ import AbstractBeanProvider from "./AbstractBeanProvider";
 
 export default class SingletonBeanProvider extends AbstractBeanProvider {
 
+  private beanInstances: Map<Function, any> = new Map<Function, any>()
+
+  removeInstancesByClazz(clazz: Function) {
+    const removeKeys = [];
+    this.beanInstances.forEach((instance, key) => {
+      if (instance instanceof clazz) {
+        removeKeys.push(key);
+      }
+    });
+    removeKeys.forEach((k) => {
+      this.beanInstances.delete(k);
+    });
+  }
+
   /**
    * 创建bean实例
    * @param definition 

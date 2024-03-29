@@ -12,4 +12,9 @@ export default interface ObjectProvider {
    */
   createInstance(beanType: Function, args: Array<any>)
 
+  /**
+   * 根据类型移除对应的实例
+   */
+  removeInstancesByClazz(clazz: Function) 
+
 }
