@@ -16,6 +16,7 @@ import ArgumentResolvError from '../../../errors/ArgumentResolvError';
 import ArgumentConverter from './ArgumentConverter';
 import IllegalArgumentException from '../../../errors/IllegalArgumentException';
 import ParamAnnotation from '../../annotations/params/ParamAnnotation';
+import MessageConverter from '../../http/converts/MessageConverter';
 
 export default class ArgumentsResolvers {
 
@@ -23,12 +24,15 @@ export default class ArgumentsResolvers {
 
   private readonly fallbackResolvers: HandlerMethodArgumentResolver[]
 
-  constructor() {
+  private readonly messageConverter: MessageConverter
+
+  constructor(messageConverter: MessageConverter) {
+    this.messageConverter = messageConverter;
     this.registerResolvers = [
       new PathVariableMapMethodArgumentResolver(),
       new RequestHeaderMapMethodArgumentResolver(),
       new RequestParamMapMethodArgumentResolver(),
-      new RequestResponseBodyMethodProcessor(),
+      new RequestResponseBodyMethodProcessor(this.messageConverter),
       new ServletContextMethodArgumentResolver(),
     ];
     this.fallbackResolvers = [

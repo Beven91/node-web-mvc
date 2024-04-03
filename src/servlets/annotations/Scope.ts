@@ -4,11 +4,10 @@
  *    singleton (单例： 整个程序一个Controller仅有一个实例)
  *    prototype (多例： 每次都会创建一个新的Controller)
  */
+import { ScopeType } from "../../ioc/factory/BeanDefinition";
 import AliasFor from "./AliasFor";
 import Target from "./Target";
 import ElementType from "./annotation/ElementType";
-
-export type ScopeType = 'singleton' | 'prototype' | 'reqeust' | 'session'
 
 class Scope {
 

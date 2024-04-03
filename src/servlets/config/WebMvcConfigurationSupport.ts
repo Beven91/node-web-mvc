@@ -2,176 +2,42 @@
  * @module WebAppConfigurer
  * @description 服务全局配置
  */
-import http from 'http';
-import https from 'https';
-import http2 from 'http2';
 import OpenApi from '../../swagger/openapi';
 import HandlerInterceptorRegistry from '../interceptor/HandlerInterceptorRegistry';
 import MessageConverter from '../http/converts/MessageConverter';
 import ArgumentsResolvers from '../method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
-import hot, { HotOptions } from 'nodejs-hmr';
+import hot, { } from 'nodejs-hmr';
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import PathMatchConfigurer from './PathMatchConfigurer';
-import Bytes from '../util/Bytes';
-import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
-import ReturnValueHandlerRegistry from '../method/return/ReturnValueHandlerRegistry';
 import Bean from '../../ioc/annotations/Bean';
 import RequestMappingHandlerMapping from '../mapping/RequestMappingHandlerMapping';
 import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
-import ResourceHttpRequestHandler from '../resources/ResourceHttpRequestHandler';
 import ExceptionHandlerExceptionResolver from '../method/exception/ExceptionHandlerExceptionResolver';
 import HandlerExceptionResolver from '../method/exception/HandlerExceptionResolver';
 import HandlerExceptionResolverComposite from '../method/exception/HandlerExceptionResolverComposite';
 import ResponseStatusExceptionResolver from '../method/exception/ResponseStatusExceptionResolver';
 import DefaultHandlerExceptionResolver from '../method/exception/DefaultHandlerExceptionResolver';
+import RequestMappingHandlerAdapter from '../method/RequestMappingHandlerAdapter';
+import HandlerMethodReturnValueHandler from '../method/return/HandlerMethodReturnValueHandler';
+import ModelAndViewMethodReturnValueHandler from '../method/return/ModelAndViewMethodReturnValueHandler';
+import RequestResponseBodyMethodProcessor from '../method/argument/RequestResponseBodyMethodProcessor';
+import WebAppConfigurerOptions from './WebAppConfigurerOptions';
+import InternalErrorHandler from '../http/error/InternalErrorHandler';
+import { BeanFactory } from '../../ioc/factory/BeanFactory';
+import ResourceHandlerAdapter from '../resources/ResourceHandlerAdapter';
 
-const runtime = {
-  defaultMimes: {
-    gzipped: false,
-    mimeTypes: 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain',
-  } as ResourceOptions
-}
+export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
-declare type RunMode = 'node' | 'express' | 'koa' | string
+  private messageConverters: MessageConverter
 
-declare type HttpType = 'http' | 'https' | 'http2'
+  private argumentResolvers: ArgumentsResolvers
 
-declare interface Multipart {
-  /**
-   * 上传单个文件的最大限制
-   */
-  maxFileSize: string | number,
-  /**
-   * 单个请求的最大限制
-   */
-  maxRequestSize: string | number
-  /**
-  * 上传资源文件临时存储目录
-  */
-  tempRoot?: string
-}
+  private returnvalueHandlers: HandlerMethodReturnValueHandler[]
 
-declare interface ResourceOptions {
-  /**
-   * 是否开启gzip压缩
-   */
-  gzipped: boolean
-  /**
-   * 开启gzip的媒体类型字符串
-   * 例如: application/javascript,text/css
-   */
-  mimeTypes?: string | object
-}
+  private viewResolvers: ViewResolverRegistry
 
-export declare interface WebAppConfigurerOptions {
-  // 端口
-  port?: number
-  // 当前类型
-  mode?: RunMode
-  // 是否开启swagger文档
-  swagger?: boolean
-  // 静态资源配置
-  resource?: ResourceOptions
-  // 基础路径
-  base?: string
-  // 配置请求内容大小
-  multipart?: Multipart
-  // http服务类型
-  http?: HttpType
-  // 存放控制器的根目录
-  cwd?: string | Array<string>
-  // 热更新配置
-  hot?: HotOptions
-  serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions
-  // 注册拦截器
-  addInterceptors?: (registry: HandlerInterceptorRegistry) => void
-  // 添加http消息转换器
-  addMessageConverters?: (converters: MessageConverter) => void
-  // 添加参数解析器
-  addArgumentResolvers?: (resolvers: ArgumentsResolvers) => void
-  // 添加视图解析器
-  addViewResolvers?: (registry: ViewResolverRegistry) => void
-  // 添加静态资源处理器
-  addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
-  // 添加返回值处理器
-  addReturnValueHandlers?: (registry: ReturnValueHandlerRegistry) => void
-  // 配置路径匹配
-  configurePathMatch?: (configurer: PathMatchConfigurer) => void
-  // 添加异常处理器
-  extendHandlerExceptionResolvers(resolvers: HandlerExceptionResolver[]): void
-  // 应用监听端口，且已启动
-  onLaunch?: () => any
-}
-
-export default class WebMvcConfigurationSupport implements WebAppConfigurerOptions {
-
-  public http?: HttpType
-
-  /**
-   * 使用node原生http服务时的配置参数
-   */
-  public serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions
-
-  /**
-   * 参数解析器
-   */
-  public argumentResolver?: ArgumentsResolvers;
-
-  /**
-   * 消息转换器
-   */
-  public messageConverters?: MessageConverter
-
-  /**
-   * 视图解析器
-   */
-  public viewResolvers?: ViewResolverRegistry
-
-  /**
-   * 拦截器注册表
-   */
-  public interceptorRegistry?: HandlerInterceptorRegistry
-
-  /**
-   * 返回值处理器注册表
-   */
-  public returnValueRegistry?: ReturnValueHandlerRegistry
-
-  /**
-   * 获取启动目录
-   */
-  public readonly cwd: string | Array<string>
-
-  /**
-   * 获取当前服务中间件模式
-   */
-  public readonly mode: RunMode
-
-  /**
-   * 静态资源配置
-   */
-  public readonly resource?: ResourceOptions
-
-  /**
-   * 获取当前网站启动端口号
-   */
-  public readonly port: number
-
-  /**
-   * 是否开启swagger文档
-   */
-  public readonly swagger?: boolean
-
-  /**
-   * 热更新配置
-   */
-  public readonly hot?: HotOptions
-
-  /**
-   * 获取当前网站的基础路由目录
-   */
-  public readonly base?: string
+  public beanFactory: BeanFactory
 
   /**
    * 获取当前网站的基础路由目录
@@ -188,152 +54,77 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     return cwd instanceof Array ? cwd : [cwd];
   }
 
-  /**
-   * 当前配置的body内容大小
-   * @param options 
-   */
-  public readonly multipart?: Multipart
-
-  /**
-   *  应用监听端口，且已启动时触发
-   */
-  public onLaunch: () => any
-
-  private options: WebAppConfigurerOptions;
-
   constructor(a?: WebAppConfigurerOptions) {
-    const options = a || {} as WebAppConfigurerOptions;
-    this.options = options;
-    this.hot = options.hot;
-    this.mode = options.mode || 'node';
-    this.port = options.port || 8080;
-    this.base = options.base || '/';
-    this.onLaunch = options.onLaunch;
-    this.http = options.http;
-    this.serverOptions = options.serverOptions;
-    this.swagger = 'swagger' in options ? options.swagger : true;
-    this.cwd = options.cwd instanceof Array ? options.cwd : [options.cwd]
-    this.resource = options.resource || runtime.defaultMimes;
-    this.resource.mimeTypes = this.initializeMimeTypes(this.resource.mimeTypes);
-    this.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
-    this.multipart.maxFileSize = new Bytes(this.multipart.maxFileSize, '500kb').bytes;
-    this.multipart.maxRequestSize = new Bytes(this.multipart.maxRequestSize, '500kb').bytes;
+    super(a);
   }
 
-  // 注册拦截器
-  public addInterceptors?(registry: HandlerInterceptorRegistry) {
-    this.options.addInterceptors?.(registry);
-    this.interceptorRegistry = registry;
-  }
-  // 添加http消息转换器
-  public addMessageConverters?(converters: MessageConverter) {
-    this.options.addMessageConverters?.(converters);
-    this.messageConverters = converters;
-  }
-  // 添加参数解析器
-  public addArgumentResolvers?(resolvers: ArgumentsResolvers) {
-    this.options.addArgumentResolvers?.(resolvers);
-    this.argumentResolver = resolvers;
-  }
-  // 添加视图解析器
-  public addViewResolvers?(registry: ViewResolverRegistry) {
-    this.options.addViewResolvers?.(registry);
-    this.viewResolvers = registry;
-  }
-
-  // 添加静态资源处理器
-  addResourceHandlers?(registry: ResourceHandlerRegistry) { }
-
-  // 添加返回值处理器
-  public addReturnValueHandlers?(registry: ReturnValueHandlerRegistry) {
-    this.options.addReturnValueHandlers?.(registry);
-    this.returnValueRegistry = registry;
-  }
-
-  // 提供扩展配置路径匹配相关
-  configurePathMatch(configurer: PathMatchConfigurer) { }
-
-  // 配置异常解析器 可用于取代默认的解析器
-  configureHandlerExceptionResolvers(resolvers: HandlerExceptionResolver[]) { }
-
-  // 扩展异常处理器
-  extendHandlerExceptionResolvers(resolvers: HandlerExceptionResolver[]) { }
-
-  /**
-   * 初始化配置
-   * @param options 
-   */
-  static initialize(options: WebMvcConfigurationSupport | WebAppConfigurerOptions) {
-    const configurer = options instanceof WebMvcConfigurationSupport ? options : new WebMvcConfigurationSupport(options);
-    // 热更新
-    if (configurer.hot) {
-      hot.run(options.hot);
-      RuntimeAnnotation.isHotUpdate = true;
+  private getMessageConverters() {
+    if (!this.messageConverters) {
+      const messageConverters = new MessageConverter();
+      this.addMessageConverters?.(messageConverters);
+      return messageConverters;
+    } else {
+      return this.messageConverters;
     }
-    // 初始化配置
-    this.initializeConfigurer(configurer);
-    return configurer;
   }
 
-  static initializeConfigurer(configurer: WebMvcConfigurationSupport) {
-    configurer.argumentResolver = new ArgumentsResolvers();
-    configurer.messageConverters = new MessageConverter();
-    configurer.viewResolvers = new ViewResolverRegistry();
-    configurer.interceptorRegistry = new HandlerInterceptorRegistry();
-    configurer.returnValueRegistry = new ReturnValueHandlerRegistry();
-    // 注册拦截器
-    configurer.addInterceptors(configurer.interceptorRegistry);
-    // 注册转换器
-    configurer.addMessageConverters(configurer.messageConverters);
-    // 注册参数解析器
-    configurer.addArgumentResolvers(configurer.argumentResolver);
-    // 注册视图解析器
-    configurer.addViewResolvers(configurer.viewResolvers);
-    // 返回处理器
-    configurer.addReturnValueHandlers(configurer.returnValueRegistry);
-  }
-
-  /**
-   * 初始化配置的资源mimetypes,将字符串形式转换成对象形式
-   * @param mimeTypes 
-   */
-  initializeMimeTypes(mimeTypes: string | object) {
-    mimeTypes = mimeTypes == null ? runtime.defaultMimes.mimeTypes : mimeTypes;
-    if (typeof mimeTypes === 'object' && mimeTypes) {
-      return mimeTypes;
+  private getArgumentResolvers() {
+    if (!this.argumentResolvers) {
+      this.argumentResolvers = new ArgumentsResolvers(this.getMessageConverters());
+      this.addArgumentResolvers?.(this.argumentResolvers);
     }
-    const newMimeTypes = {};
-    const values = (mimeTypes as string).split(',');
-    values.forEach((k) => {
-      const name = k.trim();
-      newMimeTypes[name] = name;
-    });
-    return newMimeTypes;
+    return this.argumentResolvers;
+  }
+
+  private getReturnValueHandlers() {
+    if (!this.returnvalueHandlers) {
+      this.returnvalueHandlers = [
+        new ModelAndViewMethodReturnValueHandler(this.mvcViewResolver()),
+        new RequestResponseBodyMethodProcessor(this.getMessageConverters()),
+      ];
+      this.addReturnValueHandlers?.(this.returnvalueHandlers);
+    }
+    return this.returnvalueHandlers;
+  }
+
+  private getViewResolvers() {
+    if (!this.viewResolvers) {
+      this.viewResolvers = new ViewResolverRegistry(this.beanFactory);
+      this.configureViewResolvers?.(this.viewResolvers);
+    }
+    return this.viewResolvers;
+  }
+
+  @Bean
+  mvcViewResolver() {
+    return this.getViewResolvers();
   }
 
   @Bean
   requestMappingHandlerMapping() {
     const pathMatchConfigurer = new PathMatchConfigurer();
     const handlerMapping = new RequestMappingHandlerMapping();
+    const interceptorRegistry = new HandlerInterceptorRegistry();
+    this.addInterceptors?.(interceptorRegistry);
     this.configurePathMatch?.(pathMatchConfigurer);
+    // swagger 处理
+    OpenApi.initializeApi(this.swagger);
+    handlerMapping.setOrder(0);
     handlerMapping.setPathMatcher(pathMatchConfigurer.getPathMatcherOrDefault());
     handlerMapping.setUrlPathHelper(pathMatchConfigurer.getUrlPathHelperOrDefault());
-    handlerMapping.setInterceptors(this.interceptorRegistry.getInterceptors());
+    handlerMapping.setInterceptors(interceptorRegistry.getInterceptors());
     return handlerMapping;
   }
 
   @Bean
   resourceHandlerMapping() {
     const registry = new ResourceHandlerRegistry()
-    const handlerMapping = new ResourceHandlerMapping();
+    const handlerMapping = new ResourceHandlerMapping(registry);
+    handlerMapping.setOrder(100);
+    // swagger 处理
+    OpenApi.initializeResource(registry, this.swagger);
+    // 注册额外的资源配置
     this.addResourceHandlers?.(registry);
-    // swagger 开启
-    if (this.swagger !== false) {
-      OpenApi.initialize(registry);
-    }
-    registry.registrations.forEach((registration) => {
-      handlerMapping.registerHandlerMethod('resource', registration, new ResourceHttpRequestHandler(registration))
-    });
     return handlerMapping;
   }
 
@@ -341,10 +132,11 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
   handlerExceptionResolver() {
     const exceptionResolvers: HandlerExceptionResolver[] = [];
     const composite = new HandlerExceptionResolverComposite();
+    const returnValueHandlers = this.getReturnValueHandlers();
     this.configureHandlerExceptionResolvers?.(exceptionResolvers);
     if (exceptionResolvers.length < 1) {
       // 注册默认异常处理器
-      exceptionResolvers.push(new ExceptionHandlerExceptionResolver());
+      exceptionResolvers.push(new ExceptionHandlerExceptionResolver(returnValueHandlers));
       exceptionResolvers.push(new ResponseStatusExceptionResolver());
       exceptionResolvers.push(new DefaultHandlerExceptionResolver());
     }
@@ -354,6 +146,27 @@ export default class WebMvcConfigurationSupport implements WebAppConfigurerOptio
     return composite;
   }
 
+  @Bean
+  requestMappingHandlerAdapter() {
+    const handlerAdapter = new RequestMappingHandlerAdapter();
+    handlerAdapter.setReturnvalueHandlers(this.getReturnValueHandlers())
+    handlerAdapter.setArgumentResolver(this.getArgumentResolvers());
+    return handlerAdapter;
+  }
+
+  @Bean
+  resourceHandlerAdapter(){
+    const adapter = new ResourceHandlerAdapter();
+    return adapter;
+  }
+
+  @Bean
+  internalErrorHandler() {
+    return new InternalErrorHandler(
+      this.beanFactory,
+      this.getViewResolvers(),
+    );
+  }
 }
 
 hot.create(module).accept((now, old) => {

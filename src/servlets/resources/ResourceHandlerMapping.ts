@@ -9,12 +9,24 @@ import PathMatcher from '../util/PathMatcher';
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
 import ResourceHandlerRegistration from './ResourceHandlerRegistration';
+import InitializingBean from "../../ioc/processor/InitializingBean";
+import ResourceHandlerRegistry from "./ResourceHandlerRegistry";
+import ResourceHttpRequestHandler from "./ResourceHttpRequestHandler";
 
-export default class ResourceHandlerMapping extends AbstractHandlerMethodMapping<ResourceHandlerRegistration> {
+export default class ResourceHandlerMapping extends AbstractHandlerMethodMapping<ResourceHandlerRegistration> implements InitializingBean {
 
-  constructor() {
+  private readonly registry: ResourceHandlerRegistry
+
+  constructor(registry: ResourceHandlerRegistry) {
     super();
+    this.registry = registry;
     this.setDefaultHandler(null);
+  }
+
+  afterPropertiesSet(): void {
+    this.registry.registrations.forEach((registration) => {
+      this.registerHandlerMethod('resource', registration, new ResourceHttpRequestHandler(registration))
+    });
   }
 
   match(registraction: MappingRegistration<ResourceHandlerRegistration>, path: string, request: HttpServletRequest): HandlerMethod {

@@ -15,6 +15,6 @@ export default class NoRequestHandlerMapping extends AbstractHandlerMapping {
    * @param context 请求上下文对象
    */
   getHandlerInternal(context: ServletContext) {
-    return new HandlerMethod({}, () => new InterruptModel(), null);
+    return new HandlerMethod({}, () => new InterruptModel());
   }
 }

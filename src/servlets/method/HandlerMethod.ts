@@ -6,10 +6,8 @@ import MethodParameter from './MethodParameter';
 import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation, { IAnnotation } from '../annotations/annotation/RuntimeAnnotation';
 import ResponseStatus from '../annotations/ResponseStatus';
-import InterruptModel from '../models/InterruptModel';
-import HandlerMethodReturnValueHandlerComposite from './return/HandlerMethodReturnValueHandlerComposite';
-import ServletContext from '../http/ServletContext';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
+import { BeanDefinitonKey } from '../../ioc/factory/BeanDefinitionRegistry';
 
 export interface BeanTypeClazz {
   new(...args: any[]): any
@@ -24,7 +22,7 @@ export default class HandlerMethod {
   /**
    * 对应的action
    */
-  private readonly method: Function;
+  public readonly method: Function;
 
   public readonly methodName: string
 
@@ -53,27 +51,20 @@ export default class HandlerMethod {
   /**
    * 当前请求返回的状态码
    */
-  protected internalResponseStatus: number
-
-  public get responseStatus() {
-    return this.internalResponseStatus;
-  }
-
-  protected internalResponseStatusReason: string
+  public responseStatus: number
 
   /**
    * 当前状态码产生的原因
    */
-  public get responseStatusReason() {
-    return this.internalResponseStatusReason;
-  }
+  public responseStatusReason: string
 
   /**
    * 构造一个方法执行器
    */
-  constructor(bean: InstanceType<BeanTypeClazz>, method: Function, beanFactory?: BeanFactory)
+  constructor(bean: InstanceType<BeanTypeClazz>, method: Function)
   constructor(bean: InstanceType<BeanTypeClazz>, method: HandlerMethod)
-  constructor(bean: InstanceType<BeanTypeClazz>, method: Function | HandlerMethod, beanFactory?: BeanFactory) {
+  constructor(beanType: BeanDefinitonKey, method: Function, beanFactory?: BeanFactory)
+  constructor(bean: InstanceType<BeanTypeClazz> | BeanDefinitonKey, method: Function | HandlerMethod, beanFactory?: BeanFactory) {
     if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;
       this.isBeanType = handler.isBeanType;
@@ -83,10 +74,10 @@ export default class HandlerMethod {
       this.beanType = bean.constructor;
       this.parameters = handler.parameters;
       this.beanFactory = method.beanFactory;
-      this.internalResponseStatus = handler.responseStatus;
-      this.internalResponseStatusReason = handler.responseStatusReason;
+      this.responseStatus = handler.responseStatus;
+      this.responseStatusReason = handler.responseStatusReason;
     } else {
-      const isType = typeof bean === 'function';
+      const isType = typeof bean === 'function' || typeof bean === 'string';
       this.isBeanType = isType;
       this.method = method;
       this.methodName = method ? method.name : '@@handler@@';
@@ -106,17 +97,6 @@ export default class HandlerMethod {
       const dataType = methodAnno?.paramTypes?.[i];
       return new MethodParameter(this.beanType, this.methodName, paramName, i, dataType);
     });
-  }
-
-  /**
-   * 从 ResponseStatus 获取当前action设定的返回状态，如果没有获取到则使用默认的
-   */
-  private evaluateResponseStatus(): void {
-    const annotation = this.getAnnotation(ResponseStatus);
-    if (annotation != null) {
-      this.internalResponseStatus = annotation.code;
-      this.internalResponseStatusReason = annotation.reason;
-    }
   }
 
   /**
@@ -158,43 +138,15 @@ export default class HandlerMethod {
     return new HandlerMethod(bean, this);
   }
 
-  private setResponseStatus(servletContext: ServletContext) {
-    const response = servletContext.response;
-    if (!this.responseStatus) {
-      return;
-    }
-    if (this.responseStatusReason) {
-      response.sendError({ code: this.responseStatus, message: this.responseStatusReason });
-    } else {
-      response.setStatus(this.responseStatus);
-    }
-  }
 
   /**
-   * 执行方法
+   * 从 ResponseStatus 获取当前action设定的返回状态，如果没有获取到则使用默认的
    */
-  public async invoke(servletContext: ServletContext, ...args: any[]) {
-    if (!this.method) {
-      return new InterruptModel();
+  private evaluateResponseStatus(): void {
+    const annotation = this.getAnnotation(ResponseStatus);
+    if (annotation != null) {
+      this.responseStatus = annotation.code;
+      this.responseStatusReason = annotation.reason;
     }
-    const returnValue = await Promise.resolve(this.method.call(this.bean, ...args));
-    this.setResponseStatus(servletContext);
-    // 如果response已处理结束
-    if (servletContext.response.headersSent) {
-      return new InterruptModel();
-    }
-    // 如果通过ResponseStatus指定了返回状态原因,则不执行返回处理
-    if (this.responseStatusReason) {
-      return;
-    }
-    if (returnValue && returnValue instanceof InterruptModel) {
-      // 如果是不执行任何操作
-      return returnValue;
-    }
-    const returnType = new MethodParameter(this.beanType, this.methodName, '', -1, returnValue?.constructor);
-    const configHandlers = servletContext.configurer.returnValueRegistry.handlers;
-    const returnHandlers = new HandlerMethodReturnValueHandlerComposite(configHandlers);
-    await returnHandlers.handleReturnValue(returnValue, returnType, servletContext, this);
-    return returnValue;
   }
 }

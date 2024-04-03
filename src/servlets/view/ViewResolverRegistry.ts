@@ -7,15 +7,16 @@ import hot from 'nodejs-hmr';
 import ViewResolver from './resolvers/ViewResolver';
 import UrlBasedViewResolver from './resolvers/UrlBasedViewResolver';
 import BeanNameViewResolver from './resolvers/BeanNameViewResolver';
+import { BeanFactory } from '../../ioc/factory/BeanFactory';
 
 export default class ViewResolverRegistry {
 
   private readonly registerResolvers: ViewResolver[]
 
-  constructor() {
+  constructor(beanFactory: BeanFactory) {
     this.registerResolvers = [
       new UrlBasedViewResolver(),
-      new BeanNameViewResolver(),
+      new BeanNameViewResolver(beanFactory),
     ];
     hotAccepted(this.registerResolvers);
   }
@@ -30,7 +31,7 @@ export default class ViewResolverRegistry {
   /**
    * 添加一个视图解析器
    */
-  addViewResolver(resolver: ViewResolver) {
+  viewResolver(resolver: ViewResolver) {
     this.registerResolvers.push(resolver);
   }
 }

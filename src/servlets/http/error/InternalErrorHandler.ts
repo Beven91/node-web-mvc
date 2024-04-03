@@ -6,14 +6,18 @@ import ServletContext from "../../http/ServletContext";
 import MethodParameter from "../../method/MethodParameter";
 import ModelAndViewMethodReturnValueHandler from "../../method/return/ModelAndViewMethodReturnValueHandler";
 import ModelAndView from "../../models/ModelAndView";
+import ViewResolverRegistry from "../../view/ViewResolverRegistry";
 import DefaultErrorAttributes from "./DefaultErrorAttributes";
 import ErrorAttributes from "./ErrorAttributes";
 
 export default class InternalErrorHandler {
 
-  private readonly errorAttributes: ErrorAttributes;
+  private readonly errorAttributes: ErrorAttributes
 
-  constructor(beanFactory: BeanFactory) {
+  private readonly registry: ViewResolverRegistry
+
+  constructor(beanFactory: BeanFactory, registry: ViewResolverRegistry) {
+    this.registry = registry;
     const isExtendErrorAttributes = (m: RuntimeAnnotation) => Javascript.getClass(m.ctor).isEqualOrExtendOf(ErrorAttributes);
     const MyErrorAttributes = RuntimeAnnotation.getAnnotations(Component).find(isExtendErrorAttributes)?.ctor;
     if (MyErrorAttributes) {
@@ -37,7 +41,7 @@ export default class InternalErrorHandler {
   }
 
   handleErrorHtml(servletContext: ServletContext) {
-    const handler = new ModelAndViewMethodReturnValueHandler();
+    const handler = new ModelAndViewMethodReturnValueHandler(this.registry);
     const data = this.errorAttributes.getErrorAttributes(servletContext);
     const mv = new ModelAndView("error", data);
     const returnType = new MethodParameter(InternalErrorHandler, "handleErrorHtml", "", -1, mv.constructor);

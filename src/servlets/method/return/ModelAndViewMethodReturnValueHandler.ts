@@ -4,8 +4,15 @@ import HandlerMethodReturnValueHandler from "./HandlerMethodReturnValueHandler";
 import ModelAndView from "../../models/ModelAndView";
 import View from "../../view/View";
 import ViewNotFoundError from "../../../errors/ViewNotFoundError";
+import ViewResolverRegistry from "../../view/ViewResolverRegistry";
 
 export default class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
+
+  private readonly registry: ViewResolverRegistry
+
+  constructor(registry: ViewResolverRegistry) {
+    this.registry = registry;
+  }
 
   supportsReturnType(returnType: MethodParameter): boolean {
     return returnType.isParamAssignableOf(ModelAndView);
@@ -25,7 +32,7 @@ export default class ModelAndViewMethodReturnValueHandler implements HandlerMeth
 
   private resolveView(mv: ModelAndView, servletContext: ServletContext): View {
     const { request } = servletContext;
-    const viewResolvers = servletContext.configurer.viewResolvers.viewResolvers;
+    const viewResolvers = this.registry.viewResolvers;
     for (let resolver of viewResolvers) {
       const view = resolver.resolveViewName(mv.view, mv.model, request);
       if (view) {

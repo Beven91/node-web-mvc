@@ -6,11 +6,9 @@ import ServletContext from './http/ServletContext';
 import ServletModel from './models/ServletModel';
 import HandlerAdapter from './method/HandlerAdapter';
 import HandlerExecutionChain from './interceptor/HandlerExecutionChain';
-import RequestMappingHandlerAdapter from './method/RequestMappingHandlerAdapter';
 import InterruptModel from './models/InterruptModel';
 import HandlerMapping from './mapping/HandlerMapping';
 import Middlewares from './models/Middlewares';
-import ResourceHandlerAdapter from './resources/ResourceHandlerAdapter';
 import NoRequestHandlerMapping from './mapping/NoRequestHandlerMapping';
 import HttpRequestValidation from './http/HttpRequestValidation';
 import HttpMethod from './http/HttpMethod';
@@ -19,7 +17,9 @@ import HandlerExceptionResolverComposite from './method/exception/HandlerExcepti
 import HttpStatus from './http/HttpStatus';
 import HttpStatusError from './../errors/HttpStatusError';
 import { IDispatcher } from './http/IDispatcher';
-import WebMvcConfigurationSupport from './config/WebMvcConfigurationSupport';
+import AbstractApplicationContext from './context/AbstractApplicationContext';
+import AbstractHandlerMapping from './mapping/AbstractHandlerMapping';
+import AbstractHandlerMethodAdapter from './method/AbstractHandlerMethodAdapter';
 
 export default class DispatcherServlet implements IDispatcher {
 
@@ -30,21 +30,12 @@ export default class DispatcherServlet implements IDispatcher {
 
   private exceptionResolver: HandlerExceptionResolverComposite
 
-  constructor(configurer: WebMvcConfigurationSupport) {
-    this.handlerMappings = [
-      configurer.requestMappingHandlerMapping(),
-      configurer.resourceHandlerMapping(),
-      new NoRequestHandlerMapping(),
-      // RouterFunctionMapping  --> FilteredRouterFunctions
-      // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
-      // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
-      // AbstractDetectingUrlHandlerMapping
-    ];
-    this.exceptionResolver = configurer.handlerExceptionResolver();
-    this.handlerAdapters = [
-      new RequestMappingHandlerAdapter(),
-      new ResourceHandlerAdapter(),
-    ];
+  private readonly appContext: AbstractApplicationContext
+
+
+  constructor(appContext: AbstractApplicationContext) {
+    this.appContext = appContext;
+    this.initStrategies();
   }
 
   getHandler(servletContext: ServletContext): HandlerExecutionChain {
@@ -55,6 +46,33 @@ export default class DispatcherServlet implements IDispatcher {
         return executionChain;
       }
     }
+  }
+
+  private initHandlerMappings() {
+    this.handlerMappings = [
+      ...this.appContext.getBeanFactory().getBeanOfType(AbstractHandlerMapping),
+      new NoRequestHandlerMapping(),
+      // RouterFunctionMapping  --> FilteredRouterFunctions
+      // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
+      // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
+      // AbstractDetectingUrlHandlerMapping
+    ];
+  }
+
+  private initHandlerAdapters() {
+    this.handlerAdapters = [
+      ...this.appContext.getBeanFactory().getBeanOfType(AbstractHandlerMethodAdapter),
+    ];
+  }
+
+  private initExceptionResolvers() {
+    this.exceptionResolver = this.appContext.getBeanFactory().getBeanOfType(HandlerExceptionResolverComposite)[0];
+  }
+
+  private initStrategies() {
+    this.initHandlerMappings();
+    this.initExceptionResolvers();
+    this.initHandlerAdapters();
   }
 
   /**

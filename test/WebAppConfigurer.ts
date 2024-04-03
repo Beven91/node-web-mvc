@@ -27,8 +27,8 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
     registry.addInterceptor(new EncodeInterceptor());
   }
 
-  addViewResolvers(registry: ViewResolverRegistry) {
-    registry.addViewResolver(new EjsViewResolver('test/webapp/WEB-INF/', '.ejs'))
+  configureViewResolvers(registry: ViewResolverRegistry) {
+    registry.viewResolver(new EjsViewResolver('test/webapp/WEB-INF/', '.ejs'))
   }
 
   addArgumentResolvers(resolvers) {

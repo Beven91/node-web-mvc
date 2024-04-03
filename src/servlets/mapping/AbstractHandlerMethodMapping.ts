@@ -23,7 +23,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
    * 注册一个映射方法
    */
   registerHandlerMethod(name: string, mapping: T, handler: any, method?: Function) {
-    const methodHandler = new HandlerMethod(handler, method);
+    const methodHandler = new HandlerMethod(handler, method, this.appContext.getBeanFactory());
     this.registrations.set(mapping, new MappingRegistration<T>(mapping, methodHandler, name));
   }
 

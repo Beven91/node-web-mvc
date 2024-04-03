@@ -26,13 +26,18 @@ export default class OpenApiModel {
   /**
    * 初始化swagger文档配置
    */
-  static initialize(registry: ResourceHandlerRegistry) {
+  static initializeResource(registry: ResourceHandlerRegistry, enable: boolean) {
+    if (!enable) return;
     // 如果使用swagger
     const swaggerLocation = path.join(__dirname, '../../../swagger-ui/');
     registry
       .addResourceHandler('/swagger-ui/**')
       .addResourceLocations(swaggerLocation)
       .setCacheControl({ maxAge: 0 })
+  }
+
+  static initializeApi(enable: boolean) {
+    if (!enable) return;
     // 加载swagger-controller
     require('../controllers/SwaggerController');
   }

@@ -2,8 +2,9 @@ import ServletExpressContext from './servlets/platforms/ServletExpressContext';
 import ServletKoaContext from './servlets/platforms/ServletKoaContext';
 import ServletNodeContext from './servlets/platforms/ServletNodeContext';
 import ServletContext from './servlets/http/ServletContext';
-import WebMvcConfigurationSupport, { WebAppConfigurerOptions } from './servlets/config/WebMvcConfigurationSupport';
+import WebMvcConfigurationSupport from './servlets/config/WebMvcConfigurationSupport';
 import ServletApplication from './servlets/ServletApplication';
+import WebAppConfigurerOptions from './servlets/config/WebAppConfigurerOptions';
 
 const runtime = {
   isLaunched: false
@@ -31,13 +32,13 @@ export default class Registry {
    * @param {Express} app express实例 
    */
   static launch(options: WebMvcConfigurationSupport | WebAppConfigurerOptions) {
-    options = options || { mode: 'node', port: 8080 };
+    options = options || { mode: 'node', port: 8080 } as WebAppConfigurerOptions;
     // 获取当前中间件上下文
-    const NativeHttpContext = registration[options.mode || 'node'];
+    const nativeHttpContextType = registration[options.mode || 'node'];
     if (runtime.isLaunched) {
       return console.error('服务已启动，请勿重复调用launch函数');
     }
-    if (!NativeHttpContext) {
+    if (!nativeHttpContextType) {
       throw new Error(`
         当前${options.mode}模式不支持,
         您可以通过Registry.register来注册对应的执行上下文
@@ -45,7 +46,7 @@ export default class Registry {
       `);
     }
     runtime.isLaunched = true;
-    return new ServletApplication(NativeHttpContext, options).run();
+    return new ServletApplication(nativeHttpContextType).run(options);
   }
 }
 

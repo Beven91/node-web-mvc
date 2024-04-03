@@ -14,12 +14,17 @@ import ElementType from "../annotations/annotation/ElementType";
 import ServletContext from '../http/ServletContext';
 import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
 import HttpStatus from '../http/HttpStatus';
+import InitializingBean from '../../ioc/processor/InitializingBean';
+import { BeanFactory } from '../../ioc/factory/BeanFactory';
 
-export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> {
+export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> implements InitializingBean {
 
   constructor() {
     super();
     hotUpdate(this);
+  }
+
+  afterPropertiesSet(): void {
     this.registerAllAnnotationMappings();
   }
 

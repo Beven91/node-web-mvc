@@ -11,8 +11,11 @@ import MappedInterceptor from '../interceptor/MappedInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
 import UrlPathHelper from "../util/UrlPathHelper";
 import PathMatcher from "../util/PathMatcher";
+import ApplicationContextAware from "../context/ApplicationContextAware";
+import AbstractApplicationContext from "../context/AbstractApplicationContext";
+import Ordered from "../context/Ordered";
 
-export default abstract class AbstractHandlerMapping implements HandlerMapping {
+export default abstract class AbstractHandlerMapping extends ApplicationContextAware implements HandlerMapping, Ordered {
 
   protected urlPathHelper: UrlPathHelper = new UrlPathHelper();
 
@@ -20,7 +23,12 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
   protected interceptors: HandlerInterceptor[]
 
+  protected appContext: AbstractApplicationContext
+
+  private order: number
+
   constructor() {
+    super();
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
@@ -93,6 +101,10 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
 
   }
 
+  setApplication(context: AbstractApplicationContext): void {
+    this.appContext = context;
+  }
+
   /**
    * 根据当前请求对象获取 处理器执行链
    * @param context 请求上下文对象
@@ -137,5 +149,13 @@ export default abstract class AbstractHandlerMapping implements HandlerMapping {
       }
     }
     return chain;
+  }
+
+  getOrder() {
+    return this.order;
+  }
+
+  setOrder(value: number) {
+    return this.order = value;
   }
 }
