@@ -27,7 +27,11 @@ export default class InternalErrorHandler {
     }
   }
 
-  async resolveException(servletContext: ServletContext): Promise<any> {
+  async tryResolveException(servletContext: ServletContext): Promise<any> {
+    if (!servletContext.response.hasError && !servletContext.isRequestHandled) {
+      // 如果不需要处理异常
+      return;
+    }
     const accept = servletContext.request.getHeaderValue('accept').join(',')
     const acceptHtml = accept.toLowerCase().indexOf("text/html") > -1;
     return acceptHtml ? this.handleErrorHtml(servletContext) : this.handleError(servletContext);

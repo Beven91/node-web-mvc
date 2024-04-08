@@ -136,7 +136,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
    */
   protected getHandlerExecutionChain(handler: any, context: ServletContext): HandlerExecutionChain {
     const chain = handler instanceof HandlerExecutionChain ? handler : new HandlerExecutionChain(handler, context);
-    if (/^\/swagger-ui\//.test(context.request.usePath)) {
+    if (/^\/swagger-ui\//.test(context.request.path)) {
       // swagger-ui 不介入
       return chain;
     }

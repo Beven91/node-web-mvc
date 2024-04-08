@@ -9,7 +9,10 @@ import RuntimeAnnotation from "./annotations/annotation/RuntimeAnnotation";
 import WebAppConfigurerOptions from "./config/WebAppConfigurerOptions";
 import HttpStatus from "./http/HttpStatus";
 import BeanDefinition from '../ioc/factory/BeanDefinition';
-import InternalErrorHandler from './http/error/InternalErrorHandler';
+import FilterHandlerAdapter from './filter/FilterHandlerAdapter';
+import HttpServletRequest from './http/HttpServletRequest';
+import HttpServletResponse from './http/HttpServletResponse';
+import ServletDispatchFilter from './filter/ServletDispatchFilter';
 
 class NativeHttpContext extends ServletContext { }
 
@@ -49,26 +52,41 @@ export default class ServletApplication {
       .forEach((dir) => new ModuleLoader(dir, cache));
   }
 
+  matchAndNormalizeUrl(request: IncomingMessage, base: string) {
+    const protocol = (request.socket as any).encrypted ? 'https' : 'http';
+    const url = new URL(request.url, `${protocol}://${request.headers.host}`);
+    const path = new URL(url).pathname;
+    if (path.indexOf(base) !== 0) {
+      // 如果路径部匹配，则跳过
+      return false;
+    }
+    const r = base ? path.replace(new RegExp('^' + base), '') : path;
+    // 移除基础路径部分
+    request.url = /^\//.test(r) ? r : '/' + r;
+    return true;
+  }
+
   /**
    * 连接到原生httpserver
    */
   private connect(configurer: WebMvcConfigurationSupport, context: GenericApplicationContext) {
-    const errorHandler = context.getBeanFactory().getBeanOfType(InternalErrorHandler)[0];
     const dispatcher = new DispatcherServlet(context);
     const ProxyHttpContext = this.nativeHttpContextType as typeof NativeHttpContext;
-    const handler = (request: IncomingMessage, response: ServerResponse, next: (error?: any) => any) => {
-      const protocol = (request.socket as any).encrypted ? 'https' : 'http';
-      const url = new URL(request.url, `${protocol}://${request.headers.host}`);
-      const path = new URL(url).pathname;
-      if (path.indexOf(configurer.base) !== 0) {
+    const filterAdapter = new FilterHandlerAdapter();
+    filterAdapter.doFilter(new ServletDispatchFilter(dispatcher));
+    const handler = (nativeRequest: IncomingMessage, nativeResponse: ServerResponse, next: (error?: any) => any) => {
+      if (!this.matchAndNormalizeUrl(nativeRequest, configurer.base)) {
         return next();
       }
-      new Promise(
-        (resolve) => {
-          const context: ServletContext = new ProxyHttpContext(configurer, request, response, next, errorHandler, dispatcher);
-          resolve(dispatcher.doService(context));
-        }
-      ).catch((ex: Error) => this.onError(ex, response))
+      const request = new HttpServletRequest(nativeRequest, null);
+      const response = new HttpServletResponse(nativeResponse, null);
+      filterAdapter
+        .doFilter(request, response)
+        .then((info) => {
+          const context: ServletContext = new ProxyHttpContext(configurer, info.request, info.response, next, dispatcher);
+          return dispatcher.doService(context);
+        })
+        .catch((ex: Error) => this.onError(ex, nativeResponse))
     }
     if (configurer.onLaunch) {
       configurer.onLaunch();

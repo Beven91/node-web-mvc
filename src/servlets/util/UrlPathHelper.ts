@@ -11,6 +11,6 @@ export default class UrlPathHelper {
    * 根据request对象获取servlet匹配的路径
    */
   getServletPath(request: HttpServletRequest): string {
-    return request.usePath;
+    return request.path;
   }
 }

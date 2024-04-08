@@ -107,7 +107,7 @@ export default class ResourceHttpRequestHandler {
    * @param request 
    */
   processPath(request: HttpServletRequest) {
-    const url = request.servletContext.getAttrigute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
+    const url = request.servletContext.getAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
     return decodeURIComponent(url.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, ''));
   }
 

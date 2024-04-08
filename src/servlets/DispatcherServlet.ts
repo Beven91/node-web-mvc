@@ -20,6 +20,7 @@ import { IDispatcher } from './http/IDispatcher';
 import AbstractApplicationContext from './context/AbstractApplicationContext';
 import AbstractHandlerMapping from './mapping/AbstractHandlerMapping';
 import AbstractHandlerMethodAdapter from './method/AbstractHandlerMethodAdapter';
+import InternalErrorHandler from './http/error/InternalErrorHandler';
 
 export default class DispatcherServlet implements IDispatcher {
 
@@ -32,6 +33,7 @@ export default class DispatcherServlet implements IDispatcher {
 
   private readonly appContext: AbstractApplicationContext
 
+  private fallbackErrorHandler: InternalErrorHandler;
 
   constructor(appContext: AbstractApplicationContext) {
     this.appContext = appContext;
@@ -69,10 +71,15 @@ export default class DispatcherServlet implements IDispatcher {
     this.exceptionResolver = this.appContext.getBeanFactory().getBeanOfType(HandlerExceptionResolverComposite)[0];
   }
 
+  private initErrorHandler() {
+    this.fallbackErrorHandler = this.appContext.getBeanFactory().getBeanOfType(InternalErrorHandler)[0];
+  }
+
   private initStrategies() {
     this.initHandlerMappings();
     this.initExceptionResolvers();
     this.initHandlerAdapters();
+    this.initErrorHandler();
   }
 
   /**
@@ -94,6 +101,7 @@ export default class DispatcherServlet implements IDispatcher {
       console.error(ex);
       servletContext.response.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
+      this.fallbackErrorHandler?.tryResolveException?.(servletContext);
       servletContext.doReleaseQueues();
     }
   }

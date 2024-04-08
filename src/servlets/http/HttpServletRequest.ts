@@ -65,11 +65,6 @@ export default class HttpServletRequest {
   }
 
   /**
-   * 去除contextPath后的请求路径
-   */
-  public readonly usePath: string
-
-  /**
    * 请求参数
    */
   public query: Query
@@ -148,9 +143,6 @@ export default class HttpServletRequest {
     this.mediaType = new MediaType(this.headers['content-type']);
     this.servletContext = servletContext;
     this._cookies = this.parseCookie(request.headers['cookie']);
-    const base = servletContext.configurer.contextPath;
-    const r = base ? this.path.replace(new RegExp('^' + base), '') : this.path;
-    this.usePath = /^\//.test(r) ? r : '/' + r;
     this.reader = new RequestBodyReader();
   }
 

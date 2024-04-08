@@ -41,12 +41,12 @@ export default abstract class ServletContext {
   /**
    * 当前正在处理的请求实例
    */
-  public request: HttpServletRequest;
+  public readonly request: HttpServletRequest;
 
   /**
    * 当前正在处理的请求的返回实例
    */
-  public response: HttpServletResponse;
+  public readonly response: HttpServletResponse;
 
   /**
    * 当前匹配的处理器执行链
@@ -75,7 +75,7 @@ export default abstract class ServletContext {
    * 获取属性值
    * @param name 属性名称 
    */
-  public getAttrigute(name) {
+  public getAttribute(name) {
     return this.params.get(name);
   }
 
@@ -91,16 +91,15 @@ export default abstract class ServletContext {
    */
   constructor(
     configurer: WebMvcConfigurationSupport,
-    request: IncomingMessage,
-    response,
+    request: HttpServletRequest,
+    response: HttpServletResponse,
     next,
-    errorHandler: InternalErrorHandler,
     dispatcher: IDispatcher
   ) {
     this.dispatcher = dispatcher;
     this.configurer = configurer;
-    this.request = new HttpServletRequest(request, this);
-    this.response = new HttpServletResponse(response, this, errorHandler);
+    this.request = request; 
+    this.response = response;
     this.params = new Map<any, any>();
     this.next = (...params) => {
       // 如果已经返回了内容，则不进行next处理
