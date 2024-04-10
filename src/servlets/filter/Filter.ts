@@ -8,5 +8,5 @@ export default interface Filter {
    * @param request http请求对象 
    * @param response http返回对象
    */
-  doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): void
+  doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): Promise<void>
 }

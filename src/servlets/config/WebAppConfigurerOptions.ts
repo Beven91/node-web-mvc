@@ -16,7 +16,7 @@ declare type RunMode = 'node' | 'express' | 'koa' | string
 
 declare type HttpType = 'http' | 'https' | 'http2'
 
-declare interface Multipart {
+export declare interface Multipart {
   /**
    * 上传单个文件的最大限制
    */
@@ -39,7 +39,7 @@ const runtime = {
   } as ResourceOptions
 }
 
-declare interface ResourceOptions {
+export declare interface ResourceOptions {
   /**
    * 是否开启gzip压缩
    */

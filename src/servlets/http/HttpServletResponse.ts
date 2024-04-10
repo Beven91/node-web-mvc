@@ -5,7 +5,6 @@
 import { ServerResponse } from 'http';
 import InterruptModel from '../models/InterruptModel';
 import HttpStatus from './HttpStatus';
-import ServletContext from './ServletContext';
 
 export default class HttpServletResponse {
 
@@ -14,21 +13,9 @@ export default class HttpServletResponse {
   private tempStatusMessage;
 
   /**
-   * 当前请求对象
-   */
-  public get request() {
-    return this.servletContext.request;
-  }
-
-  /**
    * nodejs原生ServerResponse
    */
   public readonly nativeResponse: ServerResponse
-
-  /**
-   * 当前请求上下文
-   */
-  public readonly servletContext: ServletContext
 
   /**
    * 判断返回头是否已经发送
@@ -164,15 +151,10 @@ export default class HttpServletResponse {
    * @param response 
    */
   sendRedirect(url, status = 302) {
-    const request = this.request;
-    const isAbs = /^(http|https):/.test(url);
-    const isRoot = /^\//.test(url);
-    const redirectUrl = isAbs ? url : isRoot ? request.fdomain + '/' + url : request.baseUrl + url;
-    this.nativeResponse.writeHead(status, { 'Location': redirectUrl })
+    this.nativeResponse.writeHead(status, { 'Location': url })
   }
 
-  constructor(response: ServerResponse, servletContext: ServletContext) {
+  constructor(response: ServerResponse) {
     this.nativeResponse = response;
-    this.servletContext = servletContext;
   }
 }

@@ -15,10 +15,8 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
     this.returnValueHandlers = returnValueHandlers;
   }
 
-  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error) {
+  async resolveException(servletContext: ServletContext, handlerMethod: HandlerMethod, error: Error) {
     try {
-      const chain = servletContext.chain;
-      const handlerMethod = chain.getHandler();
       const adviceAnnotation = RuntimeAnnotation.getAnnotations(ControllerAdvice)[0];
       const globalAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, adviceAnnotation?.ctor);
       const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod.beanType);

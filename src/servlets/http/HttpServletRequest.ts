@@ -8,7 +8,10 @@ import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
 import RequestMemoryStream from './RequestMemoryStream';
+import FilterHandlerAdapter from '../filter/FilterHandlerAdapter';
+import ApplicationDispatcher from './ApplicationDispatcher';
 import RequestBodyReader from './body/RequestBodyReader';
+import type { Multipart } from '../config/WebAppConfigurerOptions';
 
 declare class Query {
   [propName: string]: any
@@ -18,22 +21,25 @@ declare class Cookies {
   [propName: string]: string | Array<string>
 }
 
+const servletContextSymbol = Symbol.for('servletContext');
+const filterAdapterSymbol = Symbol.for('filterAdapter');
+
 export default class HttpServletRequest {
 
   private _cookies: Cookies
 
-  private request: IncomingMessage
+  private readonly request: IncomingMessage
 
   public get cookies() {
     return this._cookies;
   }
 
-  public readonly reader: RequestBodyReader
-
   /**
    * 当前请求上下文
    */
-  public servletContext: ServletContext
+  public get servletContext() {
+    return this[servletContextSymbol] as ServletContext;
+  }
 
   /**
    * 获取当前node原生请求对象
@@ -62,6 +68,25 @@ export default class HttpServletRequest {
    */
   public get baseUrl() {
     return this.fdomain + this.path;
+  }
+
+  private params: Map<any, any>
+
+  /**
+   * 设置属性值
+   * @param name 属性名
+   * @param value 属性值
+   */
+  public setAttribute(name: any, value: any) {
+    this.params.set(name, value);
+  }
+
+  /**
+   * 获取属性值
+   * @param name 属性名称 
+   */
+  public getAttribute(name) {
+    return this.params.get(name);
   }
 
   /**
@@ -109,14 +134,18 @@ export default class HttpServletRequest {
    */
   public headers: IncomingHttpHeaders;
 
+  public bodyReader: RequestBodyReader
+
+  public readonly contextPath: string
+
   /**
    * 当前正在读取的body内容
    */
   public body: any
 
   /**
-  * 将可读流输送传入写出流
-  */
+   * 将可读流输送传入写出流
+   */
   pipe(writeStream, options?) {
     this.nativeRequest.pipe(writeStream, options);
   }
@@ -129,7 +158,7 @@ export default class HttpServletRequest {
     return !(method === HttpMethod.HEAD || method === HttpMethod.GET)
   }
 
-  constructor(request: IncomingMessage, servletContext: ServletContext) {
+  constructor(request: IncomingMessage,contextPath:string, filterAdapter: FilterHandlerAdapter, multipart: Multipart) {
     const protocol = (request.socket as any).encrypted ? 'https' : 'http';
     const url = new URL(request.url, `${protocol}://${request.headers.host}`);
     this.headers = request.headers;
@@ -140,10 +169,16 @@ export default class HttpServletRequest {
     this.host = url.hostname;
     this.port = url.port;
     this.path = url.pathname;
+    this.contextPath = contextPath;
     this.mediaType = new MediaType(this.headers['content-type']);
-    this.servletContext = servletContext;
     this._cookies = this.parseCookie(request.headers['cookie']);
-    this.reader = new RequestBodyReader();
+    this.params = new Map<any, any>();
+    this[filterAdapterSymbol] = filterAdapter;
+    this.bodyReader = new RequestBodyReader(multipart);
+  }
+
+  setServletContext(context: ServletContext) {
+    this[servletContextSymbol] = context;
   }
 
   /**
@@ -179,6 +214,10 @@ export default class HttpServletRequest {
       return Date.parse(v as string);
     }
     return null;
+  }
+
+  public getRequestDispatcher(path: string) {
+    return new ApplicationDispatcher(this[filterAdapterSymbol], path);
   }
 
   /**

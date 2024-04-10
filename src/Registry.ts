@@ -1,7 +1,7 @@
 import ServletExpressContext from './servlets/platforms/ServletExpressContext';
 import ServletKoaContext from './servlets/platforms/ServletKoaContext';
 import ServletNodeContext from './servlets/platforms/ServletNodeContext';
-import ServletContext from './servlets/http/ServletContext';
+import { DrivedServletContextClazz } from './servlets/http/ServletContext';
 import WebMvcConfigurationSupport from './servlets/config/WebMvcConfigurationSupport';
 import ServletApplication from './servlets/ServletApplication';
 import WebAppConfigurerOptions from './servlets/config/WebAppConfigurerOptions';
@@ -11,7 +11,7 @@ const runtime = {
 }
 
 declare class ContextRegistration {
-  [propName: string]: typeof ServletContext
+  [propName: string]: DrivedServletContextClazz
 }
 
 // 已经注册执行上下文
@@ -23,7 +23,7 @@ export default class Registry {
    * @param {String} name 平台类型名
    * @param {Class} contextClass 控制器上下文类
    */
-  static register(name: string, contextClass: typeof ServletContext) {
+  static register(name: string, contextClass: DrivedServletContextClazz) {
     registration[name] = contextClass;
   }
 

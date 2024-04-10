@@ -10,8 +10,12 @@ import HttpServletResponse from "../http/HttpServletResponse";
 export default class RedirectView extends View {
 
   render(model, request: HttpServletRequest, response: HttpServletResponse) {
+    const url = this.url;
+    const isAbs = /^(http|https):/.test(url);
+    const isRoot = /^\//.test(url);
+    const redirectUrl = isAbs ? url : isRoot ? request.fdomain + '/' + url : request.baseUrl + url;
     // 执行重定向
-    response.sendRedirect(this.url, 302);
+    response.sendRedirect(redirectUrl, 302);
     return null;
   }
 }

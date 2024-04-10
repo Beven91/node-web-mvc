@@ -25,6 +25,7 @@ import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
 import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageConverter';
 import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
 import RegionsResource from './RegionsResource';
+import type { ResourceOptions } from '../config/WebAppConfigurerOptions';
 
 export default class ResourceHttpRequestHandler {
 
@@ -34,6 +35,8 @@ export default class ResourceHttpRequestHandler {
   // 允许使用的请求方式
   private allowHeaders = [HttpMethod.GET, HttpMethod.HEAD]
 
+  private readonly resourceConfig: ResourceOptions
+
   private readonly resourceHttpMessageConverter: ResourceHttpMessageConverter
 
   private readonly resourceRegionHttpMessageConverter: ResourceRegionHttpMessageConverter
@@ -42,17 +45,18 @@ export default class ResourceHttpRequestHandler {
 
   private resourceTransformerChain: ResourceTransformerChain
 
-  constructor(registration: ResourceHandlerRegistration) {
+  constructor(registration: ResourceHandlerRegistration, config: ResourceOptions) {
     this.registration = registration;
+    this.resourceConfig = config;
     this.resourceHttpMessageConverter = new ResourceHttpMessageConverter();
     this.resourceRegionHttpMessageConverter = new ResourceRegionHttpMessageConverter();
   }
 
   initResolversAndTransformers() {
     if (!this.resourceResolverChain) {
-      const resolvers: Array<ResourceResolver> = [
+      const resolvers: ResourceResolver[] = [
         new PathResourceResolver(),
-        new GzipGlobalResolver(),
+        new GzipGlobalResolver(this.resourceConfig),
       ];
       const transformers = [];
       if (this.registration.resourceChainRegistration) {
@@ -107,7 +111,7 @@ export default class ResourceHttpRequestHandler {
    * @param request 
    */
   processPath(request: HttpServletRequest) {
-    const url = request.servletContext.getAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
+    const url = request.getAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
     return decodeURIComponent(url.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, ''));
   }
 

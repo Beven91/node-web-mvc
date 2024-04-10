@@ -12,6 +12,7 @@ const IS_REDIRECT = /^redirect:/;
 const IS_FORWARD = /^forward:/;
 
 export default class UrlBasedViewResolver implements ViewResolver {
+
   /**
    * 用于拼接在视图名的前缀
    */

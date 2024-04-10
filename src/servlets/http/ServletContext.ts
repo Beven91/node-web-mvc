@@ -6,9 +6,6 @@ import { IncomingMessage, ServerResponse } from 'http';
 import HttpServletRequest from './HttpServletRequest';
 import HttpServletResponse from './HttpServletResponse';
 import WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
-import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
-import type InternalErrorHandler from './error/InternalErrorHandler';
-import { IDispatcher } from './IDispatcher';
 
 type NodeMiddleware = (request: IncomingMessage & { path: string }, response: ServerResponse, next: (error?: any) => any) => any
 
@@ -17,16 +14,12 @@ export interface ServerLaunchOptions {
   config: WebMvcConfigurationSupport
 }
 
+const requestSymbol = Symbol.for('request');
+const responseSymbol = Symbol.for('request');
+
 export default abstract class ServletContext {
 
   private releaseQueues = new Array<Function>();
-
-  public readonly dispatcher: IDispatcher
-
-  /**
-   * 是否next函数被调用
-   */
-  public isNextInvoked: boolean
 
   /**
    * forward栈
@@ -34,49 +27,17 @@ export default abstract class ServletContext {
   public forwardStacks: Array<string>
 
   /**
-   * 当前网站的全局配置
-   */
-  public readonly configurer: WebMvcConfigurationSupport;
-
-  /**
    * 当前正在处理的请求实例
    */
-  public readonly request: HttpServletRequest;
+  public get request() {
+    return this[requestSymbol] as HttpServletRequest;
+  }
 
   /**
    * 当前正在处理的请求的返回实例
    */
-  public readonly response: HttpServletResponse;
-
-  /**
-   * 当前匹配的处理器执行链
-   */
-  public chain: HandlerExecutionChain
-
-  private params: Map<any, any>
-
-  /**
-   * 跳转到下一个请求处理器
-   */
-  public readonly next: (error?) => void;
-
-  public requestDefinitionInstances;
-
-  /**
-   * 设置属性值
-   * @param name 属性名
-   * @param value 属性值
-   */
-  public setAttribute(name: any, value: any) {
-    this.params.set(name, value);
-  }
-
-  /**
-   * 获取属性值
-   * @param name 属性名称 
-   */
-  public getAttribute(name) {
-    return this.params.get(name);
+  public get response() {
+    return this[responseSymbol] as HttpServletResponse;
   }
 
   public isRequestHandled() {
@@ -90,27 +51,13 @@ export default abstract class ServletContext {
    * @param next 跳转到下一个请求处理器
    */
   constructor(
-    configurer: WebMvcConfigurationSupport,
     request: HttpServletRequest,
-    response: HttpServletResponse,
-    next,
-    dispatcher: IDispatcher
+    response: HttpServletResponse
   ) {
-    this.dispatcher = dispatcher;
-    this.configurer = configurer;
-    this.request = request; 
-    this.response = response;
-    this.params = new Map<any, any>();
-    this.next = (...params) => {
-      // 如果已经返回了内容，则不进行next处理
-      if (this.response.headersSent) return;
-      if (!this.response.nativeResponse.writableFinished) {
-        next(...params);
-      }
-      this.isNextInvoked = true;
-    };
     this.forwardStacks = [];
-    this.requestDefinitionInstances = {};
+    this[requestSymbol] = request;
+    this[responseSymbol] = response;
+    request.setServletContext(this);
   }
 
   /**
@@ -145,3 +92,7 @@ export default abstract class ServletContext {
     return (request, response, next) => callback(request, response, next);
   }
 }
+
+class S extends ServletContext { }
+
+export type DrivedServletContextClazz = typeof S

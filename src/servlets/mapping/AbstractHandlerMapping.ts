@@ -127,7 +127,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
 
   protected initLookupPath(request: HttpServletRequest) {
     const url = this.urlPathHelper.getServletPath(request);
-    request.servletContext.setAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH, url);
+    request.setAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH, url);
     return url;
   }
 

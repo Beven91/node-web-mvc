@@ -1,19 +1,31 @@
+import DispatcherServlet from "../DispatcherServlet";
+import type WebMvcConfigurationSupport from "../config/WebMvcConfigurationSupport";
+import GenericApplicationContext from "../context/GenericApplicationContext";
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
-import { IDispatcher } from "../http/IDispatcher";
+import ServletContext, { DrivedServletContextClazz } from "../http/ServletContext";
 import Filter from "./Filter";
 import FilterChain from "./FilterChain";
 
 export default class ServletDispatchFilter implements Filter {
 
-  private readonly dispatcher: IDispatcher
+  private readonly dispatcher: DispatcherServlet
 
-  constructor(dispatcher: IDispatcher) {
-    this.dispatcher = dispatcher;
+  private readonly configurer: WebMvcConfigurationSupport
+
+  private readonly contextClazz: DrivedServletContextClazz
+
+  constructor(contextClazz: DrivedServletContextClazz, context: GenericApplicationContext, configurer: WebMvcConfigurationSupport) {
+    this.dispatcher = new DispatcherServlet(context);
+    this.configurer = configurer;
+    this.contextClazz = contextClazz;
   }
 
-  doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): void {
-
+  async doFilter(request: HttpServletRequest, response: HttpServletResponse, chain: FilterChain): Promise<void> {
+    const ProxyHttpContext = this.contextClazz;
+    const context: ServletContext = new ProxyHttpContext(request, response);
+    await this.dispatcher.doService(context);
+    chain.doFilter(request, response);
   }
 
 }

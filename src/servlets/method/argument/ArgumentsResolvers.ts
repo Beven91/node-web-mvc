@@ -17,6 +17,7 @@ import ArgumentConverter from './ArgumentConverter';
 import IllegalArgumentException from '../../../errors/IllegalArgumentException';
 import ParamAnnotation from '../../annotations/params/ParamAnnotation';
 import MessageConverter from '../../http/converts/MessageConverter';
+import RequestBodyReader from '../../http/body/RequestBodyReader';
 
 export default class ArgumentsResolvers {
 
@@ -31,7 +32,7 @@ export default class ArgumentsResolvers {
     this.registerResolvers = [
       new PathVariableMapMethodArgumentResolver(),
       new RequestHeaderMapMethodArgumentResolver(),
-      new RequestParamMapMethodArgumentResolver(),
+      new RequestParamMapMethodArgumentResolver(false),
       new RequestResponseBodyMethodProcessor(this.messageConverter),
       new ServletContextMethodArgumentResolver(),
     ];

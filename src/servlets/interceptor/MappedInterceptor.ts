@@ -39,7 +39,7 @@ export default class MappedInterceptor implements HandlerInterceptor {
    */
   matches(request: HttpServletRequest): boolean {
     // 这里仅做根据请求路径进行匹配，暂不支持高级路径匹配
-    const path = request.servletContext.getAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
+    const path =  request.getAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
     // 1.优先执行排除项
     for (let pattern of this.excludePatterns) {
       if (this.matchPattern(pattern, path)) {

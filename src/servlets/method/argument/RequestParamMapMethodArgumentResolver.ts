@@ -32,7 +32,7 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
     const { request } = servletContext;
     const name = anno?.value || parameter.paramName;
     const query = request.query;
-    const res = await request.reader.read(servletContext);
+    const res = await servletContext.request.bodyReader.read(servletContext);
     const body = res || {};
     if (parameter.isParamAssignableOf(Map)) {
       return { ...query, ...body };

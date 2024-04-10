@@ -11,16 +11,20 @@ import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
 import { randomUUID } from 'crypto';
 import AbstractBodyReader from './AbstractBodyReader';
+import type { Multipart } from '../../config/WebAppConfigurerOptions';
 
 export default class MultipartBodyReader extends AbstractBodyReader {
 
-  constructor() {
+  private multipart: Multipart
+
+  constructor(config: Multipart) {
     super(MediaType.MULTIPART_FORM_DATA)
+    this.multipart = config;
   }
 
   ensureDir(dir: string) {
     if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir,{ recursive: true });
+      fs.mkdirSync(dir, { recursive: true });
     }
   }
 
@@ -38,7 +42,7 @@ export default class MultipartBodyReader extends AbstractBodyReader {
       // 将数据添加form上
       const meta = { size: 0, isOutRange: false };
       const value = form[fieldname];
-      const root = servletContext.configurer?.multipart?.tempRoot || 'app_data/temp-files';
+      const root = this.multipart?.tempRoot || 'app_data/temp-files';
       const id = path.join(root, randomUUID());
       this.ensureDir(root);
       // 创建一个写出流
@@ -79,11 +83,10 @@ export default class MultipartBodyReader extends AbstractBodyReader {
     return new Promise((topResolve, topReject) => {
       let promise = Promise.resolve();
       const form = {};
-      const configurer = servletContext.configurer;
       const busboy: any = new Busboy({
         headers: servletContext.request.headers,
         limits: {
-          fileSize: configurer.multipart.maxFileSize as number
+          fileSize: this.multipart.maxFileSize as number
         }
       });
       busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {

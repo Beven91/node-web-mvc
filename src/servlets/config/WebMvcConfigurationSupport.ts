@@ -119,7 +119,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   @Bean
   resourceHandlerMapping() {
     const registry = new ResourceHandlerRegistry()
-    const handlerMapping = new ResourceHandlerMapping(registry);
+    const handlerMapping = new ResourceHandlerMapping(registry, this.resource);
     handlerMapping.setOrder(100);
     // swagger 处理
     OpenApi.initializeResource(registry, this.swagger);
@@ -155,7 +155,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   }
 
   @Bean
-  resourceHandlerAdapter(){
+  resourceHandlerAdapter() {
     const adapter = new ResourceHandlerAdapter();
     return adapter;
   }

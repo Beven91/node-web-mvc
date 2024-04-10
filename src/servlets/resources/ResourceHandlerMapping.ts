@@ -12,20 +12,24 @@ import ResourceHandlerRegistration from './ResourceHandlerRegistration';
 import InitializingBean from "../../ioc/processor/InitializingBean";
 import ResourceHandlerRegistry from "./ResourceHandlerRegistry";
 import ResourceHttpRequestHandler from "./ResourceHttpRequestHandler";
+import type { ResourceOptions } from "../config/WebAppConfigurerOptions";
 
 export default class ResourceHandlerMapping extends AbstractHandlerMethodMapping<ResourceHandlerRegistration> implements InitializingBean {
 
   private readonly registry: ResourceHandlerRegistry
 
-  constructor(registry: ResourceHandlerRegistry) {
+  private readonly resource: ResourceOptions
+
+  constructor(registry: ResourceHandlerRegistry, resource: ResourceOptions) {
     super();
     this.registry = registry;
+    this.resource = resource;
     this.setDefaultHandler(null);
   }
 
   afterPropertiesSet(): void {
     this.registry.registrations.forEach((registration) => {
-      this.registerHandlerMethod('resource', registration, new ResourceHttpRequestHandler(registration))
+      this.registerHandlerMethod('resource', registration, new ResourceHttpRequestHandler(registration, this.resource))
     });
   }
 

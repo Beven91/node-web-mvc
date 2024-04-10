@@ -1,27 +1,24 @@
 import hot from 'nodejs-hmr';
-import DispatcherServlet from "./DispatcherServlet";
 import WebMvcConfigurationSupport from "./config/WebMvcConfigurationSupport";
-import ServletContext from "./http/ServletContext";
-import { IncomingMessage, ServerResponse } from 'http';
+import { DrivedServletContextClazz } from "./http/ServletContext";
 import ModuleLoader from "./util/ModuleLoader";
 import GenericApplicationContext from "./context/GenericApplicationContext";
 import RuntimeAnnotation from "./annotations/annotation/RuntimeAnnotation";
 import WebAppConfigurerOptions from "./config/WebAppConfigurerOptions";
-import HttpStatus from "./http/HttpStatus";
 import BeanDefinition from '../ioc/factory/BeanDefinition';
-import FilterHandlerAdapter from './filter/FilterHandlerAdapter';
+import { IncomingMessage, ServerResponse } from 'http';
+import ServletDispatchFilter from './filter/ServletDispatchFilter';
 import HttpServletRequest from './http/HttpServletRequest';
 import HttpServletResponse from './http/HttpServletResponse';
-import ServletDispatchFilter from './filter/ServletDispatchFilter';
-
-class NativeHttpContext extends ServletContext { }
+import FilterHandlerAdapter from './filter/FilterHandlerAdapter';
+import HttpStatus from './http/HttpStatus';
 
 export default class ServletApplication {
 
-  private nativeHttpContextType: typeof ServletContext
+  private contextClazz: DrivedServletContextClazz
 
-  constructor(nativeHttpContextType: typeof ServletContext) {
-    this.nativeHttpContextType = nativeHttpContextType;
+  constructor(nativeHttpContextType: DrivedServletContextClazz) {
+    this.contextClazz = nativeHttpContextType;
   }
 
   /**
@@ -52,7 +49,7 @@ export default class ServletApplication {
       .forEach((dir) => new ModuleLoader(dir, cache));
   }
 
-  matchAndNormalizeUrl(request: IncomingMessage, base: string) {
+  private matchAndNormalizeUrl(request: IncomingMessage, base: string) {
     const protocol = (request.socket as any).encrypted ? 'https' : 'http';
     const url = new URL(request.url, `${protocol}://${request.headers.host}`);
     const path = new URL(url).pathname;
@@ -66,42 +63,36 @@ export default class ServletApplication {
     return true;
   }
 
-  /**
-   * 连接到原生httpserver
-   */
-  private connect(configurer: WebMvcConfigurationSupport, context: GenericApplicationContext) {
-    const dispatcher = new DispatcherServlet(context);
-    const ProxyHttpContext = this.nativeHttpContextType as typeof NativeHttpContext;
+  connect(configurer: WebMvcConfigurationSupport, context: GenericApplicationContext, contextClazz: DrivedServletContextClazz) {
     const filterAdapter = new FilterHandlerAdapter();
-    filterAdapter.doFilter(new ServletDispatchFilter(dispatcher));
+    filterAdapter.addFilter(new ServletDispatchFilter(contextClazz, context, configurer));
     const handler = (nativeRequest: IncomingMessage, nativeResponse: ServerResponse, next: (error?: any) => any) => {
       if (!this.matchAndNormalizeUrl(nativeRequest, configurer.base)) {
         return next();
       }
-      const request = new HttpServletRequest(nativeRequest, null);
-      const response = new HttpServletResponse(nativeResponse, null);
+      const request = new HttpServletRequest(nativeRequest, configurer.contextPath, filterAdapter, configurer.multipart);
+      const response = new HttpServletResponse(nativeResponse);
       filterAdapter
         .doFilter(request, response)
-        .then((info) => {
-          const context: ServletContext = new ProxyHttpContext(configurer, info.request, info.response, next, dispatcher);
-          return dispatcher.doService(context);
-        })
-        .catch((ex: Error) => this.onError(ex, nativeResponse))
+        // 尝试404处理
+        .then(() => this.onError(HttpStatus.NOT_FOUND, response, null))
+        // 尝试500处理
+        .catch((ex: Error) => this.onError(HttpStatus.INTERNAL_SERVER_ERROR, response, ex))
     }
     if (configurer.onLaunch) {
       configurer.onLaunch();
     }
     // 返回中间件
-    return ProxyHttpContext.launch({ handler, config: configurer });
+    return contextClazz.launch({ handler, config: configurer });
   }
 
   /**
    * 顶层异常兜底
    */
-  onError(ex: Error, response: ServerResponse) {
-    console.error(ex);
+  private onError(status: HttpStatus, res: HttpServletResponse, ex: Error) {
+    const response = res.nativeResponse;
+    ex && console.error(ex);
     if (!response.writableFinished) {
-      const status = HttpStatus.INTERNAL_SERVER_ERROR;
       const content = `HTTP Status ${status.code} - ${status.message}`;
       response.setHeader('content-type', 'text/html');
       response
@@ -133,6 +124,6 @@ export default class ServletApplication {
     // 应用上下文刷新
     context.refresh();
     // 开始连接到原生webserver服务
-    return this.connect(configurer, context);
+    return this.connect(configurer, context, this.contextClazz);
   }
 }

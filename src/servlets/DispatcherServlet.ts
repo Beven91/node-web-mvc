@@ -8,7 +8,6 @@ import HandlerAdapter from './method/HandlerAdapter';
 import HandlerExecutionChain from './interceptor/HandlerExecutionChain';
 import InterruptModel from './models/InterruptModel';
 import HandlerMapping from './mapping/HandlerMapping';
-import Middlewares from './models/Middlewares';
 import NoRequestHandlerMapping from './mapping/NoRequestHandlerMapping';
 import HttpRequestValidation from './http/HttpRequestValidation';
 import HttpMethod from './http/HttpMethod';
@@ -16,13 +15,13 @@ import Normalizer from './../errors/Normalizer';
 import HandlerExceptionResolverComposite from './method/exception/HandlerExceptionResolverComposite';
 import HttpStatus from './http/HttpStatus';
 import HttpStatusError from './../errors/HttpStatusError';
-import { IDispatcher } from './http/IDispatcher';
 import AbstractApplicationContext from './context/AbstractApplicationContext';
 import AbstractHandlerMapping from './mapping/AbstractHandlerMapping';
 import AbstractHandlerMethodAdapter from './method/AbstractHandlerMethodAdapter';
 import InternalErrorHandler from './http/error/InternalErrorHandler';
+import HandlerMethod from './method/HandlerMethod';
 
-export default class DispatcherServlet implements IDispatcher {
+export default class DispatcherServlet {
 
   // 所有映射处理器
   private handlerMappings: Array<HandlerMapping>
@@ -44,7 +43,6 @@ export default class DispatcherServlet implements IDispatcher {
     for (let handlerMapping of this.handlerMappings) {
       const executionChain = handlerMapping.getHandler(servletContext);
       if (executionChain) {
-        servletContext.chain = executionChain;
         return executionChain;
       }
     }
@@ -92,11 +90,7 @@ export default class DispatcherServlet implements IDispatcher {
 
   async doService(servletContext: ServletContext) {
     try {
-      const model = await this.doDispatch(servletContext);
-      if (model instanceof InterruptModel) {
-        // 如果没有执行action,跳转到下一个
-        servletContext.next()
-      }
+      await this.doDispatch(servletContext);
     } catch (ex) {
       console.error(ex);
       servletContext.response.sendError(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -107,6 +101,7 @@ export default class DispatcherServlet implements IDispatcher {
   }
 
   async doDispatch(servletContext: ServletContext): Promise<ServletModel> {
+    let handler = null;
     const runtime = { result: null, error: null } as { result: ServletModel, error: Error }
     const mappedHandler = this.getHandler(servletContext);
     // 执行拦截器: preHandler
@@ -118,7 +113,7 @@ export default class DispatcherServlet implements IDispatcher {
     try {
       const request = servletContext.request;
       const response = servletContext.response;
-      const handler = mappedHandler.getHandler();
+      handler = mappedHandler.getHandler();
       // 获取handler当前执行适配器
       const ha = this.getHandlerAdapter(handler);
       // 304处理
@@ -130,18 +125,15 @@ export default class DispatcherServlet implements IDispatcher {
         }
       }
       // 开始执行handler
-      const result = await ha.handle(servletContext, handler);
-      runtime.result = await this.applyMiddlewares(servletContext, result);
+      runtime.result = await ha.handle(servletContext, handler);
       // 执行拦截器:postHandler
       await mappedHandler.applyPostHandle(runtime.result);
-
       // 判定http status
-      await this.handleHttpStatus(servletContext);
-
+      await this.handleHttpStatus(servletContext, handler);
     } catch (ex) {
       ex = Normalizer.normalizeError(ex);
       runtime.error = ex;
-      await this.handleException(ex, servletContext);
+      await this.handleException(ex, servletContext, handler);
     }
     process.nextTick(() => {
       // 执行拦截器: afterCompletion
@@ -151,35 +143,22 @@ export default class DispatcherServlet implements IDispatcher {
   }
 
   /**
-   * 返回结果中间件处理。
-   * @param servletContext 
-   */
-  async applyMiddlewares(servletContext: ServletContext, data) {
-    const { request, response } = servletContext;
-    if (data instanceof Middlewares) {
-      data = await data.execute(request, response)
-    }
-    const isEmpty = servletContext.isNextInvoked && data === undefined;
-    return isEmpty ? new InterruptModel() : new ServletModel(data);
-  }
-
-  /**
    * 处理异常
    * @param { Error } error 异常信息
    * @param {ControllerContext} servletContext 请求上下文
    */
-  async handleException(error: Error, servletContext: ServletContext) {
-    const isHandled = await this.exceptionResolver.resolveException(servletContext, servletContext.chain.getHandler(), error);
+  async handleException(error: Error, servletContext: ServletContext, handler: HandlerMethod) {
+    const isHandled = await this.exceptionResolver.resolveException(servletContext, handler, error);
     if (!isHandled) {
       throw error;
     }
   }
 
-  async handleHttpStatus(servletContext: ServletContext) {
+  async handleHttpStatus(servletContext: ServletContext, handler: HandlerMethod) {
     const response = servletContext.response;
     if (!response.headersSent && response.hasError) {
       const error = new HttpStatusError(response.status, servletContext.request.path);
-      return this.handleException(error, servletContext);
+      return this.handleException(error, servletContext, handler);
     }
   }
 }

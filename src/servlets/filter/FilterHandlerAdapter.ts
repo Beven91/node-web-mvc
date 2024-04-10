@@ -7,11 +7,11 @@ export default class FilterHandlerAdapter {
 
   private readonly filters: Filter[] = [];
 
-  private addFilter(filter: Filter) {
+  public addFilter(filter: Filter) {
     this.filters.push(filter);
   }
 
-  doFilter(request: HttpServletRequest, response: HttpServletResponse) {
+  async doFilter(request: HttpServletRequest, response: HttpServletResponse) {
     const chain = new FilterChain(this.filters);
     return chain.doFilter(request, response);
   }
