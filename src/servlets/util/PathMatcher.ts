@@ -19,6 +19,11 @@ export default class PathMatcher {
     return r !== null && r !== false;
   }
 
+  matchOne(patterns: string[], path: string) {
+    if (null == patterns) return false;
+    return patterns.find((pattern) => this.match(pattern, path));
+  }
+
   /**
    * 匹配传入规则与路径，并且返回匹配结果信息，
    * 如果匹配失败，则返回 null

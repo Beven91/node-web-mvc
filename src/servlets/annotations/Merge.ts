@@ -1,7 +1,7 @@
 
 export type MergeDecorator = ClassDecorator | ParameterDecorator | MethodDecorator | PropertyDecorator
 
-export const mergeAnnotationSymbol = Symbol.for('MergeAnnotations');
+export const mergeAnnotationSymbol = Symbol('MergeAnnotations');
 
 /**
  * 用于标注合并注解，

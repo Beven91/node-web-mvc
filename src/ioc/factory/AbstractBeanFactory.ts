@@ -1,8 +1,9 @@
 import BeanCreationException from "../../errors/BeanCreationException";
 import BeanPropertyCreationException from "../../errors/BeanPropertyCreationException";
 import Javascript from "../../interface/Javascript";
+import { ClazzType } from "../../interface/declare";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
-import RuntimeAnnotation, { ClazzType } from "../../servlets/annotations/annotation/RuntimeAnnotation";
+import RuntimeAnnotation, { } from "../../servlets/annotations/annotation/RuntimeAnnotation";
 import Ordered from "../../servlets/context/Ordered";
 import Autowired from "../annotations/Autowired";
 import Qualifier from "../annotations/Qualifier";
@@ -150,6 +151,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     if (beanInstance && needSaveInstance) {
       this.beanInstancesCache.set(definition, beanInstance);
     }
+    this.applyBeanPostProcessorsFinishInstantiation(beanInstance as object, beanInstance?.constructor as ClazzType)
     return beanInstance;
   }
 
@@ -222,14 +224,21 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     }
   }
 
-  private applyBeanPostProcessorsAfterInitialization(instance: Object, beanName: string) {
+  private applyBeanPostProcessorsFinishInstantiation(beanInstance: object, beanType: ClazzType) {
+    const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
+    for (const processor of processors) {
+      processor.postProcessFinish(beanInstance, beanType);
+    }
+  }
+
+  private applyBeanPostProcessorsAfterInitialization(instance: object, beanName: string) {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
     for (const processor of processors) {
       processor.postProcessAfterInitialization(instance, beanName);
     }
   }
 
-  private applyBeanPostProperties(pvs: PropertyValue[], beanInstance: Object, beanName: string) {
+  private applyBeanPostProperties(pvs: PropertyValue[], beanInstance: object, beanName: string) {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
     for (const processor of processors) {
       pvs = processor.postProcessProperties(pvs, beanInstance, beanName);
@@ -237,7 +246,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     return pvs;
   }
 
-  private populateBean(beanInstance: Object, beanName: string) {
+  private populateBean(beanInstance: object, beanName: string) {
     this.applyBeanPostProcessorsAfterInitialization(beanInstance, beanName);
     const properties = this.applyBeanPostProperties([], beanInstance, beanName);
     properties.forEach((p) => {

@@ -14,10 +14,14 @@ export interface ServerLaunchOptions {
   config: WebMvcConfigurationSupport
 }
 
-const requestSymbol = Symbol.for('request');
-const responseSymbol = Symbol.for('request');
+const requestSymbol = Symbol('request');
+const responseSymbol = Symbol('response');
 
 export default abstract class ServletContext {
+
+  [requestSymbol]: HttpServletRequest
+
+  [responseSymbol]: HttpServletResponse
 
   private releaseQueues = new Array<Function>();
 
@@ -40,7 +44,7 @@ export default abstract class ServletContext {
     return this[responseSymbol] as HttpServletResponse;
   }
 
-  public isRequestHandled() {
+  public get isRequestHandled() {
     return this.response.nativeResponse.writableFinished;
   }
 

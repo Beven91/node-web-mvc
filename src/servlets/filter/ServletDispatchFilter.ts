@@ -11,13 +11,10 @@ export default class ServletDispatchFilter implements Filter {
 
   private readonly dispatcher: DispatcherServlet
 
-  private readonly configurer: WebMvcConfigurationSupport
-
   private readonly contextClazz: DrivedServletContextClazz
 
-  constructor(contextClazz: DrivedServletContextClazz, context: GenericApplicationContext, configurer: WebMvcConfigurationSupport) {
+  constructor(contextClazz: DrivedServletContextClazz, context: GenericApplicationContext) {
     this.dispatcher = new DispatcherServlet(context);
-    this.configurer = configurer;
     this.contextClazz = contextClazz;
   }
 

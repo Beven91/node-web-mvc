@@ -50,22 +50,16 @@ export default class ServletApplication {
   }
 
   private matchAndNormalizeUrl(request: IncomingMessage, base: string) {
-    const protocol = (request.socket as any).encrypted ? 'https' : 'http';
-    const url = new URL(request.url, `${protocol}://${request.headers.host}`);
-    const path = new URL(url).pathname;
-    if (path.indexOf(base) !== 0) {
+    if (request.url.indexOf(base) !== 0) {
       // 如果路径部匹配，则跳过
       return false;
     }
-    const r = base ? path.replace(new RegExp('^' + base), '') : path;
-    // 移除基础路径部分
-    request.url = /^\//.test(r) ? r : '/' + r;
     return true;
   }
 
   connect(configurer: WebMvcConfigurationSupport, context: GenericApplicationContext, contextClazz: DrivedServletContextClazz) {
-    const filterAdapter = new FilterHandlerAdapter();
-    filterAdapter.addFilter(new ServletDispatchFilter(contextClazz, context, configurer));
+    const filterAdapter = new FilterHandlerAdapter(context.getBeanFactory());
+    filterAdapter.addFilter(new ServletDispatchFilter(contextClazz, context));
     const handler = (nativeRequest: IncomingMessage, nativeResponse: ServerResponse, next: (error?: any) => any) => {
       if (!this.matchAndNormalizeUrl(nativeRequest, configurer.base)) {
         return next();

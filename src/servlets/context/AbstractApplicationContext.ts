@@ -1,15 +1,16 @@
-import Bean from "../../ioc/annotations/Bean";
 import BeanOptions from "../../ioc/annotations/BeanOptions";
 import Component from "../../ioc/annotations/Component";
 import BeanDefinition from "../../ioc/factory/BeanDefinition";
 import { BeanFactory } from "../../ioc/factory/BeanFactory";
+import CglibAopProxyPostProcesor from "../../ioc/processor/CglibAopProxyPostProcesor";
 import ApplicationContextAwareProcessor from "../../ioc/processor/ApplicationContextAwareProcessor";
 import AutowiredAnnotationBeanPostProcessor from "../../ioc/processor/AutowiredAnnotationBeanPostProcessor";
 import Controller from "../annotations/Controller";
 import Scope from "../annotations/Scope";
 import ElementType from "../annotations/annotation/ElementType";
-import RuntimeAnnotation, { ClazzType } from "../annotations/annotation/RuntimeAnnotation";
+import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
 import hotUpdate from "./hot-update";
+import ConfigurationBeanPostProcessor from "../../ioc/processor/ConfigurationBeanPostProcessor";
 
 export default abstract class AbstractApplicationContext {
 
@@ -28,6 +29,8 @@ export default abstract class AbstractApplicationContext {
     factory.addBeanPostProcessor(
       new AutowiredAnnotationBeanPostProcessor(factory),
       new ApplicationContextAwareProcessor(this),
+      new ConfigurationBeanPostProcessor(factory),
+      new CglibAopProxyPostProcesor(factory),
     )
   }
 

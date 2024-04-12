@@ -2,7 +2,8 @@
  * @module BeanDefinition
  * @description bean定义
  */
-import { ClazzType, TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import { ClazzType } from '../../interface/declare';
+import { TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
 
 export type ScopeType = 'prototype' | 'singleton' | 'request'
 

@@ -3,6 +3,7 @@
  * @description 自动装配处理
  */
 
+import { ClazzType } from "../../interface/declare";
 import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
 import Autowired from "../annotations/Autowired";
 import { BeanDefinitonKey } from "../factory/BeanDefinitionRegistry";
@@ -18,15 +19,15 @@ export default class AutowiredAnnotationBeanPostProcessor extends InstantiationA
     this.beanFactory = beanFactory;
   }
 
-  postProcessBeforeInitialization(beanType: Function, beanName: BeanDefinitonKey): Object {
+  postProcessBeforeInitialization(beanType: ClazzType, beanName: BeanDefinitonKey): object {
     return null;
   }
 
-  postProcessAfterInitialization(bean: Object, beanName: BeanDefinitonKey): Object {
+  postProcessAfterInitialization(bean: object, beanName: BeanDefinitonKey): object {
     return bean;
   }
 
-  postProcessProperties(pvs: PropertyValue[], beanInstance: Object, beanName: BeanDefinitonKey): PropertyValue[] {
+  postProcessProperties(pvs: PropertyValue[], beanInstance: object, beanName: BeanDefinitonKey): PropertyValue[] {
     const clazz = beanInstance.constructor;
     const annotations = RuntimeAnnotation.getAnnotations(Autowired, clazz);
     for (const annotation of annotations) {

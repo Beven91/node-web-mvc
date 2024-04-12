@@ -1,4 +1,4 @@
-import { ClazzType } from "../../servlets/annotations/annotation/RuntimeAnnotation"
+import { ClazzType } from "../../interface/declare"
 import BeanDefinition from "./BeanDefinition"
 
 export type BeanDefinitonKey = string | ClazzType

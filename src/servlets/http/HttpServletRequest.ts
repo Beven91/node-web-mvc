@@ -21,8 +21,8 @@ declare class Cookies {
   [propName: string]: string | Array<string>
 }
 
-const servletContextSymbol = Symbol.for('servletContext');
-const filterAdapterSymbol = Symbol.for('filterAdapter');
+const servletContextSymbol = Symbol('servletContext');
+const filterAdapterSymbol = Symbol('filterAdapter');
 
 export default class HttpServletRequest {
 
@@ -160,15 +160,15 @@ export default class HttpServletRequest {
 
   constructor(request: IncomingMessage,contextPath:string, filterAdapter: FilterHandlerAdapter, multipart: Multipart) {
     const protocol = (request.socket as any).encrypted ? 'https' : 'http';
-    const url = new URL(request.url, `${protocol}://${request.headers.host}`);
+    const uRL = new URL(request.url, `${protocol}://${request.headers.host}`);
     this.headers = request.headers;
     this.method = HttpMethod[(request.method).toUpperCase()];
     this.protocol = protocol;
     this.request = request;
-    this.query = querystring.parse(url.search.slice(1));
-    this.host = url.hostname;
-    this.port = url.port;
-    this.path = url.pathname;
+    this.query = querystring.parse(uRL.search.slice(1));
+    this.host = uRL.hostname;
+    this.port = uRL.port;
+    this.path = uRL.pathname;
     this.contextPath = contextPath;
     this.mediaType = new MediaType(this.headers['content-type']);
     this._cookies = this.parseCookie(request.headers['cookie']);

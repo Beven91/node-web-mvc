@@ -8,6 +8,7 @@ import Javascript from "../../../interface/Javascript";
 import Tracer from "./Tracer";
 import { mergeAnnotationSymbol } from '../Merge';
 import AliasFor from '../AliasFor';
+import { ClazzType } from '../../../interface/declare';
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
@@ -23,10 +24,6 @@ export type LinkAnnotationType<A> = { NativeAnnotation: A }
 export type TracerConstructor = ClazzType & { tracer?: Tracer }
 
 export interface IAnnotation extends Function, LinkAnnotationType<any> {
-}
-
-export type ClazzType = {
-  new(): any
 }
 
 export type IAnnotationOrClazz = IAnnotationClazz | IAnnotation

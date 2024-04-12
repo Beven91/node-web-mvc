@@ -2,7 +2,7 @@
 
 // Tip: 由于ts运行时不能保留接口定义，所以在一些需要运行进行类型判定的地方会降接口改为抽象类来定义
 
-import { BeanDefinitonKey } from "../factory/BeanDefinitionRegistry";
+import { ClazzType } from "../../interface/declare";
 import BeanPostProcessor from "./BeanPostProcessor";
 
 export declare interface PropertyValue {
@@ -13,10 +13,14 @@ export declare interface PropertyValue {
 
 export default abstract class InstantiationAwareBeanPostProcessor implements BeanPostProcessor {
 
-  abstract postProcessBeforeInitialization(beanType: Object, beanName: string): Object
+  abstract postProcessBeforeInitialization(beanType: ClazzType, beanName: string): object
 
-  abstract postProcessAfterInitialization(beanInstance: Object, beanName: string): Object
+  abstract postProcessAfterInitialization(beanInstance: object, beanName: string): object
 
-  abstract postProcessProperties(pvs: PropertyValue[], beanInstance: Object, beanName: string): PropertyValue[]
+  abstract postProcessProperties(pvs: PropertyValue[], beanInstance: object, beanName: string): PropertyValue[]
+
+  postProcessFinish(beanInstance: object, beanType: ClazzType) {
+    
+  }
 
 }

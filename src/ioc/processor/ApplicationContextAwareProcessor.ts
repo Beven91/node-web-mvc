@@ -1,3 +1,4 @@
+import { ClazzType } from "../../interface/declare";
 import AbstractApplicationContext from "../../servlets/context/AbstractApplicationContext";
 import ApplicationContextAware from "../../servlets/context/ApplicationContextAware";
 import InstantiationAwareBeanPostProcessor, { PropertyValue } from "./InstantiationAwareBeanPostProcessor";
@@ -12,15 +13,15 @@ export default class ApplicationContextAwareProcessor extends InstantiationAware
   }
 
 
-  postProcessBeforeInitialization(beanType: Object, beanName: string): Object {
+  postProcessBeforeInitialization(beanType: ClazzType, beanName: string): object {
     return null;
   }
 
-  postProcessProperties(pvs: PropertyValue[], beanInstance: Object, beanName: string): PropertyValue[] {
+  postProcessProperties(pvs: PropertyValue[], beanInstance: object, beanName: string): PropertyValue[] {
     return pvs;
   }
 
-  postProcessAfterInitialization(beanInstance: Object, beanName: string): Object {
+  postProcessAfterInitialization(beanInstance: object, beanName: string): object {
     if (beanInstance instanceof ApplicationContextAware && this.context) {
       beanInstance.setApplication?.(this.context);
     }

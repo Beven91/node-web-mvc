@@ -28,7 +28,7 @@ export default class InternalErrorHandler {
   }
 
   async tryResolveException(servletContext: ServletContext): Promise<any> {
-    if (!servletContext.response.hasError && !servletContext.isRequestHandled) {
+    if (!servletContext.response.hasError || servletContext.isRequestHandled) {
       // 如果不需要处理异常
       return;
     }

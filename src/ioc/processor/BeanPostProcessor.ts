@@ -1,10 +1,9 @@
-import { ClazzType } from "../../servlets/annotations/annotation/RuntimeAnnotation";
+import { ClazzType } from "../../interface/declare";
 import { BeanDefinitonKey } from "../factory/BeanDefinitionRegistry";
 
 export default abstract class BeanPostProcessor {
 
-  abstract postProcessBeforeInitialization?(beanType: ClazzType, beanName: BeanDefinitonKey): Object
+  abstract postProcessBeforeInitialization?(beanType: ClazzType, beanName: BeanDefinitonKey): object
 
-  abstract postProcessAfterInitialization(bean: Object, beanName: BeanDefinitonKey): Object
-
+  abstract postProcessAfterInitialization(bean: object, beanName: BeanDefinitonKey): object
 }

@@ -25,7 +25,7 @@ export default class JsonMessageConverter extends AbstractHttpMessageConverter<O
     return JSON.parse(body);
   }
 
-  writeInternal(data: Object, servletContext: ServletContext) {
+  writeInternal(data: object, servletContext: ServletContext) {
     return new Promise<void>((resolve) => {
       const out = typeof data === 'string' ? data : JSON.stringify(data);
       servletContext.response.end(out, undefined, resolve);

@@ -27,7 +27,7 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
         exceptionHandlerMethod.setReturnValueHandlers(this.returnValueHandlers);
         // 自定义异常处理
         await exceptionHandlerMethod.invoke(servletContext, error);
-        return servletContext.isRequestHandled();
+        return servletContext.isRequestHandled;
       }
     } catch (ex) {
       console.warn(`${ExceptionHandlerExceptionResolver.name} resolveException failure:`);

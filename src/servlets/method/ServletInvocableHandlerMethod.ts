@@ -25,11 +25,12 @@ export default class ServletInvocableHandlerMethod {
    */
   public async invoke(servletContext: ServletContext, ...args: any[]) {
     const handlerMethod = this.handlerMethod;
-    const method = handlerMethod.method;
-    if (!method) {
+    if (!handlerMethod.method) {
       return new InterruptModel();
     }
     const bean = handlerMethod.bean;
+    // 优先从实例中获取method 用于支持aop代理
+    const method = bean[handlerMethod.methodName] || handlerMethod.method;
     const returnValue = await Promise.resolve(method.call(bean, ...args));
     this.setResponseStatus(servletContext);
     // 如果response已处理结束

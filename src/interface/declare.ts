@@ -77,4 +77,8 @@ export declare interface CrossOriginOption {
   allowMethods:string
 }
 
+export type ClazzType = {
+  new(): any
+}
+
 export declare type Middleware = (request: any, response: any, ex: MiddlewareNext) => void
