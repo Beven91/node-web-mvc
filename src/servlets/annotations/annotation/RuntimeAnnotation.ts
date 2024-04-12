@@ -21,8 +21,6 @@ export interface IAnnotationClazz {
 
 export type LinkAnnotationType<A> = { NativeAnnotation: A }
 
-export type TracerConstructor = ClazzType & { tracer?: Tracer }
-
 export interface IAnnotation extends Function, LinkAnnotationType<any> {
 }
 
@@ -50,7 +48,7 @@ export default class RuntimeAnnotation<A = any> {
   /**
    * 标注类的构造函数
    */
-  get ctor(): TracerConstructor {
+  get ctor() {
     switch (this.elementType) {
       case ElementType.TYPE:
         return this.target as ClazzType
@@ -325,7 +323,7 @@ export default class RuntimeAnnotation<A = any> {
     }
 
     // 热更新追踪
-    this.ctor.tracer = tracer
+    Tracer.setTracer(this.ctor, tracer);
     // 根据构造创建注解实例
     this.nativeAnnotation = new NativeAnnotation(this, initializer, meta);
 
@@ -352,8 +350,8 @@ hot
     const file = old.filename;
     const removeList = [] as any[];
     for (let element of runtimeAnnotations) {
-      const ctor = element.ctor as TracerConstructor;
-      if (ctor?.tracer?.isDependency(file)) {
+      const tracer = Tracer.getTracer(element.ctor);
+      if (tracer?.isDependency(file)) {
         removeList.push(element);
       }
     }

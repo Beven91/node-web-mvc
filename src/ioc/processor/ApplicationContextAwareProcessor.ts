@@ -4,7 +4,7 @@ import ApplicationContextAware from "../../servlets/context/ApplicationContextAw
 import InstantiationAwareBeanPostProcessor, { PropertyValue } from "./InstantiationAwareBeanPostProcessor";
 
 export default class ApplicationContextAwareProcessor extends InstantiationAwareBeanPostProcessor {
-
+  
   private readonly context: AbstractApplicationContext
 
   constructor(context: AbstractApplicationContext) {
@@ -12,19 +12,10 @@ export default class ApplicationContextAwareProcessor extends InstantiationAware
     this.context = context;
   }
 
-
-  postProcessBeforeInitialization(beanType: ClazzType, beanName: string): object {
-    return null;
-  }
-
   postProcessProperties(pvs: PropertyValue[], beanInstance: object, beanName: string): PropertyValue[] {
-    return pvs;
-  }
-
-  postProcessAfterInitialization(beanInstance: object, beanName: string): object {
     if (beanInstance instanceof ApplicationContextAware && this.context) {
       beanInstance.setApplication?.(this.context);
     }
-    return beanInstance;
+    return pvs;
   }
 }

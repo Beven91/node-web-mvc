@@ -1,6 +1,5 @@
 import Method from "../interface/Method";
-import { ClazzType } from "../interface/declare";
-import { BeanFactory } from "../ioc/factory/BeanFactory";
+import OrderedHelper from "../ioc/factory/OrderedHelper";
 import Advice from "./advice/Advice";
 import PointcutAdvisor from "./advisor/PointcutAdvisor";
 import ReflectiveMethodInvocation from "./invocation/ReflectiveMethodInvocation";
@@ -9,8 +8,8 @@ export default class CglibAopProxy {
 
   private advisors: PointcutAdvisor[]
 
-  constructor(beanFactory: BeanFactory) {
-    this.advisors = beanFactory.getBeanOfType(PointcutAdvisor);
+  constructor() {
+    this.advisors = [];
   }
 
   createChain(method: Method) {
@@ -22,7 +21,11 @@ export default class CglibAopProxy {
         interceptors.push(advice);
       }
     }
-    return interceptors;
+    return OrderedHelper.sort(interceptors);
+  }
+
+  setAdvisors(advisors: PointcutAdvisor[]) {
+    this.advisors = advisors || [];
   }
 
   intercept(proxy: object, target: object, method: Method, args: any[]) {

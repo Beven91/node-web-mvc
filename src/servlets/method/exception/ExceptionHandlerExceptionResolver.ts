@@ -1,3 +1,5 @@
+import { BeanFactory } from "../../../ioc/factory/BeanFactory";
+import BeanFactoryAware from "../../../ioc/factory/BeanFactoryAware";
 import ControllerAdvice from "../../annotations/ControllerAdvice";
 import ExceptionHandler from "../../annotations/ExceptionHandler";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
@@ -9,10 +11,13 @@ import HandlerExceptionResolver from "./HandlerExceptionResolver";
 
 export default class ExceptionHandlerExceptionResolver implements HandlerExceptionResolver {
 
+  private readonly beanFactory: BeanFactory
+
   private readonly returnValueHandlers: HandlerMethodReturnValueHandler[]
 
-  constructor(returnValueHandlers: HandlerMethodReturnValueHandler[]) {
+  constructor(returnValueHandlers: HandlerMethodReturnValueHandler[], beanFactory: BeanFactory) {
     this.returnValueHandlers = returnValueHandlers;
+    this.beanFactory = beanFactory;
   }
 
   async resolveException(servletContext: ServletContext, handlerMethod: HandlerMethod, error: Error) {
@@ -22,7 +27,8 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
       const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod.beanType);
       const exceptionAnnotation = scopeAnnotation || globalAnnotation;
       if (exceptionAnnotation) {
-        const handlerMethod = new HandlerMethod(exceptionAnnotation.ctor, exceptionAnnotation.method);
+        const bean = this.beanFactory.getBean(exceptionAnnotation.ctor);
+        const handlerMethod = new HandlerMethod(bean, exceptionAnnotation.method, this.beanFactory);
         const exceptionHandlerMethod = new ServletInvocableHandlerMethod(handlerMethod);
         exceptionHandlerMethod.setReturnValueHandlers(this.returnValueHandlers);
         // 自定义异常处理

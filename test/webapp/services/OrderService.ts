@@ -1,5 +1,4 @@
 import { Service, Autowired } from "../../../src";
-import GeneralResult from '../models/GeneralResult';
 
 @Service
 export default class OrderService {
@@ -8,9 +7,8 @@ export default class OrderService {
   private orderModel;
 
   constructor(){
-    console.log('ssss');
-    console.log(this.orderModel);
-    console.log(GeneralResult);
+    console.log('ioc Create OrderService');
+    console.log(this);
   }
 
   sayHello(){

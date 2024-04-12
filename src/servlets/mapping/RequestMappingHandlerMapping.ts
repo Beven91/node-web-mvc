@@ -9,13 +9,13 @@ import HttpServletRequest from "../http/HttpServletRequest";
 import MappingRegistration from '../mapping/registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod'
 import RequestMapping, { RequestMappingExt } from "../annotations/mapping/RequestMapping";
-import RuntimeAnnotation, { TracerConstructor } from "../annotations/annotation/RuntimeAnnotation";
+import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
 import ElementType from "../annotations/annotation/ElementType";
 import ServletContext from '../http/ServletContext';
 import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
 import HttpStatus from '../http/HttpStatus';
 import InitializingBean from '../../ioc/processor/InitializingBean';
-import { BeanFactory } from '../../ioc/factory/BeanFactory';
+import Tracer from '../annotations/annotation/Tracer';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> implements InitializingBean {
 
@@ -110,8 +110,8 @@ function hotUpdate(handlerMapping: RequestMappingHandlerMapping) {
       const registration = handlerMapping.getRegistrations();
       const removeList = [] as any[];
       for (let element of registration.values()) {
-        const ctor = element.getHandlerMethod()?.beanType as TracerConstructor;
-        if (ctor?.tracer?.isDependency(file)) {
+        const tracer = Tracer.getTracer(element.getHandlerMethod()?.beanType)
+        if (tracer?.isDependency(file)) {
           removeList.push(element.getMapping());
         }
       }
@@ -121,8 +121,8 @@ function hotUpdate(handlerMapping: RequestMappingHandlerMapping) {
       const file = latest.filename;
       const annotations = RuntimeAnnotation.getTypedRuntimeAnnotations(RequestMapping);
       annotations.forEach((annotation) => {
-        const ctor = annotation.ctor as TracerConstructor;
-        if (ctor.tracer?.isDependency(file)) {
+        const tracer = Tracer.getTracer(annotation.ctor);
+        if (tracer?.isDependency(file)) {
           handlerMapping.registerAnnotationMappings(annotation);
         }
       });

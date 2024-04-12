@@ -26,6 +26,7 @@ export default class ServletApplication {
    */
   createWebMvcConfigurationSupport(options: WebMvcConfigurationSupport | WebAppConfigurerOptions, context: GenericApplicationContext) {
     const configurer = options instanceof WebMvcConfigurationSupport ? options : new WebMvcConfigurationSupport(options);
+    configurer.beanFactory = context.getBeanFactory();
     if (configurer.hot) {
       // 启动热更新
       hot.run(configurer.hot);

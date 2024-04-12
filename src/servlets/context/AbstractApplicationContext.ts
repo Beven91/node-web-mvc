@@ -30,7 +30,7 @@ export default abstract class AbstractApplicationContext {
       new AutowiredAnnotationBeanPostProcessor(factory),
       new ApplicationContextAwareProcessor(this),
       new ConfigurationBeanPostProcessor(factory),
-      new CglibAopProxyPostProcesor(factory),
+      new CglibAopProxyPostProcesor(),
     )
   }
 
@@ -41,9 +41,9 @@ export default abstract class AbstractApplicationContext {
   private registerWithAnnotation(annotation: RuntimeAnnotation<InstanceType<typeof Component>>) {
     const clazz = annotation.ctor;
     const scopeAnno = RuntimeAnnotation.getClassAnnotation(clazz, Scope);
+    const name = annotation.nativeAnnotation.value;
     const scope = scopeAnno?.nativeAnnotation?.scope;
     const definition = new BeanDefinition(clazz, null, scope);
-    const name = annotation.nativeAnnotation.value;
     const beanFactory = this.getBeanFactory();
     if (name) {
       beanFactory.registerBeanDefinition(name, definition);
@@ -82,10 +82,14 @@ export default abstract class AbstractApplicationContext {
     }
   }
 
+  onFinish() {
+  }
+
   refresh() {
     this.prepareBeanFactory();
     this.registerAllComponentBeans();
     this.createSingletonBeans();
     this.registerAllComponentBeans(true);
+    this.onFinish();
   }
 }

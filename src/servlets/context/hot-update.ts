@@ -1,7 +1,8 @@
 import hot from "nodejs-hmr";
 import type AbstractApplicationContext from "./AbstractApplicationContext";
-import RuntimeAnnotation, { TracerConstructor } from "../annotations/annotation/RuntimeAnnotation";
+import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
 import Component from "../../ioc/annotations/Component";
+import Tracer from "../annotations/annotation/Tracer";
 
 // 开发模式热更新
 export default function hotUpdate(
@@ -17,8 +18,8 @@ export default function hotUpdate(
       const beanFactory = getBeanFactory();
       for (let key of beanFactory.getBeanDefinitionNames()) {
         const definition = beanFactory.getBeanDefinition(key);
-        const octor = definition.clazz as TracerConstructor;
-        if (octor?.tracer?.isDependency?.(old.filename)) {
+        const tracer = Tracer.getTracer(definition.clazz);
+        if (tracer?.isDependency?.(old.filename)) {
           // 记录需要移除的内容
           removeKeys.push(key);
         }
@@ -36,9 +37,9 @@ export default function hotUpdate(
       })
       const annotations = RuntimeAnnotation.getAnnotations(Component);
       annotations.forEach((annotation) => {
-        const ctor = annotation.ctor as TracerConstructor;
-        if (!ctor?.tracer) return;
-        if (updateFiles.find((file) => ctor.tracer.isDependency(file))) {
+        const tracer = Tracer.getTracer(annotation.ctor);
+        if (tracer) return;
+        if (updateFiles.find((file) => tracer.isDependency(file))) {
           console.log('register:', annotation.ctor.name);
           // 重新注册热更新过的Bean定义
           registerWithAnnotation(annotation);

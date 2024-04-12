@@ -3,7 +3,7 @@
  * @description 解析出的参数转换
  */
 
-import ArgumentConvertError from "../../../errors/ArgumentConvertError";
+import ValueConvertError from "../../../errors/ValueConvertError";
 import Javascript from "../../../interface/Javascript";
 
 export default class ArgumentConverter {
@@ -43,7 +43,7 @@ export default class ArgumentConverter {
 
   toNumber(value) {
     if (isNaN(value)) {
-      throw new ArgumentConvertError(value, Number);
+      throw new ValueConvertError(value, Number);
     }
     return Number(value);
   }
@@ -56,35 +56,35 @@ export default class ArgumentConverter {
     } else if (value == 1 || value === 'true') {
       return true;
     }
-    throw new ArgumentConvertError(value, Boolean);
+    throw new ValueConvertError(value, Boolean);
   }
 
   toBigInt(value) {
     try {
       return BigInt(value);
     } catch (ex) {
-      throw new ArgumentConvertError(value, BigInt);
+      throw new ValueConvertError(value, BigInt);
     }
   }
 
   toDate(value) {
     const date = new Date(value);
     if (/Invalid/.test(date.toString())) {
-      throw new ArgumentConvertError(value, Date);
+      throw new ValueConvertError(value, Date);
     }
     return date;
   }
 
   toArray(value) {
     if (!(value instanceof Array)) {
-      throw new ArgumentConvertError(value, Array);
+      throw new ValueConvertError(value, Array);
     }
     return value;
   }
 
   toMap(value) {
     if (typeof value !== 'object' || !value) {
-      throw new ArgumentConvertError(value, Map);
+      throw new ValueConvertError(value, Map);
     } else if (value instanceof Map) {
       return value;
     }
@@ -97,7 +97,7 @@ export default class ArgumentConverter {
 
   toSet(value) {
     if (!(value instanceof Array)) {
-      throw new ArgumentConvertError(value, Set);
+      throw new ValueConvertError(value, Set);
     } else if (value instanceof Set) {
       return value;
     }
@@ -123,7 +123,7 @@ export default class ArgumentConverter {
         }
       } catch (ex) {
         if (ex.message.indexOf('which has only a getter') < 0) {
-          throw new ArgumentConvertError(value, T, ex.message);
+          throw new ValueConvertError(value, T, ex.message);
         }
       }
     });

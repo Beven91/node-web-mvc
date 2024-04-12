@@ -107,7 +107,7 @@ export { default as CacheControl } from './servlets/http/CacheControl';
 export { default as MappedInterceptor } from './servlets/interceptor/MappedInterceptor';
 export { default as CrossOrigin } from './servlets/annotations/cors/CrossOrigin';
 export { default as AnnotationElementTypeError } from './errors/AnnotationElementTypeError';
-export { default as ArgumentConvertError } from './errors/ArgumentConvertError';
+export { default as ValueConvertError } from './errors/ValueConvertError';
 export { default as ArgumentResolvError } from './errors/ArgumentResolvError';
 export { default as BeanCreationException } from './errors/BeanCreationException';
 export { default as BeanDefinitionOverrideException } from './errors/BeanDefinitionOverrideException';
@@ -149,6 +149,9 @@ export { default as AbstractBeanFactory } from './ioc/factory/AbstractBeanFactor
 export { default as BeanDefinition } from './ioc/factory/BeanDefinition';
 export { BeanDefinitionRegistry } from './ioc/factory/BeanDefinitionRegistry';
 export { BeanFactory } from './ioc/factory/BeanFactory'
+export { default as Aware } from './ioc/factory/Aware'
+export { default as BeanNameAware } from './ioc/factory/BeanNameAware'
+export { default as BeanFactoryAware } from './ioc/factory/BeanFactoryAware'
 export { default as DefaultListableBeanFactory } from './ioc/factory/DefaultListableBeanFactory';
 export { default as AutowiredAnnotationBeanPostProcessor } from './ioc/processor/AutowiredAnnotationBeanPostProcessor';
 export { default as BeanPostProcessor } from './ioc/processor/BeanPostProcessor';

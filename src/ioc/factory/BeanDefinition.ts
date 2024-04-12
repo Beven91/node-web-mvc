@@ -3,7 +3,7 @@
  * @description bean定义
  */
 import { ClazzType } from '../../interface/declare';
-import { TracerConstructor } from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import Tracer from '../../servlets/annotations/annotation/Tracer';
 
 export type ScopeType = 'prototype' | 'singleton' | 'request'
 
@@ -45,12 +45,11 @@ export default class BeanDefinition {
    * @param scope 作用域
    */
   constructor(clazz: Function, method: Function, scope: ScopeType) {
-    const ctor = clazz as TracerConstructor;
     // 表示是函数创建bean
     this.beanType = method ? null : clazz as ClazzType;
     this.methodClazz = method ? clazz as ClazzType : null;
     this.method = method;
-    this.path = ctor?.tracer?.id || clazz.name;
+    this.path = Tracer.getTracer(clazz)?.id || clazz.name;
     this.scope = scope || 'singleton';
   }
 

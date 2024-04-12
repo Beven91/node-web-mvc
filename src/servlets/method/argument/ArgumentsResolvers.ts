@@ -18,6 +18,10 @@ import IllegalArgumentException from '../../../errors/IllegalArgumentException';
 import ParamAnnotation from '../../annotations/params/ParamAnnotation';
 import MessageConverter from '../../http/converts/MessageConverter';
 import RequestBodyReader from '../../http/body/RequestBodyReader';
+import ValueConvertError from '../../../errors/ValueConvertError';
+import ArgumentConvertError from '../../../errors/ArgumentConvertError';
+import MultipartFile from '../../http/MultipartFile';
+import Javascript from '../../../interface/Javascript';
 
 export default class ArgumentsResolvers {
 
@@ -64,12 +68,15 @@ export default class ArgumentsResolvers {
         const anno = parameter.getParameterAnnotation(ParamAnnotation);
         const value = await this.resolveArgument(parameter, servletContext);
         const hasResolved = (value !== undefined && value !== null);
-        const finalValue = hasResolved ? value : anno?.defaultValue;
+        let finalValue = hasResolved ? value : anno?.defaultValue;
         const hasNotValue = finalValue === null || finalValue === undefined;
         if (anno?.required && hasNotValue) {
           // 如果缺少参数
           const message = `Required request parameter: ${parameter.paramName} for method parameter type ${parameter.parameterType.name} is not present @${handler.beanTypeName}.${handler.methodName}`
           throw new ArgumentResolvError(message, parameter.paramName);
+        }
+        if (finalValue instanceof MultipartFile && Javascript.getClass(parameter.parameterType).isEqualOrExtendOf(Array)) {
+          finalValue = [finalValue];
         }
         // 设置参数值
         const converter = new ArgumentConverter(parameter.parameterType);
@@ -77,6 +84,9 @@ export default class ArgumentsResolvers {
       }
       return args;
     } catch (ex) {
+      if (ex instanceof ValueConvertError) {
+        return Promise.reject(new ArgumentConvertError(parameter?.paramName, ex));
+      }
       if (ex instanceof Error && ex.constructor !== Error) {
         return Promise.reject(ex);
       }

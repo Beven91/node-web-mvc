@@ -10,9 +10,13 @@ import Qualifier from "../annotations/Qualifier";
 import BeanPostProcessor from "../processor/BeanPostProcessor";
 import InitializingBean from "../processor/InitializingBean";
 import InstantiationAwareBeanPostProcessor, { PropertyValue } from "../processor/InstantiationAwareBeanPostProcessor";
+import Aware from "./Aware";
 import BeanDefinition from "./BeanDefinition";
 import { BeanDefinitonKey } from "./BeanDefinitionRegistry";
 import { BeanFactory } from "./BeanFactory";
+import BeanFactoryAware from "./BeanFactoryAware";
+import BeanNameAware from "./BeanNameAware";
+import OrderedHelper from "./OrderedHelper";
 
 export default abstract class AbstractBeanFactory implements BeanFactory {
   // bean处理器
@@ -72,12 +76,13 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    */
   getType(name: BeanDefinitonKey) {
     const definition = this.getBeanDefinition(name);
-    if (!definition.clazz) {
+    const clazz = definition?.clazz;
+    if (definition && !definition.clazz) {
       // 如果是函数来构造bean，在不显示设置返回类型时 无法获取returnType 则需要获取实例后，再获取类型
       const bean = this.doGetBean(definition, name, true);
       bean && definition.fallbackBeanType(bean.constructor as ClazzType);
     }
-    return definition?.clazz;
+    return clazz;
   }
 
   /**
@@ -121,12 +126,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
         result.push(beanInstance);
       }
     }
-    result.sort((a, b) => {
-      const o1 = (a as Ordered).getOrder?.() || Number.MAX_SAFE_INTEGER;
-      const o2 = (b as Ordered).getOrder?.() || Number.MAX_SAFE_INTEGER;
-      return o2 - o1;
-    })
-    return result;
+    return OrderedHelper.sort(result);
   }
 
   /**
@@ -151,25 +151,29 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     if (beanInstance && needSaveInstance) {
       this.beanInstancesCache.set(definition, beanInstance);
     }
-    this.applyBeanPostProcessorsFinishInstantiation(beanInstance as object, beanInstance?.constructor as ClazzType)
     return beanInstance;
   }
 
   private createBean(definition: BeanDefinition, key: BeanDefinitonKey) {
     const beanName = typeof key === 'string' ? key : key?.name;
-    let beanInstance = null;
     try {
-      beanInstance = this.resolveBeforeInstantiation(definition, beanName);
+      // 1. 执行预创建实例化事件，如果有返回对象，则直接结束创建
+      const beanInstance = this.resolveBeforeInstantiation(definition, beanName);
       if (beanInstance) {
         return beanInstance;
       }
     } catch (ex) {
       throw new BeanCreationException(definition, beanName, `BeanPostProcessor before instantiation of bean failed`, ex);
     }
+    return this.doCreateBean(definition, beanName)
+  }
+
+  private doCreateBean(definition: BeanDefinition, beanName: string) {
     try {
-      beanInstance = this.createInstance(definition);
+      // 2. 根据定义创建实例
+      const beanInstance = this.createInstance(definition);
       this.populateBean(beanInstance, beanName);
-      return beanInstance;
+      return this.initializeBean(beanInstance, beanName);
     } catch (ex) {
       throw new BeanCreationException(definition, beanName, `Unexpected exception during bean creation`, ex);
     }
@@ -207,35 +211,81 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
 
   private resolveBeforeInstantiation(definition: BeanDefinition, beanName: string) {
     const targetType = definition.clazz;
-    const beanInstance = this.applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
-    if (beanInstance !== null) {
-      this.applyBeanPostProcessorsAfterInitialization(beanInstance, beanName);
+    // 1.1 实例化bean
+    let beanInstance = this.applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
+    if (beanInstance) {
+      // 1.2 执行初始化结束事件
+      beanInstance = this.applyBeanPostProcessorsAfterInitialization(beanInstance, beanName);
     }
     return beanInstance;
   }
 
+  /**
+   * 执行实例化before事件
+   * @param targetType 当前bean类
+   * @param beanName 当前bean名称
+   * @returns 返回预创建创建的实例如果有的话
+   */
   private applyBeanPostProcessorsBeforeInstantiation(targetType: ClazzType, beanName: string) {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
     for (const processor of processors) {
-      const instance = processor.postProcessBeforeInitialization(targetType, beanName);
+      const instance = processor.postProcessBeforeInstantiation(targetType, beanName);
       if (instance != null) {
         return instance;
       }
     }
   }
 
-  private applyBeanPostProcessorsFinishInstantiation(beanInstance: object, beanType: ClazzType) {
+  /**
+   * 执行实例化after事件
+   * @param instance 当前bean实例
+   * @param beanName 当前bean名称
+   * @returns 
+   */
+  private applyBeanPostProcessorsAfterInstantiation(instance: object, beanName: string) {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
     for (const processor of processors) {
-      processor.postProcessFinish(beanInstance, beanType);
+      const isSkip = !processor.postProcessAfterInstantiation(instance, beanName);
+      if (isSkip) {
+        return isSkip;
+      }
     }
   }
 
+  /**
+   * 执行初始化before事件
+   * @param instance 当前bean实例
+   * @param beanName 当前bean名称
+   * @returns 要导出的bean实例
+   */
+  private applyBeanPostProcessorsBeforeInitialization(instance: object, beanName: string) {
+    const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
+    let beanInstance = instance;
+    for (const processor of processors) {
+      const current = processor.postProcessBeforeInitialization(beanInstance, beanName);
+      if (current) {
+        beanInstance = current;
+      }
+    }
+    return beanInstance;
+  }
+
+  /**
+   * 执行初始化结束事件
+   * @param instance 当前bean实例
+   * @param beanName 当前bean名称
+   * @returns 要导出的bean实例
+   */
   private applyBeanPostProcessorsAfterInitialization(instance: object, beanName: string) {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
+    let beanInstance = instance;
     for (const processor of processors) {
-      processor.postProcessAfterInitialization(instance, beanName);
+      const current = processor.postProcessAfterInitialization(beanInstance, beanName);
+      if (current) {
+        beanInstance = current;
+      }
     }
+    return beanInstance;
   }
 
   private applyBeanPostProperties(pvs: PropertyValue[], beanInstance: object, beanName: string) {
@@ -247,7 +297,13 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   }
 
   private populateBean(beanInstance: object, beanName: string) {
-    this.applyBeanPostProcessorsAfterInitialization(beanInstance, beanName);
+    // 2.1 执行实例化after事件
+    const isSkip = this.applyBeanPostProcessorsAfterInstantiation(beanInstance, beanName);
+    if (isSkip) {
+      // 如果忽略属性设置
+      return;
+    }
+    // 2.2 执行处理实例属性事件
     const properties = this.applyBeanPostProperties([], beanInstance, beanName);
     properties.forEach((p) => {
       const value = p.value;
@@ -266,9 +322,30 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
         beanInstance[p.name] = value;
       }
     });
+  }
 
-    const initializing = beanInstance as InitializingBean;
-    initializing.afterPropertiesSet?.();
+  private invokeAwareMethods(beanInstance: object, beanName: string) {
+    if (!(beanInstance instanceof Aware)) return;
+    if (beanInstance instanceof BeanNameAware) {
+      beanInstance.setBeanName(beanName);
+    } else if (beanInstance instanceof BeanFactoryAware) {
+      beanInstance.setBeanFactory(this);
+    }
+  }
+
+  private invokeInitMethods(beanInstance: object, beanName: string) {
+    (beanInstance as InitializingBean).afterPropertiesSet?.();
+  }
+
+  private initializeBean(beanInstance: object, beanName: string) {
+    // 2.3 处理初始化前事件
+    this.applyBeanPostProcessorsBeforeInitialization(beanInstance, beanName);
+    // 2.4 执行不同类型的实例属性注入
+    this.invokeAwareMethods(beanInstance, beanName);
+    // 2.5 执行实例初始化函数
+    this.invokeInitMethods(beanInstance, beanName);
+    // 2.6 执行初始化after事件
+    return this.applyBeanPostProcessorsAfterInitialization(beanInstance, beanName);
   }
 
   /**

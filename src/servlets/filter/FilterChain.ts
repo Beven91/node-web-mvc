@@ -33,8 +33,11 @@ export default class FilterChain {
       defer.resolve(this.internalDoFilter(request, response));
       return defer.promise;
     }
-    await filter?.doFilter?.(request, response, this);
-    // 用于解决，在filter中执行chain.doFilter时不用进行return promise连接
-    await defer.promise;
+    if (filter?.doFilter) {
+      await filter.doFilter(request, response, this);
+      // 用于解决，在filter中执行chain.doFilter时不用进行return promise连接
+      await defer.promise;
+    }
+    // 没有doFilter 则直接返回
   }
 }

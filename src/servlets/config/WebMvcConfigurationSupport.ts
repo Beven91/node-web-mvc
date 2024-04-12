@@ -136,7 +136,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     this.configureHandlerExceptionResolvers?.(exceptionResolvers);
     if (exceptionResolvers.length < 1) {
       // 注册默认异常处理器
-      exceptionResolvers.push(new ExceptionHandlerExceptionResolver(returnValueHandlers));
+      exceptionResolvers.push(new ExceptionHandlerExceptionResolver(returnValueHandlers, this.beanFactory));
       exceptionResolvers.push(new ResponseStatusExceptionResolver());
       exceptionResolvers.push(new DefaultHandlerExceptionResolver());
     }

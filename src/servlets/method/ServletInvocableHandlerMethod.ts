@@ -5,6 +5,7 @@ import MethodParameter from "./MethodParameter";
 import HandlerMethodReturnValueHandler from "./return/HandlerMethodReturnValueHandler";
 import HandlerMethodReturnValueHandlerComposite from "./return/HandlerMethodReturnValueHandlerComposite";
 
+const NOOP = {};
 
 export default class ServletInvocableHandlerMethod {
 
@@ -28,7 +29,7 @@ export default class ServletInvocableHandlerMethod {
     if (!handlerMethod.method) {
       return new InterruptModel();
     }
-    const bean = handlerMethod.bean;
+    const bean = handlerMethod.bean || NOOP;
     // 优先从实例中获取method 用于支持aop代理
     const method = bean[handlerMethod.methodName] || handlerMethod.method;
     const returnValue = await Promise.resolve(method.call(bean, ...args));

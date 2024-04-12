@@ -1,4 +1,4 @@
-import ArgumentConvertError from "../../../errors/ArgumentConvertError";
+import ValueConvertError from "../../../errors/ValueConvertError";
 import ArgumentResolvError from "../../../errors/ArgumentResolvError";
 import HttpStatusError from "../../../errors/HttpStatusError";
 import ParameterRequiredError from "../../../errors/ParameterRequiredError";
@@ -14,7 +14,7 @@ export default class DefaultHandlerExceptionResolver implements HandlerException
   }
 
   async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<boolean> {
-    if (this.isType(error, ArgumentResolvError, ArgumentConvertError, ParameterRequiredError)) {
+    if (this.isType(error, ArgumentResolvError, ValueConvertError, ParameterRequiredError)) {
       servletContext.response.sendError(HttpStatus.BAD_REQUEST);
       return true;
     } else if (error instanceof HttpStatusError) {

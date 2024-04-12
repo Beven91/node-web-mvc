@@ -11,16 +11,36 @@ export declare interface PropertyValue {
   optional: boolean
 }
 
-export default abstract class InstantiationAwareBeanPostProcessor implements BeanPostProcessor {
+export default abstract class InstantiationAwareBeanPostProcessor extends BeanPostProcessor {
 
-  abstract postProcessBeforeInitialization(beanType: ClazzType, beanName: string): object
+  /**
+   * 实例化bean之前执行
+   * @param beanClass bean类
+   * @param beanName 当前bean在容器中的名称
+   * @returns 如果返回了对象，则用于代替默认的实例对象
+   */
+  postProcessBeforeInstantiation(beanClass: ClazzType, beanName: string): object {
+    return null;
+  }
 
-  abstract postProcessAfterInitialization(beanInstance: object, beanName: string): object
+  /**
+   * 实例化bean之后执行
+   * @param instance bean实例对象
+   * @param beanName 当前bean在容器中的名称
+   * @returns 如果返回 false 则不进行属性设置，即不执行postProcessProperties
+   */
+  postProcessAfterInstantiation(instance: object, beanName: string): boolean {
+    return true;
+  }
 
-  abstract postProcessProperties(pvs: PropertyValue[], beanInstance: object, beanName: string): PropertyValue[]
-
-  postProcessFinish(beanInstance: object, beanType: ClazzType) {
-    
+  /**
+   * 处理实例属性值
+   * @param pvs 属性值列表
+   * @param instance bean实例对象
+   * @param beanName 当前bean在容器中的名称
+   */
+  postProcessProperties(pvs: PropertyValue[], instance: object, beanName: string): PropertyValue[] {
+    return pvs;
   }
 
 }

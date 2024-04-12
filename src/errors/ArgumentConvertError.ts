@@ -2,10 +2,10 @@
  * @module ArgumentConvertError
  */
 
+import ValueConvertError from "./ValueConvertError";
+
 export default class ArgumentConvertError extends Error {
-  constructor(value, ctor, message?: string) {
-    const type = Object.prototype.toString.call(value);
-    const name = type.replace('[object ', '').replace(']', '');
-    super(`Fail to convert ${name} to ${ctor.name} for input: ${value},${message || ''}`);
+  constructor(name: string, error: ValueConvertError) {
+    super(`Parameters: [${name}] value error \n${error.message}`);
   }
 }
