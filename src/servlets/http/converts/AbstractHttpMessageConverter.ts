@@ -2,6 +2,7 @@
  * @module AbstractHttpMessageConverter
  */
 
+import { JsDataType } from "../../../interface/declare";
 import MediaType from "../MediaType";
 import ServletContext from "../ServletContext";
 import HttpMessageConverter from "./HttpMessageConverter";
@@ -26,11 +27,11 @@ export default abstract class AbstractHttpMessageConverter<T> implements HttpMes
     return !!this.supportedMediaTypes.find((m) => m.isCompatibleWith(mediaType));
   }
 
-  canRead(clazz: any, mediaType: MediaType): boolean {
+  canRead(clazz: JsDataType, mediaType: MediaType): boolean {
     return this.supports(clazz) && this.matchMediaType(mediaType);
   }
 
-  canWrite(clazz: Function, mediaType: MediaType): boolean {
+  canWrite(clazz: JsDataType, mediaType: MediaType): boolean {
     return this.supports(clazz) && this.matchMediaType(mediaType);
   }
 

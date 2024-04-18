@@ -4,11 +4,11 @@ import Security from '../annotations/Security';
 
 export default class AdminInterceptor extends HandlerInterceptorAdapter {
 
-  preHandle(request,response,handler:HandlerMethod) {
+  preHandle(request, response, handler: HandlerMethod) {
     const a = handler.getClassAnnotation(Security);
     const m = handler.getAnnotation(Security);
-    console.log('a',a)
-    console.log('m',m)
+    console.log('Class.Annotation.Security', a)
+    console.log('Method.Annotation.Security', m)
     console.log('AdminInterceptor.preHandle called');
     if (request.path === '/scope/admin') {
       return false;

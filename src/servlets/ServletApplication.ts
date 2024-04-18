@@ -3,7 +3,6 @@ import WebMvcConfigurationSupport from "./config/WebMvcConfigurationSupport";
 import { DrivedServletContextClazz } from "./http/ServletContext";
 import ModuleLoader from "./util/ModuleLoader";
 import GenericApplicationContext from "./context/GenericApplicationContext";
-import RuntimeAnnotation from "./annotations/annotation/RuntimeAnnotation";
 import WebAppConfigurerOptions from "./config/WebAppConfigurerOptions";
 import BeanDefinition from '../ioc/factory/BeanDefinition';
 import { IncomingMessage, ServerResponse } from 'http';
@@ -12,13 +11,22 @@ import HttpServletRequest from './http/HttpServletRequest';
 import HttpServletResponse from './http/HttpServletResponse';
 import FilterHandlerAdapter from './filter/FilterHandlerAdapter';
 import HttpStatus from './http/HttpStatus';
+import DefaultListableBeanFactory from '../ioc/factory/DefaultListableBeanFactory';
+import Javascript from '../interface/Javascript';
 
 export default class ServletApplication {
 
-  private contextClazz: DrivedServletContextClazz
+  private contextClass: DrivedServletContextClazz
+
+  public context: GenericApplicationContext;
+
+  public configurer: WebMvcConfigurationSupport
+
+  private filterAdapter: FilterHandlerAdapter
 
   constructor(nativeHttpContextType: DrivedServletContextClazz) {
-    this.contextClazz = nativeHttpContextType;
+    this.contextClass = nativeHttpContextType;
+    registerHotUpdate(this, this.internalRun.bind(this));
   }
 
   /**
@@ -30,7 +38,6 @@ export default class ServletApplication {
     if (configurer.hot) {
       // 启动热更新
       hot.run(configurer.hot);
-      RuntimeAnnotation.isHotUpdate = true;
     }
     const definition = new BeanDefinition(WebMvcConfigurationSupport, () => configurer, 'singleton');
     context.getBeanFactory().registerBeanDefinition(WebMvcConfigurationSupport, definition);
@@ -58,13 +65,12 @@ export default class ServletApplication {
     return true;
   }
 
-  connect(configurer: WebMvcConfigurationSupport, context: GenericApplicationContext, contextClazz: DrivedServletContextClazz) {
-    const filterAdapter = new FilterHandlerAdapter(context.getBeanFactory());
-    filterAdapter.addFilter(new ServletDispatchFilter(contextClazz, context));
+  connect(configurer: WebMvcConfigurationSupport, contextClazz: DrivedServletContextClazz) {
     const handler = (nativeRequest: IncomingMessage, nativeResponse: ServerResponse, next: (error?: any) => any) => {
       if (!this.matchAndNormalizeUrl(nativeRequest, configurer.base)) {
         return next();
       }
+      const filterAdapter = this.filterAdapter;
       const request = new HttpServletRequest(nativeRequest, configurer.contextPath, filterAdapter, configurer.multipart);
       const response = new HttpServletResponse(nativeResponse);
       filterAdapter
@@ -108,17 +114,44 @@ export default class ServletApplication {
     }
   }
 
+  private internalRun(options: WebMvcConfigurationSupport | WebAppConfigurerOptions) {
+    const context = this.context = new GenericApplicationContext();
+    this.configurer = this.createWebMvcConfigurationSupport(options, context);
+    const beanFactory = context.getBeanFactory();
+    if (beanFactory instanceof DefaultListableBeanFactory) {
+      beanFactory.setAllowBeanDefinitionOverridable(false);
+    }
+    // 装载所有模块
+    this.readyWorkprogress(this.configurer.workprogressPaths);
+    // 应用上下文刷新
+    context.refresh();
+    // 构建过滤器处理适配器
+    this.filterAdapter = new FilterHandlerAdapter(context.getBeanFactory());
+    this.filterAdapter.addFilter(new ServletDispatchFilter(this.contextClass, context));
+  }
+
   /**
    * 启动服务
    */
   run(options: WebMvcConfigurationSupport | WebAppConfigurerOptions) {
-    const context = new GenericApplicationContext();
-    const configurer = this.createWebMvcConfigurationSupport(options, context);
-    // 装载所有模块
-    this.readyWorkprogress(configurer.workprogressPaths);
-    // 应用上下文刷新
-    context.refresh();
+    this.internalRun(options);
     // 开始连接到原生webserver服务
-    return this.connect(configurer, context, this.contextClazz);
+    return this.connect(this.configurer, this.contextClass);
   }
+}
+
+function registerHotUpdate(app: ServletApplication, refreshLifecycle: ServletApplication['internalRun']) {
+  hot
+  .create(module)
+  .clean()
+  .postend((m) => {
+    const Configurer = m.exports?.default;
+    if (Javascript.getClass(Configurer).isEqualOrExtendOf(WebMvcConfigurationSupport)) {
+      app.context?.getBeanFactory()?.destory?.();
+      const config = new Configurer();
+      delete config.hot;
+      // 如果是配置文件更新，则需要重新初始化(并非重启服务，而是刷新掉上下文)
+      refreshLifecycle(config);
+    }
+  })
 }

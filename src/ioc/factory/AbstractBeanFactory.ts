@@ -4,7 +4,6 @@ import Javascript from "../../interface/Javascript";
 import { ClazzType } from "../../interface/declare";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
 import RuntimeAnnotation, { } from "../../servlets/annotations/annotation/RuntimeAnnotation";
-import Ordered from "../../servlets/context/Ordered";
 import Autowired from "../annotations/Autowired";
 import Qualifier from "../annotations/Qualifier";
 import BeanPostProcessor from "../processor/BeanPostProcessor";
@@ -18,7 +17,16 @@ import BeanFactoryAware from "./BeanFactoryAware";
 import BeanNameAware from "./BeanNameAware";
 import OrderedHelper from "./OrderedHelper";
 
+export const isIocRemovedSymbol = Symbol('isIocRemoved');
+
 export default abstract class AbstractBeanFactory implements BeanFactory {
+
+  protected readonly id: number
+
+  constructor() {
+    this.id = performance.now();
+  }
+
   // bean处理器
   private readonly beanPostProcessors: BeanPostProcessor[] = []
 
@@ -108,15 +116,16 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * 获取指定bean实例
    */
   getBean<T = any>(beanType: ClazzType): T;
-  getBean<T = any>(name: string, ...args: any[]): T;
-  getBean<T = any>(...args: any): T;
-  getBean<T = any>(name: BeanDefinitonKey) {
+  getBean<T = any>(name: string): T;
+  getBean<T = any>(name: ClazzType | BeanDefinitonKey) {
     const definition = this.getBeanDefinition(name);
-    if (!definition) {
-      return null;
+    let instance: T = null;
+    if (definition) {
+      instance = this.doGetBean<T>(definition, name);
       // throw new BeanDefinitionNotfoundException(name);  
     }
-    return this.doGetBean<T>(definition, name);
+    this.debug('GetBean ', name, instance ? 'ok' : 'fail');
+    return instance;
   }
 
   getBeanOfType<T extends abstract new () => any>(beanType: T) {
@@ -132,7 +141,6 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   /**
    * 根据Bean定义创建Bean实例
    * @param definition Bean定义
-   * @param args 额外的构造参数 .... TODO 是否有必要保留?
    * @returns Bean的实例对象
    */
   private doGetBean<T>(definition: BeanDefinition, key: BeanDefinitonKey, saveInstance = false) {
@@ -357,6 +365,21 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
 
   removeBeanInstance(beanName: BeanDefinitonKey): void {
     const definition = this.getBeanDefinition(beanName);
+    const instance = this.beanInstancesCache.get(definition);
     this.beanInstancesCache.delete(definition);
+    if (instance) {
+      instance[isIocRemovedSymbol] = true;
+    }
+  }
+
+  protected debug(...args: any[]) {
+    // console.debug(`BeanFactory[${this.id}]:`, ...args);
+  }
+
+  /**
+   * 销毁工厂
+   */
+  destory() {
+    this.beanInstancesCache.clear();
   }
 }

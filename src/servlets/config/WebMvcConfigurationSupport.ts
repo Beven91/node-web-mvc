@@ -7,7 +7,6 @@ import HandlerInterceptorRegistry from '../interceptor/HandlerInterceptorRegistr
 import MessageConverter from '../http/converts/MessageConverter';
 import ArgumentsResolvers from '../method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
-import hot, { } from 'nodejs-hmr';
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import PathMatchConfigurer from './PathMatchConfigurer';
 import Bean from '../../ioc/annotations/Bean';
@@ -168,34 +167,3 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     );
   }
 }
-
-hot.create(module).accept((now, old) => {
-  // 子模块更新到此结束
-});
-
-// TODO
-// function hotUpdate(configurer: WebMvcConfigurationSupport) {
-//   hot.create(require.main).accept((now, old) => {
-//     // 监听主模块热更新
-//     const type = old.exports.default || old.exports;
-//     const MvcConfigurer = now.exports.default || now.exports;
-//     if (typeof type === 'function' && type.prototype.__proto__.constructor === WebMvcConfigurationSupport) {
-//       // 如果是修改了配置文件 且是无参数构造
-//       if (MvcConfigurer.length === 0) {
-//         // 清空静态资源配置 TODO
-//         // ResourceHandlerMapping.getInstance().getRegistration().clear();
-//         // 重新创建配置项
-//         const oldConfigurer = runtime.configurer as WebMvcConfigurationSupport;
-//         // 替换配置
-//         const newConfigurer = runtime.configurer = new MvcConfigurer();
-//         runtime.configurer = newConfigurer;
-//         WebMvcConfigurationSupport.initializeConfigurer(newConfigurer);
-//         if (oldConfigurer.cwd.toString() !== newConfigurer.cwd.toString()) {
-//           WebMvcConfigurationSupport.readyWorkprogress(newConfigurer.workprogressPaths);
-//         }
-//       }
-//     }
-//   })
-// }
-
-

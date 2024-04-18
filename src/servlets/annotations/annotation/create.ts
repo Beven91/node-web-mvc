@@ -2,7 +2,6 @@ import ElementType, { reflectAnnotationType } from "./ElementType";
 import FunctionExtends from "./FunctionExtends";
 import type { IAnnotation, IAnnotationClazz } from "./RuntimeAnnotation";
 import RuntimeAnnotation from "./RuntimeAnnotation";
-import Tracer from "./Tracer";
 
 function parseArguments(args: any[]) {
   const mayAnnotation = args[args.length - 1];
@@ -30,7 +29,6 @@ export default function create(elementTypes: ElementType | ElementType[], annota
       // 如果是当做class使用,这里用于从外部继承原始的AnnotationType
       return FunctionExtends.extendInstance(this, annotationType, args, decorator);
     }
-    const tracer = RuntimeAnnotation.isHotUpdate ? new Tracer(new Error()) : null;
     const maybeInitializer = args[0];
     const elementType = reflectAnnotationType(args);
     if (elementType === 'UNKNOW') {
@@ -38,11 +36,11 @@ export default function create(elementTypes: ElementType | ElementType[], annota
       return (...params) => {
         const innerInfo = parseArguments(params);
         // 配置后创建注解
-        new RuntimeAnnotation(innerInfo.args, annotationType, types, maybeInitializer, tracer, innerInfo.ownerAnnotation);
+        new RuntimeAnnotation(innerInfo.args, annotationType, types, maybeInitializer, innerInfo.ownerAnnotation);
       }
     }
     // 创建注解
-    new RuntimeAnnotation(args, annotationType, types, {}, tracer, ownerAnnotation);
+    new RuntimeAnnotation(args, annotationType, types, {}, ownerAnnotation);
   } as unknown as IAnnotation;
   decorator.NativeAnnotation = annotationType;
   FunctionExtends.extendStatic(decorator, annotationType);

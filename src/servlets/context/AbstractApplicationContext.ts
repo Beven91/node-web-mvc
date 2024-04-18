@@ -5,11 +5,10 @@ import { BeanFactory } from "../../ioc/factory/BeanFactory";
 import CglibAopProxyPostProcesor from "../../ioc/processor/CglibAopProxyPostProcesor";
 import ApplicationContextAwareProcessor from "../../ioc/processor/ApplicationContextAwareProcessor";
 import AutowiredAnnotationBeanPostProcessor from "../../ioc/processor/AutowiredAnnotationBeanPostProcessor";
-import Controller from "../annotations/Controller";
 import Scope from "../annotations/Scope";
 import ElementType from "../annotations/annotation/ElementType";
 import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
-import hotUpdate from "./hot-update";
+import registerHotUpdate from "./hot-update";
 import ConfigurationBeanPostProcessor from "../../ioc/processor/ConfigurationBeanPostProcessor";
 
 export default abstract class AbstractApplicationContext {
@@ -18,9 +17,10 @@ export default abstract class AbstractApplicationContext {
 
   constructor() {
     // 注册热更新
-    hotUpdate(
+    registerHotUpdate(
       this.getBeanFactory.bind(this),
-      this.registerWithAnnotation.bind(this)
+      this.registerWithAnnotation.bind(this),
+      this.createSingletonBeans.bind(this)
     );
   }
 
@@ -30,7 +30,7 @@ export default abstract class AbstractApplicationContext {
       new AutowiredAnnotationBeanPostProcessor(factory),
       new ApplicationContextAwareProcessor(this),
       new ConfigurationBeanPostProcessor(factory),
-      new CglibAopProxyPostProcesor(),
+      new CglibAopProxyPostProcesor(factory),
     )
   }
 
@@ -50,6 +50,7 @@ export default abstract class AbstractApplicationContext {
     }
     beanFactory.registerBeanDefinition(BeanOptions.toBeanName(definition.clazz.name), definition);
     beanFactory.registerBeanDefinition(annotation.ctor, definition);
+    return definition;
   }
 
   /**
@@ -57,7 +58,7 @@ export default abstract class AbstractApplicationContext {
    */
   registerAllComponentBeans(fallback = false) {
     const beanFactory = this.getBeanFactory();
-    const annotations = RuntimeAnnotation.getAnnotations([Component, Controller]);
+    const annotations = RuntimeAnnotation.getAnnotations(Component);
     annotations.forEach((annotation) => {
       switch (annotation.elementType) {
         case ElementType.TYPE:

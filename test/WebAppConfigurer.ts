@@ -43,9 +43,6 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
     registry
       .addResourceHandler('/media/**')
       .addResourceLocations('X:\\');
-    registry
-      .addResourceHandler('/assets/**')
-      .addResourceLocations('D:\\Works\\Personal\\Offiice\\garden\\src\\api\\garden-api-main');
   }
 
   configurePathMatch(configurer: PathMatchConfigurer) {

@@ -5,6 +5,7 @@
 
 import ServletContext from "../ServletContext";
 import MediaType from "../MediaType";
+import { JsDataType } from "../../../interface/declare";
 
 export default interface HttpMessageConverter<T = any> {
 
@@ -17,13 +18,13 @@ export default interface HttpMessageConverter<T = any> {
    * 判断当前转换器是否能处理当前内容类型
    * @param mediaType 当前内容类型 例如: application/json
    */
-  canRead(dataType: any, mediaType: MediaType): boolean
+  canRead(dataType: JsDataType , mediaType: MediaType): boolean
 
   /**
    * 判断当前内容是否能写
    * @param mediaType 当前内容类型 例如: application/json 
    */
-  canWrite(dataType: any, mediaType: MediaType): boolean
+  canWrite(dataType: JsDataType, mediaType: MediaType): boolean
 
   // getSupportedMediaTypes(): Array<string>
 

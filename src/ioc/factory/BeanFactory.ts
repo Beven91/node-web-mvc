@@ -57,4 +57,6 @@ export interface BeanFactory extends BeanDefinitionRegistry {
   addBeanPostProcessor(...processors: BeanPostProcessor[]): void
 
   removeBeanInstance(beanName: BeanDefinitonKey): void
+
+  destory(): void
 }

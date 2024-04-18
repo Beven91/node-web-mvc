@@ -48,8 +48,6 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
    */
   public setInterceptors(interceptors: HandlerInterceptor[]) {
     this.interceptors = interceptors;
-    // TODO
-    // return this.pathMatchConfigurer.interceptorRegistry.getInterceptors();
   }
 
   // 默认处理器,如果 getHandlerInternal 没有返回handler，则使用当前配置的默认处理器
@@ -141,7 +139,8 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
       return chain;
     }
     // 依次遍历拦截器，将拦截器添加到调用链。
-    for (let interceptor of this.adaptedInterceptors) {
+    const interceptors = this.adaptedInterceptors || [];
+    for (let interceptor of interceptors) {
       if (interceptor instanceof MappedInterceptor) {
         interceptor.matches(context.request) ? chain.addInterceptor(interceptor) : undefined;
       } else {

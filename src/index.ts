@@ -1,5 +1,5 @@
 import './interface/polyfill';
-import 'reflect-metadata';
+import './servlets/annotations/annotation/metadata';
 import hot from 'nodejs-hmr';
 export { default as Registry } from './Registry';
 export { default as RequestMapping } from './servlets/annotations/mapping/RequestMapping';
@@ -13,6 +13,7 @@ export { default as AbstractHandlerMapping } from './servlets/mapping/AbstractHa
 export { default as AbstractHandlerMethodMapping } from './servlets/mapping/AbstractHandlerMethodMapping';
 export { default as NoRequestHandlerMapping } from './servlets/mapping/NoRequestHandlerMapping';
 export { default as MappingRegistration } from './servlets/mapping/registry/MappingRegistration';
+export { default as RequestMappingHandlerMapping } from './servlets/mapping/RequestMappingHandlerMapping';
 export { default as RequestMappingHandlerAdapter } from './servlets/method/RequestMappingHandlerAdapter';
 export { default as RestController } from './servlets/annotations/RestController';
 export { default as Controller } from './servlets/annotations/Controller';

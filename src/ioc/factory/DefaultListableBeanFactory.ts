@@ -21,6 +21,8 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    */
   private readonly beanDefinitions = new Map<BeanDefinitonKey, BeanDefinition>();
 
+  private allowBeanDefinitionOverridable = false;
+
   containsBeanDefinition(key: BeanDefinitonKey) {
     return !!this.getBeanDefinition(key);
   }
@@ -39,16 +41,17 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    * @param beanDefinition bean定义
    */
   registerBeanDefinition(beanName: BeanDefinitonKey, beanDefinition: BeanDefinition) {
-    if(!(beanDefinition instanceof BeanDefinition)) {
+    if (!(beanDefinition instanceof BeanDefinition)) {
       throw new InvalidBeanDefinitionException(beanDefinition);
     }
     const overrideDefinition = this.beanDefinitions.get(beanName);
-    if (overrideDefinition) {
-      throw new BeanDefinitionOverrideException(beanDefinition, overrideDefinition);
+    if (overrideDefinition && this.isBeanDefinitionOverridable(beanName)) {
+      throw new BeanDefinitionOverrideException(beanName, beanDefinition, overrideDefinition);
     }
     if (typeof beanName !== 'string') {
       this.registerComponentBeanAnnotations(beanDefinition.clazz || beanDefinition.methodClazz);
     }
+    this.debug('Register Definition:', beanName);
     this.beanDefinitions.set(beanName, beanDefinition);
   }
 
@@ -69,12 +72,21 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
     });
   }
 
+  isBeanDefinitionOverridable(beanName: BeanDefinitonKey) {
+    return this.allowBeanDefinitionOverridable;
+  }
+
+  setAllowBeanDefinitionOverridable(value: boolean) {
+    this.allowBeanDefinitionOverridable = value;
+  }
+
   /**
    * 移除一个bean定义
    * @param beanName 
    */
   removeBeanDefinition(beanName: BeanDefinitonKey) {
     if (this.containsBeanDefinition(beanName)) {
+      this.debug('Remove Definition:', beanName);
       this.beanDefinitions.delete(beanName);
     }
   }
@@ -86,4 +98,10 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
   getBeanDefinitionNames() {
     return this.beanDefinitions.keys();
   }
+
+  destory(): void {
+    super.destory();
+    this.beanDefinitions.clear();
+  }
+
 }

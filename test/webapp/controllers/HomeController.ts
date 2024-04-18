@@ -16,10 +16,10 @@ export default class HomeController {
   @Autowired
   private oService: OrderService
 
-  @ApiOperation({ value: 'RequestParam get参数ss' })
+  @ApiOperation({ value: 'RequestParam get参数' })
   @GetMapping('/requestParamsGet')
   requestParamsGet(@RequestParam name: string, @RequestParam id: number) {
-    return `name:${name},id:${id}`;
+    return `name:${name},id:${id},${this.oService.getOrderName()}`;
   }
 
   @ApiOperation({ value: 'RequestParam post参数' })

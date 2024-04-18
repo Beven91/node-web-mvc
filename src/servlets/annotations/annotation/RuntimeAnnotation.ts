@@ -139,8 +139,6 @@ export default class RuntimeAnnotation<A = any> {
     return Reflect.getMetadata('design:type', this.target, this.name);
   }
 
-  static isHotUpdate: boolean
-
   static isAnnotationTypeOf = isAnnotationTypeOf
 
   /**
@@ -291,7 +289,7 @@ export default class RuntimeAnnotation<A = any> {
     });
   }
 
-  constructor(meta: any[], NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, tracer?: Tracer, ownerAnnotation?: RuntimeAnnotation) {
+  constructor(meta: any[], NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, ownerAnnotation?: RuntimeAnnotation) {
     const [target, name, descritpor,] = meta;
 
     if (ownerAnnotation && ownerAnnotation instanceof RuntimeAnnotation) {
@@ -322,8 +320,6 @@ export default class RuntimeAnnotation<A = any> {
         break;
     }
 
-    // 热更新追踪
-    Tracer.setTracer(this.ctor, tracer);
     // 根据构造创建注解实例
     this.nativeAnnotation = new NativeAnnotation(this, initializer, meta);
 
@@ -347,18 +343,9 @@ export default class RuntimeAnnotation<A = any> {
 hot
   .create(module)
   .preload((old) => {
+    // 当有文件更新时，需要检测那些注解是依赖该文件，如果是则需要移除,因为热更新后会重新注册。
     const file = old.filename;
-    const removeList = [] as any[];
-    for (let element of runtimeAnnotations) {
-      const tracer = Tracer.getTracer(element.ctor);
-      if (tracer?.isDependency(file)) {
-        removeList.push(element);
-      }
-    }
-    removeList.forEach((item) => {
-      const index = runtimeAnnotations.indexOf(item);
-      if (index > -1) {
-        runtimeAnnotations.splice(index, 1);
-      }
-    });
-  })
+    const annotations = runtimeAnnotations.filter((m) => !Tracer.isDependency(m.ctor, file));
+    runtimeAnnotations.length = 0;
+    runtimeAnnotations.push(...annotations);
+  });

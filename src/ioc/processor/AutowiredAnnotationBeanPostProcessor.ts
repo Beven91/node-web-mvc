@@ -23,14 +23,14 @@ export default class AutowiredAnnotationBeanPostProcessor extends InstantiationA
     const annotations = RuntimeAnnotation.getAnnotations(Autowired, clazz);
     for (const annotation of annotations) {
       const componentAnno = annotation.nativeAnnotation;
-      const clazzType = annotation.ctor;
+      const clazzType = annotation.dataType;
       const hasDependency = this.beanFactory.containsBean(clazzType);
       pvs.push({
         name: annotation.name,
         // 将依赖属性的注入对象延迟至getter函数中，用于解决循环依赖，
         // @TODO 缺点： 注入异常不能在应用启动时发现，这点是否考虑用方案补偿?
         value: hasDependency && (() => {
-          return this.beanFactory.getBean(annotation.dataType);
+          return this.beanFactory.getBean(clazzType);
         }),
         optional: componentAnno.required === false,
       })

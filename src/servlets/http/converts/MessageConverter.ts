@@ -2,7 +2,6 @@
  * @module MessageConverter
  * @description 内容转换器
  */
-import hot from 'nodejs-hmr';
 import MediaType from '../MediaType';
 import ServletContext from '../ServletContext';
 import HttpMessageConverter from './HttpMessageConverter';
@@ -27,8 +26,6 @@ export default class MessageConverter {
       new JsonMessageConverter(),
       new DefaultMessageConverter(),
     ]
-    // 热更新
-    acceptHot(this.registerConverters);
   }
 
   /**
@@ -64,13 +61,4 @@ export default class MessageConverter {
       })
     })
   }
-}
-
-function acceptHot(registerConverters) {
-  hot
-    .create(module)
-    .clean()
-    .postend((now, old) => {
-      hot.createHotUpdater(registerConverters, now, old).update();
-    });
 }

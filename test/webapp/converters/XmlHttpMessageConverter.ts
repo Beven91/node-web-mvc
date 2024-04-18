@@ -1,6 +1,7 @@
 // import { MediaType, ServletContext, HttpMessageConverter } from 'node-web-mvc';
 
 import { HttpMessageConverter } from "../../../src";
+import { JsDataType } from "../../../src/interface/declare";
 import MediaType from "../../../src/servlets/http/MediaType";
 import ServletContext from "../../../src/servlets/http/ServletContext";
 import xml2js from 'xml2js';
@@ -17,7 +18,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    * 判断当前转换器是否能处理当前内容类型
    * @param mediaType 当前内容类型 例如: application/xml
    */
-  canRead(mediaType: MediaType): boolean {
+  canRead(dataType: JsDataType, mediaType: MediaType): boolean {
     return !!this.mediaTypes.find((m) => m.isCompatibleWith(mediaType))
   }
 
@@ -25,7 +26,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    * 判断当前内容是否能写
    * @param mediaType 当前内容类型 例如: application/xml
    */
-  canWrite(mediaType: MediaType): boolean {
+  canWrite(dataType: JsDataType, mediaType: MediaType): boolean {
     return !!this.mediaTypes.find((m) => m.isCompatibleWith(mediaType))
   }
 
@@ -36,6 +37,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    * @param servletRequest
    */
   async read(servletContext: ServletContext) {
+    console.log('read xml....')
     const buffer = await servletContext.request.readBodyAsBuffer();
     return new Promise((resolve, reject) => {
       xml2js.parseString(buffer.toString('utf8'), (err, data) => {

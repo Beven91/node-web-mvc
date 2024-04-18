@@ -74,11 +74,13 @@ export declare interface CrossOriginOption {
   origins: string
   allowCredentials: boolean
   allowedHeaders: string
-  allowMethods:string
+  allowMethods: string
 }
 
 export type ClazzType = {
   new(): any
 }
+
+export type JsDataType = Function | (abstract new (...args: any[]) => any)
 
 export declare type Middleware = (request: any, response: any, ex: MiddlewareNext) => void

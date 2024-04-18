@@ -2,7 +2,6 @@
  * @module ArgumentsResolvers
  * @description 参数解析器
  */
-import hot from 'nodejs-hmr';
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../MethodParameter";
 import RequestResponseBodyMethodProcessor from './RequestResponseBodyMethodProcessor';
@@ -17,7 +16,6 @@ import ArgumentConverter from './ArgumentConverter';
 import IllegalArgumentException from '../../../errors/IllegalArgumentException';
 import ParamAnnotation from '../../annotations/params/ParamAnnotation';
 import MessageConverter from '../../http/converts/MessageConverter';
-import RequestBodyReader from '../../http/body/RequestBodyReader';
 import ValueConvertError from '../../../errors/ValueConvertError';
 import ArgumentConvertError from '../../../errors/ArgumentConvertError';
 import MultipartFile from '../../http/MultipartFile';
@@ -43,8 +41,6 @@ export default class ArgumentsResolvers {
     this.fallbackResolvers = [
       new RequestParamMapMethodArgumentResolver(true)
     ]
-    // 热更新处理
-    acceptHot(this.registerResolvers);
   }
 
   /**
@@ -107,14 +103,4 @@ export default class ArgumentsResolvers {
     }
     return resolver.resolveArgument(parameter, servletContext);
   }
-}
-
-/**
- * 内部热更新 
- */
-function acceptHot(registerResolvers) {
-  hot.create(module)
-    .postend((now, old) => {
-      hot.createHotUpdater(registerResolvers, now, old).update();
-    });
 }

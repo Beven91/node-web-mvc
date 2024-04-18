@@ -21,7 +21,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
 
   constructor() {
     super();
-    hotUpdate(this);
+    registerHotUpdate(this);
   }
 
   afterPropertiesSet(): void {
@@ -102,27 +102,27 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
 }
 
 // 热更新支持
-function hotUpdate(handlerMapping: RequestMappingHandlerMapping) {
+function registerHotUpdate(handlerMapping: RequestMappingHandlerMapping) {
   hot
     .create(module)
+    .clean()
     .preload((old) => {
       const file = old.filename;
       const registration = handlerMapping.getRegistrations();
-      const removeList = [] as any[];
+      const removeKeys = [] as any[];
       for (let element of registration.values()) {
-        const tracer = Tracer.getTracer(element.getHandlerMethod()?.beanType)
-        if (tracer?.isDependency(file)) {
-          removeList.push(element.getMapping());
+        const beanType = element.getHandlerMethod()?.beanType;
+        if (Tracer.isDependency(beanType, file)) {
+          removeKeys.push(element.getMapping());
         }
       }
-      removeList.forEach((item) => registration.delete(item));
+      removeKeys.forEach((item) => registration.delete(item));
     })
     .postend((latest) => {
       const file = latest.filename;
       const annotations = RuntimeAnnotation.getTypedRuntimeAnnotations(RequestMapping);
       annotations.forEach((annotation) => {
-        const tracer = Tracer.getTracer(annotation.ctor);
-        if (tracer?.isDependency(file)) {
+        if (Tracer.isDependency(annotation.ctor, file)) {
           handlerMapping.registerAnnotationMappings(annotation);
         }
       });

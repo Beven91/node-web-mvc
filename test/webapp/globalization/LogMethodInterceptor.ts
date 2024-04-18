@@ -1,5 +1,4 @@
-import { MethodInterceptor, MethodInvocation } from "../../../src";
-
+import {  MethodInterceptor, MethodInvocation } from "../../../src";
 
 export default class LogMethodInterceptor extends MethodInterceptor {
 
@@ -10,4 +9,4 @@ export default class LogMethodInterceptor extends MethodInterceptor {
     console.log(`After Execute ${method.clazz?.name}.${method.handler.name}`, value);
     return value;
   }
-}
+}4

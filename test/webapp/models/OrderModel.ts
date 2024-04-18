@@ -1,4 +1,5 @@
 import { Repository, ApiModel, ApiModelProperty } from "../../../src";
+import { } from '../services/OrderService'
 
 class BaseOrder {
 
@@ -15,6 +16,12 @@ enum OrderType {
 @Repository
 @ApiModel({ description: '订单' })
 export default class OrderModel extends BaseOrder {
+
+  constructor() {
+    super();
+    this.orderId = 100086;
+    this.orderType = OrderType.STMP;
+  }
 
   @ApiModelProperty({ value: '订单编号' })
   orderId: number

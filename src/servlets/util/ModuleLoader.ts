@@ -4,6 +4,7 @@
  */
 import fs from 'fs';
 import path from 'path';
+import hot from 'nodejs-hmr';
 
 export default class ModuleLoader {
 
@@ -45,3 +46,7 @@ export default class ModuleLoader {
     });
   }
 }
+
+hot.create(module).accept(() => {
+
+})
