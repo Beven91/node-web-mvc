@@ -43,7 +43,7 @@ export default function hotUpdate(
       annotations.forEach((annotation) => {
         const tracer = Tracer.getTracer(annotation.ctor);
         if (!tracer) return;
-        if (updateFiles.find((file) => tracer.isDependency(file))) {
+        if (!beanFactory.containsBean(annotation.ctor)) {
           // console.log('register:', annotation.ctor.name);
           // 重新注册热更新过的Bean定义
           registerWithAnnotation(annotation);

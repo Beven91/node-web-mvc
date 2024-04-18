@@ -13,6 +13,11 @@ export default class Tracer {
     }
   }
 
+  static hasTracer(clazz: Function) {
+    if (!clazz) return false;
+    return !!clazz[tracerSymbol];
+  }
+
   static setTracer(clazz: Function, tracer: Tracer) {
     if (clazz) {
       Object.defineProperty(clazz, tracerSymbol, {

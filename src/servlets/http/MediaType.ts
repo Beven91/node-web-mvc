@@ -71,6 +71,7 @@ export default class MediaType {
   }
 
   public isCompatibleWith(other: MediaType) {
+    if (!other) return false;
     const thisSuffix = this.subTypeSuffix;
     const otherSuffix = other.subTypeSuffix;
     if (!other) {
