@@ -1,6 +1,8 @@
 
+import path from 'path';
 
 const tracerSymbol = Symbol('tracer')
+
 
 export default class Tracer {
 
@@ -8,7 +10,9 @@ export default class Tracer {
 
   constructor(error: Error) {
     if (error) {
-      const dependencies = error.stack.split('\n').slice(2, 10).map((m) => m.split('(').pop().split(':').shift());
+      const dependencies = error.stack.split('\n').slice(2, 10).map((m) => {
+        return m.split('(').pop().replace(/(:\d+)+/, '').replace(/\)$/, '');
+      });
       this.id = dependencies[0];
     }
   }
