@@ -91,7 +91,8 @@ export default class RequestResponseBodyMethodProcessor implements HandlerMethod
   }
 
   private selectMediaType(servletContext: ServletContext, handler: HandlerMethod, data: any) {
-    const requestedTypes = (servletContext.request.headers['accept']).split(',').map((type) => new MediaType(type));
+    const accept = servletContext.request.headers['accept'] || '';
+    const requestedTypes = accept.split(',').map((type) => new MediaType(type));
     const dataType = data?.constructor;
     const producibleTypes = this.getProducibleMediaTypes(servletContext, handler, dataType);
     const mediaTypesToUse: MediaType[] = [];

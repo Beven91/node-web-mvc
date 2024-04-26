@@ -60,7 +60,7 @@ export default class Schemas {
     for (let property of properties) {
       const anno = property.nativeAnnotation;
       const isGenericTemplate = GenericType.isGeneric(anno.dataType);
-      const typeInfo = isGenericTemplate ? { type: anno.dataType } : this.typemappings.make(anno.dataType || anno.example?.constructor);
+      const typeInfo = isGenericTemplate ? { type: anno.dataType } : this.typemappings.make(property.dataType || anno.dataType || anno.example?.constructor);
       modelProperties[property.name] = {
         description: anno.value,
         example: anno.example,
