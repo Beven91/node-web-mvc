@@ -14,4 +14,4 @@ class Qualifier extends Component {
 
 }
 
-export default Target(ElementType.TYPE)(Qualifier);
+export default Target([ElementType.PROPERTY, ElementType.METHOD, ElementType.PARAMETER, ElementType.TYPE])(Qualifier);

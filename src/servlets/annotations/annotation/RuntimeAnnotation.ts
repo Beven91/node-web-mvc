@@ -145,8 +145,9 @@ export default class RuntimeAnnotation<A = any> {
    * 获取所有指定类型的注解
    * @param type 注解类型
    */
-  static getTypedRuntimeAnnotations<C extends IAnnotationClazz>(type: C) {
-    return runtimeAnnotations.filter((m) => isAnnotationTypeOf(m, type)) as RuntimeAnnotation<GetTargetAnnotationType<C>>[];
+  static getTypedRuntimeAnnotations<C extends IAnnotationClazz>(type: C, match?: (m: RuntimeAnnotation) => boolean) {
+    const isMatch = match || (() => true);
+    return runtimeAnnotations.filter((m) => isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<GetTargetAnnotationType<C>>[];
   }
 
   /**

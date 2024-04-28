@@ -1,5 +1,3 @@
-import { BeanDefinitonKey } from "../factory/BeanDefinitionRegistry";
-
 export default abstract class BeanPostProcessor {
 
   /**
@@ -7,7 +5,7 @@ export default abstract class BeanPostProcessor {
    * @param bean bean实例对象
    * @param beanName 当前bean在容器中的名称
    */
-  postProcessBeforeInitialization?(bean: object, beanName: BeanDefinitonKey): object {
+  postProcessBeforeInitialization?(bean: object, beanName: string): object {
     return bean;
   }
 
@@ -16,7 +14,7 @@ export default abstract class BeanPostProcessor {
    * @param bean 当前bean实例对象
    * @param beanName 当前bean在容器中的名称
    */
-  postProcessAfterInitialization(bean: object, beanName: BeanDefinitonKey): object {
+  postProcessAfterInitialization(bean: object, beanName: string): object {
     return bean;
   }
 }
