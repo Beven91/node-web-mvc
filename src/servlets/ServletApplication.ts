@@ -40,7 +40,8 @@ export default class ServletApplication {
       hot.run(configurer.hot);
     }
     const definition = new BeanDefinition(WebMvcConfigurationSupport, () => configurer, 'singleton');
-    context.getBeanFactory().registerBeanDefinition(WebMvcConfigurationSupport, definition);
+    const beanName = BeanDefinition.toBeanName(WebMvcConfigurationSupport);
+    context.getBeanFactory().registerBeanDefinition(beanName, definition);
     return configurer;
   }
 
@@ -142,16 +143,16 @@ export default class ServletApplication {
 
 function registerHotUpdate(app: ServletApplication, refreshLifecycle: ServletApplication['internalRun']) {
   hot
-  .create(module)
-  .clean()
-  .postend((m) => {
-    const Configurer = m.exports?.default;
-    if (Javascript.getClass(Configurer).isEqualOrExtendOf(WebMvcConfigurationSupport)) {
-      app.context?.getBeanFactory()?.destory?.();
-      const config = new Configurer();
-      delete config.hot;
-      // 如果是配置文件更新，则需要重新初始化(并非重启服务，而是刷新掉上下文)
-      refreshLifecycle(config);
-    }
-  })
+    .create(module)
+    .clean()
+    .postend((m) => {
+      const Configurer = m.exports?.default;
+      if (Javascript.getClass(Configurer).isEqualOrExtendOf(WebMvcConfigurationSupport)) {
+        app.context?.getBeanFactory()?.destory?.();
+        const config = new Configurer();
+        delete config.hot;
+        // 如果是配置文件更新，则需要重新初始化(并非重启服务，而是刷新掉上下文)
+        refreshLifecycle(config);
+      }
+    })
 }

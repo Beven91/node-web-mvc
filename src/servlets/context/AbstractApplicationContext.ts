@@ -1,4 +1,3 @@
-import BeanOptions from "../../ioc/annotations/BeanOptions";
 import Component from "../../ioc/annotations/Component";
 import BeanDefinition from "../../ioc/factory/BeanDefinition";
 import { BeanFactory } from "../../ioc/factory/BeanFactory";
@@ -45,11 +44,13 @@ export default abstract class AbstractApplicationContext {
     const scope = scopeAnno?.nativeAnnotation?.scope;
     const definition = new BeanDefinition(clazz, null, scope);
     const beanFactory = this.getBeanFactory();
-    if (name) {
+    const clazzBeanName = BeanDefinition.toBeanName(definition.clazz);
+    if (name !== clazzBeanName) {
+      // 注册自定义名称
       beanFactory.registerBeanDefinition(name, definition);
     }
-    beanFactory.registerBeanDefinition(BeanOptions.toBeanName(definition.clazz.name), definition);
-    beanFactory.registerBeanDefinition(annotation.ctor, definition);
+    // 根据类名注册
+    beanFactory.registerBeanDefinition(clazzBeanName, definition);
     return definition;
   }
 
@@ -60,9 +61,10 @@ export default abstract class AbstractApplicationContext {
     const beanFactory = this.getBeanFactory();
     const annotations = RuntimeAnnotation.getAnnotations(Component);
     annotations.forEach((annotation) => {
+      const beanName = BeanDefinition.toBeanName(annotation.ctor);
       switch (annotation.elementType) {
         case ElementType.TYPE:
-          if (fallback && beanFactory.getBeanDefinition(annotation.ctor)) {
+          if (fallback && beanFactory.getBeanDefinition(beanName)) {
             // 在fallback模式下，如果已存在，则跳过
             return;
           }

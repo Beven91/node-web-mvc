@@ -3,6 +3,7 @@ import type AbstractApplicationContext from "./AbstractApplicationContext";
 import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
 import Component from "../../ioc/annotations/Component";
 import Tracer from "../annotations/annotation/Tracer";
+import BeanDefinition from "../../ioc/factory/BeanDefinition";
 
 // 开发模式热更新
 export default function hotUpdate(
@@ -42,8 +43,9 @@ export default function hotUpdate(
       const annotations = RuntimeAnnotation.getAnnotations(Component);
       annotations.forEach((annotation) => {
         const tracer = Tracer.getTracer(annotation.ctor);
+        const beanName = BeanDefinition.toBeanName(annotation.ctor);
         if (!tracer) return;
-        if (!beanFactory.containsBean(annotation.ctor)) {
+        if (!beanFactory.containsBean(beanName)) {
           // console.log('register:', annotation.ctor.name);
           // 重新注册热更新过的Bean定义
           registerWithAnnotation(annotation);

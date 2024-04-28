@@ -9,6 +9,7 @@ import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnno
 import Autowired from "../annotations/Autowired";
 import Qualifier from "../annotations/Qualifier";
 import { BeanFactory } from "../factory/BeanFactory";
+import { getBeanTypeByAnnotation } from "./AutowiredUtils";
 import InstantiationAwareBeanPostProcessor, { PropertyValue } from "./InstantiationAwareBeanPostProcessor";
 
 export default class AutowiredAnnotationBeanPostProcessor extends InstantiationAwareBeanPostProcessor {
@@ -28,9 +29,8 @@ export default class AutowiredAnnotationBeanPostProcessor extends InstantiationA
         continue;
       }
       const componentAnno = annotation.nativeAnnotation;
-      const qualifier = RuntimeAnnotation.getTypedRuntimeAnnotations(Qualifier, (m) => m.ctor == annotation.ctor && m.name == annotation.name)?.[0];
       const optional = componentAnno.required === false;
-      const clazzType = qualifier?.nativeAnnotation?.value || annotation.dataType;
+      const clazzType = getBeanTypeByAnnotation(annotation);
       if (!clazzType) {
         throw new BeanPropertyCreationException(beanName, annotation.name, 'because beanName is null');
       }

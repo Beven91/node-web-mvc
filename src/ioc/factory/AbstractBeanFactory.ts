@@ -1,5 +1,6 @@
 import BeanCreationException from "../../errors/BeanCreationException";
 import BeanPropertyCreationException from "../../errors/BeanPropertyCreationException";
+import LoopDependenciesException, { DependencyBeanDefinition } from "../../errors/LoopDependenciesException";
 import Javascript from "../../interface/Javascript";
 import { ClazzType } from "../../interface/declare";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
@@ -11,7 +12,6 @@ import InitializingBean from "../processor/InitializingBean";
 import InstantiationAwareBeanPostProcessor, { PropertyValue } from "../processor/InstantiationAwareBeanPostProcessor";
 import Aware from "./Aware";
 import BeanDefinition from "./BeanDefinition";
-import { BeanDefinitonKey } from "./BeanDefinitionRegistry";
 import { BeanFactory } from "./BeanFactory";
 import BeanFactoryAware from "./BeanFactoryAware";
 import BeanNameAware from "./BeanNameAware";
@@ -23,8 +23,11 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
 
   protected readonly id: number
 
+  private readonly createChains: DependencyBeanDefinition[]
+
   constructor() {
     this.id = performance.now();
+    this.createChains = [];
   }
 
   // bean处理器
@@ -37,36 +40,36 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * 是否包含指定名称bean定义
    * @param key 
    */
-  abstract containsBeanDefinition(key: BeanDefinitonKey)
+  abstract containsBeanDefinition(beanName: string)
 
   /**
-   * 根据beanType名称或者类型获取对应的bean定义信息
-   * @param beanType bean类型
+   * 根据bean名称获取对应的定义
+   * @param beanName bean类型
    */
-  abstract getBeanDefinition(beanType: BeanDefinitonKey): BeanDefinition
+  abstract getBeanDefinition(beanName: string): BeanDefinition
 
   /**
    * 注册一个bean
    * @param beanName bean名称 
    * @param beanDefinition bean定义
    */
-  abstract registerBeanDefinition(beanName: BeanDefinitonKey, beanDefinition: BeanDefinition)
+  abstract registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition)
 
   /**
    * 移除bean定义
    */
-  abstract removeBeanDefinition(beanName: BeanDefinitonKey)
+  abstract removeBeanDefinition(beanName: string)
 
   /**
    * 获取所有已注册的bean定义key
    */
-  abstract getBeanDefinitionNames(): IterableIterator<BeanDefinitonKey>
+  abstract getBeanDefinitionNames(): IterableIterator<string>
 
   /**
    * 判断传入名称的bean是否为单例
    * @param key 
    */
-  isSingleton(key: BeanDefinitonKey): boolean {
+  isSingleton(key: string): boolean {
     return this.getBeanDefinition(key)?.scope === 'singleton';
   }
 
@@ -74,7 +77,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * 判断传入名称的bean是否为原型
    * @param key 
    */
-  isPrototype(key: BeanDefinitonKey): boolean {
+  isPrototype(key: string): boolean {
     return this.getBeanDefinition(key)?.scope === 'prototype';
   }
 
@@ -82,7 +85,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * 指定指定名称的bean构造函数或者类
    * @param name 
    */
-  getType(name: BeanDefinitonKey) {
+  getType(name: string) {
     const definition = this.getBeanDefinition(name);
     const clazz = definition?.clazz;
     if (definition && !definition.clazz) {
@@ -98,7 +101,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * @param key 
    * @returns 
    */
-  containsBean(key: BeanDefinitonKey) {
+  containsBean(key: string) {
     return this.containsBeanDefinition(key);
   }
 
@@ -107,7 +110,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * @param beanName bean定义名
    * @param espectBeanType 预期的bean类型
    */
-  isTypeMatch(beanName: BeanDefinitonKey, beanType: ClazzType) {
+  isTypeMatch(beanName: string, beanType: ClazzType) {
     const clazz = this.getType(beanName);
     return Javascript.getClass(clazz).isEqualOrExtendOf(beanType);
   }
@@ -115,16 +118,15 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   /**
    * 获取指定bean实例
    */
-  getBean<T = any>(beanType: ClazzType): T;
-  getBean<T = any>(name: string): T;
-  getBean<T = any>(name: ClazzType | BeanDefinitonKey) {
-    const definition = this.getBeanDefinition(name);
+  getBean<T = any>(name: ClazzType | string): T {
+    const beanName = BeanDefinition.toBeanName(name);
+    const definition = this.getBeanDefinition(beanName);
     let instance: T = null;
     if (definition) {
-      instance = this.doGetBean<T>(definition, name);
+      instance = this.doGetBean<T>(definition, beanName);
       // throw new BeanDefinitionNotfoundException(name);  
     }
-    this.debug('GetBean ', name, instance ? 'ok' : 'fail');
+    this.debug('GetBean ', beanName, instance ? 'ok' : 'fail');
     return instance;
   }
 
@@ -143,8 +145,8 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * @param definition Bean定义
    * @returns Bean的实例对象
    */
-  private doGetBean<T>(definition: BeanDefinition, key: BeanDefinitonKey, saveInstance = false) {
-    const isSingleton = this.isSingleton(key);
+  private doGetBean<T>(definition: BeanDefinition, beanName: string, saveInstance = false) {
+    const isSingleton = this.isSingleton(beanName);
     const needSaveInstance = isSingleton || saveInstance === true;
     let beanInstance = this.beanInstancesCache.get(definition) as T;
     if (!isSingleton) {
@@ -155,15 +157,14 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       // 返回缓存对象
       return beanInstance;
     }
-    beanInstance = this.createBean(definition, key) as T;
+    beanInstance = this.createBean(definition, beanName) as T;
     if (beanInstance && needSaveInstance) {
       this.beanInstancesCache.set(definition, beanInstance);
     }
     return beanInstance;
   }
 
-  private createBean(definition: BeanDefinition, key: BeanDefinitonKey) {
-    const beanName = typeof key === 'string' ? key : key?.name;
+  private createBean(definition: BeanDefinition, beanName: string) {
     try {
       // 1. 执行预创建实例化事件，如果有返回对象，则直接结束创建
       const beanInstance = this.resolveBeforeInstantiation(definition, beanName);
@@ -176,14 +177,31 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     return this.doCreateBean(definition, beanName)
   }
 
+  private checkLoopDependencies(definition: BeanDefinition, beanName: string) {
+    if (!!this.createChains.find((m) => m.definition == definition)) {
+      const chains = this.createChains;
+      throw new LoopDependenciesException(chains);
+    }
+    this.createChains.push({ beanName: beanName, definition });
+  }
+
   private doCreateBean(definition: BeanDefinition, beanName: string) {
     try {
+      // 检测循环依赖
+      this.checkLoopDependencies(definition, beanName);
       // 2. 根据定义创建实例
       const beanInstance = this.createInstance(definition);
       this.populateBean(beanInstance, beanName);
-      return this.initializeBean(beanInstance, beanName);
+      const instance = this.initializeBean(beanInstance, beanName);
+      return instance;
     } catch (ex) {
+      if (ex instanceof BeanCreationException || ex instanceof LoopDependenciesException) {
+        throw ex;
+      }
       throw new BeanCreationException(definition, beanName, `Unexpected exception during bean creation`, ex);
+    } finally {
+      // 创建实例成功后，重置检测变量
+      this.createChains.pop();
     }
   }
 
@@ -196,14 +214,16 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   }
 
   private createInstanceByMethod(definition: BeanDefinition) {
-    const methodClazz = definition.methodClazz;
-    const methodDefinition = this.getBeanDefinition(methodClazz);
     let instance = {};
-    if (methodDefinition !== definition) {
-      instance = this.getBean(methodClazz);
+    const ownerClazz = definition.methodClazz;
+    const clazzBeanName = BeanDefinition.toBeanName(ownerClazz);
+    if (this.getBeanDefinition(clazzBeanName) !== definition) {
+      // 需要先创建类实例
+      instance = this.getBean(clazzBeanName);
     }
+    // 创建函数bean
     const handler = definition.method;
-    const annotations = RuntimeAnnotation.getAnnotations([Qualifier, Autowired], methodClazz);
+    const annotations = RuntimeAnnotation.getAnnotations([Qualifier, Autowired], ownerClazz);
     const parameters = annotations.filter((m) => m.elementType == ElementType.PARAMETER && m.method == handler);
     const values = parameters.map((parameter) => {
       const x = parameter.nativeAnnotation as InstanceType<typeof Qualifier>;
@@ -363,7 +383,8 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     this.beanPostProcessors.push(...processors);
   }
 
-  removeBeanInstance(beanName: BeanDefinitonKey): void {
+  removeBeanInstance(beanType: ClazzType): void {
+    const beanName = BeanDefinition.toBeanName(beanType);
     const definition = this.getBeanDefinition(beanName);
     const instance = this.beanInstancesCache.get(definition);
     this.beanInstancesCache.delete(definition);

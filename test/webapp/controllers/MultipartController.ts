@@ -26,8 +26,8 @@ const example = `
 @RestController
 export default class MultipartController {
 
-  @Autowired
-  public userInfo;
+  // @Autowired
+  // public userInfo;
 
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @PostMapping({ value: '/upload', produces: 'application/json' })

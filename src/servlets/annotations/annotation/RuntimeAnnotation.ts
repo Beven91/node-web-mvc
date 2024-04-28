@@ -40,6 +40,9 @@ const isMatchType = (m: RuntimeAnnotation, clazz: Function) => {
 }
 
 export default class RuntimeAnnotation<A = any> {
+
+  private readonly meta: any[]
+
   /**
    * 标注的类或者函数
    */
@@ -151,8 +154,22 @@ export default class RuntimeAnnotation<A = any> {
   }
 
   /**
+   * 根据现有注解来获取相同作用于下对应的指定类型的注解
+   * @param anno 当前注解
+   * @param type 要获取的注解类型
+   */
+  static getAnnotationsByAnno<C extends IAnnotationClazz>(anno: RuntimeAnnotation, type: C) {
+    if (!anno) {
+      return [];
+    }
+    return this.getTypedRuntimeAnnotations(type,(m)=> {
+      return m.ctor == anno.ctor && m.name == anno.name && m.methodName == anno.methodName && m.paramIndex == anno.paramIndex;
+    });
+  }
+
+  /**
    * 获取指定类的所有注解信息
-   * @param {Function} clazz 被修饰的类 
+   * @param {Function} clazz 被修饰的类
    */
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function): RuntimeAnnotation[]
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
@@ -297,6 +314,7 @@ export default class RuntimeAnnotation<A = any> {
       this.ownerAnnotation = ownerAnnotation;
     }
 
+    this.meta = meta;
     this.target = target;
     this.elementType = checkAnnotation(elementTypes, meta, NativeAnnotation.name);
 

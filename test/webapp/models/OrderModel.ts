@@ -1,5 +1,6 @@
-import { Repository, ApiModel, ApiModelProperty } from "../../../src";
-import { } from '../services/OrderService'
+import { Repository, ApiModel, ApiModelProperty, Autowired, Qualifier } from "../../../src";
+import OrderService, { } from '../services/OrderService'
+import Keneral from "./Keneral";
 
 class BaseOrder {
 
@@ -22,6 +23,9 @@ export default class OrderModel extends BaseOrder {
     this.orderId = 100086;
     this.orderType = OrderType.STMP;
   }
+
+  @Autowired
+  private kk: Keneral
 
   @ApiModelProperty({ value: '订单编号' })
   orderId: number

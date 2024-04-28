@@ -39,6 +39,14 @@ export default class BeanDefinition {
     return this.beanType;
   }
 
+  static toBeanName(name: string | Function) {
+    if(typeof name === 'string' || name == null || name === undefined) {
+      return name as string;
+    }
+    const beanName = String(name?.name);
+    return beanName.slice(0, 1).toLowerCase() + beanName.slice(1, beanName.length);
+  }
+
   /**
    * 构造一个bean定义
    * @param clazz bean构造函数

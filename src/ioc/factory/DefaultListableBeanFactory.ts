@@ -4,7 +4,6 @@
  */
 import BeanDefinition from "./BeanDefinition";
 import AbstractBeanFactory from "./AbstractBeanFactory";
-import { BeanDefinitonKey } from "./BeanDefinitionRegistry";
 import BeanDefinitionOverrideException from "../../errors/BeanDefinitionOverrideException";
 import RuntimeAnnotation, { } from "../../servlets/annotations/annotation/RuntimeAnnotation";
 import Bean from "../annotations/Bean";
@@ -19,20 +18,20 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
   /**
    * 已注册bean定义字典
    */
-  private readonly beanDefinitions = new Map<BeanDefinitonKey, BeanDefinition>();
+  private readonly beanDefinitions = new Map<string, BeanDefinition>();
 
   private allowBeanDefinitionOverridable = false;
 
-  containsBeanDefinition(key: BeanDefinitonKey) {
-    return !!this.getBeanDefinition(key);
+  containsBeanDefinition(beanName: string) {
+    return !!this.getBeanDefinition(beanName);
   }
 
   /**
-   * 根据beanType名称或者类型获取对应的bean定义信息
-   * @param beanType bean类型
+   * 根据bean名称获取对应的定义
+   * @param beanName bean类型
    */
-  getBeanDefinition(name: BeanDefinitonKey): BeanDefinition {
-    return this.beanDefinitions.get(name);
+  getBeanDefinition(beanName: string): BeanDefinition {
+    return this.beanDefinitions.get(beanName);
   }
 
   /**
@@ -40,7 +39,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    * @param beanName bean名称 
    * @param beanDefinition bean定义
    */
-  registerBeanDefinition(beanName: BeanDefinitonKey, beanDefinition: BeanDefinition) {
+  registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition) {
     if (!(beanDefinition instanceof BeanDefinition)) {
       throw new InvalidBeanDefinitionException(beanDefinition);
     }
@@ -72,7 +71,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
     });
   }
 
-  isBeanDefinitionOverridable(beanName: BeanDefinitonKey) {
+  isBeanDefinitionOverridable(beanName: string) {
     return this.allowBeanDefinitionOverridable;
   }
 
@@ -84,7 +83,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    * 移除一个bean定义
    * @param beanName 
    */
-  removeBeanDefinition(beanName: BeanDefinitonKey) {
+  removeBeanDefinition(beanName: string) {
     if (this.containsBeanDefinition(beanName)) {
       this.debug('Remove Definition:', beanName);
       this.beanDefinitions.delete(beanName);

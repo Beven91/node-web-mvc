@@ -7,7 +7,7 @@ import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation, { IAnnotation } from '../annotations/annotation/RuntimeAnnotation';
 import ResponseStatus from '../annotations/ResponseStatus';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
-import { BeanDefinitonKey } from '../../ioc/factory/BeanDefinitionRegistry';
+import { ClazzType } from '../../interface/declare';
 
 export interface BeanTypeClazz {
   new(...args: any[]): any
@@ -63,8 +63,8 @@ export default class HandlerMethod {
    */
   constructor(bean: InstanceType<BeanTypeClazz>, method: Function)
   constructor(bean: InstanceType<BeanTypeClazz>, method: HandlerMethod)
-  constructor(beanType: BeanDefinitonKey, method: Function, beanFactory?: BeanFactory)
-  constructor(bean: InstanceType<BeanTypeClazz> | BeanDefinitonKey, method: Function | HandlerMethod, beanFactory?: BeanFactory) {
+  constructor(beanType: ClazzType, method: Function, beanFactory?: BeanFactory)
+  constructor(bean: InstanceType<BeanTypeClazz> | ClazzType, method: Function | HandlerMethod, beanFactory?: BeanFactory) {
     if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;
       this.isBeanType = handler.isBeanType;

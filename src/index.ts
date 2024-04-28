@@ -140,7 +140,6 @@ export { default as ByteArrayResource } from './servlets/resources/ByteArrayReso
 export { default as ByteArrayInputStream } from './servlets/resources/ByteArrayInputStream';
 export { default as Autowired } from './ioc/annotations/Autowired';
 export { default as Bean } from './ioc/annotations/Bean';
-export { default as BeanOptions } from './ioc/annotations/BeanOptions';
 export { default as Component } from './ioc/annotations/Component';
 export { default as Qualifier } from './ioc/annotations/Qualifier';
 export { default as Repository } from './ioc/annotations/Repository';
