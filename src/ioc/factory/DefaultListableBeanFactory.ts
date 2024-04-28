@@ -12,6 +12,8 @@ import Qualifier from "../annotations/Qualifier";
 import InvalidBeanDefinitionException from "../../errors/InvalidBeanDefinitionException";
 import { ClazzType } from "../../interface/declare";
 
+const beanRegistedSymbol = Symbol('beanRegisted');
+
 export const methodBeanNameSymbol = Symbol('methodBeanNameSymbol');
 
 export default class DefaultListableBeanFactory extends AbstractBeanFactory {
@@ -47,9 +49,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
     if (overrideDefinition && this.isBeanDefinitionOverridable(beanName)) {
       throw new BeanDefinitionOverrideException(beanName, beanDefinition, overrideDefinition);
     }
-    if (typeof beanName !== 'string') {
-      this.registerComponentBeanAnnotations(beanDefinition.clazz || beanDefinition.methodClazz);
-    }
+    this.registerComponentBeanAnnotations(beanDefinition.clazz || beanDefinition.methodClazz);
     this.debug('Register Definition:', beanName);
     this.beanDefinitions.set(beanName, beanDefinition);
   }
@@ -59,6 +59,10 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    * @param clazz 
    */
   private registerComponentBeanAnnotations(clazz: ClazzType) {
+    if (clazz[beanRegistedSymbol]) {
+      return;
+    }
+    clazz[beanRegistedSymbol] = true;
     const annotations = RuntimeAnnotation.getAnnotations(Bean, clazz);
     annotations.forEach((anno) => {
       const scopeAnno = RuntimeAnnotation.getMethodAnnotation(clazz, anno.methodName, Scope);
