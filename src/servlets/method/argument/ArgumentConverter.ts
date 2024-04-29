@@ -115,18 +115,20 @@ export default class ArgumentConverter {
       return value;
     }
     const instance = new T();
-    Object.keys(value).forEach((key) => {
-      try {
-        if (!Javascript.protoKeys[key]) {
-          // 排除原型相关属性,这里只能赋值常规属性
-          instance[key] = value[key];
+    if (typeof value === 'object' && value) {
+      Object.keys(value || {}).forEach((key) => {
+        try {
+          if (!Javascript.protoKeys[key]) {
+            // 排除原型相关属性,这里只能赋值常规属性
+            instance[key] = value[key];
+          }
+        } catch (ex) {
+          if (ex.message.indexOf('which has only a getter') < 0) {
+            throw new ValueConvertError(value, T, ex.message);
+          }
         }
-      } catch (ex) {
-        if (ex.message.indexOf('which has only a getter') < 0) {
-          throw new ValueConvertError(value, T, ex.message);
-        }
-      }
-    });
+      });
+    }
     return instance;
   }
 }

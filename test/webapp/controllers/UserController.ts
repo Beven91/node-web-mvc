@@ -1,4 +1,4 @@
-import { RequestMapping, PostMapping, ExceptionHandler, ApiOperation, GetMapping, RestController } from '../../../src/index';
+import { RequestMapping, PostMapping, ExceptionHandler, ApiOperation, GetMapping, RestController, RequestBody } from '../../../src/index';
 import ApiImplicitParams from '../../../src/swagger/annotations/ApiImplicitParams';
 import RequestParam from '../../../src/servlets/annotations/params/RequestParam';
 import UserInfo, { score } from '../models/UserInfo';
@@ -46,5 +46,10 @@ export default class UserController {
   handleException(ex) {
     console.log(UserInfo);
     return { code: -1, message: ex.message };
+  }
+
+  @PostMapping("/submit")
+  submit(user: UserInfo) {
+    return 'ok';
   }
 }
