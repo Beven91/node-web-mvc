@@ -5,7 +5,6 @@
 import AbstractHandlerMethodAdapter from './AbstractHandlerMethodAdapter';
 import HandlerMethod from './HandlerMethod';
 import ServletContext from '../http/ServletContext';
-import ResourceHttpRequestHandler from '../resources/ResourceHttpRequestHandler';
 import ArgumentsResolvers from './argument/ArgumentsResolvers';
 import ServletInvocableHandlerMethod from './ServletInvocableHandlerMethod';
 import HandlerMethodReturnValueHandler from './return/HandlerMethodReturnValueHandler';
@@ -32,8 +31,8 @@ export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodA
     return this.returnvalueHandlers;
   }
 
-  supportsInternal(handlerMethod: HandlerMethod) {
-    return !(handlerMethod.bean instanceof ResourceHttpRequestHandler);
+  supportsInternal(handler: object) {
+    return handler instanceof HandlerMethod;
   }
 
   handleInternal(servletContext: ServletContext, handler: HandlerMethod): Promise<any> {

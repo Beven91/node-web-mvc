@@ -17,7 +17,6 @@ import HttpStatus from './http/HttpStatus';
 import HttpStatusError from './../errors/HttpStatusError';
 import AbstractApplicationContext from './context/AbstractApplicationContext';
 import AbstractHandlerMapping from './mapping/AbstractHandlerMapping';
-import AbstractHandlerMethodAdapter from './method/AbstractHandlerMethodAdapter';
 import InternalErrorHandler from './http/error/InternalErrorHandler';
 import HandlerMethod from './method/HandlerMethod';
 
@@ -61,7 +60,7 @@ export default class DispatcherServlet {
 
   private initHandlerAdapters() {
     this.handlerAdapters = [
-      ...this.appContext.getBeanFactory().getBeanOfType(AbstractHandlerMethodAdapter),
+      ...this.appContext.getBeanFactory().getBeanOfType(HandlerAdapter),
     ];
   }
 

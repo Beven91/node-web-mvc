@@ -26,11 +26,12 @@ import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageCo
 import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
 import RegionsResource from './RegionsResource';
 import type { ResourceOptions } from '../config/WebAppConfigurerOptions';
+import HttpRequestHandler from '../http/HttpRequestHandler';
 
-export default class ResourceHttpRequestHandler {
+export default class ResourceHttpRequestHandler implements HttpRequestHandler {
 
   // 当前对应的配置
-  private readonly registration: ResourceHandlerRegistration
+  public readonly registration: ResourceHandlerRegistration
 
   // 允许使用的请求方式
   private allowHeaders = [HttpMethod.GET, HttpMethod.HEAD]

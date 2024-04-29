@@ -5,19 +5,19 @@
 import HttpServletRequest from '../http/HttpServletRequest';
 import ServletContext from '../http/ServletContext';
 
-export default interface HandlerAdapter {
+export default abstract class HandlerAdapter {
   /**
     * 用于判断当前适配器是否能处理对应的action操作
     */
-  supports(handler): boolean;
+  abstract supports(handler): boolean;
 
   /**
    * 当supports返回true 时，用于执行当前action的函数
    */
-  handle(servletContext: ServletContext, handler): Promise<any>;
+  abstract handle(servletContext: ServletContext, handler): Promise<any>;
 
   /**
    * 返回上次修改时间，可以返回-1表示不支持
    */
-  getLastModified(request: HttpServletRequest, handler);
+  abstract getLastModified(request: HttpServletRequest, handler);
 }

@@ -15,6 +15,8 @@ export { default as NoRequestHandlerMapping } from './servlets/mapping/NoRequest
 export { default as MappingRegistration } from './servlets/mapping/registry/MappingRegistration';
 export { default as RequestMappingHandlerMapping } from './servlets/mapping/RequestMappingHandlerMapping';
 export { default as RequestMappingHandlerAdapter } from './servlets/method/RequestMappingHandlerAdapter';
+export { default as HttpRequestHandlerAdapter } from './servlets/http/HttpRequestHandlerAdapter';
+export { default as HttpRequestHandler } from './servlets/http/HttpRequestHandler';
 export { default as RestController } from './servlets/annotations/RestController';
 export { default as Controller } from './servlets/annotations/Controller';
 export { default as Scope } from './servlets/annotations/Scope';

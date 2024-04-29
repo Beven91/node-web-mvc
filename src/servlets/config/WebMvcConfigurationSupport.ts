@@ -11,7 +11,7 @@ import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import PathMatchConfigurer from './PathMatchConfigurer';
 import Bean from '../../ioc/annotations/Bean';
 import RequestMappingHandlerMapping from '../mapping/RequestMappingHandlerMapping';
-import ResourceHandlerMapping from '../resources/ResourceHandlerMapping';
+import BeanNameUrlHandlerMapping from '../mapping/BeanNameUrlHandlerMapping';
 import ExceptionHandlerExceptionResolver from '../method/exception/ExceptionHandlerExceptionResolver';
 import HandlerExceptionResolver from '../method/exception/HandlerExceptionResolver';
 import HandlerExceptionResolverComposite from '../method/exception/HandlerExceptionResolverComposite';
@@ -24,7 +24,7 @@ import RequestResponseBodyMethodProcessor from '../method/argument/RequestRespon
 import WebAppConfigurerOptions from './WebAppConfigurerOptions';
 import InternalErrorHandler from '../http/error/InternalErrorHandler';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
-import ResourceHandlerAdapter from '../resources/ResourceHandlerAdapter';
+import HttpRequestHandlerAdapter from '../http/HttpRequestHandlerAdapter';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
@@ -118,7 +118,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   @Bean
   resourceHandlerMapping() {
     const registry = new ResourceHandlerRegistry()
-    const handlerMapping = new ResourceHandlerMapping(registry, this.resource);
+    const handlerMapping = new BeanNameUrlHandlerMapping(registry, this.resource);
     handlerMapping.setOrder(100);
     // swagger 处理
     OpenApi.initializeResource(registry, this.swagger);
@@ -155,7 +155,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   @Bean
   resourceHandlerAdapter() {
-    const adapter = new ResourceHandlerAdapter();
+    const adapter = new HttpRequestHandlerAdapter();
     return adapter;
   }
 

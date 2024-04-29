@@ -6,7 +6,7 @@ import HandlerMethod from './HandlerMethod';
 import HandlerAdapter from './HandlerAdapter';
 import ServletContext from '../http/ServletContext';
 
-export default abstract class AbstractHandlerMethodAdapter implements HandlerAdapter {
+export default abstract class AbstractHandlerMethodAdapter extends HandlerAdapter {
 
   /**
    * 用于判断当前适配器是否能处理对应的action操作

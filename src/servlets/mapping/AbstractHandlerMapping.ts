@@ -14,6 +14,7 @@ import PathMatcher from "../util/PathMatcher";
 import ApplicationContextAware from "../context/ApplicationContextAware";
 import AbstractApplicationContext from "../context/AbstractApplicationContext";
 import Ordered from "../context/Ordered";
+import CorsUtils from "../util/CorsUtils";
 
 export default abstract class AbstractHandlerMapping extends ApplicationContextAware implements HandlerMapping, Ordered {
 
@@ -91,7 +92,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   usesPathPatterns(): boolean {
     return true;
   }
-
+  3
   /**
    * 扩展拦截器,主要用于子类使用。
    */
@@ -114,14 +115,21 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
     }
     // 获取拦截器执行链
     const chain = this.getHandlerExecutionChain(handler, context);
-    // TODO: CORS...
+
+    if (CorsUtils.isPreFlightRequest(context.request)) {
+      // 进行跨域处理
+
+
+
+    }
+
     return chain;
   }
 
   /**
    * 根据当前request请求对象，获取对应的处理器
    */
-  protected abstract getHandlerInternal(context: ServletContext): any
+  protected abstract getHandlerInternal(context: ServletContext): object
 
   protected initLookupPath(request: HttpServletRequest) {
     const url = this.urlPathHelper.getServletPath(request);
@@ -132,7 +140,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   /**
    * 根据当前请求对应的处理器handler来获取对应的 拦截器执行链
    */
-  protected getHandlerExecutionChain(handler: any, context: ServletContext): HandlerExecutionChain {
+  protected getHandlerExecutionChain(handler: object, context: ServletContext): HandlerExecutionChain {
     const chain = handler instanceof HandlerExecutionChain ? handler : new HandlerExecutionChain(handler, context);
     if (/^\/swagger-ui\//.test(context.request.path)) {
       // swagger-ui 不介入
