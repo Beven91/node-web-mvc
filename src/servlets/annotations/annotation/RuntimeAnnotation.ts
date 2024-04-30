@@ -162,7 +162,7 @@ export default class RuntimeAnnotation<A = any> {
     if (!anno) {
       return [];
     }
-    return this.getTypedRuntimeAnnotations(type,(m)=> {
+    return this.getTypedRuntimeAnnotations(type, (m) => {
       return m.ctor == anno.ctor && m.name == anno.name && m.methodName == anno.methodName && m.paramIndex == anno.paramIndex;
     });
   }
@@ -233,10 +233,10 @@ export default class RuntimeAnnotation<A = any> {
    * @param clazz 函数所在类 
    * @param method 函数名称
    */
-  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string): RuntimeAnnotation[]
-  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
-  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, annotationType?: C): RuntimeAnnotation[] {
-    const isMethodAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.name == method && m.elementType == ElementType.METHOD;
+  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function): RuntimeAnnotation[]
+  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
+  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType?: C): RuntimeAnnotation[] {
+    const isMethodAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && (m.name == method || m.method == method) && m.elementType == ElementType.METHOD;
     if (arguments.length > 2) {
       return runtimeAnnotations.filter((m) => isMethodAnnotation(m) && isAnnotationTypeOf(m, annotationType));
     }
@@ -248,7 +248,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param clazz 函数所在类 
    * @param method 函数名称
    */
-  static getMethodAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string, annotationType: C) {
+  static getMethodAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C) {
     return this.getMethodAnnotations(clazz, method, annotationType)[0];
   }
 

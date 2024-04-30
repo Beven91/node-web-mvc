@@ -1,12 +1,13 @@
 
 import path from 'path';
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController } from '../../../src/index';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin } from '../../../src/index';
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 
 @Api({ description: '首页' })
 @RestController
+@CorsOrigin
 @RequestMapping({ value: '/home', method: ['GET', 'POST'] })
 export default class HomeController {
 
@@ -27,7 +28,7 @@ export default class HomeController {
   requestParamsPost(@RequestParam name: string, @RequestParam id: number) {
     return `name:${name},id:${id}`;
   }
-  
+
   @PostMapping('/requestParamsNoAnnosWithGet')
   requestParamsNoAnnosWithGet(name: string, id: number) {
     return `name:${name},id:${id}`;
@@ -45,7 +46,7 @@ export default class HomeController {
   @ApiOperation({ value: 'RequestParam接收Map' })
   @GetMapping('/map')
   mapGet(@RequestParam data: Map<string, any>) {
-    const values:string[] = [
+    const values: string[] = [
       `Type: ${Object.prototype.toString.call(data)}`
     ];
     data.forEach((value, key) => {
@@ -60,7 +61,7 @@ export default class HomeController {
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
   mapPost(@RequestBody data: Map<string, any>) {
-    const values:string[] = [
+    const values: string[] = [
       `Type: ${Object.prototype.toString.call(data)}`
     ];
     data.forEach((value, key) => {
@@ -72,7 +73,7 @@ export default class HomeController {
   @ApiOperation({ value: 'Set数据接收' })
   @PostMapping('/set')
   set(@RequestParam data: Set<any>) {
-    const values:string[] = [
+    const values: string[] = [
       `Type: ${Object.prototype.toString.call(data)}`
     ];
     data.forEach((v) => values.push(v));
@@ -83,7 +84,7 @@ export default class HomeController {
   @PostMapping('/array')
   array(@RequestParam array: Array<string>) {
     // TODO 如何补偿泛型运行时的类型参数
-    const values:string[] = [
+    const values: string[] = [
       `Type: ${Object.prototype.toString.call(array)}`,
       ...array
     ];

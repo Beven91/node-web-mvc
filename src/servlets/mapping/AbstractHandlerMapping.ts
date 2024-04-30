@@ -15,6 +15,13 @@ import ApplicationContextAware from "../context/ApplicationContextAware";
 import AbstractApplicationContext from "../context/AbstractApplicationContext";
 import Ordered from "../context/Ordered";
 import CorsUtils from "../util/CorsUtils";
+import CorsConfigurationSource from "../cors/CorsConfigurationSource";
+import PreFlightHandler from "../cors/PreFlightHandler";
+import CorsInterceptor from "../cors/CorsInterceptor";
+import CorsProcessor from "../cors/CorsProcessor";
+import DefaultCorsProcessor from "../cors/DefaultCorsProcessor";
+
+const corsProcessorSymbol = Symbol['corsProcessor'];
 
 export default abstract class AbstractHandlerMapping extends ApplicationContextAware implements HandlerMapping, Ordered {
 
@@ -28,8 +35,17 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
 
   private order: number
 
+  public get corsProcessor() {
+    return this[corsProcessorSymbol] as CorsProcessor
+  }
+
+  public set corsProcessor(value: CorsProcessor) {
+    this[corsProcessorSymbol] = value;
+  }
+
   constructor() {
     super();
+    this[corsProcessorSymbol] = new DefaultCorsProcessor();
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
@@ -116,11 +132,9 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
     // 获取拦截器执行链
     const chain = this.getHandlerExecutionChain(handler, context);
 
-    if (CorsUtils.isPreFlightRequest(context.request)) {
-      // 进行跨域处理
-
-
-
+    // 进行跨域处理
+    if (this.hasCorsConfigurationSource(handler) || CorsUtils.isPreFlightRequest(context.request)) {
+      return this.getCorsHandlerExecutionChain(chain, handler, context);
     }
 
     return chain;
@@ -142,10 +156,6 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
    */
   protected getHandlerExecutionChain(handler: object, context: ServletContext): HandlerExecutionChain {
     const chain = handler instanceof HandlerExecutionChain ? handler : new HandlerExecutionChain(handler, context);
-    if (/^\/swagger-ui\//.test(context.request.path)) {
-      // swagger-ui 不介入
-      return chain;
-    }
     // 依次遍历拦截器，将拦截器添加到调用链。
     const interceptors = this.adaptedInterceptors || [];
     for (let interceptor of interceptors) {
@@ -164,5 +174,43 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
 
   setOrder(value: number) {
     return this.order = value;
+  }
+
+  private findCorsConfigurationSource(handler: object) {
+    let resolvedHandler = null;
+    if (handler instanceof HandlerExecutionChain) {
+      resolvedHandler = handler.getHandler() as any;
+    }
+    const configSource = resolvedHandler as CorsConfigurationSource
+    if (typeof configSource?.getCorsConfiguration == 'function') {
+      return configSource;
+    } else {
+      return null;
+    }
+  }
+
+  private getCorsHandlerExecutionChain(chain: HandlerExecutionChain, handler: object, context: ServletContext) {
+    const request = context.request;
+    const corsConfig = this.getCorsConfiguration(handler, request);
+    if (CorsUtils.isPreFlightRequest(request)) {
+      // 如果是预请求
+      const preFlightHandler = new PreFlightHandler(corsConfig, this.corsProcessor);
+      const corsChain = new HandlerExecutionChain(preFlightHandler, context);
+      corsChain.setInterceptors(chain.getInterceptors());
+      corsChain.addInterceptor2(0, preFlightHandler);
+      return corsChain;
+    }
+    // 如果是允许后的请求
+    chain.addInterceptor2(0, new CorsInterceptor(corsConfig, this.corsProcessor));
+    return chain;
+  }
+
+  hasCorsConfigurationSource(handler: object) {
+    return !!this.findCorsConfigurationSource(handler);
+  }
+
+  getCorsConfiguration(handler: object, request: HttpServletRequest) {
+    const configSource = this.findCorsConfigurationSource(handler);
+    return configSource?.getCorsConfiguration?.(request);
   }
 }

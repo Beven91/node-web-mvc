@@ -16,6 +16,11 @@ import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
 import HttpStatus from '../http/HttpStatus';
 import InitializingBean from '../../ioc/processor/InitializingBean';
 import Tracer from '../annotations/annotation/Tracer';
+import { ClazzType } from '../../interface/declare';
+import CorsOrigin from '../cors/CorsOrigin';
+import CorsConfiguration from '../cors/CorsConfiguration';
+import CorsUtils from '../util/CorsUtils';
+import HttpHeaders from '../http/HttpHeaders';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> implements InitializingBean {
 
@@ -74,9 +79,8 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     return !!consumes.find((m) => contentType.indexOf(m) > -1);
   }
 
-  public checkRequest(servletContext: ServletContext, mapping: RequestMappingInfo, handler: HandlerMethod) {
-    const request = servletContext.request;
-    if (!mapping.method[request.method]) {
+  public checkRequest(servletContext: ServletContext, mapping: RequestMappingInfo, handler: HandlerMethod, requestMethod: string) {
+    if (!mapping.method[requestMethod]) {
       return new HttpStatusHandlerMethod(HttpStatus.METHOD_NOT_ALLOWED);
     } else if (!this.isConsumeable(servletContext, mapping)) {
       return new HttpStatusHandlerMethod(HttpStatus.UNSUPPORTED_MEDIA_TYPE);
@@ -84,21 +88,60 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     return handler;
   }
 
+  private getRequestMethod(request: HttpServletRequest) {
+    if (CorsUtils.isPreFlightRequest(request)) {
+      return String(request.getHeaderValue(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)?.[0]).toUpperCase();
+    } else {
+      return request.method;
+    }
+  }
+
   match(registraction: MappingRegistration<RequestMappingInfo>, path: string, request: HttpServletRequest): HandlerMethod {
     const mapping = registraction.getMapping();
     const handlerMethod = registraction.getHandlerMethod();
     const pathPatterns = mapping.value;
     const matcher = this.pathMatcher;
+    const requestMethod = this.getRequestMethod(request);
     for (let pattern of pathPatterns) {
       const result = matcher.matchPattern(pattern, path);
       // 如果当前路由匹配成功
-      if (result && mapping.method[request.method]) {
+      if (result && mapping.method[requestMethod]) {
         // 将匹配的路径变量值，设置到pathVariables
         request.pathVariables = result.params;
-        return this.checkRequest(request.servletContext, mapping, handlerMethod);
+        return this.checkRequest(request.servletContext, mapping, handlerMethod, requestMethod);
       }
     }
   }
+
+  initCorsConfiguration(beanType: ClazzType, method: Function) {
+    const clazzCors = RuntimeAnnotation.getClassAnnotation(beanType, CorsOrigin)?.nativeAnnotation;
+    const methodCors = RuntimeAnnotation.getMethodAnnotation(beanType, method, CorsOrigin)?.nativeAnnotation;
+    if (clazzCors || methodCors) {
+      const mapping = RuntimeAnnotation.getMethodAnnotation(beanType, method, RequestMapping)?.nativeAnnotation;
+      const corsConfig = new CorsConfiguration();
+      this.updateCorsConfig(corsConfig, clazzCors);
+      this.updateCorsConfig(corsConfig, methodCors);
+      const methods = mapping.method instanceof Array ? mapping.method : [mapping.method];
+      methods.forEach((method) => {
+        corsConfig.addAllowedMethod(method);
+      })
+      return corsConfig.applyPermitDefaultValues();
+    }
+  }
+
+  updateCorsConfig(config: CorsConfiguration, anno: InstanceType<typeof CorsOrigin>) {
+    if (!anno) return;
+    anno.origins?.forEach?.((origin) => config.addAllowedOrigin(origin));
+    anno.originPatterns?.forEach?.((pattern) => config.addAllowedOriginPattern(pattern));
+    anno.allowedHeaders?.forEach?.((header) => config.addAllowedHeader(header));
+    anno.methods?.forEach?.((method) => config.addAllowedMethod(method));
+    config.allowCredentials = anno.allowCredentials;
+    config.allowPrivateNetwork = anno.allowPrivateNetwork;
+    if (anno.maxAge >= 0) {
+      config.maxAge = anno.maxAge;
+    }
+  }
+
 }
 
 // 热更新支持

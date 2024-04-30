@@ -58,6 +58,8 @@ export default class HandlerMethod {
    */
   public responseStatusReason: string
 
+  public readonly resolvedFromHandlerMethod: HandlerMethod
+
   /**
    * 构造一个方法执行器
    */
@@ -76,6 +78,7 @@ export default class HandlerMethod {
       this.beanFactory = method.beanFactory;
       this.responseStatus = handler.responseStatus;
       this.responseStatusReason = handler.responseStatusReason;
+      this.resolvedFromHandlerMethod = method;
     } else {
       const isType = typeof bean === 'function' || typeof bean === 'string';
       this.isBeanType = isType;

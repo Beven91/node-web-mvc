@@ -3,14 +3,13 @@
  * @description 拦截器执行链
  */
 import ServletContext from '../http/ServletContext';
-import HandlerMethod from '../method/HandlerMethod';
 import HandlerInterceptor from './HandlerInterceptor';
 
 export default class HandlerExecutionChain {
 
   private servletContext: ServletContext
 
-  private handler: any
+  private handler: object
 
   /**
    * interceptor中断时的拦截器下标
@@ -20,7 +19,7 @@ export default class HandlerExecutionChain {
   /**
    * 构造一个拦截器注册器
    */
-  constructor(handler: any, servletContext: ServletContext) {
+  constructor(handler: object, servletContext: ServletContext) {
     this.servletContext = servletContext;
     this.handler = handler;
     this.interceptors = [];
@@ -36,6 +35,10 @@ export default class HandlerExecutionChain {
    */
   public getInterceptors() {
     return this.interceptors;
+  }
+
+  public setInterceptors(interceptors: HandlerInterceptor[]) {
+    this.interceptors = interceptors;
   }
 
   /**
@@ -63,7 +66,7 @@ export default class HandlerExecutionChain {
   /**
    * 获取当前handler
    */
-  getHandler(): HandlerMethod {
+  getHandler() {
     return this.handler;
   }
 

@@ -38,8 +38,8 @@ Registry.launch({
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());
   },
-  addViewResolvers(registry) {
-    registry.addViewResolver(new EjsViewResolver('test/WEB-INF/', '.ejs'))
+  configureViewResolvers(registry) {
+    registry.viewResolver(new EjsViewResolver('test/WEB-INF/', '.ejs'))
   },
   addArgumentResolvers(resolvers) {
     resolvers.addArgumentResolvers(new UserIdArgumentResolver());

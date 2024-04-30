@@ -56,7 +56,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
     return new Promise((resolve) => {
       const builder = new xml2js.Builder();
       const xml = builder.buildObject(data);
-      servletContext.response.write(xml, resolve);
+      servletContext.response.end(xml, resolve);
     })
   }
 }

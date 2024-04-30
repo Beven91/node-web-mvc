@@ -12,6 +12,7 @@ import FilterHandlerAdapter from '../filter/FilterHandlerAdapter';
 import ApplicationDispatcher from './ApplicationDispatcher';
 import RequestBodyReader from './body/RequestBodyReader';
 import type { Multipart } from '../config/WebAppConfigurerOptions';
+import { isEmpty } from '../util/ApiUtils';
 
 declare class Query {
   [propName: string]: any
@@ -158,7 +159,7 @@ export default class HttpServletRequest {
     return !(method === HttpMethod.HEAD || method === HttpMethod.GET)
   }
 
-  constructor(request: IncomingMessage,contextPath:string, filterAdapter: FilterHandlerAdapter, multipart: Multipart) {
+  constructor(request: IncomingMessage, contextPath: string, filterAdapter: FilterHandlerAdapter, multipart: Multipart) {
     const protocol = (request.socket as any).encrypted ? 'https' : 'http';
     const uRL = new URL(request.url, `${protocol}://${request.headers.host}`);
     this.headers = request.headers;
@@ -205,7 +206,7 @@ export default class HttpServletRequest {
 
   public getHeaderValue(name: string) {
     const v = this.getHeader(name);
-    return v instanceof Array ? v : [v];
+    return v instanceof Array ? v : isEmpty(v) ? [] : [v];
   }
 
   public getDateHeader(name) {

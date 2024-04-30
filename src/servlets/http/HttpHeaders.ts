@@ -50,6 +50,9 @@ export default class HttpHeaders {
    * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>
    */
   static readonly ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+
+  static readonly ACCESS_CONTROL_ALLOW_PRIVATE_NETWORK ="Access-Control-Allow-Private-Network"
+
   /**
    * The CORS {@code Access-Control-Max-Age} response header field name.
    * @see <a href="https://www.w3.org/TR/cors/">CORS W3C recommendation</a>

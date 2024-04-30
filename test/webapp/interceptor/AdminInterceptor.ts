@@ -4,7 +4,10 @@ import Security from '../annotations/Security';
 
 export default class AdminInterceptor extends HandlerInterceptorAdapter {
 
-  preHandle(request, response, handler: HandlerMethod) {
+  preHandle(request, response, handler: object) {
+    if (!(handler instanceof HandlerMethod)) {
+      return;
+    }
     const a = handler.getClassAnnotation(Security);
     const m = handler.getAnnotation(Security);
     console.log('Class.Annotation.Security', a)

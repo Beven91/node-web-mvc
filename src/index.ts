@@ -108,7 +108,6 @@ export { default as MultiValueMap } from './servlets/util/MultiValueMap';
 export { default as MiddlewareInterceptor } from './servlets/interceptor/MiddlewareInterceptor';
 export { default as CacheControl } from './servlets/http/CacheControl';
 export { default as MappedInterceptor } from './servlets/interceptor/MappedInterceptor';
-export { default as CrossOrigin } from './servlets/annotations/cors/CrossOrigin';
 export { default as AnnotationElementTypeError } from './errors/AnnotationElementTypeError';
 export { default as ValueConvertError } from './errors/ValueConvertError';
 export { default as ArgumentResolvError } from './errors/ArgumentResolvError';
@@ -180,5 +179,11 @@ export { Joinpoint } from './aop/invocation/Joinpoint';
 export { MethodInvocation } from './aop/invocation/MethodInvocation';
 export { default as ProxyMethodInvocation } from './aop/invocation/ProxyMethodInvocation';
 export { default as ReflectiveMethodInvocation } from './aop/invocation/ReflectiveMethodInvocation';
+export { default as CorsOrigin } from './servlets/cors/CorsOrigin';
+export { default as CorsConfiguration } from './servlets/cors/CorsConfiguration';
+export { default as CorsConfigurationSource } from './servlets/cors/CorsConfigurationSource';
+export { default as CorsProcessor } from './servlets/cors/CorsProcessor';
+export { default as DefaultCorsProcessor } from './servlets/cors/DefaultCorsProcessor';
+
 
 hot.create(module);

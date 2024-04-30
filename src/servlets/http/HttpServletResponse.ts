@@ -5,6 +5,7 @@
 import { ServerResponse } from 'http';
 import InterruptModel from '../models/InterruptModel';
 import HttpStatus from './HttpStatus';
+import { isEmpty } from '../util/ApiUtils';
 
 export default class HttpServletResponse {
 
@@ -71,12 +72,25 @@ export default class HttpServletResponse {
     return this.nativeResponse.getHeader((name || '').toLowerCase());
   }
 
+  public getHeaderValue(name: string) {
+    const v = this.getHeader(name);
+    return v instanceof Array ? v : isEmpty(v) ? [] : [v];
+  }
+
+  addHeader(name: string, value: string, checkExists = false) {
+    const values = this.getHeaderValue(name);
+    if (!(checkExists && values.indexOf(value) > -1)) {
+      values.push(value);
+    }
+    this.setHeader(name, values as string[]);
+  }
+
   /**
    * 添加一个指定名称的返回头到返回头队列
    * @param {String} name 返回头名称
    * @param {String} value 返回头值
    */
-  setHeader(name: string, value: string | number) {
+  setHeader(name: string, value: string | number | string[]) {
     this.nativeResponse.setHeader(name, value);
     return this;
   }
@@ -133,6 +147,7 @@ export default class HttpServletResponse {
    * @param response 
    */
   write(chunk, callback?, encoding?) {
+    this.writeStatus();
     this.nativeResponse.write(chunk === undefined ? '' : chunk, encoding || 'utf-8', callback);
   }
 
