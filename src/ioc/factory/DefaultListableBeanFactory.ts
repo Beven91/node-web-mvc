@@ -22,6 +22,8 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    */
   private readonly beanDefinitions = new Map<string, BeanDefinition>();
 
+  private readonly registerdBeanType = new Map<any, boolean>();
+
   private allowBeanDefinitionOverridable = false;
 
   containsBeanDefinition(beanName: string) {
@@ -59,10 +61,10 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    * @param clazz 
    */
   private registerComponentBeanAnnotations(clazz: ClazzType) {
-    if (clazz[beanRegistedSymbol]) {
+    if (this.registerdBeanType.has(clazz)) {
       return;
     }
-    clazz[beanRegistedSymbol] = true;
+    this.registerdBeanType.set(clazz, true);
     const annotations = RuntimeAnnotation.getAnnotations(Bean, clazz);
     annotations.forEach((anno) => {
       const scopeAnno = RuntimeAnnotation.getMethodAnnotation(clazz, anno.methodName, Scope);

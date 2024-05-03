@@ -1,4 +1,3 @@
-import './interface/polyfill';
 import './servlets/annotations/annotation/metadata';
 import hot from 'nodejs-hmr';
 export { default as Registry } from './Registry';
