@@ -76,6 +76,7 @@ export default class CorsConfiguration extends BaseCorsOptions {
 
   addAllowedOrigin(origin: string) {
     if (origin) {
+      origin = origin.replace(/\/$/, '');
       this.origins = this.origins || [];
       this.origins.push(origin);
     }

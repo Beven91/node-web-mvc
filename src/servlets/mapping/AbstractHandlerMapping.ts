@@ -108,7 +108,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   usesPathPatterns(): boolean {
     return true;
   }
-  3
+  
   /**
    * 扩展拦截器,主要用于子类使用。
    */
