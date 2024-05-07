@@ -8,7 +8,6 @@ import HandlerAdapter from './method/HandlerAdapter';
 import HandlerExecutionChain from './interceptor/HandlerExecutionChain';
 import InterruptModel from './models/InterruptModel';
 import HandlerMapping from './mapping/HandlerMapping';
-import NoRequestHandlerMapping from './mapping/NoRequestHandlerMapping';
 import HttpRequestValidation from './http/HttpRequestValidation';
 import HttpMethod from './http/HttpMethod';
 import Normalizer from './../errors/Normalizer';
@@ -19,6 +18,7 @@ import AbstractApplicationContext from './context/AbstractApplicationContext';
 import AbstractHandlerMapping from './mapping/AbstractHandlerMapping';
 import InternalErrorHandler from './http/error/InternalErrorHandler';
 import HandlerMethod from './method/HandlerMethod';
+import NoHandlerFoundException from '../errors/NoHandlerFoundException';
 
 export default class DispatcherServlet {
 
@@ -50,7 +50,6 @@ export default class DispatcherServlet {
   private initHandlerMappings() {
     this.handlerMappings = [
       ...this.appContext.getBeanFactory().getBeanOfType(AbstractHandlerMapping),
-      new NoRequestHandlerMapping(),
       // RouterFunctionMapping  --> FilteredRouterFunctions
       // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
       // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
@@ -103,13 +102,16 @@ export default class DispatcherServlet {
     let handler = null;
     const runtime = { result: null, error: null } as { result: ServletModel, error: Error }
     const mappedHandler = this.getHandler(servletContext);
-    // 执行拦截器: preHandler
-    const isKeeping = await mappedHandler?.applyPreHandle?.();
-    if (!isKeeping) {
-      // 如果拦截器中断了本次请求
-      return new InterruptModel();
-    }
     try {
+      if (!mappedHandler) {
+        throw new NoHandlerFoundException(servletContext.request);
+      }
+      // 执行拦截器: preHandler
+      const isKeeping = await mappedHandler?.applyPreHandle?.();
+      if (!isKeeping) {
+        // 如果拦截器中断了本次请求
+        return new InterruptModel();
+      }
       const request = servletContext.request;
       const response = servletContext.response;
       handler = mappedHandler.getHandler();
@@ -136,7 +138,7 @@ export default class DispatcherServlet {
     }
     process.nextTick(() => {
       // 执行拦截器: afterCompletion
-      mappedHandler.applyAfterCompletion(runtime.error);
+      mappedHandler?.applyAfterCompletion?.(runtime.error);
     });
     return runtime.result;
   }

@@ -1,5 +1,4 @@
 import { BeanFactory } from "../../../ioc/factory/BeanFactory";
-import BeanFactoryAware from "../../../ioc/factory/BeanFactoryAware";
 import ControllerAdvice from "../../annotations/ControllerAdvice";
 import ExceptionHandler from "../../annotations/ExceptionHandler";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
@@ -24,7 +23,7 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
     try {
       const adviceAnnotation = RuntimeAnnotation.getAnnotations(ControllerAdvice)[0];
       const globalAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, adviceAnnotation?.ctor);
-      const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod.beanType);
+      const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod?.beanType);
       const exceptionAnnotation = scopeAnnotation || globalAnnotation;
       if (exceptionAnnotation) {
         const bean = this.beanFactory.getBean(exceptionAnnotation.ctor);
