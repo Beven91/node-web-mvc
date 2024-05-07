@@ -6,7 +6,7 @@ import MediaType from '../MediaType';
 import ServletContext from '../ServletContext';
 import HttpMessageConverter from './HttpMessageConverter';
 import JsonMessageConverter from './JsonMessageConverter';
-import DefaultMessageConverter from './DefaultMessageConverter';
+// import DefaultMessageConverter from './DefaultMessageConverter';
 import ResourceHttpMessageConverter from './ResourceHttpMessageConverter';
 import ByteArrayHttpMessageConverter from './ByteArrayHttpMessageConverter';
 import StringHttpMessageConverter from './StringHttpMessageConverter';
@@ -24,7 +24,7 @@ export default class MessageConverter {
       new ResourceRegionHttpMessageConverter(),
       // SourceHttpMessageConverter
       new JsonMessageConverter(),
-      new DefaultMessageConverter(),
+      // new DefaultMessageConverter(),
     ]
   }
 
