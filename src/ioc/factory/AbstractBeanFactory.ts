@@ -191,7 +191,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       this.checkLoopDependencies(definition, beanName);
       // 2. 根据定义创建实例
       const beanInstance = this.createInstance(definition);
-      this.populateBean(beanInstance, beanName);
+      this.populateBean(beanInstance, beanName, definition);
       const instance = this.initializeBean(beanInstance, beanName);
       return instance;
     } catch (ex) {
@@ -316,15 +316,15 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     return beanInstance;
   }
 
-  private applyBeanPostProperties(pvs: PropertyValue[], beanInstance: object, beanName: string) {
+  private applyBeanPostProperties(pvs: PropertyValue[], beanInstance: object, beanName: string, definition: BeanDefinition) {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
     for (const processor of processors) {
-      pvs = processor.postProcessProperties(pvs, beanInstance, beanName);
+      pvs = processor.postProcessProperties(pvs, beanInstance, beanName, definition);
     }
     return pvs;
   }
 
-  private populateBean(beanInstance: object, beanName: string) {
+  private populateBean(beanInstance: object, beanName: string, definition: BeanDefinition) {
     // 2.1 执行实例化after事件
     const isSkip = this.applyBeanPostProcessorsAfterInstantiation(beanInstance, beanName);
     if (isSkip) {
@@ -332,11 +332,11 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       return;
     }
     // 2.2 执行处理实例属性事件
-    const properties = this.applyBeanPostProperties([], beanInstance, beanName);
+    const properties = this.applyBeanPostProperties([], beanInstance, beanName, definition);
     properties.forEach((p) => {
       const value = p.value;
       if (p.optional === false && (value === null || value === undefined)) {
-        throw new BeanPropertyCreationException(beanName, p.name);
+        throw new BeanPropertyCreationException(definition, beanName, p.name);
       }
       if (typeof value === 'function') {
         // 如果是一个函数，则表示用作getter 可用于解决循环依赖

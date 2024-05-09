@@ -3,6 +3,7 @@
 // Tip: 由于ts运行时不能保留接口定义，所以在一些需要运行进行类型判定的地方会降接口改为抽象类来定义
 
 import { ClazzType } from "../../interface/declare";
+import BeanDefinition from "../factory/BeanDefinition";
 import BeanPostProcessor from "./BeanPostProcessor";
 
 export declare interface PropertyValue {
@@ -39,7 +40,7 @@ export default abstract class InstantiationAwareBeanPostProcessor extends BeanPo
    * @param instance bean实例对象
    * @param beanName 当前bean在容器中的名称
    */
-  postProcessProperties(pvs: PropertyValue[], instance: object, beanName: string): PropertyValue[] {
+  postProcessProperties(pvs: PropertyValue[], instance: object, beanName: string, definition: BeanDefinition): PropertyValue[] {
     return pvs;
   }
 
