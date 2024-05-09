@@ -1,8 +1,15 @@
+import BeanDefinition from "../ioc/factory/BeanDefinition";
+import Exception from "./Exception";
 
+export default class BeanPropertyCreationException extends Exception {
 
-export default class BeanPropertyCreationException extends Error {
-
-  constructor(beanName: string, property: string, reason?: string) {
-    super(`BeanPostProcessor create bean(${beanName}) property(${property}) fail${reason ? ': ' + reason : ''}`);
+  constructor(definition: BeanDefinition, beanName: string, property: string, reason?: string) {
+    super([
+      `Bean property create fail${reason ? ' ' + reason : ''}`,
+      '┌─────┐',
+      `    bean(${beanName}) ${definition.path}`,
+      `    property(${property})`,
+      '└─────┘',
+    ].join('\n'));
   }
 }

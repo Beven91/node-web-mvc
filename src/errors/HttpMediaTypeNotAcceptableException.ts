@@ -1,7 +1,7 @@
 import MediaType from "../servlets/http/MediaType";
+import Exception from "./Exception";
 
-
-export default class HttpMediaTypeNotAcceptableException extends Error {
+export default class HttpMediaTypeNotAcceptableException extends Exception {
 
   producibleTypes: MediaType[]
 

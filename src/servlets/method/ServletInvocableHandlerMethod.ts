@@ -1,5 +1,5 @@
+import HttpStatus from "../http/HttpStatus";
 import ServletContext from "../http/ServletContext";
-import InterruptModel from "../models/InterruptModel";
 import HandlerMethod from "./HandlerMethod";
 import MethodParameter from "./MethodParameter";
 import HandlerMethodReturnValueHandler from "./return/HandlerMethodReturnValueHandler";
@@ -27,7 +27,7 @@ export default class ServletInvocableHandlerMethod {
   public async invoke(servletContext: ServletContext, ...args: any[]) {
     const handlerMethod = this.handlerMethod;
     if (!handlerMethod.method) {
-      return new InterruptModel();
+      return null;
     }
     const bean = handlerMethod.bean || NOOP;
     // 优先从实例中获取method 用于支持aop代理
@@ -36,15 +36,15 @@ export default class ServletInvocableHandlerMethod {
     this.setResponseStatus(servletContext);
     // 如果response已处理结束
     if (servletContext.response.headersSent) {
-      return new InterruptModel();
+      return null;
     }
     // 如果通过ResponseStatus指定了返回状态原因,则不执行返回处理
     if (handlerMethod.responseStatusReason) {
       return;
     }
-    if (returnValue && returnValue instanceof InterruptModel) {
+    if (!!returnValue) {
       // 如果是不执行任何操作
-      return returnValue;
+      return null;
     }
     const returnType = new MethodParameter(handlerMethod.beanType, handlerMethod.methodName, '', -1, returnValue?.constructor);
     const returnHandlers = new HandlerMethodReturnValueHandlerComposite(this.returnvalueHandlers);
@@ -60,7 +60,8 @@ export default class ServletInvocableHandlerMethod {
       return;
     }
     if (handlerMethod.responseStatusReason) {
-      response.sendError({ code: handlerMethod.responseStatus, message: handlerMethod.responseStatusReason });
+      const status = new HttpStatus(handlerMethod.responseStatus, handlerMethod.responseStatusReason);
+      response.sendError(status);
     } else {
       response.setStatus(handlerMethod.responseStatus);
     }

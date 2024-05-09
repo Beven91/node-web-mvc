@@ -1,6 +1,7 @@
 import BeanDefinition from "../ioc/factory/BeanDefinition";
+import Exception from "./Exception";
 
-export default class BeanDefinitionOverrideException extends Error {
+export default class BeanDefinitionOverrideException extends Exception {
 
   constructor(beanName: string, definition: BeanDefinition, overrideDefinition: BeanDefinition) {
     super();

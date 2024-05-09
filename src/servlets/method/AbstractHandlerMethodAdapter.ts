@@ -5,6 +5,7 @@
 import HandlerMethod from './HandlerMethod';
 import HandlerAdapter from './HandlerAdapter';
 import ServletContext from '../http/ServletContext';
+import ModelAndView from '../models/ModelAndView';
 
 export default abstract class AbstractHandlerMethodAdapter extends HandlerAdapter {
 
@@ -37,7 +38,7 @@ export default abstract class AbstractHandlerMethodAdapter extends HandlerAdapte
    * @param response 当前返回对象实例
    * @param handlerMethod 当前 HandlerMethod实例
    */
-  protected abstract handleInternal(servletContext: ServletContext, handlerMethod: HandlerMethod);
+  protected abstract handleInternal(servletContext: ServletContext, handlerMethod: HandlerMethod): Promise<ModelAndView>;
 
   /**
    * 返回上次修改时间，可以返回-1表示不支持

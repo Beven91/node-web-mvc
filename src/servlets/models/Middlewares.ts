@@ -6,19 +6,18 @@
 import { Middleware } from "../../interface/declare";
 import HttpServletRequest from "../http/HttpServletRequest";
 import HttpServletResponse from "../http/HttpServletResponse";
-import InterruptModel from './InterruptModel';
 
 export default class Middlewares {
 
   private middlewares: Array<Middleware>
 
-  public execute(req: HttpServletRequest, resp: HttpServletResponse) {
-    return new Promise((resolve, reject) => {
+  public execute<T>(req: HttpServletRequest, resp: HttpServletResponse, fallback?: () => T | Promise<T>) {
+    return new Promise<T>((resolve, reject) => {
       const request = req.nativeRequest;
       const response = resp.nativeResponse;
       const middlewares = [
         ...this.middlewares,
-        () => resolve(new InterruptModel())
+        () => resolve(fallback?.()),
       ];
       const handler = middlewares.reverse().reduce((next: any, middleware) => {
         return () => {

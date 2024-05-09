@@ -9,6 +9,13 @@ export default class HttpStatus {
     this.message = message;
   }
 
+  equals(status: HttpStatus) {
+    if (!status) {
+      return false;
+    }
+    return this.code == status?.code;
+  }
+
   static AllStatus: Map<number, HttpStatus>;
 
   // 1xx Informational

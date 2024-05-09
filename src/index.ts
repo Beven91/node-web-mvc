@@ -10,7 +10,6 @@ export { default as DeleteMapping } from './servlets/annotations/mapping/DeleteM
 export { default as HandlerMapping } from './servlets/mapping/HandlerMapping';
 export { default as AbstractHandlerMapping } from './servlets/mapping/AbstractHandlerMapping';
 export { default as AbstractHandlerMethodMapping } from './servlets/mapping/AbstractHandlerMethodMapping';
-export { default as NoRequestHandlerMapping } from './servlets/mapping/NoRequestHandlerMapping';
 export { default as MappingRegistration } from './servlets/mapping/registry/MappingRegistration';
 export { default as RequestMappingHandlerMapping } from './servlets/mapping/RequestMappingHandlerMapping';
 export { default as RequestMappingHandlerAdapter } from './servlets/method/RequestMappingHandlerAdapter';
@@ -67,7 +66,6 @@ export { default as ServletContext } from './servlets/http/ServletContext';
 export { default as MethodParameter } from './servlets/method/MethodParameter';
 export { default as hot } from 'nodejs-hmr';
 export { default as ModelAndView } from './servlets/models/ModelAndView';
-export { default as InterruptModel } from './servlets/models/InterruptModel';
 export { default as ServletModel } from './servlets/models/ServletModel';
 export { default as Middlewares } from './servlets/models/Middlewares';
 export { default as HttpServletRequest } from './servlets/http/HttpServletRequest';
@@ -134,7 +132,7 @@ export { default as ExceptionHandlerExceptionResolver } from './servlets/method/
 export { default as ResponseStatusExceptionResolver } from './servlets/method/exception/ResponseStatusExceptionResolver';
 export { default as HandlerMethodReturnValueHandler } from './servlets/method/return/HandlerMethodReturnValueHandler';
 export { default as ModelAndViewMethodReturnValueHandler } from './servlets/method/return/ModelAndViewMethodReturnValueHandler';
-export { default as RequestResponseBodyMethodProcessor } from './servlets/method/argument/RequestResponseBodyMethodProcessor';
+export { default as RequestResponseBodyMethodProcessor } from './servlets/method/processor/RequestResponseBodyMethodProcessor';
 export { default as DefaultErrorView } from './servlets/http/error/DefaultErrorView';
 export { default as ByteArrayResource } from './servlets/resources/ByteArrayResource';
 export { default as ByteArrayInputStream } from './servlets/resources/ByteArrayInputStream';

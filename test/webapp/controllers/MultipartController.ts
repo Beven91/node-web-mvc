@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { RequestMapping, RequestBody, Autowired, ServletResponse, HttpServletResponse, InterruptModel, RequestPart, RestController } from '../../../src/index';
+import { RequestMapping, RequestBody, Autowired, ServletResponse, HttpServletResponse, RequestPart, RestController } from '../../../src/index';
 import { Api, ApiOperation, ApiImplicitParams, RequestParam, MultipartFile } from '../../../src/index';
 import { PostMapping } from '../../../src/index';
 import ModelAndView from '../../../src/servlets/models/ModelAndView';

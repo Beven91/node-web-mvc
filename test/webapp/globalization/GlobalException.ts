@@ -3,7 +3,6 @@ import { ControllerAdvice, ExceptionHandler, ResponseBody } from '../../../src/i
 @ControllerAdvice
 export default class GlobalException {
 
-  @ResponseBody
   @ExceptionHandler
   handleException(ex) {
     // console.error(ex);

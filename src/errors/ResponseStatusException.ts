@@ -1,5 +1,6 @@
+import Exception from "./Exception";
 
-export default class ResponseStatusException extends Error {
+export default class ResponseStatusException extends Exception {
 
   public readonly code: number
 

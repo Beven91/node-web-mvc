@@ -394,8 +394,6 @@ class HomeController {
 
 在控制器具体函数中，我们可以返回以下几种类型来将内容返回到客户端。
 
-- InterruptModel 返回空内容，如果是使用express 则和`next`函数类似
-
 - ModelAndView 返回一个视图
 
 - String 返回一个字符串

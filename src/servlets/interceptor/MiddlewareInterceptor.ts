@@ -4,7 +4,6 @@
  */
 
 import { Middleware } from "../../interface/declare";
-import InterruptModel from "../models/InterruptModel";
 import Middlewares from "../models/Middlewares";
 import HandlerInterceptorAdapter from "./HandlerInterceptorAdapter";
 
@@ -30,9 +29,6 @@ export default class MiddlewareInterceptor extends HandlerInterceptorAdapter {
       return true;
     }
     const invoker = new Middlewares(this.middlewares);
-    return invoker.execute(request, response).then((res) => {
-      // 如果返回结果，不是interrup 则标识中间件已经处理了返回，这里需要返回 false
-      return res instanceof InterruptModel;
-    })
+    return invoker.execute(request, response, () => true);
   }
 }

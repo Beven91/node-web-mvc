@@ -4,8 +4,9 @@
  */
 
 import HandlerMethod from "../servlets/method/HandlerMethod";
+import Exception from "./Exception";
 
-export default class ParameterRequiredError extends Error {
+export default class ParameterRequiredError extends Exception {
   constructor(parameter: string, handler: HandlerMethod) {
     super(`Required request parameter: ${parameter} is missing @${handler.beanTypeName}.${handler.methodName}`)
   }

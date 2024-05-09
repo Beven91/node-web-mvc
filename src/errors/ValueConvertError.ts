@@ -2,7 +2,9 @@
  * @module ValueConvertError
  */
 
-export default class ValueConvertError extends Error {
+import Exception from "./Exception";
+
+export default class ValueConvertError extends Exception {
   constructor(value, ctor, message?: string) {
     const type = Object.prototype.toString.call(value);
     const name = type.replace('[object ', '').replace(']', '');

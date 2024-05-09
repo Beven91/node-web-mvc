@@ -3,8 +3,6 @@
  * @description 用于处理 resource
  */
 import ServletContext from '../http/ServletContext';
-import ServletModel from '../models/ServletModel';
-import InterruptModel from '../models/InterruptModel';
 import HttpRequestHandler from './HttpRequestHandler';
 import HandlerAdapter from '../method/HandlerAdapter';
 import HttpServletRequest from './HttpServletRequest';
@@ -15,12 +13,11 @@ export default class HttpRequestHandlerAdapter extends HandlerAdapter {
     return typeof (handler as HttpRequestHandler)?.handleRequest === 'function';
   }
 
-  async handle(servletContext: ServletContext, handler: object): Promise<ServletModel> {
+  async handle(servletContext: ServletContext, handler: object) {
     try {
       const invoker = handler as HttpRequestHandler;
       // 处理请求
       await invoker.handleRequest(servletContext.request, servletContext.response);
-      return Promise.resolve(new InterruptModel(true));
     } catch (ex) {
       return Promise.reject(ex);
     }

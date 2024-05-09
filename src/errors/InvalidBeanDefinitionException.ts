@@ -1,5 +1,6 @@
+import Exception from "./Exception";
 
-export default class InvalidBeanDefinitionException extends Error {
+export default class InvalidBeanDefinitionException extends Exception {
   public definition: any;
 
   constructor(definition: any) {

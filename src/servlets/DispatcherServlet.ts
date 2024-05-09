@@ -3,10 +3,8 @@
  * @description controller请求执行入口
  */
 import ServletContext from './http/ServletContext';
-import ServletModel from './models/ServletModel';
 import HandlerAdapter from './method/HandlerAdapter';
 import HandlerExecutionChain from './interceptor/HandlerExecutionChain';
-import InterruptModel from './models/InterruptModel';
 import HandlerMapping from './mapping/HandlerMapping';
 import HttpRequestValidation from './http/HttpRequestValidation';
 import HttpMethod from './http/HttpMethod';
@@ -98,9 +96,9 @@ export default class DispatcherServlet {
     }
   }
 
-  async doDispatch(servletContext: ServletContext): Promise<ServletModel> {
+  async doDispatch(servletContext: ServletContext): Promise<void> {
     let handler = null;
-    const runtime = { result: null, error: null } as { result: ServletModel, error: Error }
+    const runtime = { error: null } as { error: Error }
     const mappedHandler = this.getHandler(servletContext);
     try {
       if (!mappedHandler) {
@@ -110,7 +108,7 @@ export default class DispatcherServlet {
       const isKeeping = await mappedHandler?.applyPreHandle?.();
       if (!isKeeping) {
         // 如果拦截器中断了本次请求
-        return new InterruptModel();
+        return;
       }
       const request = servletContext.request;
       const response = servletContext.response;
@@ -126,9 +124,9 @@ export default class DispatcherServlet {
         }
       }
       // 开始执行handler
-      runtime.result = await ha.handle(servletContext, handler);
+      const mv = await ha.handle(servletContext, handler);
       // 执行拦截器:postHandler
-      await mappedHandler.applyPostHandle(runtime.result);
+      await mappedHandler.applyPostHandle(mv);
       // 判定http status
       await this.handleHttpStatus(servletContext, handler);
     } catch (ex) {
@@ -140,7 +138,6 @@ export default class DispatcherServlet {
       // 执行拦截器: afterCompletion
       mappedHandler?.applyAfterCompletion?.(runtime.error);
     });
-    return runtime.result;
   }
 
   /**

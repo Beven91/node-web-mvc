@@ -1,6 +1,7 @@
 import ResponseStatusException from "../../../errors/ResponseStatusException";
 import ResponseStatus from "../../annotations/ResponseStatus";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
+import HttpStatus from "../../http/HttpStatus";
 import ServletContext from "../../http/ServletContext";
 import HandlerMethod from "../HandlerMethod";
 import HandlerExceptionResolver from "./HandlerExceptionResolver";
@@ -34,7 +35,7 @@ export default class ResponseStatusExceptionResolver implements HandlerException
 
   private resolveResponseStatus(code: number, message: string, servletContext: ServletContext, handler: HandlerMethod, error: Error) {
     const response = servletContext.response;
-    response.sendError({ code, message });
+    response.sendError(new HttpStatus(code,message));
     return true;
   }
 }

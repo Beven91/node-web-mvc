@@ -1,5 +1,6 @@
+import Exception from "./Exception";
 
-export default class UnsupportReturnValueHandlerError extends Error {
+export default class UnsupportReturnValueHandlerError extends Exception {
 
   public readonly returnValue: any
 

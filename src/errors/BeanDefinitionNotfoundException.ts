@@ -1,4 +1,6 @@
-export default class BeanDefinitionNotfoundException extends Error {
+import Exception from "./Exception";
+
+export default class BeanDefinitionNotfoundException extends Exception {
 
   constructor(beanName: string) {
     super();

@@ -8,7 +8,6 @@ import ResourceResolverChain from './ResourceResolverChain';
 import ResourceResolver from './ResourceResolver';
 import Middlewares from '../models/Middlewares';
 import { Middleware } from '../../interface/declare';
-import InterruptModel from '../models/InterruptModel';
 
 export default class MiddlewareResourceResolver implements ResourceResolver {
 
@@ -32,14 +31,14 @@ export default class MiddlewareResourceResolver implements ResourceResolver {
       return next.resolveResource(request, requestPath, locations);
     }
     const invoker = new Middlewares(this.middlewares);
-    return invoker
-      .execute(request, request.servletContext.response)
-      .then((res) => {
-        if (res instanceof InterruptModel) {
-          // 如果中间件，没有捕获到资源，则使用下一个解析器。
-          return next.resolveResource(request, requestPath, locations);
-        }
-      });
+    return invoker.execute<Resource>(
+      request,
+      request.servletContext.response,
+      () => {
+        // 如果中间件，没有捕获到资源，则使用下一个解析器。
+        return next.resolveResource(request, requestPath, locations);
+      }
+    )
   }
 
   /**

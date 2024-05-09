@@ -1,7 +1,7 @@
 import HttpStatus from "../servlets/http/HttpStatus";
+import Exception from "./Exception";
 
-
-export default class HttpStatusError extends Error {
+export default class HttpStatusError extends Exception {
 
   public readonly status: HttpStatus
 

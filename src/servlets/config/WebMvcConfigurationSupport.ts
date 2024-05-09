@@ -20,11 +20,12 @@ import DefaultHandlerExceptionResolver from '../method/exception/DefaultHandlerE
 import RequestMappingHandlerAdapter from '../method/RequestMappingHandlerAdapter';
 import HandlerMethodReturnValueHandler from '../method/return/HandlerMethodReturnValueHandler';
 import ModelAndViewMethodReturnValueHandler from '../method/return/ModelAndViewMethodReturnValueHandler';
-import RequestResponseBodyMethodProcessor from '../method/argument/RequestResponseBodyMethodProcessor';
+import RequestResponseBodyMethodProcessor from '../method/processor/RequestResponseBodyMethodProcessor';
 import WebAppConfigurerOptions from './WebAppConfigurerOptions';
 import InternalErrorHandler from '../http/error/InternalErrorHandler';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
 import HttpRequestHandlerAdapter from '../http/HttpRequestHandlerAdapter';
+import HttpEntityMethodProcessor from '../method/processor/HttpEntityMethodProcessor';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
@@ -77,9 +78,11 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   private getReturnValueHandlers() {
     if (!this.returnvalueHandlers) {
+      const messageConverters = this.getMessageConverters();
       this.returnvalueHandlers = [
         new ModelAndViewMethodReturnValueHandler(this.mvcViewResolver()),
-        new RequestResponseBodyMethodProcessor(this.getMessageConverters()),
+        new HttpEntityMethodProcessor(messageConverters),
+        new RequestResponseBodyMethodProcessor(messageConverters),
       ];
       this.addReturnValueHandlers?.(this.returnvalueHandlers);
     }

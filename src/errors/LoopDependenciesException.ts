@@ -1,15 +1,15 @@
 import Autowired from "../ioc/annotations/Autowired";
-import Qualifier from "../ioc/annotations/Qualifier";
 import BeanDefinition from "../ioc/factory/BeanDefinition";
 import { getBeanTypeByAnnotation } from "../ioc/processor/AutowiredUtils";
 import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
+import Exception from "./Exception";
 
 export interface DependencyBeanDefinition {
   beanName: string
   definition: BeanDefinition
 }
 
-export default class LoopDependenciesException extends Error {
+export default class LoopDependenciesException extends Exception {
 
   constructor(creationChains: DependencyBeanDefinition[]) {
     super('LoopDependenciesException');

@@ -3,9 +3,9 @@
  * @description Http信息返回类
  */
 import { ServerResponse } from 'http';
-import InterruptModel from '../models/InterruptModel';
 import HttpStatus from './HttpStatus';
 import { isEmpty } from '../util/ApiUtils';
+import HttpHeaders from './HttpHeaders';
 
 export default class HttpServletResponse {
 
@@ -158,7 +158,6 @@ export default class HttpServletResponse {
   end(data?, encoding?, callback?) {
     this.writeStatus();
     this.nativeResponse.end(data, encoding, callback);
-    return new InterruptModel();
   }
 
   /**
@@ -167,6 +166,12 @@ export default class HttpServletResponse {
    */
   sendRedirect(url, status = 302) {
     this.nativeResponse.writeHead(status, { 'Location': url })
+  }
+
+  getLastModifiedTime() {
+    const n = this.getHeader(HttpHeaders.LAST_MODIFIED);
+    // todo
+    return 0;
   }
 
   constructor(response: ServerResponse) {
