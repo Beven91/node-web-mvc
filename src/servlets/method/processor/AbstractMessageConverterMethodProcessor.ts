@@ -38,7 +38,7 @@ export default abstract class AbstractMessageConverterMethodProcessor implements
   }
 
   private getProducibleMediaTypes(servletContext: ServletContext, data: any) {
-    const configMediaTypes = servletContext.request.getAttribute<MediaType[]>(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE);
+    const configMediaTypes = servletContext.request.getAttribute<MediaType[]>(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE) || [];
     if (configMediaTypes.length > 0) {
       return configMediaTypes;
     }
