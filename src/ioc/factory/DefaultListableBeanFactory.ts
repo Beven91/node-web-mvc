@@ -12,8 +12,6 @@ import Qualifier from "../annotations/Qualifier";
 import InvalidBeanDefinitionException from "../../errors/InvalidBeanDefinitionException";
 import { ClazzType } from "../../interface/declare";
 
-const beanRegistedSymbol = Symbol('beanRegisted');
-
 export const methodBeanNameSymbol = Symbol('methodBeanNameSymbol');
 
 export default class DefaultListableBeanFactory extends AbstractBeanFactory {
@@ -108,5 +106,4 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
     super.destory();
     this.beanDefinitions.clear();
   }
-
 }

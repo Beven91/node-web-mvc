@@ -7,8 +7,8 @@ export default class BeanPropertyCreationException extends Exception {
     super([
       `Bean property create fail${reason ? ' ' + reason : ''}`,
       '┌─────┐',
-      `    bean(${beanName}) ${definition.path}`,
-      `    property(${property})`,
+      `    bean: (${beanName}) ${definition.path}`,
+      `    property: (${property}) --> beanName is null`,
       '└─────┘',
     ].join('\n'));
   }

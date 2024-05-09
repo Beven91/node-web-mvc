@@ -28,15 +28,16 @@ export default class AutowiredAnnotationBeanPostProcessor extends InstantiationA
       if (annotation.elementType !== ElementType.PROPERTY) {
         continue;
       }
+      const proprty = annotation.name;
       const componentAnno = annotation.nativeAnnotation;
       const optional = componentAnno.required === false;
       const clazzType = getBeanTypeByAnnotation(annotation);
       if (!clazzType) {
-        throw new BeanPropertyCreationException(definition, beanName, annotation.name, 'because beanName is null');
+        throw new BeanPropertyCreationException(definition, beanName, proprty, `because proprty(${proprty})'beanName is null`);
       }
       pvs.push({
         optional,
-        name: annotation.name,
+        name: proprty,
         value: this.beanFactory.getBean(clazzType),
       })
     }
