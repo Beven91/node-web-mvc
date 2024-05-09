@@ -21,6 +21,8 @@ import CorsOrigin from '../cors/CorsOrigin';
 import CorsConfiguration from '../cors/CorsConfiguration';
 import CorsUtils from '../util/CorsUtils';
 import HttpHeaders from '../http/HttpHeaders';
+import MediaType from '../http/MediaType';
+import { PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE } from './HandlerMapping';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> implements InitializingBean {
 
@@ -96,6 +98,12 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     }
   }
 
+  handleMatch(mapping: RequestMappingInfo, request: HttpServletRequest) {
+    const produces = mapping.produces || [];
+    const mediaTypes = produces.map((m) => new MediaType(m));
+    request.setAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, mediaTypes);
+  }
+
   match(registraction: MappingRegistration<RequestMappingInfo>, path: string, request: HttpServletRequest): HandlerMethod {
     const mapping = registraction.getMapping();
     const handlerMethod = registraction.getHandlerMethod();
@@ -108,7 +116,9 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
       if (result && mapping.method[requestMethod]) {
         // 将匹配的路径变量值，设置到pathVariables
         request.pathVariables = result.params;
-        return this.checkRequest(request.servletContext, mapping, handlerMethod, requestMethod);
+        const handler = this.checkRequest(request.servletContext, mapping, handlerMethod, requestMethod);
+        this.handleMatch(mapping, request);
+        return handler;
       }
     }
   }

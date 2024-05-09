@@ -4,8 +4,8 @@ import { BeanFactory } from "../../../ioc/factory/BeanFactory";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
 import ServletContext from "../../http/ServletContext";
 import MethodParameter from "../../method/MethodParameter";
-import ModelAndViewMethodReturnValueHandler from "../../method/return/ModelAndViewMethodReturnValueHandler";
 import ModelAndView from "../../models/ModelAndView";
+import ViewRender from "../../view/ViewRender";
 import ViewResolverRegistry from "../../view/ViewResolverRegistry";
 import DefaultErrorAttributes from "./DefaultErrorAttributes";
 import ErrorAttributes from "./ErrorAttributes";
@@ -45,10 +45,9 @@ export default class InternalErrorHandler {
   }
 
   handleErrorHtml(servletContext: ServletContext) {
-    const handler = new ModelAndViewMethodReturnValueHandler(this.registry);
     const data = this.errorAttributes.getErrorAttributes(servletContext);
     const mv = new ModelAndView("error", data);
-    const returnType = new MethodParameter(InternalErrorHandler, "handleErrorHtml", "", -1, mv.constructor);
-    return handler.handleReturnValue(mv, returnType, servletContext);
+    const render = new ViewRender(this.registry);
+    return render.render(mv,servletContext);
   }
 }

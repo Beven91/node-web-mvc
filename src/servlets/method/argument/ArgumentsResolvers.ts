@@ -4,7 +4,7 @@
  */
 import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../MethodParameter";
-import RequestResponseBodyMethodProcessor from './RequestResponseBodyMethodProcessor';
+import RequestResponseBodyMethodProcessor from '../processor/RequestResponseBodyMethodProcessor';
 import HandlerMethodArgumentResolver from './HandlerMethodArgumentResolver';
 import RequestParamMapMethodArgumentResolver from './RequestParamMapMethodArgumentResolver';
 import RequestHeaderMapMethodArgumentResolver from './RequestHeaderMapMethodArgumentResolver';
@@ -20,6 +20,7 @@ import ValueConvertError from '../../../errors/ValueConvertError';
 import ArgumentConvertError from '../../../errors/ArgumentConvertError';
 import MultipartFile from '../../http/MultipartFile';
 import Javascript from '../../../interface/Javascript';
+import ModelAttributeMethodProcessor from '../processor/ModelAttributeMethodProcessor';
 
 export default class ArgumentsResolvers {
 
@@ -35,6 +36,7 @@ export default class ArgumentsResolvers {
       new PathVariableMapMethodArgumentResolver(),
       new RequestHeaderMapMethodArgumentResolver(),
       new RequestParamMapMethodArgumentResolver(false),
+      new ModelAttributeMethodProcessor(),
       new RequestResponseBodyMethodProcessor(this.messageConverter),
       new ServletContextMethodArgumentResolver(),
     ];

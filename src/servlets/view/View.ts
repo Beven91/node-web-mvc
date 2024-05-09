@@ -21,5 +21,5 @@ export default abstract class View {
    * @param request 当前视图
    * @param response 
    */
-  abstract render(model, request: HttpServletRequest, response: HttpServletResponse)
+  abstract render(model, request: HttpServletRequest, response: HttpServletResponse): Promise<void>
 }

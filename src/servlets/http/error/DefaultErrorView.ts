@@ -5,7 +5,7 @@ import View from "../../view/View";
 
 @Component("error")
 export default class DefaultErrorView extends View {
-  render(model: any, request: HttpServletRequest, response: HttpServletResponse) {
+  async render(model: any, request: HttpServletRequest, response: HttpServletResponse) {
     const template = `
     <html>
       <head></head>

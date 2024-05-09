@@ -1,6 +1,6 @@
 import MethodParameter from "../MethodParameter"
 import ServletContext from "../../http/ServletContext"
-import HandlerMethod from "../HandlerMethod"
+import ModelAndViewContainer from "../../models/ModelAndViewContainer"
 
 export default interface HandlerMethodReturnValueHandler {
 
@@ -16,5 +16,5 @@ export default interface HandlerMethodReturnValueHandler {
    * @param returnType 返回值参数类型
    * @param servletContext 请求上下文
    */
-  handleReturnValue(returnValue: any, returnType: MethodParameter, servletContext: ServletContext, handler: HandlerMethod): Promise<void>
+  handleReturnValue(returnValue: any, returnType: MethodParameter, servletContext: ServletContext, mavContainer: ModelAndViewContainer): Promise<void>
 }

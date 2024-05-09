@@ -17,7 +17,7 @@ import HandlerExceptionResolver from '../method/exception/HandlerExceptionResolv
 import HandlerExceptionResolverComposite from '../method/exception/HandlerExceptionResolverComposite';
 import ResponseStatusExceptionResolver from '../method/exception/ResponseStatusExceptionResolver';
 import DefaultHandlerExceptionResolver from '../method/exception/DefaultHandlerExceptionResolver';
-import RequestMappingHandlerAdapter from '../method/RequestMappingHandlerAdapter';
+import RequestMappingHandlerAdapter from '../mapping/RequestMappingHandlerAdapter';
 import HandlerMethodReturnValueHandler from '../method/return/HandlerMethodReturnValueHandler';
 import ModelAndViewMethodReturnValueHandler from '../method/return/ModelAndViewMethodReturnValueHandler';
 import RequestResponseBodyMethodProcessor from '../method/processor/RequestResponseBodyMethodProcessor';
@@ -26,6 +26,7 @@ import InternalErrorHandler from '../http/error/InternalErrorHandler';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
 import HttpRequestHandlerAdapter from '../http/HttpRequestHandlerAdapter';
 import HttpEntityMethodProcessor from '../method/processor/HttpEntityMethodProcessor';
+import ModelAttributeMethodProcessor from '../method/processor/ModelAttributeMethodProcessor';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
@@ -80,9 +81,11 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     if (!this.returnvalueHandlers) {
       const messageConverters = this.getMessageConverters();
       this.returnvalueHandlers = [
-        new ModelAndViewMethodReturnValueHandler(this.mvcViewResolver()),
+        new ModelAndViewMethodReturnValueHandler(),
         new HttpEntityMethodProcessor(messageConverters),
+        new ModelAttributeMethodProcessor(),
         new RequestResponseBodyMethodProcessor(messageConverters),
+        new ModelAttributeMethodProcessor(false)
       ];
       this.addReturnValueHandlers?.(this.returnvalueHandlers);
     }

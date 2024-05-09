@@ -3,11 +3,12 @@ import ResponseStatus from "../../annotations/ResponseStatus";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
 import HttpStatus from "../../http/HttpStatus";
 import ServletContext from "../../http/ServletContext";
+import ModelAndView from "../../models/ModelAndView";
 import HandlerMethod from "../HandlerMethod";
 import HandlerExceptionResolver from "./HandlerExceptionResolver";
 
 export default class ResponseStatusExceptionResolver implements HandlerExceptionResolver {
-  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<boolean> {
+  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView> {
     try {
       if (error instanceof ResponseStatusException) {
         return this.resolveResponseStatusException(servletContext, handler, error);
@@ -21,7 +22,7 @@ export default class ResponseStatusExceptionResolver implements HandlerException
       console.warn(`${ResponseStatusExceptionResolver.name} resolveException failure`);
       console.warn(ex);
     }
-    return false;
+    return null;
   }
 
   private resolveResponseStatusException(servletContext: ServletContext, handler: HandlerMethod, error: ResponseStatusException) {
@@ -36,6 +37,6 @@ export default class ResponseStatusExceptionResolver implements HandlerException
   private resolveResponseStatus(code: number, message: string, servletContext: ServletContext, handler: HandlerMethod, error: Error) {
     const response = servletContext.response;
     response.sendError(new HttpStatus(code,message));
-    return true;
+    return new ModelAndView();
   }
 }

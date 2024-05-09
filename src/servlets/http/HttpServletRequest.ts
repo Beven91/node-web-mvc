@@ -86,8 +86,8 @@ export default class HttpServletRequest {
    * 获取属性值
    * @param name 属性名称 
    */
-  public getAttribute(name) {
-    return this.params.get(name);
+  public getAttribute<T = any>(name) {
+    return this.params.get(name) as T;
   }
 
   /**

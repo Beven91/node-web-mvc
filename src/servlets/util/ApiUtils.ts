@@ -13,13 +13,18 @@ export const isSimpleValueType = (type: any) => {
     type === undefined ||
     type === null ||
     Number.isNaN(type) ||
-    type === Number || 
-    type == String || 
-    type === Date || 
-    type == URL || 
-    type == Boolean || 
+    type === Number ||
+    type == String ||
+    type === Date ||
+    type == URL ||
+    type == Boolean ||
     type == RegExp ||
     type == BigInt ||
     type == Math
   );
+}
+
+export const getVariableName = (type: Function) => {
+  const beanName = String(type?.name);
+  return beanName.slice(0, 1).toLowerCase() + beanName.slice(1, beanName.length);
 }

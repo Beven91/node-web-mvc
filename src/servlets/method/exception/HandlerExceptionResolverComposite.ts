@@ -1,4 +1,5 @@
 import ServletContext from "../../http/ServletContext";
+import ModelAndView from "../../models/ModelAndView";
 import HandlerMethod from "../HandlerMethod";
 import HandlerExceptionResolver from "./HandlerExceptionResolver";
 
@@ -14,12 +15,12 @@ export default class HandlerExceptionResolverComposite implements HandlerExcepti
     return this.exceptionResolvers || [];
   }
 
-  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<boolean> {
+  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView> {
     for (let resolver of this.getExceptionResolvers()) {
-      const isHandled = await resolver.resolveException(servletContext, handler, error);
-      if (isHandled) {
+      const mv = await resolver.resolveException(servletContext, handler, error);
+      if (mv) {
         console.info(`${resolver.constructor.name}: Resolved ${error.message}`)
-        return isHandled;
+        return mv;
       }
     }
   }

@@ -3,6 +3,8 @@ import ControllerAdvice from "../../annotations/ControllerAdvice";
 import ExceptionHandler from "../../annotations/ExceptionHandler";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
 import ServletContext from "../../http/ServletContext";
+import ModelAndView from "../../models/ModelAndView";
+import ModelAndViewContainer from "../../models/ModelAndViewContainer";
 import HandlerMethod from "../HandlerMethod";
 import ServletInvocableHandlerMethod from "../ServletInvocableHandlerMethod";
 import HandlerMethodReturnValueHandler from "../return/HandlerMethodReturnValueHandler";
@@ -21,6 +23,7 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
 
   async resolveException(servletContext: ServletContext, handlerMethod: HandlerMethod, error: Error) {
     try {
+      const mavContainer = new ModelAndViewContainer();
       const adviceAnnotation = RuntimeAnnotation.getAnnotations(ControllerAdvice)[0];
       const globalAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, adviceAnnotation?.ctor);
       const scopeAnnotation = RuntimeAnnotation.getAnnotation(ExceptionHandler, handlerMethod?.beanType);
@@ -31,13 +34,19 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
         const exceptionHandlerMethod = new ServletInvocableHandlerMethod(handlerMethod);
         exceptionHandlerMethod.setReturnValueHandlers(this.returnValueHandlers);
         // 自定义异常处理
-        await exceptionHandlerMethod.invoke(servletContext, error);
-        return servletContext.isRequestHandled;
+        await exceptionHandlerMethod.invoke(servletContext, mavContainer, [error]);
+
+        if (mavContainer.requestHandled) {
+          // 如果请求已处理
+          return new ModelAndView();
+        }
+        return new ModelAndView(mavContainer.view, mavContainer.model, mavContainer.status);
       }
     } catch (ex) {
       console.warn(`${ExceptionHandlerExceptionResolver.name} resolveException failure:`);
       console.warn(ex);
     }
-    return false;
+
+    return null;
   }
 }

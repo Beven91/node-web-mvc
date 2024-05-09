@@ -6,6 +6,8 @@
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 import ServletContext from '../http/ServletContext';
 
+export const PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE = 'HandlerMapping.producibleMediaTypes';
+
 export default interface HandlerMapping {
 
   /**

@@ -2,44 +2,22 @@ import MethodParameter from "../MethodParameter";
 import ServletContext from "../../http/ServletContext";
 import HandlerMethodReturnValueHandler from "./HandlerMethodReturnValueHandler";
 import ModelAndView from "../../models/ModelAndView";
-import View from "../../view/View";
-import ViewNotFoundError from "../../../errors/ViewNotFoundError";
-import ViewResolverRegistry from "../../view/ViewResolverRegistry";
+import ModelAndViewContainer from "../../models/ModelAndViewContainer";
 
 export default class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
-
-  private readonly registry: ViewResolverRegistry
-
-  constructor(registry: ViewResolverRegistry) {
-    this.registry = registry;
-  }
 
   supportsReturnType(returnType: MethodParameter): boolean {
     return returnType.isParamAssignableOf(ModelAndView);
   }
 
-  async handleReturnValue(mv: ModelAndView, returnType: MethodParameter, servletContext: ServletContext): Promise<void> {
-    const { request, response } = servletContext;
+  async handleReturnValue(mv: ModelAndView, returnType: MethodParameter, servletContext: ServletContext, mavContainer: ModelAndViewContainer): Promise<void> {
+    const { response } = servletContext;
     if (response.headersSent) {
       // 如果前置流程已处理了返回
       return;
     }
-    // 查找视图
-    const view = this.resolveView(mv, servletContext);
-    // 渲染视图
-    view.render(mv.model, request, response);
-  }
-
-  private resolveView(mv: ModelAndView, servletContext: ServletContext): View {
-    const { request } = servletContext;
-    const viewResolvers = this.registry.viewResolvers;
-    for (let resolver of viewResolvers) {
-      const view = resolver.resolveViewName(mv.view, mv.model, request);
-      if (view) {
-        return view;
-      }
-    }
-    // 如果没有查到视图，则抛出异常
-    throw new ViewNotFoundError(mv.view);
+    mavContainer.status = mv.status;
+    mavContainer.view = mv.view;
+    mavContainer.addAllAttributes(mv.model);
   }
 }

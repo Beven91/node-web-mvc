@@ -52,7 +52,7 @@ export default class HttpServletResponse {
   }
 
   private writeStatus() {
-    if (!this.headersSent) {
+    if (!this.nativeResponse.headersSent) {
       this.nativeResponse.writeHead(this.tempStatusCode, this.tempStatusMessage);
     }
   }

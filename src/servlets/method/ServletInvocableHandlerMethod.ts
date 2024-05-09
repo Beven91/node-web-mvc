@@ -1,5 +1,6 @@
 import HttpStatus from "../http/HttpStatus";
 import ServletContext from "../http/ServletContext";
+import ModelAndViewContainer from "../models/ModelAndViewContainer";
 import HandlerMethod from "./HandlerMethod";
 import MethodParameter from "./MethodParameter";
 import HandlerMethodReturnValueHandler from "./return/HandlerMethodReturnValueHandler";
@@ -24,34 +25,39 @@ export default class ServletInvocableHandlerMethod {
   /**
    * 执行方法
    */
-  public async invoke(servletContext: ServletContext, ...args: any[]) {
+  public async invoke(servletContext: ServletContext, mavContainer: ModelAndViewContainer, args: any[]) {
     const handlerMethod = this.handlerMethod;
     if (!handlerMethod.method) {
       return null;
     }
+    const response = servletContext.response;
     const bean = handlerMethod.bean || NOOP;
     // 优先从实例中获取method 用于支持aop代理
     const method = bean[handlerMethod.methodName] || handlerMethod.method;
     const returnValue = await Promise.resolve(method.call(bean, ...args));
     this.setResponseStatus(servletContext);
+    // 设置请求是否已处理
+    mavContainer.requestHandled = response.headersSent;
+    mavContainer.status = response.status;
     // 如果response已处理结束
-    if (servletContext.response.headersSent) {
+    if (response.headersSent) {
       return null;
     }
     // 如果通过ResponseStatus指定了返回状态原因,则不执行返回处理
     if (handlerMethod.responseStatusReason) {
       return;
     }
-    if (!!returnValue) {
+    if (!returnValue) {
       // 如果是不执行任何操作
       return null;
     }
     const returnType = new MethodParameter(handlerMethod.beanType, handlerMethod.methodName, '', -1, returnValue?.constructor);
     const returnHandlers = new HandlerMethodReturnValueHandlerComposite(this.returnvalueHandlers);
-    await returnHandlers.handleReturnValue(returnValue, returnType, servletContext, handlerMethod);
+    await returnHandlers.handleReturnValue(returnValue, returnType, servletContext, mavContainer);
+    mavContainer.requestHandled = response.headersSent;
+    mavContainer.status = response.status;
     return returnValue;
   }
-
 
   private setResponseStatus(servletContext: ServletContext) {
     const handlerMethod = this.handlerMethod;

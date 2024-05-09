@@ -60,7 +60,7 @@ export default class MultipartBodyReader extends AbstractBodyReader {
         // 移除临时文件
         fs.unlinkSync(id);
         // 如果超过最大限制，则抛出异常
-        reject(new EntityTooLargeError());
+        reject(new EntityTooLargeError(fieldname, meta.size, this.multipart.maxFileSize));
       });
       // 读取完毕
       file.on('end', () => {

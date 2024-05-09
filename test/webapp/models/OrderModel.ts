@@ -1,5 +1,4 @@
-import { Repository, ApiModel, ApiModelProperty, Autowired, Qualifier } from "../../../src";
-import OrderService, { } from '../services/OrderService'
+import { Repository, ApiModel, ApiModelProperty, Autowired } from "../../../src";
 import Keneral from "./Keneral";
 
 class BaseOrder {

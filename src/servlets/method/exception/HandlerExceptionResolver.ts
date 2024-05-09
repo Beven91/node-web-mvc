@@ -1,4 +1,5 @@
 import ServletContext from "../../http/ServletContext";
+import ModelAndView from "../../models/ModelAndView";
 import HandlerMethod from "../HandlerMethod";
 
 export default interface HandlerExceptionResolver {
@@ -9,5 +10,5 @@ export default interface HandlerExceptionResolver {
    * @param error  当前异常信息
    * @return { Promise<boolean> } 返回 true=表示已解决异常 false=标识没有解决异常
    */
-  resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<boolean>
+  resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView>
 }

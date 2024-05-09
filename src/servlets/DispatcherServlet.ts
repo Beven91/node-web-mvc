@@ -1,6 +1,6 @@
 /**
  * @module DispatcherServlet
- * @description controller请求执行入口
+ * @description 处理http请求
  */
 import ServletContext from './http/ServletContext';
 import HandlerAdapter from './method/HandlerAdapter';
@@ -17,6 +17,9 @@ import AbstractHandlerMapping from './mapping/AbstractHandlerMapping';
 import InternalErrorHandler from './http/error/InternalErrorHandler';
 import HandlerMethod from './method/HandlerMethod';
 import NoHandlerFoundException from '../errors/NoHandlerFoundException';
+import ModelAndView from './models/ModelAndView';
+import ViewResolverRegistry from './view/ViewResolverRegistry';
+import ViewRender from './view/ViewRender';
 
 export default class DispatcherServlet {
 
@@ -28,6 +31,8 @@ export default class DispatcherServlet {
   private exceptionResolver: HandlerExceptionResolverComposite
 
   private readonly appContext: AbstractApplicationContext
+
+  private viewResolverRegistry: ViewResolverRegistry
 
   private fallbackErrorHandler: InternalErrorHandler;
 
@@ -48,10 +53,6 @@ export default class DispatcherServlet {
   private initHandlerMappings() {
     this.handlerMappings = [
       ...this.appContext.getBeanFactory().getBeanOfType(AbstractHandlerMapping),
-      // RouterFunctionMapping  --> FilteredRouterFunctions
-      // AbstractUrlHandlerMapping --> SimpleUrlHandlerMapping
-      // AbstractHandlerMethodMapping --> RequestMappingInfoHandlerMapping --> RequestMappingHandlerMapping
-      // AbstractDetectingUrlHandlerMapping
     ];
   }
 
@@ -74,6 +75,11 @@ export default class DispatcherServlet {
     this.initExceptionResolvers();
     this.initHandlerAdapters();
     this.initErrorHandler();
+    this.initViewResolvers();
+  }
+
+  private initViewResolvers() {
+    this.viewResolverRegistry = this.appContext.getBeanFactory().getBeanOfType(ViewResolverRegistry)[0]
   }
 
   /**
@@ -98,8 +104,10 @@ export default class DispatcherServlet {
 
   async doDispatch(servletContext: ServletContext): Promise<void> {
     let handler = null;
-    const runtime = { error: null } as { error: Error }
+    const runtime = { error: null, mv: null } as { mv: ModelAndView, error: Error }
     const mappedHandler = this.getHandler(servletContext);
+    const request = servletContext.request;
+    const response = servletContext.response;
     try {
       if (!mappedHandler) {
         throw new NoHandlerFoundException(servletContext.request);
@@ -110,8 +118,6 @@ export default class DispatcherServlet {
         // 如果拦截器中断了本次请求
         return;
       }
-      const request = servletContext.request;
-      const response = servletContext.response;
       handler = mappedHandler.getHandler();
       // 获取handler当前执行适配器
       const ha = this.getHandlerAdapter(handler);
@@ -127,17 +133,23 @@ export default class DispatcherServlet {
       const mv = await ha.handle(servletContext, handler);
       // 执行拦截器:postHandler
       await mappedHandler.applyPostHandle(mv);
-      // 判定http status
-      await this.handleHttpStatus(servletContext, handler);
+      runtime.mv = mv;
     } catch (ex) {
       ex = Normalizer.normalizeError(ex);
       runtime.error = ex;
-      await this.handleException(ex, servletContext, handler);
     }
-    process.nextTick(() => {
-      // 执行拦截器: afterCompletion
-      mappedHandler?.applyAfterCompletion?.(runtime.error);
-    });
+    try {
+      if (!response.headersSent && response.hasError) {
+        runtime.error = runtime.error || new HttpStatusError(response.status, request.path);
+      }
+      // 处理结果
+      await this.processDispatchResult(runtime.error, runtime.mv, servletContext, handler);
+    } finally {
+      process.nextTick(() => {
+        // 执行拦截器: afterCompletion
+        mappedHandler?.applyAfterCompletion?.(runtime.error);
+      });
+    }
   }
 
   /**
@@ -146,17 +158,21 @@ export default class DispatcherServlet {
    * @param {ControllerContext} servletContext 请求上下文
    */
   async handleException(error: Error, servletContext: ServletContext, handler: HandlerMethod) {
-    const isHandled = await this.exceptionResolver.resolveException(servletContext, handler, error);
-    if (!isHandled) {
+    const mv = await this.exceptionResolver.resolveException(servletContext, handler, error);
+    if (!mv) {
+      // 如果异常处理器没有解决异常，则直接抛出原始错误
       throw error;
     }
+    return mv.isEmpty() ? null : mv;
   }
 
-  async handleHttpStatus(servletContext: ServletContext, handler: HandlerMethod) {
-    const response = servletContext.response;
-    if (!response.headersSent && response.hasError) {
-      const error = new HttpStatusError(response.status, servletContext.request.path);
-      return this.handleException(error, servletContext, handler);
+  async processDispatchResult(error: Error, mv: ModelAndView, servletContext: ServletContext, handler: HandlerMethod) {
+    if (error) {
+      // 处理异常
+      mv = await this.handleException(error, servletContext, handler);
+    }
+    if (mv) {
+      await new ViewRender(this.viewResolverRegistry).render(mv,servletContext);
     }
   }
 }
