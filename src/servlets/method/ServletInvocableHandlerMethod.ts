@@ -47,10 +47,6 @@ export default class ServletInvocableHandlerMethod {
     if (handlerMethod.responseStatusReason) {
       return;
     }
-    if (!returnValue) {
-      // 如果是不执行任何操作
-      return null;
-    }
     const returnType = new MethodParameter(handlerMethod.beanType, handlerMethod.methodName, '', -1, returnValue?.constructor);
     const returnHandlers = new HandlerMethodReturnValueHandlerComposite(this.returnvalueHandlers);
     await returnHandlers.handleReturnValue(returnValue, returnType, servletContext, mavContainer);

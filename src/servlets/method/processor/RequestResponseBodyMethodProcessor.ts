@@ -1,7 +1,6 @@
 import MethodParameter from "../MethodParameter";
 import ServletContext from "../../http/ServletContext";
 import ResponseBody from "../../annotations/ResponseBody";
-import HandlerMethod from "../HandlerMethod";
 import HttpStatus from "../../http/HttpStatus";
 import RequestBody from "../../annotations/params/RequestBody";
 import AbstractMessageConverterMethodProcessor from "./AbstractMessageConverterMethodProcessor";
@@ -34,7 +33,7 @@ export default class RequestResponseBodyMethodProcessor extends AbstractMessageC
       response.setStatus(HttpStatus.OK);
 
     }
-    if (servletContext.isRequestHandled) {
+    if (!servletContext.isRequestHandled) {
       // 结束返回流
       response.end()
     }
