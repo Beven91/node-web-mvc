@@ -3,6 +3,7 @@ import HttpMethod from "../../http/HttpMethod";
 import HttpRequestValidation from "../../http/HttpRequestValidation";
 import HttpStatus from "../../http/HttpStatus";
 import ServletContext from "../../http/ServletContext";
+import ContentNegotiationManager from "../../http/accept/ContentNegotiationManager";
 import MessageConverter from "../../http/converts/MessageConverter";
 import HttpEntity from "../../models/HttpEntity";
 import RequestEntity from "../../models/RequestEntity";
@@ -12,8 +13,8 @@ import AbstractMessageConverterMethodProcessor from "./AbstractMessageConverterM
 
 export default class HttpEntityMethodProcessor extends AbstractMessageConverterMethodProcessor {
 
-  constructor(messageConverters:MessageConverter) {
-    super(messageConverters);
+  constructor(messageConverters: MessageConverter, contentNegotiationManager: ContentNegotiationManager) {
+    super(messageConverters, contentNegotiationManager);
   }
 
   supportsReturnType(returnType: MethodParameter): boolean {

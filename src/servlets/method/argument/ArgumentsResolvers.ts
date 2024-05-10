@@ -21,6 +21,7 @@ import ArgumentConvertError from '../../../errors/ArgumentConvertError';
 import MultipartFile from '../../http/MultipartFile';
 import Javascript from '../../../interface/Javascript';
 import ModelAttributeMethodProcessor from '../processor/ModelAttributeMethodProcessor';
+import ContentNegotiationManager from '../../http/accept/ContentNegotiationManager';
 
 export default class ArgumentsResolvers {
 
@@ -30,14 +31,14 @@ export default class ArgumentsResolvers {
 
   private readonly messageConverter: MessageConverter
 
-  constructor(messageConverter: MessageConverter) {
+  constructor(messageConverter: MessageConverter, contentNegotialManager: ContentNegotiationManager) {
     this.messageConverter = messageConverter;
     this.registerResolvers = [
       new PathVariableMapMethodArgumentResolver(),
       new RequestHeaderMapMethodArgumentResolver(),
       new RequestParamMapMethodArgumentResolver(false),
       new ModelAttributeMethodProcessor(),
-      new RequestResponseBodyMethodProcessor(this.messageConverter),
+      new RequestResponseBodyMethodProcessor(this.messageConverter, contentNegotialManager),
       new ServletContextMethodArgumentResolver(),
     ];
     this.fallbackResolvers = [

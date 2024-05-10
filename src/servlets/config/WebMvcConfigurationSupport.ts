@@ -27,6 +27,7 @@ import { BeanFactory } from '../../ioc/factory/BeanFactory';
 import HttpRequestHandlerAdapter from '../http/HttpRequestHandlerAdapter';
 import HttpEntityMethodProcessor from '../method/processor/HttpEntityMethodProcessor';
 import ModelAttributeMethodProcessor from '../method/processor/ModelAttributeMethodProcessor';
+import ContentNegotiationManager from '../http/accept/ContentNegotiationManager';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
@@ -35,6 +36,8 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   private argumentResolvers: ArgumentsResolvers
 
   private returnvalueHandlers: HandlerMethodReturnValueHandler[]
+
+  private contentNegotiationManager: ContentNegotiationManager
 
   private viewResolvers: ViewResolverRegistry
 
@@ -71,7 +74,8 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   private getArgumentResolvers() {
     if (!this.argumentResolvers) {
-      this.argumentResolvers = new ArgumentsResolvers(this.getMessageConverters());
+      const contentNegotiationManager = this.mvcContentNegotiationManager();
+      this.argumentResolvers = new ArgumentsResolvers(this.getMessageConverters(), contentNegotiationManager);
       this.addArgumentResolvers?.(this.argumentResolvers);
     }
     return this.argumentResolvers;
@@ -80,11 +84,12 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   private getReturnValueHandlers() {
     if (!this.returnvalueHandlers) {
       const messageConverters = this.getMessageConverters();
+      const contentNegotiationManager = this.mvcContentNegotiationManager();
       this.returnvalueHandlers = [
         new ModelAndViewMethodReturnValueHandler(),
-        new HttpEntityMethodProcessor(messageConverters),
+        new HttpEntityMethodProcessor(messageConverters, contentNegotiationManager),
         new ModelAttributeMethodProcessor(),
-        new RequestResponseBodyMethodProcessor(messageConverters),
+        new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager),
         new ModelAttributeMethodProcessor(false)
       ];
       this.addReturnValueHandlers?.(this.returnvalueHandlers);
@@ -98,6 +103,15 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
       this.configureViewResolvers?.(this.viewResolvers);
     }
     return this.viewResolvers;
+  }
+
+  @Bean
+  mvcContentNegotiationManager() {
+    if (!this.contentNegotiationManager) {
+      // 暂不实现configureContentNegotiation
+      this.contentNegotiationManager = new ContentNegotiationManager();
+    }
+    return this.contentNegotiationManager;
   }
 
   @Bean

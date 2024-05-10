@@ -25,9 +25,9 @@ export default {
     const uRL = new URL(origin, `xx://127.0.0.0`);
     const isSameOrigin = (
       // 协议相等
-      isEqual(request.protocol, uRL.protocol) &&
+      isEqual(request.protocol, uRL.protocol.replace(':', '')) &&
       // 域名相等
-      isEqual(request.host, uRL.host) &&
+      isEqual(request.host, uRL.hostname) &&
       // 端口相等
       isEqual(request.port, uRL.port)
     )

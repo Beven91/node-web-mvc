@@ -133,6 +133,9 @@ export { default as ResponseStatusExceptionResolver } from './servlets/method/ex
 export { default as HandlerMethodReturnValueHandler } from './servlets/method/return/HandlerMethodReturnValueHandler';
 export { default as ModelAndViewMethodReturnValueHandler } from './servlets/method/return/ModelAndViewMethodReturnValueHandler';
 export { default as RequestResponseBodyMethodProcessor } from './servlets/method/processor/RequestResponseBodyMethodProcessor';
+export { default as AbstractMessageConverterMethodProcessor } from './servlets/method/processor/AbstractMessageConverterMethodProcessor';
+export { default as HttpEntityMethodProcessor } from './servlets/method/processor/HttpEntityMethodProcessor';
+export { default as ModelAttributeMethodProcessor } from './servlets/method/processor/ModelAttributeMethodProcessor';
 export { default as DefaultErrorView } from './servlets/http/error/DefaultErrorView';
 export { default as ByteArrayResource } from './servlets/resources/ByteArrayResource';
 export { default as ByteArrayInputStream } from './servlets/resources/ByteArrayInputStream';
@@ -181,6 +184,8 @@ export { default as CorsConfiguration } from './servlets/cors/CorsConfiguration'
 export { default as CorsConfigurationSource } from './servlets/cors/CorsConfigurationSource';
 export { default as CorsProcessor } from './servlets/cors/CorsProcessor';
 export { default as DefaultCorsProcessor } from './servlets/cors/DefaultCorsProcessor';
-
+export { default as ContentNegotiationManager } from './servlets/http/accept/ContentNegotiationManager';
+export { default as ContentNegotiationStrategy } from './servlets/http/accept/ContentNegotiationStrategy';
+export { default as HeaderContentNegotiationStrategy } from './servlets/http/accept/HeaderContentNegotiationStrategy';
 
 hot.create(module);

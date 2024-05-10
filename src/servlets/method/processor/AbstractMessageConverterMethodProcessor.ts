@@ -6,6 +6,7 @@ import MessageConverter from "../../http/converts/MessageConverter";
 import MediaType from "../../http/MediaType";
 import HttpMediaTypeNotAcceptableException from "../../../errors/HttpMediaTypeNotAcceptableException";
 import { PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE } from "../../mapping/HandlerMapping";
+import ContentNegotiationManager from "../../http/accept/ContentNegotiationManager";
 
 const ALL_APPLICATION_MEDIA_TYPES = [
   MediaType.ALL,
@@ -16,8 +17,11 @@ export default abstract class AbstractMessageConverterMethodProcessor implements
 
   private readonly messageConverters: MessageConverter;
 
-  constructor(messageConverters: MessageConverter) {
+  private readonly contentNegotiationManager: ContentNegotiationManager;
+
+  constructor(messageConverters: MessageConverter, contentNegotiationManager: ContentNegotiationManager) {
     this.messageConverters = messageConverters;
+    this.contentNegotiationManager = contentNegotiationManager;
   }
 
   abstract supportsReturnType(returnType: MethodParameter): boolean
@@ -58,8 +62,7 @@ export default abstract class AbstractMessageConverterMethodProcessor implements
   }
 
   private selectMediaType(servletContext: ServletContext, data: any) {
-    const accept = servletContext.request.headers['accept'] || '';
-    const requestedTypes = accept.split(',').map((type) => new MediaType(type));
+    const requestedTypes = this.contentNegotiationManager.resolveMediaTypes(servletContext.request);
     const dataType = data?.constructor;
     const producibleTypes = this.getProducibleMediaTypes(servletContext, dataType);
     const mediaTypesToUse: MediaType[] = [];
