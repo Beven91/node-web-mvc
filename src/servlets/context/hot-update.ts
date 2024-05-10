@@ -28,7 +28,7 @@ export default function hotUpdate(
         }
       }
     })
-    .postend((a) => {
+    .allDone((a) => {
       const beanFactory = getBeanFactory();
       // console.log('removeKeys', removeKeys);
       removeKeys.forEach((key) => {
