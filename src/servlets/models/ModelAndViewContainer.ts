@@ -25,7 +25,7 @@ export default class ModelAndViewContainer {
   }
 
   addAllAttributes(attributes: object) {
-    if (attributes) return;
+    if (!attributes) return;
     Object.keys(attributes).forEach((key) => {
       this.model[key] = attributes[key];
     })
@@ -36,7 +36,7 @@ export default class ModelAndViewContainer {
   }
 
   mergeAttributes(attributes: object) {
-    if (attributes) return;
+    if (!attributes) return;
     Object.keys(attributes).forEach((key) => {
       if (!this.containAttribute(key)) {
         this.model[key] = attributes[key];
