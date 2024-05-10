@@ -37,7 +37,6 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    * @param servletRequest
    */
   async read(servletContext: ServletContext) {
-    console.log('read xml....')
     const buffer = await servletContext.request.readBodyAsBuffer();
     return new Promise((resolve, reject) => {
       xml2js.parseString(buffer.toString('utf8'), (err, data) => {

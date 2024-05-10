@@ -1,4 +1,5 @@
 import path from 'path';
+import OrderModel from './webapp/models/OrderModel';
 import { ViewResolverRegistry, WebMvcConfigurationSupport } from "../src";
 import AdminInterceptor from './webapp/interceptor/AdminInterceptor';
 import EncodeInterceptor from './webapp/interceptor/EncodeInterceptor';

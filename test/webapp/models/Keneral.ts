@@ -4,8 +4,6 @@ import ApiModelProperty from '../../../src/swagger/annotations/ApiModelProperty'
 import OrderService from '../services/OrderService';
 import OrderModel from './OrderModel';
 
-export const score = 121;
-
 @Component
 @ApiModel({ value: 'KeneralV2', description: '我的数据' })
 export default class Keneral {

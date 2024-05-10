@@ -1,10 +1,10 @@
 import { ServletContext,MethodParameter, HandlerMethodArgumentResolver } from '../../../src/index';
-import UserIdAnnotation from '../annotations/UserId';
+import UserId from '../annotations/UserId';
 
 export default class UserIdArgumentResolver implements HandlerMethodArgumentResolver {
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    return paramater.hasParameterAnnotation(UserIdAnnotation)
+    return paramater.hasParameterAnnotation(UserId)
   }
 
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {

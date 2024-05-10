@@ -19,7 +19,7 @@ export default class OrderModel extends BaseOrder {
 
   constructor() {
     super();
-    this.orderId = 100086;
+    this.orderId = 10086;
     this.orderType = OrderType.STMP;
   }
 
