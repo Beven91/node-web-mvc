@@ -3,12 +3,12 @@ import Exception from "./Exception";
 
 export default class BeanPropertyCreationException extends Exception {
 
-  constructor(definition: BeanDefinition, beanName: string, property: string, reason?: string) {
+  constructor(definition: BeanDefinition, beanName: string, property: string, reason: string) {
     super([
-      `Bean property create fail${reason ? ' ' + reason : ''}`,
+      `Bean property create fail`,
       '┌─────┐',
       `    bean: (${beanName}) ${definition.path}`,
-      `    property: (${property}) --> beanName is null`,
+      `    property: (${property}) --> ${reason}`,
       '└─────┘',
     ].join('\n'));
   }

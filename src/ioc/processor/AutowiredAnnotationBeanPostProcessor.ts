@@ -33,7 +33,7 @@ export default class AutowiredAnnotationBeanPostProcessor extends InstantiationA
       const optional = componentAnno.required === false;
       const clazzType = getBeanTypeByAnnotation(annotation);
       if (!clazzType) {
-        throw new BeanPropertyCreationException(definition, beanName, proprty, `because proprty(${proprty})'beanName is null`);
+        throw new BeanPropertyCreationException(definition, beanName, proprty, `beanName is null`);
       }
       pvs.push({
         optional,

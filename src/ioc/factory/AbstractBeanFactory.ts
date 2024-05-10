@@ -336,7 +336,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     properties.forEach((p) => {
       const value = p.value;
       if (p.optional === false && (value === null || value === undefined)) {
-        throw new BeanPropertyCreationException(definition, beanName, p.name);
+        throw new BeanPropertyCreationException(definition, beanName, p.name, 'get bean null');
       }
       if (typeof value === 'function') {
         // 如果是一个函数，则表示用作getter 可用于解决循环依赖
