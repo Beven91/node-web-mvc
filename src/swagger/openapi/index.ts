@@ -176,6 +176,7 @@ export default class OpenApiModel {
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiImplicitParams);
     const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
     const parameterNames = action.parameters;
+    const paramTypes = action.paramTypes;
     const finalParameters = parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ParamAnnotation);
@@ -192,7 +193,7 @@ export default class OpenApiModel {
         example: emptyOf(parameter.example, parameter2?.defaultValue),
         description: parameter.description || undefined,
         in: parameter2?.getParamAt() || 'query',
-        dataType: emptyOf(parameter.dataType, parameterAnno?.dataType) || operationAnno?.paramTypes?.[i],
+        dataType: emptyOf(parameter.dataType, parameterAnno?.dataType) || paramTypes[i] || operationAnno?.paramTypes?.[i],
         type: '',
         schema: {
           $ref: null,

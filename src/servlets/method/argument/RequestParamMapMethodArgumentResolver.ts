@@ -7,7 +7,7 @@ import MethodParameter from "../MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 import RequestParam from '../../annotations/params/RequestParam';
 import MultipartFile from '../../http/MultipartFile';
-import { isMultipartFiles } from '../../util/ApiUtils';
+import { isEmpty, isMultipartFiles } from '../../util/ApiUtils';
 
 export default class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -46,6 +46,12 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
       return this.resolveMultipartFile(name, servletContext);
     } else if (parameter.isParamAssignableOf(Map)) {
       return { ...query };
+    } else if (parameter.isParamAssignableOf(Array) || parameter.isParamAssignableOf(Set)) {
+      const v = query[name];
+      if (isEmpty(v)) {
+        return null;
+      }
+      return v instanceof Array ? v : [v];
     }
     return query[name];
   }
