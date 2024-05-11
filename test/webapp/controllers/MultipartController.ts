@@ -52,7 +52,7 @@ export default class MultipartController {
     { name: 'name', description: '用户id' }
   ])
   @PostMapping('/upload2')
-  async upload2(@RequestPart files: Array<MultipartFile>, name: string) {
+  async upload2(@RequestParam files: Array<MultipartFile>, name: string) {
     console.log(files[0].size)
     for (let file of files) {
       await file.transferTo('app_data/images/' + file.name)

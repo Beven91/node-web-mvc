@@ -4,6 +4,7 @@ import ResponseBody from "../../annotations/ResponseBody";
 import HttpStatus from "../../http/HttpStatus";
 import RequestBody from "../../annotations/params/RequestBody";
 import AbstractMessageConverterMethodProcessor from "./AbstractMessageConverterMethodProcessor";
+import RequestPart from "../../annotations/params/RequestPart";
 
 export default class RequestResponseBodyMethodProcessor extends AbstractMessageConverterMethodProcessor {
 

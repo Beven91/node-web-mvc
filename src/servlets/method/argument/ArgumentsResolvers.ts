@@ -22,6 +22,7 @@ import MultipartFile from '../../http/MultipartFile';
 import Javascript from '../../../interface/Javascript';
 import ModelAttributeMethodProcessor from '../processor/ModelAttributeMethodProcessor';
 import ContentNegotiationManager from '../../http/accept/ContentNegotiationManager';
+import RequestPartArgumentResolver from './RequestPartArgumentResolver';
 
 export default class ArgumentsResolvers {
 
@@ -37,6 +38,7 @@ export default class ArgumentsResolvers {
       new PathVariableMapMethodArgumentResolver(),
       new RequestHeaderMapMethodArgumentResolver(),
       new RequestParamMapMethodArgumentResolver(false),
+      new RequestPartArgumentResolver(),
       new ModelAttributeMethodProcessor(),
       new RequestResponseBodyMethodProcessor(this.messageConverter, contentNegotialManager),
       new ServletContextMethodArgumentResolver(),
@@ -71,7 +73,7 @@ export default class ArgumentsResolvers {
         const hasNotValue = finalValue === null || finalValue === undefined;
         if (anno?.required && hasNotValue) {
           // 如果缺少参数
-          const message = `Required request parameter: ${parameter.paramName} for method parameter type ${parameter.parameterType.name} is not present @${handler.beanTypeName}.${handler.methodName}`
+          const message = `required request parameter: ${parameter.paramName} for method parameter type ${parameter.parameterType.name} is not present @${handler.beanTypeName}.${handler.methodName}`
           throw new ArgumentResolvError(message, parameter.paramName);
         }
         if (finalValue instanceof MultipartFile && Javascript.getClass(parameter.parameterType).isEqualOrExtendOf(Array)) {

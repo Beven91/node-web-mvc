@@ -6,8 +6,8 @@ import ServletContext from '../../http/ServletContext';
 import MethodParameter from "../MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 import RequestParam from '../../annotations/params/RequestParam';
-import RequestPart from '../../annotations/params/RequestPart';
 import MultipartFile from '../../http/MultipartFile';
+import { isMultipartFiles } from '../../util/ApiUtils';
 
 export default class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
 
@@ -18,7 +18,7 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
   }
 
   supportsParameter(paramater: MethodParameter, servletContext: ServletContext) {
-    if (paramater.hasParameterAnnotation(RequestParam) || paramater.hasParameterAnnotation(RequestPart)) {
+    if (paramater.hasParameterAnnotation(RequestParam)) {
       return true;
     } else if (paramater.isParamAssignableOf(MultipartFile)) {
       return true;
@@ -27,12 +27,24 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
     }
   }
 
+  async resolveMultipartFile(name: string, servletContext: ServletContext) {
+    const body = await servletContext.request.bodyReader.read(servletContext);
+    const value = body[name];
+    if (isMultipartFiles(value)) {
+      return value;
+    }
+    return null;
+  }
+
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext): Promise<any> {
-    const anno = parameter.getParameterAnnotation(RequestParam) || parameter.getParameterAnnotation(RequestPart);
+    const anno = parameter.getParameterAnnotation(RequestParam);
     const { request } = servletContext;
     const name = anno?.value || parameter.paramName;
     const query = request.query;
-    if (parameter.isParamAssignableOf(Map)) {
+    // TODO :需要识别泛型 MultipartFile[]
+    if (parameter.isParamAssignableOf(MultipartFile)) {
+      return this.resolveMultipartFile(name, servletContext);
+    } else if (parameter.isParamAssignableOf(Map)) {
       return { ...query };
     }
     return query[name];

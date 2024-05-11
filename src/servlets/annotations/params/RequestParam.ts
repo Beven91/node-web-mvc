@@ -9,6 +9,8 @@ import ElementType from '../annotation/ElementType';
 
 class RequestParam extends ParamAnnotation {
 
+  file?: boolean
+
   constructor() {
     super('query');
   }

@@ -1,3 +1,5 @@
+import { Multipart } from "../config/WebAppConfigurerOptions";
+import MultipartFile from "../http/MultipartFile";
 
 export const isEmpty = (v: any) => v === undefined || v === null || v === '';
 
@@ -27,4 +29,10 @@ export const isSimpleValueType = (type: any) => {
 export const getVariableName = (type: Function) => {
   const beanName = String(type?.name);
   return beanName.slice(0, 1).toLowerCase() + beanName.slice(1, beanName.length);
+}
+
+export const isMultipartFiles = (value: any) => {
+  const v = value instanceof Array ? value : [value];
+  return v.find((m) => !(m instanceof MultipartFile)) == null;
+
 }

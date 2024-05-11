@@ -209,6 +209,14 @@ export default class HttpServletRequest {
     return v instanceof Array ? v : isEmpty(v) ? [] : [v];
   }
 
+  public getHeaderSingleValue(name: string) {
+    const v = this.getHeader(name);
+    if (v instanceof Array) {
+      return v[0];
+    }
+    return v;
+  }
+
   public getDateHeader(name) {
     const v = this.getHeader(name);
     if (v) {
