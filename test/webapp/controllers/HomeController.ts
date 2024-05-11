@@ -143,7 +143,7 @@ export default class HomeController {
 
   @ApiOperation({ value: '@PathVariable 测试' })
   @GetMapping('/path/{id}')
-  path(@PathVariable id: string) {
+  path(@PathVariable id: number) {
     return 'home/index...' + id;
   }
 

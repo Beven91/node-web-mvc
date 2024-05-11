@@ -187,12 +187,14 @@ export default class OpenApiModel {
         return;
       }
       const value = emptyOf(parameter.value, parameter2?.value) || emptyOf(parameter.name, parameter2?.value) || name;
+      const type = parameter2?.getParamAt?.();
+      const useType = type == 'part' ? 'query' : type;
       return {
         name: value || name,
         required: emptyOf(parameter.required, parameter2?.required),
         example: emptyOf(parameter.example, parameter2?.defaultValue),
         description: parameter.description || undefined,
-        in: parameter2?.getParamAt() || 'query',
+        in: useType || 'query',
         dataType: emptyOf(parameter.dataType, parameterAnno?.dataType) || paramTypes[i] || operationAnno?.paramTypes?.[i],
         type: '',
         schema: {

@@ -5,9 +5,8 @@
 
 import Javascript from "../../interface/Javascript"
 import RuntimeAnnotation, { IAnnotationClazz } from "../annotations/annotation/RuntimeAnnotation"
-import ParamAnnotation from "../annotations/params/ParamAnnotation"
 
-export type RequestParamType = 'path' | 'query' | 'body' | 'header' | 'form' | ''
+export type RequestParamType = 'path' | 'query' | 'body' | 'header' | 'form' | 'part'  | ''
 
 export default class MethodParameter {
 
