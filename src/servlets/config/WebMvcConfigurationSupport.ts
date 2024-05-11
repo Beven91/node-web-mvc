@@ -28,6 +28,11 @@ import HttpRequestHandlerAdapter from '../http/HttpRequestHandlerAdapter';
 import HttpEntityMethodProcessor from '../method/processor/HttpEntityMethodProcessor';
 import ModelAttributeMethodProcessor from '../method/processor/ModelAttributeMethodProcessor';
 import ContentNegotiationManager from '../http/accept/ContentNegotiationManager';
+import ByteArrayHttpMessageConverter from '../http/converts/ByteArrayHttpMessageConverter';
+import StringHttpMessageConverter from '../http/converts/StringHttpMessageConverter';
+import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageConverter';
+import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
+import JsonMessageConverter from '../http/converts/JsonMessageConverter';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
@@ -65,11 +70,25 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   private getMessageConverters() {
     if (!this.messageConverters) {
       const messageConverters = new MessageConverter();
-      this.addMessageConverters?.(messageConverters);
+      this.configureMessageConverters?.(messageConverters);
+      this.addDefaultHttpMessageConverters(messageConverters);
+      this.extendMessageConverters?.(messageConverters);
       return messageConverters;
     } else {
       return this.messageConverters;
     }
+  }
+
+  private addDefaultHttpMessageConverters(converter: MessageConverter) {
+    converter.addMessageConverters(
+      new ByteArrayHttpMessageConverter(),
+      new StringHttpMessageConverter(),
+      new ResourceHttpMessageConverter(),
+      new ResourceRegionHttpMessageConverter(),
+      // SourceHttpMessageConverter
+      new JsonMessageConverter(),
+      // new DefaultMessageConverter(),
+    )
   }
 
   private getArgumentResolvers() {

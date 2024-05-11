@@ -132,8 +132,11 @@ export default class WebAppConfigurerOptions {
   // 添加返回值处理器
   addReturnValueHandlers?(handlers: HandlerMethodReturnValueHandler[]) { }
 
+  // 配置消息转换器
+  configureMessageConverters?(converters: MessageConverter) { }
+
   // 添加http消息转换器
-  addMessageConverters?(converters: MessageConverter) { }
+  extendMessageConverters?(converters: MessageConverter) { }
 
   // 添加参数解析器
   addArgumentResolvers?(resolvers: ArgumentsResolvers) { }

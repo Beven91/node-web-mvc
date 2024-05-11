@@ -5,35 +5,21 @@
 import MediaType from '../MediaType';
 import ServletContext from '../ServletContext';
 import HttpMessageConverter from './HttpMessageConverter';
-import JsonMessageConverter from './JsonMessageConverter';
-// import DefaultMessageConverter from './DefaultMessageConverter';
-import ResourceHttpMessageConverter from './ResourceHttpMessageConverter';
-import ByteArrayHttpMessageConverter from './ByteArrayHttpMessageConverter';
-import StringHttpMessageConverter from './StringHttpMessageConverter';
-import ResourceRegionHttpMessageConverter from './ResourceRegionHttpMessageConverter';
 
 export default class MessageConverter {
 
   private readonly registerConverters: Array<HttpMessageConverter<any>>
 
   constructor() {
-    this.registerConverters = [
-      new ByteArrayHttpMessageConverter(),
-      new StringHttpMessageConverter(),
-      new ResourceHttpMessageConverter(),
-      new ResourceRegionHttpMessageConverter(),
-      // SourceHttpMessageConverter
-      new JsonMessageConverter(),
-      // new DefaultMessageConverter(),
-    ]
+    this.registerConverters = [ ]
   }
 
   /**
    * 注册一个消息转换器
    * @param servletContext 
    */
-  addMessageConverters(converter: HttpMessageConverter<any>) {
-    this.registerConverters.unshift(converter);
+  addMessageConverters(...converter: HttpMessageConverter<any>[]) {
+    this.registerConverters.push(...converter);
   }
 
   forEach(handler: (converter: HttpMessageConverter) => void) {

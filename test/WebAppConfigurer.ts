@@ -36,7 +36,7 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
     resolvers.addArgumentResolvers(new UserIdArgumentResolver());
   }
 
-  addMessageConverters(converters) {
+  extendMessageConverters(converters) {
     converters.addMessageConverters(new XmlHttpMessageConverter());
   }
 
