@@ -2,6 +2,7 @@ import Component from "../../../ioc/annotations/Component";
 import type HttpServletRequest from "../../http/HttpServletRequest";
 import type HttpServletResponse from "../../http/HttpServletResponse";
 import View from "../../view/View";
+import MediaType from "../MediaType";
 
 @Component("error")
 export default class DefaultErrorView extends View {
@@ -17,6 +18,6 @@ export default class DefaultErrorView extends View {
       </body>
     </html>
     `
-    response.end(template.trim());
+    await response.fullResponse(template.trim(), MediaType.TEXT_HTML);
   }
 }

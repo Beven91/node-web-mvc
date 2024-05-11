@@ -3,10 +3,10 @@ import Component from "../../../ioc/annotations/Component";
 import { BeanFactory } from "../../../ioc/factory/BeanFactory";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
 import ServletContext from "../../http/ServletContext";
-import MethodParameter from "../../method/MethodParameter";
 import ModelAndView from "../../models/ModelAndView";
 import ViewRender from "../../view/ViewRender";
 import ViewResolverRegistry from "../../view/ViewResolverRegistry";
+import MediaType from "../MediaType";
 import DefaultErrorAttributes from "./DefaultErrorAttributes";
 import ErrorAttributes from "./ErrorAttributes";
 
@@ -40,14 +40,13 @@ export default class InternalErrorHandler {
   handleError(servletContext: ServletContext) {
     const response = servletContext.response;
     const data = this.errorAttributes.getErrorAttributes(servletContext);
-    response.setHeader('content-type', 'application/json');
-    response.end(JSON.stringify(data));
+    response.fullResponse(JSON.stringify(data), MediaType.APPLICATION_JSON);
   }
 
   handleErrorHtml(servletContext: ServletContext) {
     const data = this.errorAttributes.getErrorAttributes(servletContext);
     const mv = new ModelAndView("error", data);
     const render = new ViewRender(this.registry);
-    return render.render(mv,servletContext);
+    return render.render(mv, servletContext);
   }
 }

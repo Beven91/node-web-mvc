@@ -6,6 +6,7 @@ import ejs from 'ejs';
 import View from "../../../src/servlets/view/View";
 import HttpServletRequest from "../../../src/servlets/http/HttpServletRequest";
 import HttpServletResponse from "../../../src/servlets/http/HttpServletResponse";
+import { MediaType } from '../../../src';
 
 export default class EjsView extends View {
 
@@ -17,9 +18,7 @@ export default class EjsView extends View {
    */
   render(model, request: HttpServletRequest, response: HttpServletResponse) {
     return ejs.renderFile(this.url, model).then((html) => {
-      response.setHeader('Content-Type', 'text/html;charset=utf-8');
-      response.setStatus(200).end(html);
-    })
-
+      response.setStatus(200).fullResponse(html, MediaType.TEXT_HTML);
+    });
   }
 }

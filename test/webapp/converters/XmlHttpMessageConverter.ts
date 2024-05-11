@@ -51,11 +51,9 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    * @param mediaType 当前内容类型
    * @param servletContext 当前请求上下文
    */
-  write(data: any, servletContext: ServletContext) {
-    return new Promise((resolve) => {
-      const builder = new xml2js.Builder();
-      const xml = builder.buildObject(data);
-      servletContext.response.end(xml, resolve);
-    })
+  async write(data: any, servletContext: ServletContext) {
+    const builder = new xml2js.Builder();
+    const xml = builder.buildObject(data);
+    await servletContext.response.fullResponse(xml, MediaType.APPLICATION_XML);
   }
 }

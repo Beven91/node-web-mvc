@@ -10,7 +10,7 @@ import ElementType from '../annotation/ElementType';
 class RequestPart extends ParamAnnotation {
 
   constructor() {
-    super('query');
+    super('form');
   }
 }
 

@@ -23,6 +23,8 @@ export default class StringHttpMessageConverter extends AbstractHttpMessageConve
   }
 
   async writeInternal(data: string, servletContext: ServletContext) {
-    servletContext.response.end(data, undefined);
+    const response = servletContext.response;
+    const buffer = Buffer.from(data);
+    await response.fullResponse(buffer, MediaType.TEXT_PLAIN);
   }
 }

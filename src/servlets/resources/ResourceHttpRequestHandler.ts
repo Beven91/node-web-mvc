@@ -141,7 +141,7 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
     }
     if (request.method === HttpMethod.OPTIONS) {
       // 返回允许使用的方法
-      response.setHeader('Allow', this.allowHeaders.join(','))
+      response.setHeader(HttpHeaders.ALLOW, this.allowHeaders.join(','))
       response.end();
       return;
     }

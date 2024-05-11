@@ -2,7 +2,6 @@ import MultipartException from "../../../errors/MultipartException";
 import RequestPart from "../../annotations/params/RequestPart";
 import HttpHeaders from "../../http/HttpHeaders";
 import ServletContext from "../../http/ServletContext";
-import { isMultipartFiles } from "../../util/ApiUtils";
 import MethodParameter from "../MethodParameter";
 import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
 
@@ -21,10 +20,6 @@ export default class RequestPartArgumentResolver implements HandlerMethodArgumen
     }
     const name = anno.value || parameter.paramName;
     const body = await request.bodyReader.read(servletContext);
-    const value = body[name];
-    if (isMultipartFiles(value)) {
-      return value;
-    }
-    return null;
+    return body[name];
   }
 }

@@ -4,8 +4,9 @@
  */
 import { ServerResponse } from 'http';
 import HttpStatus from './HttpStatus';
-import { isEmpty } from '../util/ApiUtils';
+import { emptyOf, isEmpty } from '../util/ApiUtils';
 import HttpHeaders from './HttpHeaders';
+import MediaType from './MediaType';
 
 export default class HttpServletResponse {
 
@@ -143,21 +144,55 @@ export default class HttpServletResponse {
   }
 
   /**
-   * 写出内容到客户端
-   * @param response 
+   * 以安全方式将要写入的内容创建成一个buffer对象
+   * @param data 
+   * @returns {Buffer}
    */
-  write(chunk, callback?, encoding?) {
-    this.writeStatus();
-    this.nativeResponse.write(chunk === undefined ? '' : chunk, encoding || 'utf-8', callback);
+  createBuffer(data: any) {
+    if (data instanceof Buffer) {
+      return data;
+    }
+    return Buffer.from(String(emptyOf(data, '')));
   }
 
   /**
-   * 结束输出
+   * 写出内容到客户端
    * @param response 
    */
-  end(data?, encoding?, callback?) {
-    this.writeStatus();
-    this.nativeResponse.end(data, encoding, callback);
+  write(chunk: string | Buffer, encoding?: BufferEncoding) {
+    return new Promise((resolve) => {
+      this.writeStatus();
+      const buffer = this.createBuffer(chunk);
+      this.nativeResponse.write(buffer, encoding || 'utf-8', resolve);
+    })
+  }
+
+  /**
+   * 结束请求
+   * @param response 
+   */
+  async end(content?: string | Buffer, encoding?: BufferEncoding) {
+    const buffer = this.createBuffer(content);
+    await this.write(buffer, encoding);
+    return new Promise<void>((resolve) => {
+      this.nativeResponse.end(undefined, encoding, resolve);
+    });
+  }
+
+  /**
+   * 立即结束请求，并且设置返回内容与返回内容类型
+   * 注意：此前不能调用response的 write与end函数
+   * @param content 要返回的内容
+   * @param mediaType 媒体类型
+   * @param encoding 编码
+   */
+  async fullResponse(content: string | Buffer, mediaType: MediaType, encoding?: BufferEncoding) {
+    const buffer = this.createBuffer(content);
+    if (mediaType) {
+      this.setHeader(HttpHeaders.CONTENT_TYPE, mediaType.toString());
+    }
+    this.setHeader(HttpHeaders.CONTENT_LENGTH, buffer.byteLength);
+    this.end(buffer, encoding);
   }
 
   /**

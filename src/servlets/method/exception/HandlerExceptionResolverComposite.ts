@@ -19,7 +19,6 @@ export default class HandlerExceptionResolverComposite implements HandlerExcepti
     for (let resolver of this.getExceptionResolvers()) {
       const mv = await resolver.resolveException(servletContext, handler, error);
       if (mv) {
-        console.info(`${resolver.constructor.name}: Resolved ${error.message}`)
         return mv;
       }
     }

@@ -21,7 +21,8 @@ export default class ByteArrayHttpMessageConverter extends AbstractHttpMessageCo
     return servletContext.request.readBodyAsBuffer();
   }
 
-  async writeInternal(data: any, servletContext: ServletContext) {
-    servletContext.response.end(data, undefined);
+  async writeInternal(buffer: Buffer, servletContext: ServletContext) {
+    const response = servletContext.response;
+    await response.fullResponse(buffer,MediaType.APPLICATION_OCTET_STREAM);
   }
 }

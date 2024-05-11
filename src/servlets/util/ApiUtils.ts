@@ -34,5 +34,8 @@ export const getVariableName = (type: Function) => {
 export const isMultipartFiles = (value: any) => {
   const v = value instanceof Array ? value : [value];
   return v.find((m) => !(m instanceof MultipartFile)) == null;
+}
 
+export const emptyOf = (value: any, defaultValue: any) => {
+  return isEmpty(value) ? defaultValue : value;
 }

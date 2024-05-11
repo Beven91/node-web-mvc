@@ -17,8 +17,7 @@ export default class DefaultCorsProcessor implements CorsProcessor {
 
   rejectResponse(response: HttpServletResponse) {
     response.setStatus(HttpStatus.FORBIDDEN);
-    response.write('Invalid CORS request');
-    response.end();
+    response.fullResponse('Invalid CORS request', null);
   }
 
   processRequest(config: CorsConfiguration, request: HttpServletRequest, response: HttpServletResponse): boolean {

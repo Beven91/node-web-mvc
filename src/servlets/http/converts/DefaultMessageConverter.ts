@@ -21,14 +21,8 @@ export default class DefaultMessageConverter extends AbstractHttpMessageConverte
     return buffer.toString('utf-8');
   }
 
-  writeInternal(data: any, servletContext: ServletContext) {
-    return new Promise<void>((resolve) => {
-      data = data === undefined ? '' : data;
-      if (data instanceof Buffer || typeof data === 'string') {
-        servletContext.response.end(data, undefined, resolve);
-      } else {
-        servletContext.response.end(String(data), undefined, resolve);
-      }
-    })
+  async writeInternal(data: any, servletContext: ServletContext) {
+    const response = servletContext.response;
+    await response.fullResponse(data, MediaType.APPLICATION_OCTET_STREAM);
   }
 }

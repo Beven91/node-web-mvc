@@ -1,9 +1,7 @@
 import RestController from '../../servlets/annotations/RestController';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
-import RequestContext from '../../servlets/annotations/params/RequestContext';
 import ServletRequest from '../../servlets/annotations/params/ServletRequest';
 import HttpServletRequest from '../../servlets/http/HttpServletRequest';
-import ServletContext from '../../servlets/http/ServletContext';
 import ApiIgnore from '../annotations/ApiIgnore';
 import OpenApi from '../openapi/index';
 
