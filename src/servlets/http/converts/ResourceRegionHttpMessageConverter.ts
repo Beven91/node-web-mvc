@@ -32,7 +32,7 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
     for (let region of regions) {
       await this.writeRegion(region, servletContext.response);
     }
-    response.end();
+    return response.end();
   }
 
   writeRegion(region: ResourceRegion, response: HttpServletResponse) {

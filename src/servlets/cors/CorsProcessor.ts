@@ -10,6 +10,6 @@ export default interface CorsProcessor {
    * @param context 请求上下文
    * @return false=表示请求被拒绝 true=继续
    */
-  processRequest(config: CorsConfiguration, request: HttpServletRequest, response: HttpServletResponse): boolean
+  processRequest(config: CorsConfiguration, request: HttpServletRequest, response: HttpServletResponse): Promise<boolean>
 
 }

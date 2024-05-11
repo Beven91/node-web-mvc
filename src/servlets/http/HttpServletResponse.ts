@@ -160,23 +160,19 @@ export default class HttpServletResponse {
    * @param response 
    */
   write(chunk: string | Buffer, encoding?: BufferEncoding) {
-    return new Promise((resolve) => {
-      this.writeStatus();
-      const buffer = this.createBuffer(chunk);
-      this.nativeResponse.write(buffer, encoding || 'utf-8', resolve);
-    })
+    this.writeStatus();
+    const buffer = this.createBuffer(chunk);
+    this.nativeResponse.write(buffer, encoding || 'utf-8');
   }
 
   /**
    * 结束请求
    * @param response 
    */
-  async end(content?: string | Buffer, encoding?: BufferEncoding) {
+  end(content?: string | Buffer, encoding?: BufferEncoding) {
     const buffer = this.createBuffer(content);
-    await this.write(buffer, encoding);
-    return new Promise<void>((resolve) => {
-      this.nativeResponse.end(undefined, encoding, resolve);
-    });
+    this.write(buffer, encoding);
+    this.nativeResponse.end(undefined, encoding);
   }
 
   /**
@@ -192,7 +188,7 @@ export default class HttpServletResponse {
       this.setHeader(HttpHeaders.CONTENT_TYPE, mediaType.toString());
     }
     this.setHeader(HttpHeaders.CONTENT_LENGTH, buffer.byteLength);
-    this.end(buffer, encoding);
+    return this.end(buffer, encoding);
   }
 
   /**

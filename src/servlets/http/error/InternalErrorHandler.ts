@@ -40,7 +40,7 @@ export default class InternalErrorHandler {
   handleError(servletContext: ServletContext) {
     const response = servletContext.response;
     const data = this.errorAttributes.getErrorAttributes(servletContext);
-    response.fullResponse(JSON.stringify(data), MediaType.APPLICATION_JSON);
+    return response.fullResponse(JSON.stringify(data), MediaType.APPLICATION_JSON);
   }
 
   handleErrorHtml(servletContext: ServletContext) {

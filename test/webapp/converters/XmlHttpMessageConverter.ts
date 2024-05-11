@@ -54,6 +54,6 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
   async write(data: any, servletContext: ServletContext) {
     const builder = new xml2js.Builder();
     const xml = builder.buildObject(data);
-    await servletContext.response.fullResponse(xml, MediaType.APPLICATION_XML);
+    servletContext.response.fullResponse(xml, MediaType.APPLICATION_XML);
   }
 }

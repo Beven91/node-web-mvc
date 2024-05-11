@@ -17,10 +17,10 @@ export default class DefaultCorsProcessor implements CorsProcessor {
 
   rejectResponse(response: HttpServletResponse) {
     response.setStatus(HttpStatus.FORBIDDEN);
-    response.fullResponse('Invalid CORS request', null);
+    return response.fullResponse('Invalid CORS request', null);
   }
 
-  processRequest(config: CorsConfiguration, request: HttpServletRequest, response: HttpServletResponse): boolean {
+  async processRequest(config: CorsConfiguration, request: HttpServletRequest, response: HttpServletResponse): Promise<boolean> {
     // 添加缓存控制
     this.tryAddVaryHeaders(response);
     // 是否已处理
@@ -65,13 +65,13 @@ export default class DefaultCorsProcessor implements CorsProcessor {
     return config.checkHeaders(requestHeaders);
   }
 
-  handleInternal(request: HttpServletRequest, response: HttpServletResponse, config: CorsConfiguration, isPreFlightRequest: boolean) {
+  async handleInternal(request: HttpServletRequest, response: HttpServletResponse, config: CorsConfiguration, isPreFlightRequest: boolean) {
     const requestOrigin = request.getHeaderValue(HttpHeaders.ORIGIN)?.[0];
     const allowOrigin = this.checkOrigin(config, requestOrigin);
 
     // 校验origin
     if (allowOrigin == null) {
-      this.rejectResponse(response);
+      await this.rejectResponse(response);
       return false;
     }
 
