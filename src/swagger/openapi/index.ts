@@ -146,7 +146,7 @@ export default class OpenApiModel {
       tags: apiOperation?.tags || tags.map((tag) => tag.name),
       summary: apiOperation?.value,
       description: apiOperation?.notes,
-      parameters: parameters.filter((m) => !this.isMultipartFile(m.schema) && m.in !== 'body'),
+      parameters: parameters.filter((m) => this.isNotBodyParameter(m)),
       requestBody: this.buildOperationConsumes(action, parameters, consumes),
       responses: {
         "201": { "description": "Created" },
@@ -165,6 +165,11 @@ export default class OpenApiModel {
         path[method.toLowerCase()] = operationDoc;
       });
     })
+  }
+
+  private isNotBodyParameter(m:ApiOperationParameter){
+    const paramIn = m.in as string;
+   return !this.isMultipartFile(m.schema) && paramIn !== 'body' && paramIn !=='part';
   }
 
   /**
@@ -187,8 +192,7 @@ export default class OpenApiModel {
         return;
       }
       const value = emptyOf(parameter.value, parameter2?.value) || emptyOf(parameter.name, parameter2?.value) || name;
-      const type = parameter2?.getParamAt?.();
-      const useType = type == 'part' ? 'query' : type;
+      const useType = parameter2?.getParamAt?.();
       return {
         name: value || name,
         required: emptyOf(parameter.required, parameter2?.required),
@@ -230,7 +234,7 @@ export default class OpenApiModel {
   private buildOperationConsumes(action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, parameters: ApiOperationParameter[], consumes: string[]) {
     const requestBody = { content: {} } as ApiOperationResponseBody;
     const body = parameters.find((m) => m.in == 'body');
-    const multiparts = parameters.filter((m) => this.isMultipartFile(m.schema))
+    const multiparts = parameters.filter((m) => this.isMultipartFile(m.schema) || (m.in as string) == 'part')
     if (multiparts.length > 0) {
       const meta = requestBody.content['multipart/form-data'] = {
         schema: {
