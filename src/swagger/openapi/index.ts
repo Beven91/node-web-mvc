@@ -19,6 +19,8 @@ import ApiIgnore from '../annotations/ApiIgnore';
 import RequestMappingInfo from '../../servlets/mapping/RequestMappingInfo';
 import ServletResponse from '../../servlets/annotations/params/ServletResponse';
 import ServletRequest from '../../servlets/annotations/params/ServletRequest';
+import Javascript from '../../interface/Javascript';
+import HttpEntity from '../../servlets/models/HttpEntity';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -167,9 +169,9 @@ export default class OpenApiModel {
     })
   }
 
-  private isNotBodyParameter(m:ApiOperationParameter){
+  private isNotBodyParameter(m: ApiOperationParameter) {
     const paramIn = m.in as string;
-   return !this.isMultipartFile(m.schema) && paramIn !== 'body' && paramIn !=='part';
+    return !this.isMultipartFile(m.schema) && paramIn !== 'body' && paramIn !== 'part';
   }
 
   /**
@@ -188,7 +190,8 @@ export default class OpenApiModel {
       const isRequest = !!RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ServletRequest);
       const isResponse = !!RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ServletResponse);
       const parameter2 = parameterAnno?.nativeAnnotation;
-      if (isRequest || isResponse) {
+      const dataType = emptyOf(parameter.dataType, parameterAnno?.dataType) || paramTypes[i] || operationAnno?.paramTypes?.[i];
+      if (isRequest || isResponse || Javascript.getClass(dataType).isEqualOrExtendOf(HttpEntity)) {
         return;
       }
       const value = emptyOf(parameter.value, parameter2?.value) || emptyOf(parameter.name, parameter2?.value) || name;
@@ -199,7 +202,7 @@ export default class OpenApiModel {
         example: emptyOf(parameter.example, parameter2?.defaultValue),
         description: parameter.description || undefined,
         in: useType || 'query',
-        dataType: emptyOf(parameter.dataType, parameterAnno?.dataType) || paramTypes[i] || operationAnno?.paramTypes?.[i],
+        dataType: dataType,
         type: '',
         schema: {
           $ref: null,
