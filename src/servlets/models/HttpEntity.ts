@@ -5,6 +5,7 @@
 import CacheControl from "../http/CacheControl";
 import HttpHeaders from "../http/HttpHeaders";
 import MediaType from "../http/MediaType";
+import { HttpHeaderValue } from "../../interface/declare";
 
 export default class HttpEntity<T = any> {
 
@@ -12,7 +13,7 @@ export default class HttpEntity<T = any> {
 
   public data: T
 
-  constructor(data: T, headers:Record<string,string | string[]>) {
+  constructor(data: T, headers: Record<string, HttpHeaderValue>) {
     this.data = data;
     this.httpHeaders = headers || {};
   }

@@ -50,7 +50,7 @@ export default class HttpEntityMethodProcessor extends AbstractMessageConverterM
       return false;
     }
     const etag = response.getHeaderValue(HttpHeaders.ETAG)?.[0];
-    const lastModified = response.getLastModifiedTime();
+    const lastModified = response.getLastModifiedTime().getTime();
     const validation = new HttpRequestValidation(request, response);
     response.removeHeader(HttpHeaders.LAST_MODIFIED);
     response.removeHeader(HttpHeaders.ETAG);

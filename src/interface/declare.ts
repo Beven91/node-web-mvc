@@ -1,3 +1,4 @@
+import { IncomingHttpHeaders, OutgoingHttpHeaders } from 'http2';
 import RequestMappingInfo from '../servlets/mapping/RequestMappingInfo';
 import MethodParameter from '../servlets/method/MethodParameter';
 
@@ -84,3 +85,9 @@ export type ClazzType = {
 export type JsDataType = Function | (abstract new (...args: any[]) => any)
 
 export declare type Middleware = (request: any, response: any, ex: MiddlewareNext) => void
+
+export type HttpHeaderValue = number | string | ReadonlyArray<string>
+
+export type ResponseHeaders = Record<string, HttpHeaderValue>
+
+export type RequestHeaders = Record<string, HttpHeaderValue>

@@ -7,6 +7,7 @@ import HttpStatus from './HttpStatus';
 import { emptyOf, isEmpty } from '../util/ApiUtils';
 import HttpHeaders from './HttpHeaders';
 import MediaType from './MediaType';
+import { HttpHeaderValue } from '../../interface/declare';
 
 export default class HttpServletResponse {
 
@@ -91,7 +92,7 @@ export default class HttpServletResponse {
    * @param {String} name 返回头名称
    * @param {String} value 返回头值
    */
-  setHeader(name: string, value: string | number | string[]) {
+  setHeader(name: string, value: HttpHeaderValue) {
     this.nativeResponse.setHeader(name, value);
     return this;
   }
@@ -200,9 +201,9 @@ export default class HttpServletResponse {
   }
 
   getLastModifiedTime() {
-    const n = this.getHeader(HttpHeaders.LAST_MODIFIED);
-    // todo
-    return 0;
+    const n = this.getHeaderValue(HttpHeaders.LAST_MODIFIED)[0];
+    const date = new Date(n);
+    return date;
   }
 
   constructor(response: ServerResponse) {

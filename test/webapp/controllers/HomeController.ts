@@ -1,6 +1,6 @@
 
 import path from 'path';
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin } from '../../../src/index';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders } from '../../../src/index';
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
@@ -174,5 +174,15 @@ export default class HomeController {
   @GetMapping('/demo')
   demo() {
     return JSON.stringify(['aaa']);
+  }
+
+  @ApiOperation({ value: '测试ResponseHttpEntity返回', returnType: ['hello'] })
+  @GetMapping('/responseEntity')
+  responseHttpEntity() {
+    const entity = new ResponseEntity(HttpStatus.OK);
+    entity.header(HttpHeaders.LAST_MODIFIED,new Date().toUTCString());
+    entity.header('demo','123424234')
+    entity.body({ id:100086 })
+    return entity;
   }
 }
