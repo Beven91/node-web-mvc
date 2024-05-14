@@ -1,6 +1,7 @@
-import { Readable, ReadableOptions } from "stream";
+import { ReadableOptions } from "stream";
+import fs from 'fs';
 
-export default class ByteArrayInputStream extends Readable {
+export default class ByteArrayInputStream extends fs.ReadStream {
 
   private readonly bytesArray: Buffer
 

@@ -5,8 +5,13 @@
  */
 import fs from 'fs';
 import path from 'path';
-import { Stream } from 'stream';
 import MediaTypeFactory from "../http/MediaFactory";
+import { ServerResponse } from 'http';
+import { Readable } from 'stream';
+
+export interface InputStream extends Readable {
+  close: () => void
+}
 
 export default class Resource {
 
@@ -42,7 +47,7 @@ export default class Resource {
     return !!this.stat && this.stat.isFile();
   }
 
-  constructor(filename) {
+  constructor(filename: string) {
     this.url = filename;
     this.stat = fs.existsSync(filename) ? fs.lstatSync(filename) : null;
   }
@@ -54,7 +59,7 @@ export default class Resource {
   /**
    * 获取当前资源的读取流
    */
-  getInputStream(): Stream {
+  getInputStream(): InputStream {
     return fs.createReadStream(this.url);
   }
 
@@ -63,7 +68,30 @@ export default class Resource {
    * @param start 
    * @param end 
    */
-  getInputRangeStream(start, end): Stream {
+  getInputRangeStream(start: number, end: number): InputStream {
     return fs.createReadStream(this.url, { start, end })
+  }
+
+  /**
+   * 将资源文件附加到response
+   * @param response 原始返回对象
+   * @param start 如果是http-ragen则设置开始位置
+   * @param end  如果是http-ragen则设置结束位置
+   * @returns 
+   */
+  pipe(response: ServerResponse, start?: number, end?: number) {
+    return new Promise((resolve, reject) => {
+      const stream = start > 0 ? this.getInputRangeStream(start, end) : this.getInputStream();
+      const destory = () => {
+        stream.close();
+      }
+      stream.pipe(response);
+      stream.on('end', () => {
+        resolve({});
+      });
+      stream.on('error', reject);
+      response.on('error', destory);
+      response.on('close', destory);
+    });
   }
 }

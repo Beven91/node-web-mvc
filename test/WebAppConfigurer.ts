@@ -41,9 +41,10 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
   }
 
   addResourceHandlers(registry) {
+    const dir = path.resolve('/Users/beven/Downloads');
     registry
       .addResourceHandler('/media/**')
-      .addResourceLocations('X:\\');
+      .addResourceLocations(dir);
   }
 
   configurePathMatch(configurer: PathMatchConfigurer) {

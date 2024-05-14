@@ -35,24 +35,21 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
     return response.end();
   }
 
-  writeRegion(region: ResourceRegion, response: HttpServletResponse) {
-    return new Promise((resolve, reject) => {
-      const resource = region.resource;
-      const start = region.position;
-      let end = region.end;
-      const resourceLength = resource.contentLength;
-      end = Math.min(end, resourceLength - 1);
-      const rangeLength = end - start + 1;
-      response.setHeader(HttpHeaders.CONTENT_RANGE, `bytes ${start}-${end}/${resourceLength}`);
-      response.setHeader(HttpHeaders.CONTENT_LENGTH, rangeLength);
-      const stream = resource.getInputRangeStream(start, end);
-      response.setStatus(HttpStatus.PARTIAL_CONTENT)
-      response.nativeResponse.statusCode = 206;
-      stream.pipe(response.nativeResponse);
-      stream.on('end', () => {
-        resolve({});
-      });
-      stream.on('error', reject);
-    });
+  async writeRegion(region: ResourceRegion, response: HttpServletResponse) {
+    if (!region?.resource) {
+      return;
+    }
+    const resource = region.resource;
+    const start = region.position;
+    let end = region.end;
+    const resourceLength = resource.contentLength;
+    end = Math.min(end, resourceLength - 1);
+    const rangeLength = end - start + 1;
+    const nativeResponse = response.nativeResponse;
+    response.setHeader(HttpHeaders.CONTENT_RANGE, `bytes ${start}-${end}/${resourceLength}`);
+    response.setHeader(HttpHeaders.CONTENT_LENGTH, rangeLength);
+    response.setStatus(HttpStatus.PARTIAL_CONTENT)
+    response.nativeResponse.statusCode = 206;
+    await resource.pipe(nativeResponse, start, end);
   }
 }

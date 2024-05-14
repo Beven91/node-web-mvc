@@ -1,4 +1,3 @@
-import { Stream } from "stream";
 import Resource from "./Resource";
 import ByteArrayInputStream from "./ByteArrayInputStream";
 
@@ -22,7 +21,7 @@ export default class ByteArrayResource extends Resource {
     return this.byteArray.length;
   }
 
-  getInputStream(): Stream {
+  getInputStream() {
     return new ByteArrayInputStream(this.byteArray);
   }
 }
