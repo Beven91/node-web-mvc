@@ -15,6 +15,8 @@ export default class HttpServletResponse {
 
   private tempStatusMessage;
 
+  startTime: number
+
   /**
    * nodejs原生ServerResponse
    */

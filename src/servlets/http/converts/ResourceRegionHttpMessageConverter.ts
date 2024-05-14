@@ -11,6 +11,7 @@ import MediaType from "../MediaType";
 import HttpServletResponse from "../HttpServletResponse";
 import Javascript from "../../../interface/Javascript";
 import RegionsResource from "../../resources/RegionsResource";
+import GzipResource from "../../resources/GzipResource";
 
 export default class ResourceRegionHttpMessageConverter extends AbstractHttpMessageConverter<RegionsResource> {
 
@@ -47,7 +48,12 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
     const rangeLength = end - start + 1;
     const nativeResponse = response.nativeResponse;
     response.setHeader(HttpHeaders.CONTENT_RANGE, `bytes ${start}-${end}/${resourceLength}`);
-    response.setHeader(HttpHeaders.CONTENT_LENGTH, rangeLength);
+    if (!(resource instanceof GzipResource)) {
+      // gzip下不返回content-length
+      response.setHeader(HttpHeaders.CONTENT_LENGTH, rangeLength);
+    } else {
+      response.setHeader(HttpHeaders.TRANSFER_ENCODING, 'chunked');
+    }
     response.setStatus(HttpStatus.PARTIAL_CONTENT)
     response.nativeResponse.statusCode = 206;
     await resource.pipe(nativeResponse, start, end);

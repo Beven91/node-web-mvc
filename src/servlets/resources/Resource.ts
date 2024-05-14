@@ -87,6 +87,7 @@ export default class Resource {
       }
       stream.pipe(response);
       stream.on('end', () => {
+        stream.close();
         resolve({});
       });
       stream.on('error', reject);
