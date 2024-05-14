@@ -21,7 +21,7 @@ import RequestMappingHandlerAdapter from '../mapping/RequestMappingHandlerAdapte
 import HandlerMethodReturnValueHandler from '../method/return/HandlerMethodReturnValueHandler';
 import ModelAndViewMethodReturnValueHandler from '../method/return/ModelAndViewMethodReturnValueHandler';
 import RequestResponseBodyMethodProcessor from '../method/processor/RequestResponseBodyMethodProcessor';
-import WebAppConfigurerOptions from './WebAppConfigurerOptions';
+import WebAppConfigurerOptions, { DEFAULT_RESOURCE_MIME_TYPES, ResourceConfig } from './WebAppConfigurerOptions';
 import InternalErrorHandler from '../http/error/InternalErrorHandler';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
 import HttpRequestHandlerAdapter from '../http/HttpRequestHandlerAdapter';
@@ -33,6 +33,7 @@ import StringHttpMessageConverter from '../http/converts/StringHttpMessageConver
 import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageConverter';
 import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
 import JsonMessageConverter from '../http/converts/JsonMessageConverter';
+import MediaType from '../http/MediaType';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
@@ -47,6 +48,8 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   private viewResolvers: ViewResolverRegistry
 
   public beanFactory: BeanFactory
+
+  private resourceConfig: ResourceConfig
 
   /**
    * 获取当前网站的基础路由目录
@@ -124,6 +127,18 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     return this.viewResolvers;
   }
 
+  private getResourceConfig() {
+    if (!this.resourceConfig) {
+      this.resourceConfig = {
+        gzipped: this.resource?.gzipped == true,
+        mimeTypes: String(this.resource?.mimeTypes || DEFAULT_RESOURCE_MIME_TYPES).split(',').map((str) => {
+          return new MediaType(str);
+        })
+      }
+    }
+    return this.resourceConfig;
+  }
+
   @Bean
   mvcContentNegotiationManager() {
     if (!this.contentNegotiationManager) {
@@ -156,8 +171,9 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   @Bean
   resourceHandlerMapping() {
-    const registry = new ResourceHandlerRegistry()
-    const handlerMapping = new BeanNameUrlHandlerMapping(registry, this.resource);
+    const registry = new ResourceHandlerRegistry();
+    const resourceConfig = this.getResourceConfig();
+    const handlerMapping = new BeanNameUrlHandlerMapping(registry, resourceConfig);
     handlerMapping.setOrder(100);
     // swagger 处理
     OpenApi.initializeResource(registry, this.swagger);

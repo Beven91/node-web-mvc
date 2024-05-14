@@ -8,7 +8,7 @@ import PathMatcher from '../util/PathMatcher';
 import ResourceHandlerRegistration from '../resources/ResourceHandlerRegistration';
 import ResourceHandlerRegistry from "../resources/ResourceHandlerRegistry";
 import ResourceHttpRequestHandler from "../resources/ResourceHttpRequestHandler";
-import type { ResourceOptions } from "../config/WebAppConfigurerOptions";
+import type { ResourceConfig, ResourceOptions } from "../config/WebAppConfigurerOptions";
 import AbstractHandlerMapping from "../mapping/AbstractHandlerMapping";
 import ServletContext from "../http/ServletContext";
 
@@ -16,9 +16,9 @@ export default class BeanNameUrlHandlerMapping extends AbstractHandlerMapping {
 
   private readonly registry: ResourceHandlerRegistry
 
-  private readonly resource: ResourceOptions
+  private readonly resource: ResourceConfig
 
-  constructor(registry: ResourceHandlerRegistry, resource: ResourceOptions) {
+  constructor(registry: ResourceHandlerRegistry, resource: ResourceConfig) {
     super();
     this.registry = registry;
     this.resource = resource;

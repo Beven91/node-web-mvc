@@ -30,7 +30,9 @@ export default class ResourceHttpMessageConverter extends AbstractHttpMessageCon
       return;
     }
     const response = servletContext.response;
-    response.setHeader(HttpHeaders.CONTENT_TYPE, resource.mediaType.toString());
+    if(resource.mediaType) {
+      response.setHeader(HttpHeaders.CONTENT_TYPE, resource.mediaType.toString());
+    }
     response.setHeader(HttpHeaders.CONTENT_LENGTH, resource.contentLength);
     await resource.pipe(response.nativeResponse);
   }

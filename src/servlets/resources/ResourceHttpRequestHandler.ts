@@ -20,13 +20,15 @@ import GzipResource from './GzipResource';
 import ResourceResolverChain from './ResourceResolverChain';
 import PathResourceResolver from './PathResourceResolver';
 import ResourceResolver from './ResourceResolver';
-import GzipGlobalResolver from './GzipGlobalResolver';
+import GzipResourceTransformer from './GzipResourceTransformer';
 import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
 import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageConverter';
 import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
 import RegionsResource from './RegionsResource';
-import type { ResourceOptions } from '../config/WebAppConfigurerOptions';
+import type { ResourceConfig } from '../config/WebAppConfigurerOptions';
 import HttpRequestHandler from '../http/HttpRequestHandler';
+import ResourceTransformer from './ResourceTransformer';
+import DefaultResourceTransformerChain from './DefaultResourceTransformerChain';
 
 export default class ResourceHttpRequestHandler implements HttpRequestHandler {
 
@@ -36,7 +38,7 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
   // 允许使用的请求方式
   private allowHeaders = [HttpMethod.GET, HttpMethod.HEAD]
 
-  private readonly resourceConfig: ResourceOptions
+  private readonly resourceConfig: ResourceConfig
 
   private readonly resourceHttpMessageConverter: ResourceHttpMessageConverter
 
@@ -46,7 +48,7 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
 
   private resourceTransformerChain: ResourceTransformerChain
 
-  constructor(registration: ResourceHandlerRegistration, config: ResourceOptions) {
+  constructor(registration: ResourceHandlerRegistration, config: ResourceConfig) {
     this.registration = registration;
     this.resourceConfig = config;
     this.resourceHttpMessageConverter = new ResourceHttpMessageConverter();
@@ -57,15 +59,16 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
     if (!this.resourceResolverChain) {
       const resolvers: ResourceResolver[] = [
         new PathResourceResolver(),
-        new GzipGlobalResolver(this.resourceConfig),
       ];
-      const transformers = [];
+      const transformers: ResourceTransformer[] = [
+        new GzipResourceTransformer(this.resourceConfig),
+      ];
       if (this.registration.resourceChainRegistration) {
         resolvers.push(...this.registration.resourceChainRegistration.resolvers);
         transformers.push(...this.registration.resourceChainRegistration.transformers);
       }
       this.resourceResolverChain = new ResourceResolverChain(resolvers);
-      this.resourceTransformerChain = new ResourceTransformerChain(transformers, this.resourceResolverChain);
+      this.resourceTransformerChain = new DefaultResourceTransformerChain(this.resourceResolverChain, transformers);
     }
   }
 

@@ -18,7 +18,7 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
   }
 
   resource = {
-    gzipped: false,
+    gzipped: true,
   }
 
   cwd = path.resolve('./test/webapp')

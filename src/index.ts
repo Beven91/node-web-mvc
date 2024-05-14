@@ -92,7 +92,6 @@ export { default as ResourceResolverChain } from './servlets/resources/ResourceR
 export { default as ResourceTransformerChain } from './servlets/resources/ResourceTransformerChain';
 export { default as MiddlewareResourceResolver } from './servlets/resources/MiddlewareResourceResolver';
 export { default as PathResourceResolver } from './servlets/resources/PathResourceResolver';
-export { default as GzipGlobalResolver } from './servlets/resources/GzipGlobalResolver';
 export { default as GzipResource } from './servlets/resources/GzipResource';
 export { default as WebMvcConfigurationSupport } from './servlets/config/WebMvcConfigurationSupport';
 export { default as PathMatchConfigurers } from './servlets/config/PathMatchConfigurer';

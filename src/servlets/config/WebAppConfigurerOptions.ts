@@ -11,6 +11,7 @@ import ArgumentsResolvers from '../method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
 import Bytes from '../util/Bytes';
 import { HotOptions } from 'nodejs-hmr';
+import type MediaType from '../http/MediaType';
 
 declare type RunMode = 'node' | 'express' | 'koa' | string
 
@@ -31,13 +32,7 @@ export declare interface Multipart {
   tempRoot?: string
 }
 
-
-const runtime = {
-  defaultMimes: {
-    gzipped: false,
-    mimeTypes: 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain',
-  } as ResourceOptions
-}
+export const DEFAULT_RESOURCE_MIME_TYPES = 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain'
 
 export declare interface ResourceOptions {
   /**
@@ -48,25 +43,11 @@ export declare interface ResourceOptions {
    * 开启gzip的媒体类型字符串
    * 例如: application/javascript,text/css
    */
-  mimeTypes?: string | object
+  mimeTypes?: string
 }
 
-/**
-   * 初始化配置的资源mimetypes,将字符串形式转换成对象形式
-   * @param mimeTypes 
-   */
-const initializeMimeTypes = (mimeTypes: string | object) => {
-  mimeTypes = mimeTypes == null ? runtime.defaultMimes.mimeTypes : mimeTypes;
-  if (typeof mimeTypes === 'object' && mimeTypes) {
-    return mimeTypes;
-  }
-  const newMimeTypes = {};
-  const values = (mimeTypes as string).split(',');
-  values.forEach((k) => {
-    const name = k.trim();
-    newMimeTypes[name] = name;
-  });
-  return newMimeTypes;
+export interface ResourceConfig extends Omit<ResourceOptions, 'mimeTypes'> {
+  mimeTypes: MediaType[]
 }
 
 export default class WebAppConfigurerOptions {
@@ -162,10 +143,9 @@ export default class WebAppConfigurerOptions {
     this.onLaunch = options.onLaunch;
     this.http = options.http;
     this.serverOptions = options.serverOptions;
+    this.resource = options.resource;
     this.swagger = 'swagger' in options ? options.swagger : true;
     this.cwd = options.cwd instanceof Array ? options.cwd : [options.cwd]
-    this.resource = options.resource || runtime.defaultMimes;
-    this.resource.mimeTypes = initializeMimeTypes(this.resource.mimeTypes);
     this.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = new Bytes(this.multipart.maxFileSize, '500kb').bytes;
     this.multipart.maxRequestSize = new Bytes(this.multipart.maxRequestSize, '500kb').bytes;
