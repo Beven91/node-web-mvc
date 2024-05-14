@@ -5,25 +5,25 @@
 import CacheControl from "../http/CacheControl";
 import HttpHeaders from "../http/HttpHeaders";
 import MediaType from "../http/MediaType";
-import { HttpHeaderValue } from "../../interface/declare";
+import { RequestHeaders } from "../../interface/declare";
 
-export default class HttpEntity<T = any> {
+export default class HttpEntity<T = any, H = RequestHeaders> {
 
-  public httpHeaders: object
+  public headers: H
 
-  public data: T
+  public body: T
 
-  constructor(data: T, headers: Record<string, HttpHeaderValue>) {
-    this.data = data;
-    this.httpHeaders = headers || {};
+  constructor(data: T, headers: H) {
+    this.body = data;
+    this.headers = (headers || {}) as H;
   }
 
   /**
    * 设置返回内容
    * @param data 
    */
-  body(data: T) {
-    this.data = data;
+  setBody(data: T) {
+    this.body = data;
     return this;
   }
 
@@ -31,8 +31,8 @@ export default class HttpEntity<T = any> {
    * 这是头部信息对象
    * @param headers 
    */
-  headers(headers) {
-    this.httpHeaders = headers;
+  setHeaders(headers) {
+    this.headers = headers;
     return this;
   }
 
@@ -41,8 +41,8 @@ export default class HttpEntity<T = any> {
    * @param key 
    * @param values 
    */
-  header(key: string, ...values: Array<string>) {
-    this.httpHeaders[key] = values.join(',');
+  setHeader(key: string, ...values: Array<string>) {
+    this.headers[key] = values.join(',');
     return this;
   }
 
@@ -51,41 +51,41 @@ export default class HttpEntity<T = any> {
    * @param HttpMethod 
    * @param allowedMethods 
    */
-  allow(allowedMethods: Array<string>) {
-    this.httpHeaders[HttpHeaders.ALLOW] = allowedMethods.join(',');
+  setAllow(allowedMethods: Array<string>) {
+    this.headers[HttpHeaders.ALLOW] = allowedMethods.join(',');
     return this;
   }
 
   /**
    * 设置返回etag
    */
-  eTag(etag: string) {
-    this.httpHeaders[HttpHeaders.ETAG] = etag;
+  setETag(etag: string) {
+    this.headers[HttpHeaders.ETAG] = etag;
     return this;
   }
 
   /**
    * 设置Last-Modified头部信息
    */
-  lastModified(lastModified: Date) {
-    this.httpHeaders[HttpHeaders.LAST_MODIFIED] = lastModified.toUTCString();
+  setLastModified(lastModified: Date) {
+    this.headers[HttpHeaders.LAST_MODIFIED] = lastModified.toUTCString();
     return this;
   }
 
   /**
    * 设置Location头部信息
    */
-  location(location: string) {
-    this.httpHeaders[HttpHeaders.LOCATION] = location;
+  setLocation(location: string) {
+    this.headers[HttpHeaders.LOCATION] = location;
     return this;
   }
 
   /**
    * 配置缓存控制
    */
-  cacheControl(cacheControl: CacheControl) {
+  setCacheControl(cacheControl: CacheControl) {
     if (cacheControl) {
-      this.httpHeaders[HttpHeaders.CACHE_CONTROL] = cacheControl.toString();
+      this.headers[HttpHeaders.CACHE_CONTROL] = cacheControl.toString();
     }
     return this;
   }
@@ -97,22 +97,22 @@ export default class HttpEntity<T = any> {
    * 
    * ```
    */
-  varyBy(requestHeaders: Array<string>) {
-    this.httpHeaders[HttpHeaders.VARY] = requestHeaders.join(',');
+  setVaryBy(requestHeaders: Array<string>) {
+    this.headers[HttpHeaders.VARY] = requestHeaders.join(',');
     return this;
   }
 
-  contentLength(contentLength: number) {
-    this.httpHeaders[HttpHeaders.CONTENT_LENGTH] = contentLength;
+  setContentLength(contentLength: number) {
+    this.headers[HttpHeaders.CONTENT_LENGTH] = contentLength;
     return this;
   }
 
-  contentType(contentType: MediaType) {
-    this.httpHeaders[HttpHeaders.CONTENT_TYPE] = contentType.toString();
+  setContentType(contentType: MediaType) {
+    this.headers[HttpHeaders.CONTENT_TYPE] = contentType.toString();
     return this;
   }
 
   build() {
-    this.data = null;
+    this.body = null;
   }
 }

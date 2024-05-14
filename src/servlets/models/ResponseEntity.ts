@@ -7,7 +7,7 @@ import MediaType from "../http/MediaType";
 import HttpEntity from "./HttpEntity";
 import { ResponseHeaders } from "../../interface/declare";
 
-export default class ResponseEntity<T = any> extends HttpEntity<T> {
+export default class ResponseEntity<T = any> extends HttpEntity<T, ResponseHeaders> {
 
   public responseStatus: HttpStatus
 
@@ -28,10 +28,10 @@ export default class ResponseEntity<T = any> extends HttpEntity<T> {
   constructor(data: T, headers?: ResponseHeaders, status?: HttpStatus) {
     super(data instanceof HttpStatus ? null : data, headers);
     if (data instanceof HttpStatus) {
-      this.data = null;
+      this.body = null;
       this.responseStatus = data;
     } else {
-      this.data = data;
+      this.body = data;
       this.responseStatus = status;
     }
   }

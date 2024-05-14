@@ -20,11 +20,11 @@ export default class ResponseFile extends ResponseEntity<Resource> {
     if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) {
       this.responseStatus = HttpStatus.NOT_FOUND;
     } else {
-      this.data = new Resource(file);
-      this.contentType(new MediaType('application/octet-stream'));
+      this.body = new Resource(file);
+      this.setContentType(new MediaType('application/octet-stream'));
     }
     if (attachment) {
-      this.header("Content-Disposition", "attachment;filename=" + encodeURI(path.basename(this.file)));
+      this.setHeader("Content-Disposition", "attachment;filename=" + encodeURI(path.basename(this.file)));
     }
   }
 }

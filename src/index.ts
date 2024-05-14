@@ -99,6 +99,7 @@ export { default as PathMatchConfigurers } from './servlets/config/PathMatchConf
 export { default as PathMatcher } from './servlets/util/PathMatcher';
 export { default as UrlPathHelpers } from './servlets/util/UrlPathHelper';
 export { default as ResponseEntity } from './servlets/models/ResponseEntity';
+export { default as RequestEntity } from './servlets/models/RequestEntity';
 export { default as ResponseFile } from './servlets/models/ResponseFile';
 export { default as Assert } from './servlets/util/Assert';
 export { default as MultiValueMap } from './servlets/util/MultiValueMap';

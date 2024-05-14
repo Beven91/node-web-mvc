@@ -23,6 +23,7 @@ import Javascript from '../../../interface/Javascript';
 import ModelAttributeMethodProcessor from '../processor/ModelAttributeMethodProcessor';
 import ContentNegotiationManager from '../../http/accept/ContentNegotiationManager';
 import RequestPartArgumentResolver from './RequestPartArgumentResolver';
+import HttpEntityMethodProcessor from '../processor/HttpEntityMethodProcessor';
 
 export default class ArgumentsResolvers {
 
@@ -39,6 +40,7 @@ export default class ArgumentsResolvers {
       new RequestHeaderMapMethodArgumentResolver(),
       new RequestParamMapMethodArgumentResolver(false),
       new RequestPartArgumentResolver(),
+      new HttpEntityMethodProcessor(messageConverter, contentNegotialManager),
       new ModelAttributeMethodProcessor(),
       new RequestResponseBodyMethodProcessor(this.messageConverter, contentNegotialManager),
       new ServletContextMethodArgumentResolver(),

@@ -79,11 +79,14 @@ export default class HttpServletResponse {
     return v instanceof Array ? v : isEmpty(v) ? [] : [v];
   }
 
-  addHeader(name: string, value: string, checkExists = false) {
+  addHeader(name: string, value: HttpHeaderValue, checkExists = false) {
     const values = this.getHeaderValue(name);
-    if (!(checkExists && values.indexOf(value) > -1)) {
-      values.push(value);
-    }
+    const addValues = value instanceof Array ? value : [value];
+    addValues.forEach((value) => {
+      if (!(checkExists && values.indexOf(value as any) > -1)) {
+        values.push(value);
+      }
+    })
     this.setHeader(name, values as string[]);
   }
 

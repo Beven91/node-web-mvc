@@ -23,14 +23,14 @@ export default class HttpEntityMethodProcessor extends AbstractMessageConverterM
 
   handleReturnValue(entity: ResponseEntity, returnType: MethodParameter, servletContext: ServletContext): Promise<void> {
     const response = servletContext.response;
-    const headers = entity.httpHeaders;
+    const headers = entity.headers;
     const responseStatus = entity.responseStatus;
     // 合并Http返回头
-    Object.keys(entity.httpHeaders).forEach((key) => {
+    Object.keys(entity.headers).forEach((key) => {
       if (key.toLowerCase() === 'vary') {
         response.addHeader(key, headers[key]);
       } else {
-        response.setHeader(key, entity.httpHeaders[key]);
+        response.setHeader(key, entity.headers[key]);
       }
     });
     // 设置返回头
@@ -40,7 +40,7 @@ export default class HttpEntityMethodProcessor extends AbstractMessageConverterM
     } else if (HttpStatus.OK.code / 100 == 3) {
       // 重定向处理
     }
-    return this.writeWithMessageConverters(entity.data, servletContext);
+    return this.writeWithMessageConverters(entity.body, servletContext);
   }
 
   private isResourceNotModified(servletContext: ServletContext) {
@@ -62,12 +62,18 @@ export default class HttpEntityMethodProcessor extends AbstractMessageConverterM
   }
 
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext) {
+    const request = servletContext.request;
     if (parameter.parameterType === HttpEntity) {
-      return new HttpEntity(null, servletContext.request.headers);
+      return new HttpEntity(null, request.headers);
     }
     // TODO: 由于目前ts默认编译场景下不支持泛型参数提取，所以这里type默认为Map类型
     const type = Map;
-    const data = this.readWithMessageConverters(servletContext, type);
-    return new RequestEntity(data, servletContext.request.headers);
+    let data = null;
+    if (request.hasBody) {
+      data = this.readWithMessageConverters(servletContext, type);
+    }
+    const url = request.requestUrl;
+    const method = request.method;
+    return new RequestEntity(url, method, data, request.headers);
   }
 }

@@ -88,6 +88,6 @@ export declare type Middleware = (request: any, response: any, ex: MiddlewareNex
 
 export type HttpHeaderValue = number | string | ReadonlyArray<string>
 
-export type ResponseHeaders = Record<string, HttpHeaderValue>
+export type ResponseHeaders = OutgoingHttpHeaders
 
-export type RequestHeaders = Record<string, HttpHeaderValue>
+export type RequestHeaders = IncomingHttpHeaders

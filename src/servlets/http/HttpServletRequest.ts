@@ -71,6 +71,10 @@ export default class HttpServletRequest {
     return this.fdomain + this.path;
   }
 
+  public get requestUrl(){
+    return this.fdomain + this.url;
+  }
+
   private params: Map<any, any>
 
   /**

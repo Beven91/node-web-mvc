@@ -4,6 +4,7 @@ import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHea
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
+import RequestEntity from '../../../src/servlets/models/RequestEntity';
 
 @Api({ description: '首页' })
 @RestController
@@ -86,7 +87,7 @@ export default class HomeController {
   @ApiOperation({ value: '@RequestParam 接收Array数据接收' })
   @PostMapping('/array')
   array(@RequestParam array: Array<string>) {
-    // TODO 如何补偿泛型运行时的类型参数
+    // TODO: 如何补偿泛型运行时的类型参数
     const values: string[] = [
       `Type: ${Object.prototype.toString.call(array)}`,
       ...array
@@ -97,7 +98,7 @@ export default class HomeController {
   @ApiOperation({ value: 'Date,Boolean,数据接收' })
   @PostMapping('/booleanDate')
   booleanDate(@RequestParam date: Date, @RequestParam isShow: boolean) {
-    // TODO 关于Date converter
+    // TODO: 关于Date converter
     return `date:${date.toLocaleString()},\nisShow:${isShow}`;
   }
 
@@ -109,7 +110,7 @@ export default class HomeController {
   requestParamWithMultipartFile(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
     this.oService.sayHello();
     this.orderService.sayHello();
-    // TODO 如何防止恶意写入
+    // TODO: 如何防止恶意写入
     file.transferTo('a.jpg')
     return 'home/index...' + id + ',file.name=' + file.name;
   }
@@ -177,12 +178,13 @@ export default class HomeController {
   }
 
   @ApiOperation({ value: '测试ResponseHttpEntity返回', returnType: ['hello'] })
-  @GetMapping('/responseEntity')
-  responseHttpEntity() {
+  @GetMapping('/httpEntity')
+  httpEntity(httpEntity: RequestEntity) {
+    console.log(httpEntity.headers['accept-language']);
     const entity = new ResponseEntity(HttpStatus.OK);
-    entity.header(HttpHeaders.LAST_MODIFIED,new Date().toUTCString());
-    entity.header('demo','123424234')
-    entity.body({ id:100086 })
+    entity.setHeader(HttpHeaders.LAST_MODIFIED, new Date().toUTCString());
+    entity.setHeader('demo', '123424234')
+    entity.setBody({ id: 100086 })
     return entity;
   }
 }
