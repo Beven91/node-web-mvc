@@ -139,7 +139,11 @@ export default class RuntimeAnnotation<A = any> {
     if (this.elementType == ElementType.PARAMETER) {
       return this.paramType;
     }
-    return Reflect.getMetadata('design:type', this.target, this.name);
+    return RuntimeAnnotation.getPropertyType(this.target, this.name);
+  }
+
+  static getPropertyType(clazz: Function, name: string) {
+    return Reflect.getMetadata('design:type', clazz, name)
   }
 
   static isAnnotationTypeOf = isAnnotationTypeOf
