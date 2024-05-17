@@ -55,7 +55,7 @@ export { default as HandlerAdapter } from './servlets/method/HandlerAdapter';
 export { default as AbstractHandlerMethodAdapter } from './servlets/method/AbstractHandlerMethodAdapter';
 export { default as HandlerMethodArgumentResolver } from './servlets/method/argument/HandlerMethodArgumentResolver';
 export { default as ArgumentsResolvers } from './servlets/method/argument/ArgumentsResolvers';
-export { default as ArgumentConverter } from './servlets/method/argument/ArgumentConverter';
+export { default as TypeConverter } from './servlets/http/serialization/TypeConverter';
 export { default as PathVariableMapMethodArgumentResolver } from './servlets/method/argument/PathVariableMapMethodArgumentResolver';
 export { default as RequestHeaderMapMethodArgumentResolver } from './servlets/method/argument/RequestHeaderMapMethodArgumentResolver';
 export { default as RequestParamMapMethodArgumentResolver } from './servlets/method/argument/RequestParamMapMethodArgumentResolver';

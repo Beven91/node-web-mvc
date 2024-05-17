@@ -12,7 +12,7 @@ import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgume
 import ServletContextMethodArgumentResolver from './ServletContextMethodArgumentResolver';
 import HandlerMethod from '../HandlerMethod';
 import ArgumentResolvError from '../../../errors/ArgumentResolvError';
-import ArgumentConverter from './ArgumentConverter';
+import TypeConverter from '../../http/serialization/TypeConverter';
 import IllegalArgumentException from '../../../errors/IllegalArgumentException';
 import ParamAnnotation from '../../annotations/params/ParamAnnotation';
 import MessageConverter from '../../http/converts/MessageConverter';
@@ -82,8 +82,7 @@ export default class ArgumentsResolvers {
           finalValue = [finalValue];
         }
         // 设置参数值
-        const converter = new ArgumentConverter(parameter.parameterType);
-        args[i] = converter.convert(finalValue);
+        args[i] = TypeConverter.convert(finalValue, parameter.parameterType);
       }
       return args;
     } catch (ex) {
