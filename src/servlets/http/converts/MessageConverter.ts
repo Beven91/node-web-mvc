@@ -11,7 +11,7 @@ export default class MessageConverter {
   private readonly registerConverters: Array<HttpMessageConverter<any>>
 
   constructor() {
-    this.registerConverters = [ ]
+    this.registerConverters = []
   }
 
   /**
@@ -32,7 +32,7 @@ export default class MessageConverter {
   read(servletContext: ServletContext, dataType: Function): Promise<any> {
     const mediaType = servletContext.request.mediaType;
     const converter = this.registerConverters.find((converter) => converter.canRead(dataType, mediaType));
-    return Promise.resolve(converter.read(servletContext));
+    return Promise.resolve(converter.read(servletContext, dataType));
   }
 
   /**

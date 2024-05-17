@@ -18,7 +18,7 @@ export default interface HttpMessageConverter<T = any> {
    * 判断当前转换器是否能处理当前内容类型
    * @param mediaType 当前内容类型 例如: application/json
    */
-  canRead(dataType: JsDataType , mediaType: MediaType): boolean
+  canRead(dataType: JsDataType, mediaType: MediaType): boolean
 
   /**
    * 判断当前内容是否能写
@@ -32,7 +32,7 @@ export default interface HttpMessageConverter<T = any> {
    * 读取当前消息内容
    * @param servletRequest 
    */
-  read(servletContext: ServletContext): Promise<T>
+  read(servletContext: ServletContext, dataType: Function): Promise<T>
 
   /**
    * 写出当前内容
