@@ -79,7 +79,7 @@ export declare interface CrossOriginOption {
 }
 
 export type ClazzType = {
-  new(): any
+  new(...args:any[]): any
 }
 
 export type JsDataType = Function | (abstract new (...args: any[]) => any)

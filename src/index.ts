@@ -72,6 +72,7 @@ export { default as HttpServletRequest } from './servlets/http/HttpServletReques
 export { default as HttpServletResponse } from './servlets/http/HttpServletResponse';
 export { default as MediaType } from './servlets/http/MediaType';
 export { default as RuntimeAnnotation } from './servlets/annotations/annotation/RuntimeAnnotation';
+export { default as ModelAttribute } from './servlets/annotations/ModelAttribute';
 export { default as HttpMethod } from './servlets/http/HttpMethod';
 export { default as HttpHeaders } from './servlets/http/HttpHeaders';
 export { default as HttpStatus } from './servlets/http/HttpStatus';

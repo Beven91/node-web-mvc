@@ -41,4 +41,12 @@ export default class Javascript {
       }
     }
   }
+
+  static isType(current: any, target: any) {
+    return this.getClass(current).isEqualOrExtendOf(target);
+  }
+
+  static isArrayType(type: any) {
+    return this.isType(type, Array);
+  }
 }
