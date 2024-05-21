@@ -3,144 +3,114 @@
  * @description 类型转换
  */
 
+import SerializationCreateInstanceError from "../../../errors/SerializationCreateInstanceError";
 import ValueConvertError from "../../../errors/ValueConvertError";
 import Javascript from "../../../interface/Javascript";
+import { ClazzType } from "../../../interface/declare";
+import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
+import { toBigInt, toBoolean, toDate, toNumber, toString } from "./BasicTypeConverter";
 
-const isNull = (v: any) => v === null || v === undefined;
-
-interface ConvertMapping {
-  type: Function
-  handler: (value: any) => any
-}
-
-const mappings: ConvertMapping[] = [
-  {
-    type: BigInt,
-    handler: (value: any) => {
-      try {
-        return BigInt(value);
-      } catch (ex) {
-        throw new ValueConvertError(value, BigInt);
-      }
-    }
-  },
-  {
-    type: String,
-    handler: (value: any) => {
-      return isNull(value) ? '' : value.toString();
-    }
-  },
-  {
-    type: Number,
-    handler: (value: any) => {
-      if (isNaN(value)) {
-        throw new ValueConvertError(value, Number);
-      }
-      return Number(value);
-    }
-  },
-  {
-    type: Boolean,
-    handler: (value: any) => {
-      if (typeof value === 'boolean') {
-        return value;
-      } else if (value == 0 || value === 'false') {
-        return false;
-      } else if (value == 1 || value === 'true') {
-        return true;
-      }
-      throw new ValueConvertError(value, Boolean);
-    }
-  },
-  {
-    type: Date,
-    handler: (value: any) => {
-      const date = new Date(value);
-      if (/Invalid/.test(date.toString())) {
-        throw new ValueConvertError(value, Date);
-      }
-      return date;
-    }
-  },
-  {
-    type: Array,
-    handler: (value: any) => {
-      if (!(value instanceof Array)) {
-        throw new ValueConvertError(value, Array);
-      }
-      return value;
-    }
-  },
-  {
-    type: Map,
-    handler: (value: any) => {
-      if (typeof value !== 'object' || !value) {
-        throw new ValueConvertError(value, Map);
-      } else if (value instanceof Map) {
-        return value;
-      }
-      const map = new Map();
-      Object.keys(value).forEach((key) => {
-        map.set(key, value[key]);
-      });
-      return map;
-    }
-  },
-  {
-    type: Set,
-    handler: (value) => {
-      if (!(value instanceof Array)) {
-        throw new ValueConvertError(value, Set);
-      } else if (value instanceof Set) {
-        return value;
-      }
-      const data = new Set();
-      value.forEach((item) => data.add(item));
-      return data;
-    }
-  },
-]
+const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;
 
 export default class TypeConverter {
-
-  static getMapping(dataType: Function) {
-    return mappings.find((m) => Javascript.getClass(m.type).isEqualOrExtendOf(dataType))
-  }
-
-  static support(dataType: Function) {
-    return !!this.getMapping(dataType);
-  }
-
-  static convert(value: any, dataType: Function) {
-    const mapping = this.getMapping(dataType);
-    if (mapping) {
-      return mapping.handler(value);
+  private createInstance(type: ClazzType, ...args: any[]) {
+    try {
+      if (!type) {
+        return null;
+      }
+      return new type(...args);
+    } catch (ex) {
+      throw new SerializationCreateInstanceError(type, ex.message);
     }
-    return this.toClass(value, dataType);
   }
 
-  static toClass(value, dataType: Function) {
-    const T = dataType as any;
-    if (typeof T !== 'function' || value instanceof T) {
+  convert(value: object, type: any, itemType?: any) {
+    if (value === null || value === undefined) {
+      return null;
+    } else if (!type) {
+      throw new Error('dataType not present');
+    }
+    const clazzType = Javascript.createTyper(type);
+    if (clazzType.isType(BigInt)) {
+      return toBigInt(value);
+    } else if (clazzType.isType(String)) {
+      return toString(value, type)
+    } else if (clazzType.isType(Number)) {
+      return toNumber(value, type);
+    } else if (clazzType.isType(Boolean)) {
+      return toBoolean(value);
+    } else if (clazzType.isType(Date)) {
+      return toDate(value, type);
+    } else if (clazzType.isType(Array)) {
+      return this.toArray(value, type, itemType);
+    } else if (clazzType.isType(Set)) {
+      return this.toSet(value, type, itemType);
+    } else if (clazzType.isType(Map)) {
+      return this.toMap(value, type, itemType);
+    } else if (value instanceof type) {
       return value;
+    } else if (clazzType.isType(TypedArray)) {
+      return this.toTypedArray(value, type);
+    } else {
+      return this.toClass(value, type, itemType);
     }
-    if (dataType === Object) {
-      return value;
+  }
+
+  toSet(value: object, type: ClazzType, itemType?: any) {
+    const set = new type() as Set<any>;
+    const items = value instanceof Array ? value : [value];
+    items.forEach((value) => {
+      set.add(itemType ? this.convert(value, itemType) : value);
+    })
+    return set;
+  }
+
+  toMap(data: any, type: ClazzType, itemType?: any) {
+    if (typeof data !== 'object' || !data || data instanceof Array) {
+      throw new ValueConvertError(data, Map);
     }
-    const instance = new T();
-    if (typeof value === 'object' && value) {
-      Object.keys(value || {}).forEach((key) => {
-        try {
-          if (!Javascript.protoKeys[key]) {
-            // 排除原型相关属性,这里只能赋值常规属性
-            instance[key] = value[key];
-          }
-        } catch (ex) {
-          if (ex.message.indexOf('which has only a getter') < 0) {
-            throw new ValueConvertError(value, T, ex.message);
-          }
-        }
+    const map = new type() as Map<any, any>;
+    Object.keys(data).forEach((key) => {
+      const value = itemType ? this.convert(data[key], itemType) : data[key];
+      map.set(key, value);
+    });
+    return map;
+  }
+
+  toArray(value: object, type: ClazzType, itemType?: any) {
+    const values = value instanceof Array ? value : [value];
+    const instance = this.createInstance(type);
+    if (value == null) {
+      return instance;
+    } else if (itemType) {
+      values.forEach((item, i) => {
+        instance[i] = this.convert(item, itemType);
       });
+    } else {
+      values.forEach((item, i) => {
+        instance[i] = item;
+      });
+    }
+    return instance;
+  }
+
+  toTypedArray(data: any, type: ClazzType) {
+    return new type(data) as Uint8Array;
+  }
+
+  toClass(data: object, dataType: ClazzType, itemType?: any) {
+    const properties = RuntimeAnnotation.getClazzMetaPropertyAnnotations(dataType);
+    const instance = this.createInstance(dataType);
+    const keys = Object.keys(data);
+    for (const key of keys) {
+      const value = data[key];
+      // const defaultValue = dataType.prototype[key];
+      const anno = properties[key];
+      if (!anno) {
+        instance[key] = value;
+      } else {
+        instance[key] = this.convert(value, anno.dataType, anno.nativeAnnotation.itemType);
+      }
     }
     return instance;
   }

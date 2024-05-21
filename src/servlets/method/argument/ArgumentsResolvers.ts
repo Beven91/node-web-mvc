@@ -25,6 +25,8 @@ import ContentNegotiationManager from '../../http/accept/ContentNegotiationManag
 import RequestPartArgumentResolver from './RequestPartArgumentResolver';
 import HttpEntityMethodProcessor from '../processor/HttpEntityMethodProcessor';
 
+const converter = new TypeConverter();
+
 export default class ArgumentsResolvers {
 
   private readonly registerResolvers: HandlerMethodArgumentResolver[]
@@ -78,11 +80,11 @@ export default class ArgumentsResolvers {
           const message = `Required ${anno.getParamAt()} '${parameter.paramName}' is not present ==> ${handler.beanTypeName}.${handler.methodName}`
           throw new ArgumentResolvError(message, parameter.paramName);
         }
-        if (finalValue instanceof MultipartFile && Javascript.getClass(parameter.parameterType).isEqualOrExtendOf(Array)) {
+        if (finalValue instanceof MultipartFile && Javascript.createTyper(parameter.parameterType).isType(Array)) {
           finalValue = [finalValue];
         }
         // 设置参数值
-        args[i] = TypeConverter.convert(finalValue, parameter.parameterType);
+        args[i] = converter.convert(finalValue, parameter.parameterType, null);
       }
       return args;
     } catch (ex) {

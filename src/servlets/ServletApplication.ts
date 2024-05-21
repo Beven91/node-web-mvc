@@ -147,7 +147,7 @@ function registerHotUpdate(app: ServletApplication, refreshLifecycle: ServletApp
     .clean()
     .postend((m) => {
       const Configurer = m.exports?.default;
-      if (Javascript.getClass(Configurer).isEqualOrExtendOf(WebMvcConfigurationSupport)) {
+      if (Javascript.createTyper(Configurer).isType(WebMvcConfigurationSupport)) {
         app.context?.getBeanFactory()?.destory?.();
         const config = new Configurer();
         delete config.hot;

@@ -30,23 +30,15 @@ export default class Javascript {
     return handler[symbol];
   }
 
-  static getClass(childType: Function) {
+  static createTyper(childType: Function) {
     return {
       type: childType,
       isExtendOf: (parentType: Function) => {
         return parentType?.prototype?.isPrototypeOf?.(childType?.prototype);
       },
-      isEqualOrExtendOf: (parentType: Function) => {
+      isType: (parentType: Function) => {
         return childType && parentType === childType || parentType?.prototype?.isPrototypeOf?.(childType?.prototype);
       }
     }
-  }
-
-  static isType(current: any, target: any) {
-    return this.getClass(current).isEqualOrExtendOf(target);
-  }
-
-  static isArrayType(type: any) {
-    return this.isType(type, Array);
   }
 }

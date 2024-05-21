@@ -18,7 +18,7 @@ export default class InternalErrorHandler {
 
   constructor(beanFactory: BeanFactory, registry: ViewResolverRegistry) {
     this.registry = registry;
-    const isExtendErrorAttributes = (m: RuntimeAnnotation) => Javascript.getClass(m.ctor).isEqualOrExtendOf(ErrorAttributes);
+    const isExtendErrorAttributes = (m: RuntimeAnnotation) => Javascript.createTyper(m.ctor).isType(ErrorAttributes);
     const MyErrorAttributes = RuntimeAnnotation.getAnnotations(Component).find(isExtendErrorAttributes)?.ctor;
     if (MyErrorAttributes) {
       this.errorAttributes = beanFactory.getBean(MyErrorAttributes);

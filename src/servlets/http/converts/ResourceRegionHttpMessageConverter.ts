@@ -20,7 +20,7 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
   }
 
   supports(clazz: Function): boolean {
-    return Javascript.getClass(clazz).isEqualOrExtendOf(RegionsResource);
+    return Javascript.createTyper(clazz).isType(RegionsResource);
   }
 
   async readInternal(servletContext: ServletContext): Promise<any> {

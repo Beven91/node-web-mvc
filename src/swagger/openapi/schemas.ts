@@ -56,13 +56,15 @@ export default class Schemas {
 
   private buildModelProperties(model: RuntimeAnnotation<InstanceType<typeof ApiModel>>) {
     const properties = RuntimeAnnotation.getAnnotations(ApiModelProperty, model.ctor);
+    const metaPropertyMapping = RuntimeAnnotation.getClazzMetaPropertyAnnotations(model.ctor);
     const modelProperties: Record<string, ApiModelPropertyInfo | SchemeRef> = {};
     for (let property of properties) {
       const anno = property.nativeAnnotation;
+      const metaProperty = metaPropertyMapping[property.name];
       const isGenericTemplate = GenericType.isGeneric(anno.dataType);
       const typeInfo = isGenericTemplate ? { type: anno.dataType } : this.typemappings.make(property.dataType || anno.dataType || anno.example?.constructor);
       modelProperties[property.name] = {
-        description: anno.value,
+        description: anno.value || metaProperty?.nativeAnnotation?.desc,
         example: anno.example,
         enum: !anno.enum ? undefined : Object.keys(anno.enum).filter((m: any) => isNaN(m)),
         ...typeInfo

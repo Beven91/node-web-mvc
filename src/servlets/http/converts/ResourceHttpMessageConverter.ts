@@ -18,7 +18,7 @@ export default class ResourceHttpMessageConverter extends AbstractHttpMessageCon
   }
 
   supports(clazz: Function): boolean {
-    return Javascript.getClass(clazz).isEqualOrExtendOf(Resource);
+    return Javascript.createTyper(clazz).isType(Resource);
   }
 
   async readInternal(servletContext: ServletContext) {

@@ -14,7 +14,7 @@ export default class StringHttpMessageConverter extends AbstractHttpMessageConve
   }
 
   supports(clazz: Function): boolean {
-    return Javascript.getClass(clazz).isEqualOrExtendOf(String);
+    return Javascript.createTyper(clazz).isType(String);
   }
 
   async readInternal(servletContext: ServletContext): Promise<String> {

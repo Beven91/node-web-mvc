@@ -14,7 +14,7 @@ export default class ByteArrayHttpMessageConverter extends AbstractHttpMessageCo
   }
 
   supports(clazz: Function): boolean {
-    return Javascript.getClass(clazz).isEqualOrExtendOf(Buffer);
+    return Javascript.createTyper(clazz).isType(Buffer);
   }
 
   readInternal(servletContext: ServletContext): Promise<Buffer> {

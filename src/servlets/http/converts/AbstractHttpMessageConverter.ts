@@ -2,7 +2,7 @@
  * @module AbstractHttpMessageConverter
  */
 
-import { JsDataType } from "../../../interface/declare";
+import { ClazzType, JsDataType } from "../../../interface/declare";
 import MediaType from "../MediaType";
 import ServletContext from "../ServletContext";
 import HttpMessageConverter from "./HttpMessageConverter";
@@ -35,8 +35,8 @@ export default abstract class AbstractHttpMessageConverter<T> implements HttpMes
     return this.supports(clazz) && this.matchMediaType(mediaType);
   }
 
-  read(servletContext: ServletContext): Promise<T> {
-    return this.readInternal(servletContext);
+  read(servletContext: ServletContext, dataType: Function): Promise<T> {
+    return this.readInternal(servletContext, dataType);
   }
 
   async write(data: T, servletContext: ServletContext): Promise<void> {
@@ -45,7 +45,7 @@ export default abstract class AbstractHttpMessageConverter<T> implements HttpMes
 
   abstract supports(clazz: Function): boolean
 
-  abstract readInternal(servletContext: ServletContext): Promise<T>
+  abstract readInternal(servletContext: ServletContext, dataType: Function): Promise<T>
 
   abstract writeInternal(data: T, servletContext: ServletContext): Promise<void>
 }

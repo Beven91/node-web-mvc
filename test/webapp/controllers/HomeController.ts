@@ -5,6 +5,7 @@ import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 import RequestEntity from '../../../src/servlets/models/RequestEntity';
+import City from '../models/Models';
 
 @Api({ description: '首页' })
 @RestController
@@ -64,13 +65,14 @@ export default class HomeController {
   ])
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
-  mapPost(@RequestBody data: Map<string, any>) {
+  mapPost(@RequestBody data: City) {
     const values: string[] = [
       `Type: ${Object.prototype.toString.call(data)}`
     ];
-    data.forEach((value, key) => {
-      values.push(`${key}:${value}`)
-    })
+    console.log(data);
+    // data.forEach((value, key) => {
+    //   values.push(`${key}:${value}`)
+    // })
     return values.join('\n');
   }
 

@@ -66,15 +66,15 @@ export default class TypeMappings {
   }
 
   make(type: any): SchemeRef | ApiModelPropertyInfo {
-    const clazz = Javascript.getClass(type);
-    const basicType = mappings.find((m) => clazz.isEqualOrExtendOf(m.clazz))?.data;
+    const clazz = Javascript.createTyper(type);
+    const basicType = mappings.find((m) => clazz.isType(m.clazz))?.data;
     if (type === Object) {
       return { type: 'object' };
     } else if (basicType) {
       return basicType;
     } else if (typeof type === 'string') {
       return this.makeRefType(type);
-    } else if (type?.name && clazz.isEqualOrExtendOf(Object)) {
+    } else if (type?.name && clazz.isType(Object)) {
       return this.makeRef(type.name);
     } else {
       return { type: 'string' }

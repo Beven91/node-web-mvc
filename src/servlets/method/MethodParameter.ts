@@ -63,7 +63,7 @@ export default class MethodParameter {
   public isParamAssignableOf(parentType: Function) {
     if (!parentType) return false;
     // 判断 参数类型是否继承与parentType或者等于parentType
-    return Javascript.getClass(this.parameterType).isEqualOrExtendOf(parentType);
+    return Javascript.createTyper(this.parameterType).isType(parentType);
   }
 
   /**

@@ -9,6 +9,9 @@ import Tracer from "./Tracer";
 import { mergeAnnotationSymbol } from '../Merge';
 import AliasFor from '../AliasFor';
 import { ClazzType } from '../../../interface/declare';
+import MetaProperty from './MetaProperty';
+
+const propertiesSymbol = Symbol('properties');
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
@@ -36,7 +39,7 @@ const isMatchType = (m: RuntimeAnnotation, clazz: Function) => {
   if (m.ctor === clazz) {
     return true;
   }
-  return Javascript.getClass(clazz).isExtendOf(m.ctor);
+  return Javascript.createTyper(clazz).isExtendOf(m.ctor);
 }
 
 export default class RuntimeAnnotation<A = any> {
@@ -139,11 +142,7 @@ export default class RuntimeAnnotation<A = any> {
     if (this.elementType == ElementType.PARAMETER) {
       return this.paramType;
     }
-    return RuntimeAnnotation.getPropertyType(this.target, this.name);
-  }
-
-  static getPropertyType(clazz: Function, name: string) {
-    return Reflect.getMetadata('design:type', clazz, name)
+    return Reflect.getMetadata('design:type', this.target, this.name);
   }
 
   static isAnnotationTypeOf = isAnnotationTypeOf
@@ -283,6 +282,18 @@ export default class RuntimeAnnotation<A = any> {
   }
 
   /**
+   * 获取指定类的原始属性定义的注解信息
+   * @param clazz 
+   * @returns 
+   */
+  static getClazzMetaPropertyAnnotations(clazz: any) {
+    if (!clazz) {
+      return {};
+    }
+    return clazz[propertiesSymbol] as Record<string, RuntimeAnnotation<MetaProperty>> || {};
+  }
+
+  /**
    * 合并配置值到nativeAnnotation上
    * @param nativeAnnotation 
    * @param initializer 
@@ -322,6 +333,11 @@ export default class RuntimeAnnotation<A = any> {
     this.target = target;
     this.elementType = checkAnnotation(elementTypes, meta, NativeAnnotation.name);
 
+    let properties = this.ctor[propertiesSymbol];
+    if (!properties) {
+      properties = this.ctor[propertiesSymbol] = {};
+    }
+
     // 初始化元信息
     switch (this.elementType) {
       case ElementType.TYPE:
@@ -335,6 +351,9 @@ export default class RuntimeAnnotation<A = any> {
       case ElementType.PROPERTY:
         this.name = name;
         this.descriptor = descritpor;
+        if (Javascript.createTyper(NativeAnnotation).isType(MetaProperty)) {
+          properties[name] = this;
+        }
         break;
       case ElementType.PARAMETER:
         this.name = name;

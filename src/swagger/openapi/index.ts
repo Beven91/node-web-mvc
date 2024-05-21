@@ -191,7 +191,7 @@ export default class OpenApiModel {
       const isResponse = !!RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ServletResponse);
       const parameter2 = parameterAnno?.nativeAnnotation;
       const dataType = emptyOf(parameter.dataType, parameterAnno?.dataType) || paramTypes[i] || operationAnno?.paramTypes?.[i];
-      if (isRequest || isResponse || Javascript.getClass(dataType).isEqualOrExtendOf(HttpEntity)) {
+      if (isRequest || isResponse || Javascript.createTyper(dataType).isType(HttpEntity)) {
         return;
       }
       const value = emptyOf(parameter.value, parameter2?.value) || emptyOf(parameter.name, parameter2?.value) || name;

@@ -112,7 +112,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    */
   isTypeMatch(beanName: string, beanType: ClazzType) {
     const clazz = this.getType(beanName);
-    return Javascript.getClass(clazz).isEqualOrExtendOf(beanType);
+    return Javascript.createTyper(clazz).isType(beanType);
   }
 
   /**
@@ -133,7 +133,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   getBeanOfType<T extends abstract new () => any>(beanType: T) {
     const result: InstanceType<T>[] = [];
     for (const beanInstance of this.beanInstancesCache.values()) {
-      if (Javascript.getClass(beanInstance.constructor).isEqualOrExtendOf(beanType)) {
+      if (Javascript.createTyper(beanInstance.constructor).isType(beanType)) {
         result.push(beanInstance);
       }
     }
