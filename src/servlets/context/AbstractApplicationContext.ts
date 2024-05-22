@@ -37,7 +37,7 @@ export default abstract class AbstractApplicationContext {
    * 根据注解注册Bean定义
    * @param annotation Component注解
    */
-  private registerWithAnnotation(annotation: RuntimeAnnotation<InstanceType<typeof Component>>) {
+  private registerWithAnnotation(annotation: RuntimeAnnotation<typeof Component>) {
     const clazz = annotation.ctor;
     const scopeAnno = RuntimeAnnotation.getClassAnnotation(clazz, Scope);
     const name = annotation.nativeAnnotation.value;

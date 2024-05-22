@@ -7,7 +7,7 @@ import { ApiImplicitParamOptions, ApiTag, ApiOperationResponseBody, ApiOperation
 import { ApiPaths, ApiOperationPaths } from './declare';
 import Schemas from './schemas';
 import RequestMapping from '../../servlets/annotations/mapping/RequestMapping';
-import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import RuntimeAnnotation, { } from '../../servlets/annotations/annotation/RuntimeAnnotation';
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import ApiOperation from '../annotations/ApiOperation';
@@ -59,7 +59,7 @@ export default class OpenApiModel {
     return newName.replace(/^-/, '');
   }
 
-  createTags(annotation: RuntimeAnnotation<InstanceType<typeof Controller>>) {
+  createTags(annotation: RuntimeAnnotation<typeof Controller>) {
     const apiAnno = RuntimeAnnotation.getClassAnnotation(annotation.ctor, Api)?.nativeAnnotation;
     const name = this.clampName(annotation.ctor.name);
     return (apiAnno?.tags || [{
@@ -132,7 +132,7 @@ export default class OpenApiModel {
   /**
    * 创建api操作的所有paths
    */
-  private buildOperation(paths: ApiPaths, action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, tags: ApiTag[], definition: Schemas) {
+  private buildOperation(paths: ApiPaths, action: RuntimeAnnotation<typeof RequestMapping>, tags: ApiTag[], definition: Schemas) {
     const apiOperation = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation)?.nativeAnnotation;
     const mapping = RequestMapping.getMappingInfo(action.ctor, action.methodName);
     if (!mapping) {
@@ -178,7 +178,7 @@ export default class OpenApiModel {
    * 构建api接口操作参数
    * @param operation 
    */
-  private buildOperationParameters(action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, definition: Schemas) {
+  private buildOperationParameters(action: RuntimeAnnotation<typeof RequestMapping>, definition: Schemas) {
     const operationAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation);
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiImplicitParams);
     const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
@@ -195,7 +195,7 @@ export default class OpenApiModel {
         return;
       }
       const value = emptyOf(parameter.value, parameter2?.value) || emptyOf(parameter.name, parameter2?.value) || name;
-      const useType = parameter2?.getParamAt?.();
+      const useType = parameter2?.paramAt;
       return {
         name: value || name,
         required: emptyOf(parameter.required, parameter2?.required),
@@ -234,7 +234,7 @@ export default class OpenApiModel {
     }
   }
 
-  private buildOperationConsumes(action: RuntimeAnnotation<InstanceType<typeof RequestMapping>>, parameters: ApiOperationParameter[], consumes: string[]) {
+  private buildOperationConsumes(action: RuntimeAnnotation<typeof RequestMapping>, parameters: ApiOperationParameter[], consumes: string[]) {
     const requestBody = { content: {} } as ApiOperationResponseBody;
     const body = parameters.find((m) => m.in == 'body');
     const multiparts = parameters.filter((m) => this.isMultipartFile(m.schema) || (m.in as string) == 'part')

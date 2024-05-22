@@ -16,7 +16,7 @@ const propertiesSymbol = Symbol('properties');
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
 
-export type GetTargetAnnotationType<T> = T extends { NativeAnnotation: abstract new (...args: any) => infer A } ? A : T extends abstract new (...args: any[]) => infer A ? A : T
+type GetTargetAnnotationType<T> = T extends { NativeAnnotation: abstract new (...args: any) => infer A } ? A : T extends abstract new (...args: any[]) => infer A ? A : T
 
 export interface IAnnotationClazz {
   new(...args: any[]): any
@@ -102,7 +102,7 @@ export default class RuntimeAnnotation<A = any> {
   public readonly descriptor: any
 
   // 标注实例
-  public readonly nativeAnnotation: A
+  public readonly nativeAnnotation: GetTargetAnnotationType<A>
 
   // 当前标注实际使用的类型
   public readonly elementType: ElementType
@@ -153,7 +153,7 @@ export default class RuntimeAnnotation<A = any> {
    */
   static getTypedRuntimeAnnotations<C extends IAnnotationClazz>(type: C, match?: (m: RuntimeAnnotation) => boolean) {
     const isMatch = match || (() => true);
-    return runtimeAnnotations.filter((m) => isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<GetTargetAnnotationType<C>>[];
+    return runtimeAnnotations.filter((m) => isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<C>[];
   }
 
   /**
@@ -175,7 +175,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param {Function} clazz 被修饰的类
    */
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function): RuntimeAnnotation[]
-  static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
+  static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C): RuntimeAnnotation<C>[]
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType?: C) {
     const isClassAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.elementType == ElementType.TYPE;
     if (arguments.length > 1) {
@@ -211,7 +211,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param {Function} type 注解类型
    * @param {Function} clazz 被修饰的类 
    */
-  static getAnnotations<C extends IAnnotationOrClazz>(annotationType: C | C[], clazz?: Function): RuntimeAnnotation<GetTargetAnnotationType<C>>[] {
+  static getAnnotations<C extends IAnnotationOrClazz>(annotationType: C | C[], clazz?: Function): RuntimeAnnotation<C>[] {
     const isScope = arguments.length >= 2 ? (m: RuntimeAnnotation) => isMatchType(m, clazz) : () => true;
     const types = annotationType instanceof Array ? annotationType : [annotationType];
     return runtimeAnnotations.filter((m) => {
@@ -237,7 +237,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param method 函数名称
    */
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function): RuntimeAnnotation[]
-  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
+  static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C): RuntimeAnnotation<C>[]
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType?: C): RuntimeAnnotation[] {
     const isMethodAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && (m.name == method || m.method == method) && m.elementType == ElementType.METHOD;
     if (arguments.length > 2) {
@@ -261,7 +261,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param method 函数名称
    */
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string): RuntimeAnnotation[]
-  static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType: C): RuntimeAnnotation<GetTargetAnnotationType<C>>[]
+  static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType: C): RuntimeAnnotation<C>[]
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType?: C) {
     const isMethodParamAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.name == method && m.elementType == ElementType.PARAMETER && (m.paramName === paramName || paramName === undefined)
     if (arguments.length > 3) {
@@ -290,7 +290,7 @@ export default class RuntimeAnnotation<A = any> {
     if (!clazz) {
       return {};
     }
-    return clazz[propertiesSymbol] as Record<string, RuntimeAnnotation<MetaProperty>> || {};
+    return  clazz[propertiesSymbol] as Record<string, RuntimeAnnotation<MetaProperty>> || {};
   }
 
   /**

@@ -5,14 +5,15 @@
 import { ApiImplicitParamOptions } from '../openapi/declare';
 import Target from '../../servlets/annotations/Target';
 import ElementType from '../../servlets/annotations/annotation/ElementType';
+import AliasFor from '../../servlets/annotations/AliasFor';
 
 
 class ApiImplicitParams {
 
-  get parameters(){
-    return this.value;
-  }
+  @AliasFor("value")
+  parameters?: ApiImplicitParamOptions[]
 
+  @AliasFor("parameters")
   value: ApiImplicitParamOptions[]
 }
 

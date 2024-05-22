@@ -35,7 +35,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     this.registerAllAnnotationMappings();
   }
 
-  registerAnnotationMappings(annotation: RuntimeAnnotation<InstanceType<typeof RequestMapping>>) {
+  registerAnnotationMappings(annotation: RuntimeAnnotation<typeof RequestMapping>) {
     const isNotAction = annotation.elementType !== ElementType.METHOD;
     // 仅注册action路由 action路由 = controller路由 + action路由
     if (isNotAction) return;

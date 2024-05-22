@@ -1,8 +1,8 @@
 import { RequestParamType } from "../../method/MethodParameter"
 
-export default class ParamAnnotation {
-  private paramAt: RequestParamType
+const paramAtSymbol = Symbol('paramAt');
 
+export default class ParamAnnotation {
   /**
    * 需要提取的参数名称,默认为：注解目标形参参数名
    */
@@ -18,14 +18,11 @@ export default class ParamAnnotation {
    */
   public defaultValue?: any
 
-  /**
-   * 用于生成文档，表示参数应该在http协议的内容位置
-   */
-  public getParamAt() {
-    return this.paramAt;
+  public get paramAt(): RequestParamType {
+    return this[paramAtSymbol];
   }
 
   constructor(paramAt: RequestParamType) {
-    this.paramAt = paramAt;
+    this[paramAtSymbol] = paramAt;
   }
 }

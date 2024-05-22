@@ -13,6 +13,8 @@ import { ApiModelInfo, ApiModelPropertyInfo, SchemeRef, SchemeRefExt } from "./d
 import GenericType from "./generic";
 import TypeMappings from "./typemappings";
 
+type A =  typeof ApiModelProperty;
+
 export default class Schemas {
 
   typemappings = new TypeMappings();
@@ -60,7 +62,7 @@ export default class Schemas {
     const properties = RuntimeAnnotation.getAnnotations(ApiModelProperty, clazzType).reduce((map, value) => {
       map[value.name] = value;
       return map;
-    }, {}) as Record<string, RuntimeAnnotation<InstanceType<typeof ApiModelProperty>>>;
+    }, {}) as Record<string, RuntimeAnnotation<typeof ApiModelProperty>>;
     const metaProperties = RuntimeAnnotation.getClazzMetaPropertyAnnotations(clazzType);
     const modelProperties: Record<string, ApiModelPropertyInfo | SchemeRef> = {};
     const keys = [...Object.keys(properties), ...Object.keys(metaProperties)];
