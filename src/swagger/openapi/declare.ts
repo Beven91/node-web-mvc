@@ -1,3 +1,5 @@
+import { ClazzType } from "../../interface/declare"
+
 export interface ApiTag {
   name: string
 
@@ -80,6 +82,10 @@ export interface ApiPaths {
 
 export interface SchemeRef {
   $ref: string
+}
+
+export interface SchemeRefExt extends SchemeRef {
+  clazzType: ClazzType
 }
 
 export interface ApiModelInfo {

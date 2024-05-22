@@ -4,11 +4,12 @@
  * https://petstore.swagger.io/v2/swagger.json
  * https://generator3.swagger.io/openapi.json
  */
+import { ClazzType } from "../../interface/declare";
 import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
 import MultipartFile from "../../servlets/http/MultipartFile";
 import ApiModel from "../annotations/ApiModel";
 import ApiModelProperty from "../annotations/ApiModelProperty";
-import { ApiModelInfo, ApiModelPropertyInfo, SchemeRef } from "./declare";
+import { ApiModelInfo, ApiModelPropertyInfo, SchemeRef, SchemeRefExt } from "./declare";
 import GenericType from "./generic";
 import TypeMappings from "./typemappings";
 
@@ -28,58 +29,67 @@ export default class Schemas {
     const schemas: Record<string, ApiModelInfo> = {};
     const models = RuntimeAnnotation.getAnnotations(ApiModel);
     for (let model of models) {
-      const anno = model.nativeAnnotation;
-      const modelName = model.ctor.name;
-      // 判定是否有无继承关系
-      const parentModel = models.find((m) => (model.ctor as any).__proto__ == m.ctor);
-      // 构建属性
-      const properties = this.buildModelProperties(model)
-      schemas[modelName] = {
-        title: anno.value,
-        description: anno.description,
-        properties: parentModel ? undefined : properties,
-        allOf: parentModel && [
-          {
-            title: anno.value,
-            description: anno.description,
-            properties: properties
-          },
-          { $ref: this.makeRef(parentModel.ctor.name) },
-        ]
-      }
+      this.buildApiModel(model.ctor, model.nativeAnnotation, schemas);
     }
     // 处理引用类型
-    this.buildRefrerences(schemas);
+    this.buildApiModelRefrerences(schemas);
     // 返回定义
     return schemas;
   }
 
-  private buildModelProperties(model: RuntimeAnnotation<InstanceType<typeof ApiModel>>) {
-    const properties = RuntimeAnnotation.getAnnotations(ApiModelProperty, model.ctor);
-    const metaPropertyMapping = RuntimeAnnotation.getClazzMetaPropertyAnnotations(model.ctor);
+  private buildApiModel(clazzType: ClazzType, anno: InstanceType<typeof ApiModel>, schemas: Record<string, ApiModelInfo>) {
+    const modelName = clazzType.name;
+    // 构建属性
+    const properties = this.buildApiModelProperties(clazzType);
+    schemas[modelName] = {
+      title: anno.value,
+      description: anno.description,
+      properties: properties,
+      // allOf: parentModel && [
+      //   {
+      //     title: anno.value,
+      //     description: anno.description,
+      //     properties: properties
+      //   },
+      //   { $ref: this.makeRef(parentModel.ctor.name) },
+      // ]
+    }
+  }
+
+  private buildApiModelProperties(clazzType: ClazzType) {
+    const properties = RuntimeAnnotation.getAnnotations(ApiModelProperty, clazzType).reduce((map, value) => {
+      map[value.name] = value;
+      return map;
+    }, {}) as Record<string, RuntimeAnnotation<InstanceType<typeof ApiModelProperty>>>;
+    const metaProperties = RuntimeAnnotation.getClazzMetaPropertyAnnotations(clazzType);
     const modelProperties: Record<string, ApiModelPropertyInfo | SchemeRef> = {};
-    for (let property of properties) {
-      const anno = property.nativeAnnotation;
-      const metaProperty = metaPropertyMapping[property.name];
-      const isGenericTemplate = GenericType.isGeneric(anno.dataType);
-      const typeInfo = isGenericTemplate ? { type: anno.dataType } : this.typemappings.make(property.dataType || anno.dataType || anno.example?.constructor);
-      modelProperties[property.name] = {
-        description: anno.value || metaProperty?.nativeAnnotation?.desc,
-        example: anno.example,
-        enum: !anno.enum ? undefined : Object.keys(anno.enum).filter((m: any) => isNaN(m)),
+    const keys = [...Object.keys(properties), ...Object.keys(metaProperties)];
+    for (let key of keys) {
+      if (modelProperties[key]) continue;
+      const property = properties[key];
+      const metaProperty = metaProperties[key];
+      const anno = property?.nativeAnnotation;
+      const dataType = anno?.dataType || metaProperty?.dataType || anno.example?.constructor;
+      const name = property?.name || metaProperty?.name;
+      const isGenericTemplate = GenericType.isGeneric(dataType);
+      const typeInfo = isGenericTemplate ? { type: dataType } : this.typemappings.make(dataType, metaProperty?.nativeAnnotation?.itemType);
+      modelProperties[name] = {
+        description: anno?.value || metaProperty?.nativeAnnotation?.desc,
+        example: anno?.example,
+        enum: !anno?.enum ? undefined : Object.keys(anno.enum).filter((m: any) => isNaN(m)),
         ...typeInfo
       }
     }
     return modelProperties;
   }
 
-  private buildRefrerences(schemas: Record<string, ApiModelInfo>) {
+  private buildApiModelRefrerences(schemas: Record<string, ApiModelInfo>) {
     for (let genericType of this.typemappings.referenceTypes) {
-      this.buildGenericModel(schemas, genericType);
+      this.buildApiGenericModel(schemas, genericType);
     }
   }
 
-  private buildGenericModel(schemas: Record<string, ApiModelInfo>, refType: SchemeRef) {
+  private buildApiGenericModel(schemas: Record<string, ApiModelInfo>, refType: SchemeRefExt) {
     if (!refType.$ref) return;
     const name = refType.$ref.split('schemas/').pop();
     const typeInfo = refType as any as ApiModelPropertyInfo;
@@ -100,9 +110,15 @@ export default class Schemas {
       return;
     }
     const type2 = new GenericType(typeName);
-    const baseModel = schemas[type2.name];
+    let baseModel = schemas[type2.name];
     const properties = {};
-    if (!baseModel) {
+    if (!baseModel && refType.clazzType) {
+      const clazzType = refType.clazzType;
+      const anno = { value: clazzType.name, description: '' };
+      this.buildApiModel(refType.clazzType, anno, schemas);
+      baseModel = schemas[type2.name];
+    }
+    if (!baseModel && !refType.clazzType) {
       // 如果没有baseModel，无法生成，跳过
       console.warn('OpenApi: Cannot found ref:' + type2.name)
       return;
@@ -112,7 +128,7 @@ export default class Schemas {
       if (GenericType.isGeneric(item.type)) {
         const pGenericType = type2.fillTo(item.type);
         properties[name] = this.typemappings.makeRef(pGenericType.toString());
-        this.buildGenericModel(schemas, properties[name]);
+        this.buildApiGenericModel(schemas, properties[name]);
       } else {
         properties[name] = item;
       }

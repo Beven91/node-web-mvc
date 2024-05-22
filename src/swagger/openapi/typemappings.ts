@@ -1,6 +1,7 @@
 import Javascript from "../../interface/Javascript";
+import { ClazzType } from "../../interface/declare";
 import MultipartFile from "../../servlets/http/MultipartFile";
-import { ApiModelPropertyInfo, SchemeRef } from "./declare";
+import { ApiModelPropertyInfo, SchemeRef, SchemeRefExt } from "./declare";
 
 const alias: Record<string, any> = {
   'undefined': { type: 'string' },
@@ -43,11 +44,14 @@ const mappings = [
 
 export default class TypeMappings {
 
-  public readonly referenceTypes: SchemeRef[] = [];
+  public readonly referenceTypes: SchemeRefExt[] = [];
 
-  makeRef(name) {
+  makeRef(name: string, dataType?: ClazzType) {
     const type = { '$ref': `#/components/schemas/${name}` };
-    this.referenceTypes.push(type);
+    this.referenceTypes.push({
+      ...type,
+      clazzType: dataType
+    });
     return type;
   }
 
@@ -65,17 +69,22 @@ export default class TypeMappings {
     }
   }
 
-  make(type: any): SchemeRef | ApiModelPropertyInfo {
+  make(type: any, itemType?: any): SchemeRef | ApiModelPropertyInfo {
     const clazz = Javascript.createTyper(type);
     const basicType = mappings.find((m) => clazz.isType(m.clazz))?.data;
-    if (type === Object) {
+    if (clazz.isType(Array) && itemType) {
+      return {
+        type: 'array',
+        items: this.make(itemType)
+      }
+    } else if (type === Object) {
       return { type: 'object' };
     } else if (basicType) {
       return basicType;
     } else if (typeof type === 'string') {
       return this.makeRefType(type);
     } else if (type?.name && clazz.isType(Object)) {
-      return this.makeRef(type.name);
+      return this.makeRef(type.name, type);
     } else {
       return { type: 'string' }
     }

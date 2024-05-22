@@ -11,7 +11,6 @@ class Super {
 
 }
 
-@ApiModel
 class A extends Super {
   @ApiModelProperty
   parentId: number
