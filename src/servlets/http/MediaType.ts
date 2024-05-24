@@ -43,7 +43,7 @@ export default class MediaType {
   public readonly parameters: Parameters
 
   public get charset() {
-    return this.parameters.charset || null;
+    return (this.parameters.charset || 'utf-8') as BufferEncoding;
   }
 
   public get name() {
@@ -106,7 +106,7 @@ export default class MediaType {
       this.parameters = {};
       parts.forEach((part) => {
         const kv = part.split('=');
-        this.parameters[kv[0]] = kv[1];
+        this.parameters[kv[0].trim()] = kv[1].trim();
       });
     } else {
       this.type = (mediaType || '').toLowerCase().trim();

@@ -1,6 +1,7 @@
 import http from 'http';
 import https from 'https';
 import http2 from 'http2';
+import path from 'path';
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import PathMatchConfigurer from './PathMatchConfigurer';
 import HandlerExceptionResolver from '../method/exception/HandlerExceptionResolver';
@@ -27,9 +28,9 @@ export declare interface Multipart {
    */
   maxRequestSize: string | number
   /**
-  * 上传资源文件临时存储目录
+  * 上传资源文件存储目录
   */
-  tempRoot?: string
+  mediaRoot?: string
 }
 
 export const DEFAULT_RESOURCE_MIME_TYPES = 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain'
@@ -149,5 +150,11 @@ export default class WebAppConfigurerOptions {
     this.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = new Bytes(this.multipart.maxFileSize, '500kb').bytes;
     this.multipart.maxRequestSize = new Bytes(this.multipart.maxRequestSize, '500kb').bytes;
+    const tmpRoot = this.multipart.mediaRoot || 'app_data/media';
+    if (!path.isAbsolute(tmpRoot)) {
+      this.multipart.mediaRoot = path.resolve(tmpRoot);
+    } else {
+      this.multipart.mediaRoot = tmpRoot;
+    }
   }
 }

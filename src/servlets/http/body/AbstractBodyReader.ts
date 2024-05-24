@@ -1,5 +1,5 @@
+import type HttpServletRequest from "../HttpServletRequest";
 import MediaType from "../MediaType";
-import type ServletContext from "../ServletContext";
 
 export default abstract class AbstractBodyReader {
 
@@ -13,9 +13,9 @@ export default abstract class AbstractBodyReader {
     return this.mediaType.isCompatibleWith(mediaType);
   }
 
-  async read(servletContext: ServletContext): Promise<Record<string, any>> {
-    return this.readInternal(servletContext);
+  async read(request: HttpServletRequest, mediaType: MediaType): Promise<Record<string, any>> {
+    return this.readInternal(request, mediaType);
   }
 
-  protected abstract readInternal(servletContext: ServletContext): Promise<Record<string, any>>;
+  protected abstract readInternal(request: HttpServletRequest, mediaType: MediaType): Promise<Record<string, any>>;
 }

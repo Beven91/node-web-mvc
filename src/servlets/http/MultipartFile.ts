@@ -30,43 +30,37 @@ export default class MultipartFile {
   public name: string
 
   /**
-   * 当前文件内容编码
-   */
-  public encoding: string
-
-  /**
    * 当前内容类型
    */
   public mediaType: MediaType
 
-  constructor(name: string, tempFile: string, encoding: string, mediaType: string, size: number) {
-    this.mediaType = new MediaType(mediaType);
-    this.encoding = encoding;
+  private readonly dir: string
+
+  constructor(name: string, tempFile: string, mediaType: MediaType, size: number, dir: string) {
+    this.mediaType = mediaType;
     this.tempFile = tempFile;
     this.name = name;
     this.size = size;
+    this.dir = dir;
   }
 
   /**
    * 将上传的文件保存到指定位置
    */
   async transferTo(dest): Promise<void> {
+    if (!path.isAbsolute(dest)) {
+      dest = path.join(this.dir, dest);
+    }
+    MultipartFile.ensureDirSync(path.dirname(dest));
     // 写出文件
-    this.ensureDirSync(path.dirname(dest));
     fs.renameSync(this.tempFile, dest);
   }
 
-  ensureDirSync(dir) {
+  static ensureDirSync(dir) {
     if (fs.existsSync(dir)) {
       return;
     }
-    const input = path.resolve(dir);
-    try {
-      fs.mkdirSync(input);
-    } catch (ex) {
-      this.ensureDirSync(path.dirname(input));
-      this.ensureDirSync(input);
-    }
+    fs.mkdirSync(dir, { recursive: true })
   }
 
   /**

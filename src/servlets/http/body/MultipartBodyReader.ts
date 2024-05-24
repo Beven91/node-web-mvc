@@ -4,113 +4,245 @@
  */
 import path from 'path';
 import fs from 'fs';
-import Busboy from 'busboy';
-import type ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
-import { randomUUID } from 'crypto';
 import AbstractBodyReader from './AbstractBodyReader';
 import type { Multipart } from '../../config/WebAppConfigurerOptions';
+import type HttpServletRequest from '../HttpServletRequest';
+import NoBoundaryException from '../../../errors/NoBoundaryException';
+import { randomUUID } from 'crypto';
+
+type ReadStatus = 'boundary' | 'header' | 'body' | 'after-boundary'
+
+interface MultipartSubpart {
+  headers: {
+    [x: string]: string
+  }
+  name: string
+  mediaType: MediaType
+  filename: string
+  isFile: boolean
+  size: number
+  previousCode: number
+  needTryBoundary: boolean
+  tempRaw: number[]
+  tempFile: string
+  startBoundary: string
+  endBoundary: string
+  writter?: fs.WriteStream
+}
 
 export default class MultipartBodyReader extends AbstractBodyReader {
 
-  private multipart: Multipart
+  private readonly multipart: Multipart
+
+  private readonly tempRoot: string
+
+  private readonly maxFileSize: number
 
   constructor(config: Multipart) {
     super(MediaType.MULTIPART_FORM_DATA)
     this.multipart = config;
+    this.tempRoot = path.join(config.mediaRoot, 'tmp-files');
+    this.maxFileSize = Number(config.maxFileSize);
+    MultipartFile.ensureDirSync(this.tempRoot);
   }
 
-  ensureDir(dir: string) {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+  private parseContentDisposition(content: string) {
+    const segments = content.split(';');
+    const info = {} as { filename: string, name: string };
+    segments.forEach((segment) => {
+      const [k, v] = segment.trim().split('=');
+      info[k] = v ? v.slice(1, v.length - 1) : '';
+    });
+    return info;
+  }
+
+  private createSubpart(startBoundary: string, endBoundary: string, code?: number): MultipartSubpart {
+    return {
+      headers: {},
+      isFile: false,
+      size: 0,
+      name: '',
+      tempRaw: [],
+      mediaType: null,
+      filename: '',
+      tempFile: '',
+      previousCode: code,
+      needTryBoundary: false,
+      startBoundary,
+      endBoundary
     }
   }
 
-  /**
-   * 根据上传的文件创建MultipartFile
-   * @param {Object} form 当前表单对象
-   * @param {String} fieldname 字段名
-   * @param {String} file 上传的文件对象
-   * @param {String} filename 上传文件的原始名称
-   * @param {String} encoding 文件内容编码
-   * @param {String} mimetype 内容类型
-   */
-  createMultipartFile(form, fieldname, file, filename, encoding, mimetype, servletContext: ServletContext): Promise<void> {
-    return new Promise((resolve, reject) => {
-      // 将数据添加form上
-      const meta = { size: 0, isOutRange: false };
-      const value = form[fieldname];
-      const root = this.multipart?.tempRoot || 'app_data/temp-files';
-      const id = path.join(root, randomUUID());
-      this.ensureDir(root);
-      // 创建一个写出流
-      const writter = fs.createWriteStream(id);
-      // 读取文件流
-      file.on('data', (chunk) => {
-        meta.size = chunk.length + meta.size;
-        writter.write(chunk);
-      });
-      // 如果文件超出限制
-      file.on('limit', () => {
-        meta.isOutRange = true;
-        // 结束流
-        writter.end();
-        // 移除临时文件
-        fs.unlinkSync(id);
-        // 如果超过最大限制，则抛出异常
-        reject(new EntityTooLargeError(fieldname, meta.size, this.multipart.maxFileSize));
-      });
-      // 读取完毕
-      file.on('end', () => {
-        if (meta.isOutRange) return;
-        writter.end(() => {
-          const multipartFile = new MultipartFile(filename, id, encoding, mimetype, meta.size);
-          if (value) {
-            form[fieldname] = [value, multipartFile];
-          } else {
-            form[fieldname] = multipartFile;
-          }
-          servletContext.addReleaseQueue(() => multipartFile.destory());
-          resolve();
-        })
-      });
-    })
+  private readSubpartHeader(content: string, subpart: MultipartSubpart) {
+    if (!content && subpart.isFile) {
+      subpart.tempFile = path.join(this.tempRoot, randomUUID());
+      subpart.writter = fs.createWriteStream(subpart.tempFile);
+      return false;
+    } else if (!content) {
+      return false;
+    }
+    const [keyName, value] = content.split(':');
+    const key = keyName.trim();
+    switch (key.toLowerCase()) {
+      case 'content-disposition':
+        {
+          const s = this.parseContentDisposition(value || '');
+          subpart.name = s.name;
+          subpart.isFile = 'filename' in s;
+          subpart.filename = s.filename;
+          subpart[key] = value;
+        }
+        break;
+      case 'content-type':
+        subpart.mediaType = new MediaType(value?.trim?.());
+        subpart[key] = value;
+        break;
+      default:
+        subpart[key] = value;
+    }
+    return true;
   }
 
-  readInternal(servletContext: ServletContext) {
-    return new Promise((topResolve, topReject) => {
-      let promise = Promise.resolve();
-      const form = {};
-      const busboy: any = new Busboy({
-        headers: servletContext.request.headers,
-        limits: {
-          fileSize: this.multipart.maxFileSize as number
+  private createSubpartFile(subpart: MultipartSubpart) {
+    const { filename, tempFile, size } = subpart;
+    return new MultipartFile(filename, tempFile, subpart.mediaType, size, this.multipart.mediaRoot);
+  }
+
+  private readChunk(code: number, raw: number[], subpart: MultipartSubpart) {
+    const isCRLF = code == 10 && subpart.previousCode == 13;
+    subpart.previousCode = code;
+    if (isCRLF) {
+      if (raw[raw.length - 1] === 13) {
+        raw.pop();
+      }
+      // 如果是换行
+      return false;
+    }
+    raw.push(code);
+    return true;
+  }
+
+  private tryWrite(raw: any[], subpart: MultipartSubpart) {
+    const tempRaw = subpart.tempRaw;
+    if (subpart.writter) {
+      subpart.writter.write(Buffer.from(tempRaw));
+    } else {
+      raw.push(...tempRaw);
+    }
+    subpart.tempRaw.length = 0;
+  }
+
+  private readBodyChunk(code: number, raw: number[], subpart: MultipartSubpart) {
+    const isCRLF = code == 10 && subpart.previousCode == 13;
+    subpart.previousCode = code;
+    if (isCRLF && !subpart.needTryBoundary) {
+      subpart.needTryBoundary = true;
+      // 如果碰到 "-" 字符,则先把前面写出
+      this.tryWrite(raw, subpart);
+      return true;
+    }
+    if (subpart.tempRaw.length > 4096) {
+      // 大于分块则写出
+      this.tryWrite(raw, subpart);
+    }
+    subpart.size++;
+    subpart.tempRaw.push(code);
+    if (subpart.size > this.maxFileSize) {
+      throw new EntityTooLargeError(subpart.filename, subpart.size, this.maxFileSize);
+    }
+    return !this.isBoundary(subpart);
+  }
+
+  private isBoundary(subpart: MultipartSubpart) {
+    const raw = subpart.tempRaw;
+    if (subpart.needTryBoundary && raw.length == subpart.startBoundary.length) {
+      subpart.needTryBoundary = false;
+      // 检测是否为结束或者开始boundary
+      const str = Buffer.from(raw).toString();
+      const isEqual = str == subpart.startBoundary;
+      if (!isEqual) {
+        // 如果不是boundary则需要补充\n
+        subpart.tempRaw.push(10);
+      }
+      return isEqual;
+    }
+    return false;
+  }
+
+  readInternal(request: HttpServletRequest, mediaType: MediaType) {
+    const nativeRequest = request.nativeRequest;
+    const boundary = mediaType.parameters['boundary'];
+    if (!boundary) {
+      throw new NoBoundaryException();
+    }
+    const startBoundary = `--${boundary}`;
+    const endBoundary = `--${boundary}--`;
+    const toString = (buffer: Buffer) => buffer.toString(mediaType.charset);
+    return new Promise((resolve, reject) => {
+      let currentSubpart = this.createSubpart(startBoundary, endBoundary);
+      let status = 'boundary' as ReadStatus;
+      const raw = [];
+      const formValues = {} as Record<string, any>;
+      const runtime = {
+        count: 0,
+        index: 0
+      }
+      nativeRequest.on('error', reject);
+      nativeRequest.on('data', (chunk: Uint8Array) => {
+        try {
+          chunk.forEach((code, index) => {
+            if (index == 28742 && status == 'body') {
+              const a = 10;
+            }
+            const isKeeping = status == 'body' ? this.readBodyChunk(code, raw, currentSubpart) : this.readChunk(code, raw, currentSubpart);
+            if (isKeeping) {
+              return;
+            }
+            runtime.count++;
+            const buffer = Buffer.from(raw);
+            switch (status) {
+              case 'boundary':
+                status = toString(buffer) == startBoundary ? 'header' : 'boundary';
+                raw.length = 0;
+                break;
+              case 'header':
+                if (!this.readSubpartHeader(toString(buffer), currentSubpart)) {
+                  // 如果是\r\n内容，则准备开始读取body
+                  status = 'body';
+                  currentSubpart.size = 0;
+                  currentSubpart.writter?.on?.('error', reject);
+                }
+                raw.length = 0;
+                break;
+              case 'body':
+                if (currentSubpart.writter) {
+                  currentSubpart.writter.end();
+                  currentSubpart.writter = null;
+                  const file = this.createSubpartFile(currentSubpart);
+                  request.servletContext.addReleaseQueue(() => file.destory());
+                  formValues[currentSubpart.name] = file;
+                } else {
+                  formValues[currentSubpart.name] = toString(buffer);
+                }
+                raw.push(...currentSubpart.tempRaw);
+                currentSubpart.tempRaw.length = 0;
+                currentSubpart = this.createSubpart(startBoundary, endBoundary, currentSubpart.previousCode);
+                status = 'boundary';
+                break;
+            }
+          })
+        } catch (ex) {
+          reject(ex);
         }
       });
-      busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        // 提取文件
-        promise = promise.then(() => this.createMultipartFile(form, fieldname, file, filename, encoding, mimetype, servletContext));
+      nativeRequest.on('end', () => {
+        resolve(formValues)
+        console.log('end......', runtime.index, runtime.count);
+        console.log(formValues);
       });
-      busboy.on('field', function (fieldname, val) {
-        // 提取字段
-        promise = promise.then(() => {
-          if (fieldname in form) {
-            // 如果是多个值
-            form[fieldname] = [form[fieldname]];
-            form[fieldname].push(val);
-            return;
-          }
-          form[fieldname] = val;
-        });
-      });
-      // 读取完毕
-      busboy.on('finish', () => {
-        promise.then(() => topResolve(form), topReject)
-      });
-      // 托管到busboy读取
-      servletContext.request.pipe(busboy);
-    });
+    })
   }
 }

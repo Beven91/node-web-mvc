@@ -27,14 +27,13 @@ export default class RequestBodyReader {
     if (!reader) {
       return null;
     }
-
     if (!isNaN(length) && length > Number(this.config.maxRequestSize)) {
       // 如果请求超出限制
       return Promise.reject(new EntityTooLargeError('request.body', length, this.config.maxRequestSize));
     }
     if (!request.body) {
       // 如果body还没有开始读
-      request.body = reader.read(servletContext);
+      request.body = reader.read(servletContext.request, mediaType);
     }
     return request.body;
   }

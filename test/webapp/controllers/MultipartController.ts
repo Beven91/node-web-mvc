@@ -32,7 +32,7 @@ export default class MultipartController {
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @PostMapping({ value: '/upload', produces: 'application/json' })
   async upload(@RequestPart file: MultipartFile, @RequestPart desc: string, id: number) {
-    await file.transferTo('app_data/images/' + file.name);
+    await file.transferTo('images/' + file.name);
     return {
       status: 0,
       desc: desc,
