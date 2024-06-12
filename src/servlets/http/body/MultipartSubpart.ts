@@ -118,8 +118,8 @@ export default class MultipartSubpart {
         return false;
       }
       // 如果不是边界，则需要把\r\n补充
-      raw.unshift(13);
       raw.unshift(10);
+      raw.unshift(13);
     }
     // 返回继续读取
     return true;
