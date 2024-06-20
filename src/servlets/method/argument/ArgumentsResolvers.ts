@@ -75,10 +75,14 @@ export default class ArgumentsResolvers {
         const hasResolved = (value !== undefined && value !== null);
         let finalValue = hasResolved ? value : anno?.defaultValue;
         const hasNotValue = finalValue === null || finalValue === undefined;
-        if (anno?.required && hasNotValue) {
-          // 如果缺少参数
+        if (hasNotValue && anno?.required) {
+          // 如果参数必要，且没有值则抛出异常
           const message = `Required ${anno.paramAt} '${parameter.paramName}' is not present ==> ${handler.beanTypeName}.${handler.methodName}`
           throw new ArgumentResolvError(message, parameter.paramName);
+        } else if (hasNotValue && !anno?.required) {
+          // 如果参数不必要，且没有值，则忽略
+          args[i] = undefined;
+          continue;
         }
         if (finalValue instanceof MultipartFile && Javascript.createTyper(parameter.parameterType).isType(Array)) {
           finalValue = [finalValue];
