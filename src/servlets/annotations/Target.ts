@@ -6,11 +6,11 @@ type ValuePropertyType<A> = A extends { value?: infer V } ? unknown extends V ? 
 
 type TargetObject = { [x: string]: any }
 
-type IsOptionKey<X, Y, A, B, C> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A : C;
-type GetOptionKeys<T> = {
-  [P in keyof T]: IsOptionKey<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, T[P], never>
+type IsOptionKey<X, Y, A, B, C, E> = (<T>() => T extends X ? 1 : 2) extends (<T>() => T extends Y ? 1 : 2) ? A extends E ? C : A : C;
+type GetOptionKeys<T, E> = {
+  [P in keyof T]: IsOptionKey<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, T[P], never, E>
 }[keyof T];
-export type CreateOptions<T extends abstract new (...args: []) => any> = Pick<InstanceType<T>, GetOptionKeys<InstanceType<T>>>
+export type CreateOptions<T extends abstract new (...args: []) => any> = Pick<InstanceType<T>, GetOptionKeys<InstanceType<T>, InstanceType<T>['__exclude_keys__'] | '__exclude_keys__'>>
 
 // Class Decorator
 declare function ClassTargetDecorator<A>(target: Function): any

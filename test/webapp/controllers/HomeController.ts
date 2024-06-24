@@ -1,6 +1,6 @@
 
 import path from 'path';
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders } from '../../../src/index';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders, Valid } from '../../../src/index';
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
@@ -140,7 +140,7 @@ export default class HomeController {
     { description: '类型', name: 'user', example: { name: 1 } }
   ])
   @PostMapping({ value: '/body', produces: 'application/json' })
-  body(@RequestBody user: UserInfo): UserInfo {
+  body(@RequestBody @Valid user: UserInfo): UserInfo {
     return user;
   }
 

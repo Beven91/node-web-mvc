@@ -104,7 +104,11 @@ export default class TypeConverter {
     const keys = Object.keys(data);
     for (const key of keys) {
       const value = data[key];
-      // const defaultValue = dataType.prototype[key];
+      const descriptor = Object.getOwnPropertyDescriptor(instance, key) || Object.getOwnPropertyDescriptor(instance.__proto__, key) || {};
+      if (descriptor.writable === false || ('set' in descriptor && descriptor.set == undefined)) {
+        // 如果是只读属性
+        continue;
+      }
       const anno = properties[key];
       if (!anno) {
         instance[key] = value;

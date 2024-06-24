@@ -123,6 +123,7 @@ export { default as ParameterRequiredError } from './errors/ParameterRequiredErr
 export { default as ResponseStatusException } from './errors/ResponseStatusException';
 export { default as UnsupportReturnValueHandlerError } from './errors/UnsupportReturnValueHandlerError';
 export { default as ViewNotFoundError } from './errors/ViewNotFoundError';
+export { default as MethodArgumentNotValidException } from './errors/MethodArgumentNotValidException';
 export { default as InternalResourceView } from './servlets/view/InternalResourceView';
 export { default as RedirectView } from './servlets/view/RedirectView';
 export { default as ElementType } from './servlets/annotations/annotation/ElementType';
@@ -188,5 +189,10 @@ export { default as DefaultCorsProcessor } from './servlets/cors/DefaultCorsProc
 export { default as ContentNegotiationManager } from './servlets/http/accept/ContentNegotiationManager';
 export { default as ContentNegotiationStrategy } from './servlets/http/accept/ContentNegotiationStrategy';
 export { default as HeaderContentNegotiationStrategy } from './servlets/http/accept/HeaderContentNegotiationStrategy';
+export { default as Valid } from './validation/annotation/Valid';
+export { default as Validated } from './validation/annotation/Validated';
+export { default as NotNull } from './validation/annotation/NotNull';
+export { default as Max } from './validation/annotation/Max';
+export { default as Min } from './validation/annotation/Min';
 
 hot.create(module);

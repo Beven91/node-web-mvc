@@ -58,6 +58,14 @@ export default class MethodParameter {
   }
 
   /**
+   * 获取当前参数上的所有注解
+   * @returns 
+   */
+  public getParameterAnnotations() {
+    return RuntimeAnnotation.getMethodParamAnnotations(this.beanType, this.method, this.paramName);
+  }
+
+  /**
    * 判断当前paramterType类型是否为指定类型（包含继承判定)
    */
   public isParamAssignableOf(parentType: Function) {

@@ -1,3 +1,4 @@
+import { Max, Min, NotNull } from '../../../src';
 import ApiModel from '../../../src/swagger/annotations/ApiModel';
 import ApiModelProperty from '../../../src/swagger/annotations/ApiModelProperty';
 import OrderModel from './OrderModel';
@@ -46,6 +47,9 @@ export default class UserInfo extends A {
   public userName: string
 
 
+  @Max({ value: 100, message: '用户编码不能超过100' })
+  @Min({ value: 10, message: '用户编码不能低于10' })
+  @NotNull({ message: '用户编码不能为空' })
   @ApiModelProperty({ value: '用户编码', required: true, example: 1 })
   public userId: number
 

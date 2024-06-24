@@ -24,6 +24,7 @@ import ModelAttributeMethodProcessor from '../processor/ModelAttributeMethodProc
 import ContentNegotiationManager from '../../http/accept/ContentNegotiationManager';
 import RequestPartArgumentResolver from './RequestPartArgumentResolver';
 import HttpEntityMethodProcessor from '../processor/HttpEntityMethodProcessor';
+import DataValidator from '../../../validation/DataValidator';
 
 const converter = new TypeConverter();
 
@@ -89,6 +90,8 @@ export default class ArgumentsResolvers {
         }
         // 设置参数值
         args[i] = converter.convert(finalValue, parameter.parameterType, null);
+        // 验证数据
+        await (new DataValidator()).validate(args[i],parameter);
       }
       return args;
     } catch (ex) {
