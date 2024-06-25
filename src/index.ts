@@ -194,5 +194,8 @@ export { default as Validated } from './validation/annotation/Validated';
 export { default as NotNull } from './validation/annotation/NotNull';
 export { default as Max } from './validation/annotation/Max';
 export { default as Min } from './validation/annotation/Min';
+export { default as AssertFalse } from './validation/annotation/AssertFalse';
+export { default as AssertTrue } from './validation/annotation/AssertTrue';
+
 
 hot.create(module);

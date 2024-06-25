@@ -9,6 +9,9 @@ export default abstract class Constraints {
 
   groups?: ClazzType | ClazzType[]
 
+  /**
+   * 自定义验证失败时的提示消息
+   */
   message?: string
 
   /**
