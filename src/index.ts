@@ -124,6 +124,7 @@ export { default as ResponseStatusException } from './errors/ResponseStatusExcep
 export { default as UnsupportReturnValueHandlerError } from './errors/UnsupportReturnValueHandlerError';
 export { default as ViewNotFoundError } from './errors/ViewNotFoundError';
 export { default as MethodArgumentNotValidException } from './errors/MethodArgumentNotValidException';
+export { default as UnexpectedTypeException } from './errors/UnexpectedTypeException';
 export { default as InternalResourceView } from './servlets/view/InternalResourceView';
 export { default as RedirectView } from './servlets/view/RedirectView';
 export { default as ElementType } from './servlets/annotations/annotation/ElementType';
@@ -160,6 +161,7 @@ export { default as AutowiredAnnotationBeanPostProcessor } from './ioc/processor
 export { default as BeanPostProcessor } from './ioc/processor/BeanPostProcessor';
 export { default as InstantiationAwareBeanPostProcessor } from './ioc/processor/InstantiationAwareBeanPostProcessor';
 export { default as Javascript } from './interface/Javascript';
+export { Typer } from './interface/Javascript';
 export { ClazzType } from './interface/declare';
 export { default as Method } from './interface/Method';
 export { default as AbstractApplicationContext } from './servlets/context/AbstractApplicationContext';
@@ -191,11 +193,22 @@ export { default as ContentNegotiationStrategy } from './servlets/http/accept/Co
 export { default as HeaderContentNegotiationStrategy } from './servlets/http/accept/HeaderContentNegotiationStrategy';
 export { default as Valid } from './validation/annotation/Valid';
 export { default as Validated } from './validation/annotation/Validated';
+export { default as Constraints } from './validation/annotation/Constraints';
 export { default as NotNull } from './validation/annotation/NotNull';
+export { default as Null } from './validation/annotation/Null';
 export { default as Max } from './validation/annotation/Max';
 export { default as Min } from './validation/annotation/Min';
 export { default as AssertFalse } from './validation/annotation/AssertFalse';
 export { default as AssertTrue } from './validation/annotation/AssertTrue';
+export { default as Digits } from './validation/annotation/Digits';
+export { default as Furture } from './validation/annotation/Furture';
+export { default as Past } from './validation/annotation/Past';
+export { default as Pattern } from './validation/annotation/Pattern';
+export { default as Size } from './validation/annotation/Size';
+export { default as Validator } from './validation/Validator';
+export { default as DataValidator } from './validation/DataValidator';
+export { default as ValidationContext } from './validation/ValidationContext';
+
 
 
 hot.create(module);

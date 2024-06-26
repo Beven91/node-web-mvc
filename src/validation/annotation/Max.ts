@@ -1,24 +1,43 @@
-import Javascript from "../../interface/Javascript";
+import UnexpectedTypeException from "../../errors/UnexpectedTypeException";
 import Target from "../../servlets/annotations/Target";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
+import ValidationContext from "../ValidationContext";
 import Constraints from "./Constraints";
 
 class Max extends Constraints {
 
+  message? = '{validation.constraints.Max.message}'
+
   /**
    * 设定能赋值的最大值
-   *  数值: 最大值(value <= maxValue)
-   *  字符串: 最大长度
-   *  数组: 最大长度
    */
   value: number
 
-  validate(content: number | [] | string, valueType: Function) {
+  getSize(value: any, context: ValidationContext) {
+    const typer = context.currentTyper;
+    if (typer.isType(String)) {
+      return value.length;
+    } else if (typer.isType(Number)) {
+      return value;
+    } else {
+      throw new UnexpectedTypeException(context);
+    }
+  }
+
+  validate(content: any, context: ValidationContext) {
     const maxValue = this.value;
-    const typer = Javascript.createTyper(valueType);
-    const value = typer.isType(Number) ? content as number : (content as string).length;
+    const value = this.getSize(content, context);
     return value <= maxValue;
   }
 }
 
+/**
+ * 验证标注元素的值必须小于等于配置的最大值
+ * 
+ * 支持的数据类型:
+ * - `Number`
+ * - `String`
+ * 
+ * `null` 或者 `undefined` 则不做验证
+ */
 export default Target([ElementType.PROPERTY, ElementType.PARAMETER])(Max);

@@ -4,10 +4,12 @@ import Constraints from "./Constraints";
 
 class Digits extends Constraints {
 
+  message? = '{validation.constraints.Digits.message}'
+
   /**
    * 整数部分最大位数
    */
-  interger: number
+  integer: number
 
   /**
    * 小数部分最大位数
@@ -15,10 +17,18 @@ class Digits extends Constraints {
   fraction: number
 
   validate(value: number) {
-    const [interger, fraction = ''] = String(value).split('.');
-    return interger.length <= this.interger && fraction.length <= this.fraction;
+    const [integer, fraction = ''] = String(value).split('.');
+    return integer.length <= this.integer && (fraction.length <= this.fraction || /^0+$/.test(fraction))
   }
 
 }
 
+/**
+ * 验证配置小数数值的整数位与小数位长度
+ * 
+ * 支持的类型
+ * - `Number`
+ * 
+ * `null` 或者 `undefined` 则不做验证
+ */
 export default Target([ElementType.PROPERTY, ElementType.PARAMETER])(Digits);

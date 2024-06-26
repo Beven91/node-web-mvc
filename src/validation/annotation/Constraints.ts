@@ -1,13 +1,19 @@
 import { ClazzType } from "../../interface/declare";
 import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
+import ValidationContext from "../ValidationContext";
+import Validator from "../Validator";
 
 const constraintsSymbol = Symbol('constraints');
 
-export default abstract class Constraints {
+export default abstract class Constraints implements Validator {
 
-  __exclude_keys__: 'validate'
+  __exclude_keys__: 'validate' | 'runtimeAnnotation' | 'getSize'
 
   groups?: ClazzType | ClazzType[]
+
+  runtimeAnnotation: RuntimeAnnotation<Constraints>
+
+  message2?: string
 
   /**
    * 自定义验证失败时的提示消息
@@ -18,7 +24,8 @@ export default abstract class Constraints {
    * 校验值
    * @param value 
    */
-  abstract validate(value: any, valueType: Function): Promise<boolean> | boolean
+  abstract validate(value: any, context:ValidationContext): Promise<boolean> | boolean
+  
 
   constructor(info: RuntimeAnnotation) {
     const ctor = info.ctor;

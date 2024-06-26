@@ -11,8 +11,8 @@ export default class MethodArgumentNotValidException extends Exception {
 
   constraints: Constraints
 
-  constructor(parameter: MethodParameter, constraints: Constraints) {
-    super(constraints?.message);
+  constructor(parameter: MethodParameter, message: string, constraints: Constraints) {
+    super(message);
     this.constraints = constraints;
     this.parameter = parameter;
   }

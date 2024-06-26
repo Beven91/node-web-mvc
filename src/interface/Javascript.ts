@@ -42,3 +42,5 @@ export default class Javascript {
     }
   }
 }
+
+export type Typer = ReturnType<typeof Javascript['createTyper']>;

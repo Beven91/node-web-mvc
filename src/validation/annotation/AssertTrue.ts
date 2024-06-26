@@ -4,10 +4,23 @@ import Constraints from "./Constraints";
 
 class AssertTrue extends Constraints {
 
+  message? = '{validation.constraints.AssertTrue.message}'
+
   validate(value: any) {
+    if (value === undefined || value === null) {
+      return true;
+    }
     return value === true;
   }
 
 }
 
+/**
+ * 验证配置元素的值必须为`true`
+ * 
+ * 支持类型:
+ * - `Boolean`
+ * 
+ * `null` 或者 `undefined` 则不做验证
+ */
 export default Target([ElementType.PROPERTY, ElementType.PARAMETER])(AssertTrue);
