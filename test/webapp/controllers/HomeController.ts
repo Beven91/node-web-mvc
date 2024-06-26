@@ -6,6 +6,7 @@ import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 import RequestEntity from '../../../src/servlets/models/RequestEntity';
 import City from '../models/Models';
+import { demoData } from './data';
 
 @Api({ description: '首页' })
 @RestController
@@ -137,7 +138,7 @@ export default class HomeController {
 
   @ApiOperation({ value: '@RequestBody 测试' })
   @ApiImplicitParams([
-    { description: '类型', name: 'user', example: { name: 1 } }
+    { description: '类型', name: 'user', example: demoData }
   ])
   @PostMapping({ value: '/body', produces: 'application/json' })
   body(@RequestBody @Valid user: UserInfo): UserInfo {
