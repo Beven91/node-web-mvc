@@ -156,6 +156,15 @@ export default class RuntimeAnnotation<A = any> {
     return runtimeAnnotations.filter((m) => isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<C>[];
   }
 
+   /**
+   * 获取指定类型的注解
+   * @param type 注解类型
+   */
+   static getTypedRuntimeAnnotation<C extends IAnnotationClazz>(type: C, match?: (m: RuntimeAnnotation) => boolean) {
+    const isMatch = match || (() => true);
+    return runtimeAnnotations.find((m) => isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<C>;
+  } 
+
   /**
    * 根据现有注解来获取相同作用于下对应的指定类型的注解
    * @param anno 当前注解
@@ -290,7 +299,7 @@ export default class RuntimeAnnotation<A = any> {
     if (!clazz) {
       return {};
     }
-    return  clazz[propertiesSymbol] as Record<string, RuntimeAnnotation<MetaProperty>> || {};
+    return clazz[propertiesSymbol] as Record<string, RuntimeAnnotation<MetaProperty>> || {};
   }
 
   /**
@@ -351,6 +360,9 @@ export default class RuntimeAnnotation<A = any> {
       case ElementType.PROPERTY:
         this.name = name;
         this.descriptor = descritpor;
+        if (!properties[name]) {
+          properties[name] = this;
+        }
         if (Javascript.createTyper(NativeAnnotation).isType(MetaProperty)) {
           properties[name] = this;
         }

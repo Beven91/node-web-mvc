@@ -1,5 +1,6 @@
 
 import path from 'path';
+import process from 'process';
 
 const tracerSymbol = Symbol('tracer')
 
@@ -37,6 +38,21 @@ export default class Tracer {
     if (clazz) {
       return clazz[tracerSymbol] as Tracer;
     }
+  }
+
+  static getClassPath(id: string, suffix?: string) {
+    const root = process.cwd();
+    const ext = path.extname(id);
+    const prefix = id.split(root).pop().replace(ext, '');
+    return suffix ? `${prefix}#${suffix}` : prefix;
+  }
+
+  static getFullName(clazz: Function, suffix?: string) {
+    if (!clazz) {
+      return suffix;
+    }
+    const id = this.getTracer(clazz)?.id;
+    return this.getClassPath(id || clazz.name, suffix);
   }
 
   static isDependency(clazz: Function, file) {

@@ -27,7 +27,8 @@ export default class JsonMessageConverter extends AbstractHttpMessageConverter<O
   }
 
   async writeInternal(data: object, servletContext: ServletContext) {
-    const out = typeof data === 'string' ? data : JSON.stringify(data);
+    const serialization = new Serialization();
+    const out = typeof data === 'string' ? data : serialization.serialize(data);
     const response = servletContext.response;
     await response.fullResponse(out, MediaType.APPLICATION_JSON);
   }

@@ -1,6 +1,7 @@
 import { IAnnotationClazz, LinkAnnotationType } from "./annotation/RuntimeAnnotation";
 import ElementType, { } from "./annotation/ElementType";
 import create from "./annotation/create";
+import Tracer from "./annotation/Tracer";
 
 type ValuePropertyType<A> = A extends { value?: infer V } ? unknown extends V ? never : V : never
 
@@ -155,6 +156,8 @@ function Target<E = never>(elementTypes: UnorderTuple<ElementType.PROPERTY | Ele
 
 function Target(types: ElementType | ElementType[]) {
   return function TargetAnnotation(annotationType: IAnnotationClazz) {
+    const tracer = new Tracer(new Error());
+    Tracer.setTracer(annotationType, tracer);
     return create(types, annotationType)
   }
 }

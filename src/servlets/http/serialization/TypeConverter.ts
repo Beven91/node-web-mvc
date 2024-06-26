@@ -10,7 +10,7 @@ import { ClazzType } from "../../../interface/declare";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
 import { toBigInt, toBoolean, toDate, toNumber, toString } from "./BasicTypeConverter";
 
-const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;
+export const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;
 
 export default class TypeConverter {
   private createInstance(type: ClazzType, ...args: any[]) {
@@ -98,13 +98,18 @@ export default class TypeConverter {
     return new type(data) as Uint8Array;
   }
 
+  private getDescriptor(instance: any, key: string) {
+    if (!instance) return null;
+    return Object.getOwnPropertyDescriptor(instance, key) || Object.getOwnPropertyDescriptor(instance.__proto__, key);
+  }
+
   toClass(data: object, dataType: ClazzType, itemType?: any) {
     const properties = RuntimeAnnotation.getClazzMetaPropertyAnnotations(dataType);
     const instance = this.createInstance(dataType);
     const keys = Object.keys(data);
     for (const key of keys) {
       const value = data[key];
-      const descriptor = Object.getOwnPropertyDescriptor(instance, key) || Object.getOwnPropertyDescriptor(instance.__proto__, key) || {};
+      const descriptor = this.getDescriptor(instance, key) || {};
       if (descriptor.writable === false || ('set' in descriptor && descriptor.set == undefined)) {
         // 如果是只读属性
         continue;

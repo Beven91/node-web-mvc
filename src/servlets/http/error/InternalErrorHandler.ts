@@ -7,6 +7,7 @@ import ModelAndView from "../../models/ModelAndView";
 import ViewRender from "../../view/ViewRender";
 import ViewResolverRegistry from "../../view/ViewResolverRegistry";
 import MediaType from "../MediaType";
+import Serialization from "../serialization/Serialization";
 import DefaultErrorAttributes from "./DefaultErrorAttributes";
 import ErrorAttributes from "./ErrorAttributes";
 
@@ -38,9 +39,10 @@ export default class InternalErrorHandler {
   }
 
   handleError(servletContext: ServletContext) {
+    const serialization = new Serialization();
     const response = servletContext.response;
     const data = this.errorAttributes.getErrorAttributes(servletContext);
-    return response.fullResponse(JSON.stringify(data), MediaType.APPLICATION_JSON);
+    return response.fullResponse(serialization.serialize(data), MediaType.APPLICATION_JSON);
   }
 
   handleErrorHtml(servletContext: ServletContext) {
