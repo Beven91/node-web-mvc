@@ -1,10 +1,11 @@
-import { ClazzType } from "../../interface/declare";
 import Target from "../../servlets/annotations/Target";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
 
+export type ValidateGroupType = () => void
+
 class Validated {
 
-  value?: ClazzType | ClazzType[]
+  value?: ValidateGroupType | ValidateGroupType[]
 
 }
 

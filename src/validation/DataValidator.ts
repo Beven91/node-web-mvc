@@ -25,7 +25,7 @@ export default class DataValidator {
   }
 
   determineValidationHints(anno: InstanceType<typeof Validated>) {
-    const value = anno.value;
+    const value = anno.value || Constraints.EMPTY_GROUP;
     return value instanceof Array ? value : [value].filter(Boolean);
   }
 
@@ -36,7 +36,7 @@ export default class DataValidator {
     return this.validateByAnnotation(model, validAnnotation, parameter);
   }
 
-  async validateByAnnotation(model: object, validAnnotation: InstanceType<typeof Validated>, parameter: MethodParameter) {
+  async validateByAnnotation(model: object, validAnnotation: InstanceType<typeof Validated>, parameter: MethodParameter, paths?: string) {
     if (!validAnnotation) {
       // 如果没有配置，则直接跳过校验
       return;
@@ -59,14 +59,15 @@ export default class DataValidator {
       context.currentField = anno.name;
       context.currentTyper = Javascript.createTyper(anno.dataType);
       const isValid = await constraint.validate(value, context);
+      const currentPaths = paths ? `${paths}.${anno.name}` : anno.name;
       if (!isValid) {
         const message = validationMessage.format(constraint);
-        throw new MethodArgumentNotValidException(parameter, message, constraint);
+        throw new MethodArgumentNotValidException(parameter, message, currentPaths);
       }
       const proeprtyValid = RuntimeAnnotation.getAnnotationsByAnno(anno, Valid)[0]?.nativeAnnotation;
       if (proeprtyValid) {
         // 如果配置了校验，则嵌套校验
-        await this.validateByAnnotation(value, proeprtyValid, parameter);
+        await this.validateByAnnotation(value, proeprtyValid, parameter, currentPaths);
       }
     }
   }

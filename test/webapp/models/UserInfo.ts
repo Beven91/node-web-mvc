@@ -5,6 +5,8 @@ import OrderModel from './OrderModel';
 
 export const score = 121;
 
+export function MyGroup(){ }
+
 class AddressInfo {
 
   @NotNull({ message2: 'province不能为空' })
@@ -59,7 +61,7 @@ export default class UserInfo extends A {
   public userName: string
 
 
-  @Max({ value: 100, message2: '用户编码不能超过100' })
+  @Max({ value: 100, message2: '用户编码不能超过100', groups: MyGroup })
   @Min({ value: 10, message2: '用户编码不能低于10' })
   @NotNull({ message2: '用户编码不能为空' })
   @ApiModelProperty({ value: '用户编码', required: true, example: 1 })

@@ -1,12 +1,13 @@
 
 import path from 'path';
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders, Valid } from '../../../src/index';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders, Valid, ServletRequest, Validated } from '../../../src/index';
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models/';
 import RequestEntity from '../../../src/servlets/models/RequestEntity';
 import City from '../models/Models';
 import { demoData } from './data';
+import { MyGroup } from '../models/UserInfo';
 
 @Api({ description: '首页' })
 @RestController
@@ -141,7 +142,7 @@ export default class HomeController {
     { description: '类型', name: 'user', example: demoData }
   ])
   @PostMapping({ value: '/body', produces: 'application/json' })
-  body(@RequestBody @Valid user: UserInfo): UserInfo {
+  body(@RequestBody @Validated(MyGroup) user: UserInfo): UserInfo {
     return user;
   }
 

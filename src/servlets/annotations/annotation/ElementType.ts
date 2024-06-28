@@ -4,6 +4,7 @@
  */
 
 import AnnotationElementTypeError from "../../../errors/AnnotationElementTypeError";
+import Javascript from "../../../interface/Javascript";
 
 enum ElementType {
   /**
@@ -27,11 +28,13 @@ enum ElementType {
   PROPERTY = 'PROPERTY'
 }
 
+
 function isPropertyDescritpor(descriptor) {
   if (descriptor && typeof descriptor === 'object') {
     return 'get' in descriptor && 'set' in descriptor;
   }
 }
+
 
 export function reflectAnnotationType(options: Array<any>): ElementType | 'UNKNOW' {
   if (!options || options.length < 0 || options.length > 3 || !options[0]) {
@@ -39,13 +42,17 @@ export function reflectAnnotationType(options: Array<any>): ElementType | 'UNKNO
   }
   const length = options.length;
   const [target, name, descriptor] = options;
-  const hasContructor = typeof target.constructor === 'function';
-  const isAnnotation = hasContructor && (target[name] === target.constructor.prototype[name] || isPropertyDescritpor(descriptor));
-  if (length === 1 && typeof target === 'function') {
+  const clazz = length == 1 ? target : target?.constructor;
+  const isClass = Javascript.isClass(clazz);
+  if (!isClass) {
+    // 如果不是作用在class上则直接判定为未知
+    return 'UNKNOW';
+  }
+  if (length === 1) {
     return ElementType.TYPE;
-  } else if (length === 3 && isAnnotation && (descriptor === undefined || isPropertyDescritpor(descriptor))) {
+  } else if (length === 3 && (descriptor === undefined || isPropertyDescritpor(descriptor))) {
     return ElementType.PROPERTY
-  } else if (length === 3 && isAnnotation) {
+  } else if (length === 3) {
     const isNumber = typeof descriptor === 'number';
     return isNumber ? ElementType.PARAMETER : ElementType.METHOD;
   }
