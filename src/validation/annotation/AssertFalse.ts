@@ -6,7 +6,7 @@ class AssertFalse extends Constraints {
 
   message? = '{validation.constraints.AssertFalse.message}'
 
-  validate(value: any) {
+  isValid(value: any) {
     if (value === undefined || value === null) {
       return true;
     }

@@ -24,7 +24,7 @@ class Min extends Constraints {
     }
   }
 
-  validate(content: any, context: ValidationContext) {
+  isValid(content: any, context: ValidationContext) {
     const maxValue = this.value;
     const value = this.getSize(content, context);
     return value >= maxValue;

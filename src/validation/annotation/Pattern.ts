@@ -13,7 +13,7 @@ class Pattern extends Constraints {
    */
   regexp: RegExp
 
-  validate(value: any, context: ValidationContext) {
+  isValid(value: any, context: ValidationContext) {
     if (!context.currentTyper.isType(String)) {
       throw new UnexpectedTypeException(context);
     }

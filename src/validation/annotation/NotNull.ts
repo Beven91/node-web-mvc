@@ -6,7 +6,7 @@ class NotNull extends Constraints {
 
   message? = '{validation.constraints.NotNull.message}'
 
-  validate(value: any) {
+  isValid(value: any) {
     return value !== null && value !== undefined;
   }
 

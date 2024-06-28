@@ -21,6 +21,7 @@ const resources = {
 export default class ValidationMessage {
 
   format(constraint: Constraints) {
+    if (!constraint) return '';
     const message = String(constraint.message);
     return message.replace(placeholderRegexp, function (key) {
       const name = key.replace(cleanRegexp, '');

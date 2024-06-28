@@ -28,7 +28,7 @@ export default abstract class Constraints implements Validator {
    * 校验值
    * @param value 
    */
-  abstract validate(value: any, context: ValidationContext): Promise<boolean> | boolean
+  abstract isValid(value: any, context: ValidationContext): Promise<boolean> | boolean
 
 
   constructor(info: RuntimeAnnotation) {

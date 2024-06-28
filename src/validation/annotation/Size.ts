@@ -36,7 +36,7 @@ class Size extends Constraints {
     }
   }
 
-  validate(value: any, context: ValidationContext) {
+  isValid(value: any, context: ValidationContext) {
     if (value === null || value === undefined) {
       // 如果为null或者undefined则忽略验证
       return true;

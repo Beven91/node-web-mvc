@@ -58,7 +58,7 @@ export default class DataValidator {
       context.current = anno;
       context.currentField = anno.name;
       context.currentTyper = Javascript.createTyper(anno.dataType);
-      const isValid = await constraint.validate(value, context);
+      const isValid = await constraint.isValid(value, context);
       const currentPaths = paths ? `${paths}.${anno.name}` : anno.name;
       if (!isValid) {
         const message = validationMessage.format(constraint);

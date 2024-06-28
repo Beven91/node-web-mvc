@@ -16,7 +16,7 @@ class Digits extends Constraints {
    */
   fraction: number
 
-  validate(value: number) {
+  isValid(value: number) {
     const [integer, fraction = ''] = String(value).split('.');
     return integer.length <= this.integer && (fraction.length <= this.fraction || /^0+$/.test(fraction))
   }

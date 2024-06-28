@@ -12,7 +12,7 @@ class Past extends Constraints {
 
   message? = '{validation.constraints.Past.message}'
 
-  validate(content: Date, context: ValidationContext) {
+  isValid(content: Date, context: ValidationContext) {
     if (!context.currentTyper.isType(Date)) {
       throw new UnexpectedTypeException(context);
     }

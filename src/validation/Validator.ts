@@ -7,5 +7,5 @@ export default interface Validator {
    * @param value 当前值
    * @param context 当前验证上下文
    */
-  validate(value: any, context: ValidationContext): Promise<boolean> | boolean
+  isValid(value: any, context: ValidationContext): Promise<boolean> | boolean
 }
