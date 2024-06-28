@@ -39,12 +39,10 @@ export default class DataValidator {
     }
     // 查找分组规则
     const groups = this.determineValidationHints(validAnnotation);
-    return this.validateByAnnotation(model, groups, parameter);
+    return this.validateByAnnotation(model, groups, parameter, parameter.parameterType, '');
   }
 
-  async validateByAnnotation(model: object, groups: ValidateGroupType[], parameter: MethodParameter, paths?: string) {
-    // 当前校验目标对象类型
-    const targetType = model.constructor;
+  async validateByAnnotation(model: object, groups: ValidateGroupType[], parameter: MethodParameter, targetType: Function, paths?: string) {
     const constraints = Constraints.getConstraints(targetType, groups);
     if (constraints.length < 1) {
       // 如果没有配置任何规则
@@ -65,19 +63,17 @@ export default class DataValidator {
         const message = validationMessage.format(constraint);
         throw new MethodArgumentNotValidException(parameter, message, currentPaths);
       }
-      const needChildValid = RuntimeAnnotation.getAnnotationsByAnno(anno, Valid)[0]?.nativeAnnotation;
-      if (needChildValid) {
-        // 如果配置了校验，则嵌套校验 
-        await this.validateByAnnotation(value, groups, parameter, currentPaths);
-      }
     }
     // 验证子对象
-    for(const anno of childValidations) {
+    for (const anno of childValidations) {
       const value = model[anno.name];
+      if (value === null || value === undefined) {
+        return;
+      }
       const currentPaths = paths ? `${paths}.${anno.name}` : anno.name;
       if (anno) {
         // 如果配置了校验，则嵌套校验 
-        await this.validateByAnnotation(value, groups, parameter, currentPaths);
+        await this.validateByAnnotation(value, groups, parameter, anno.dataType, currentPaths);
       }
     }
   }
