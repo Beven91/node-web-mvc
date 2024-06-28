@@ -6,18 +6,15 @@ import { ValidateGroupType } from "./Validated";
 
 const constraintsSymbol = Symbol('constraints');
 
-
 function EMPTY_GROUP() { }
 
 export default abstract class Constraints implements Validator {
 
   static EMPTY_GROUP = EMPTY_GROUP
 
-  __exclude_keys__: 'validate' | 'runtimeAnnotation' | 'getSize'
+  __exclude_keys__: 'isValid' | 'getSize'
 
   groups?: ValidateGroupType | ValidateGroupType[] = EMPTY_GROUP
-
-  message2?: string
 
   /**
    * 自定义验证失败时的提示消息

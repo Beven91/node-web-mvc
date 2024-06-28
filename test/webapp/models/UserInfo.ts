@@ -9,9 +9,10 @@ export function MyGroup(){ }
 
 class AddressInfo {
 
-  @NotNull({ message2: 'province不能为空' })
+  @NotNull({ message: 'province不能为空' })
   public province: string
 
+  @NotNull({ message: '城市不能为空', groups: [MyGroup] })
   public city: string
 }
 
@@ -53,17 +54,17 @@ export default class UserInfo extends A {
     return '';
   }
 
-  @Digits({ integer: 3, fraction: 2, message2: '价格格式为 000.00' })
+  @Digits({ integer: 3, fraction: 2, message: '价格格式为 000.00' })
   price: number
 
-  @Pattern({ regexp: /^[a-zA-Z0-9_-]{4,16}$/, message2: '用户名只能包含字母、数字、下划线、横杠且长度为4-16位' })
+  @Pattern({ regexp: /^[a-zA-Z0-9_-]{4,16}$/, message: '用户名只能包含字母、数字、下划线、横杠且长度为4-16位' })
   @ApiModelProperty({ value: '用户名', required: true, example: '张三' })
   public userName: string
 
 
-  @Max({ value: 100, message2: '用户编码不能超过100', groups: MyGroup })
-  @Min({ value: 10, message2: '用户编码不能低于10' })
-  @NotNull({ message2: '用户编码不能为空' })
+  @Max({ value: 100, message: '用户编码不能超过{value}', groups: MyGroup })
+  @Min({ value: 10, message: '用户编码不能低于{value}' })
+  @NotNull({ message: '用户编码不能为空' })
   @ApiModelProperty({ value: '用户编码', required: true, example: 1 })
   public userId: number
 
@@ -73,38 +74,38 @@ export default class UserInfo extends A {
   @ApiModelProperty({ value: '订单' })
   public order: OrderModel
 
-  @Size({ min: 1, max: 10, message2: '产品编码值应该为1到10位' })
+  @Size({ min: 1, max: 10, message: '产品编码值应该为{min}到{max}位' })
   public productCode: string
 
-  @Size({ min: 2, message2: 'items必须大于2项' })
+  @Size({ min: 2, message: 'items必须大于{min}项' })
   public items: string[]
 
-  @Size({ max: 2, message2: '属性最多添加2项' })
+  @Size({ max: 2, message: '属性最多添加2项' })
   public props: Map<string, string>
 
-  @Size({ max: 3, message2: 'buffer最多3个字节' })
+  @Size({ max: 3, message: 'buffer最多{max}个字节' })
   public buffer: Uint8Array
 
-  @Size({ max: 3, message2: 'uniqueNums最多3个' })
+  @Size({ max: 3, message: 'uniqueNums最多{max}个' })
   public uniqueNums: Set<number>
 
-  @Past({ message2: 'passDate必须小于当前时间' })
+  @Past({ message: 'passDate必须小于当前时间' })
   public passDate: Date
 
-  @Furture({ message2: 'submitDate必须大于当前系统时间' })
+  @Furture({ message: 'submitDate必须大于当前系统时间' })
   public submitDate: Date
 
-  @Null({ message2: 'internalData必须为null' })
+  @Null({ message: 'internalData必须为null' })
   public internalData: String
 
-  @AssertTrue({ message2: 'isOk必须为true' })
+  @AssertTrue({ message: 'isOk必须为true' })
   public isOk: boolean
 
-  @AssertFalse({ message2: 'isFail必须为false' })
+  @AssertFalse({ message: 'isFail必须为false' })
   public isFail:boolean
 
   @Valid
-  @NotNull({ message2: 'address不能为空' })
+  @NotNull({ message: 'address不能为空' })
   public address: AddressInfo
 
 }

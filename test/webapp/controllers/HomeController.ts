@@ -164,8 +164,11 @@ export default class HomeController {
   }
 
   @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo[]>' })
+  @ApiImplicitParams([
+    { description: '类型', name: 'user', example: demoData }
+  ])
   @GetMapping('/return2')
-  returnData2() {
+  returnData2(@RequestBody @Valid user: UserInfo) {
 
   }
 
