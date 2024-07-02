@@ -5,6 +5,9 @@
 import path from 'path';
 import fs from 'fs';
 import MediaType from "./MediaType";
+import IllegalArgumentException from '../../errors/IllegalArgumentException';
+
+const normalizePath = (source: string)=> source.replace(/\\/g,'/');
 
 export default class MultipartFile {
   /**
@@ -44,6 +47,15 @@ export default class MultipartFile {
     this.dir = dir;
   }
 
+  private validatePath(file: string) {
+    file = normalizePath(path.normalize(file));
+    const cwd = normalizePath(process.cwd());
+    if (file.indexOf(cwd) > -1 && file.indexOf(this.dir) < 0) {
+      // 非法写入
+      throw new IllegalArgumentException('Illegal write path: ' + file);
+    }
+  }
+
   /**
    * 将上传的文件保存到指定位置
    */
@@ -51,6 +63,7 @@ export default class MultipartFile {
     if (!path.isAbsolute(dest)) {
       dest = path.join(this.dir, dest);
     }
+    this.validatePath(dest);
     MultipartFile.ensureDirSync(path.dirname(dest));
     // 写出文件
     fs.renameSync(this.tempFile, dest);
