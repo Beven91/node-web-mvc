@@ -38,7 +38,10 @@ export default class GzipResourceTransformer implements ResourceTransformer {
   }
 
   async transform(request: HttpServletRequest, resource: Resource, chain: ResourceTransformerChain): Promise<Resource> {
-    resource = await chain.transform(request,resource);
+    resource = await chain.transform(request, resource);
+    if (!resource) {
+      return resource;
+    }
     if (!this.isAcceptable(resource, request)) {
       return resource;
     }

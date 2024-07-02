@@ -1,5 +1,6 @@
 import BeanCreationException from "../../errors/BeanCreationException";
 import BeanPropertyCreationException from "../../errors/BeanPropertyCreationException";
+import Exception from "../../errors/Exception";
 import LoopDependenciesException, { DependencyBeanDefinition } from "../../errors/LoopDependenciesException";
 import Javascript from "../../interface/Javascript";
 import { ClazzType } from "../../interface/declare";
@@ -195,7 +196,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       const instance = this.initializeBean(beanInstance, beanName);
       return instance;
     } catch (ex) {
-      if (ex instanceof BeanCreationException || ex instanceof LoopDependenciesException) {
+      if (ex instanceof Exception) {
         throw ex;
       }
       throw new BeanCreationException(definition, beanName, `Unexpected exception during bean creation`, ex);

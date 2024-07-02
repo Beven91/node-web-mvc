@@ -2,7 +2,7 @@
  * @module PathMatcher
  * @descriptionn 路径匹配器
  */
-import * as matcher from "path-to-regexp";
+import PathPattern from "./PathPattern";
 
 export interface MatchResult {
   params: object
@@ -15,8 +15,8 @@ export default class PathMatcher {
    * @param path 路径
    */
   match(pattern: string, path: string): boolean {
-    const r = this.matchPattern(pattern, path) as any;
-    return r !== null && r !== false;
+    const r = this.matchPattern(pattern, path);
+    return r !== null;
   }
 
   matchOne(patterns: string[], path: string) {
@@ -31,7 +31,13 @@ export default class PathMatcher {
    * @param path 路径
    */
   matchPattern(pattern: string, path: string): MatchResult {
-    pattern = pattern.replace('**', '(.*)').replace(/\{/g, ':').replace(/\}/g, '');
-    return matcher.match(pattern)(path) as MatchResult;
+    const result = PathPattern.create(pattern).match(path);
+    return result.matched ? result : null;
+  }
+
+  static preBuildPattern(patterns: string[]) {
+    patterns?.forEach?.((pattern) => {
+      PathPattern.create(pattern);
+    })
   }
 }

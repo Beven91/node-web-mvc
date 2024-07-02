@@ -214,15 +214,9 @@ class HomeController {
 @GetMapping('/detail/{id}')
 ```
 
-> 使用 `:` 来标识占位
-
-```js
-@GetMapping('/detail/:id')
-```
-
 > `正则`风格路由
 ```js
-@GetMapping('/route/:foo/(.*)')
+@GetMapping('/route/{}')
 ```
 
 ## Arguments 参数提取

@@ -64,6 +64,7 @@ export default class InterceptorRegistration {
    * 通过url匹配规则，来设置当前拦截器是否执行。
    */
   addPathPatterns(...patterns: Array<string>) {
+    PathMatcher.preBuildPattern(patterns);
     this.includePatterns.push(...patterns);
     return this;
   }

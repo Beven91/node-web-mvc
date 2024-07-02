@@ -114,7 +114,6 @@ export default class HomeController {
   requestParamWithMultipartFile(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
     this.oService.sayHello();
     this.orderService.sayHello();
-    // TODO: 如何防止恶意写入
     file.transferTo('a.jpg')
     return 'home/index...' + id + ',file.name=' + file.name;
   }
@@ -147,9 +146,9 @@ export default class HomeController {
   }
 
   @ApiOperation({ value: '@PathVariable 测试' })
-  @GetMapping('/path/{id}')
-  path(@PathVariable id: number) {
-    return 'home/index...' + id;
+  @GetMapping('/path/*-{id}/{name:[a-zA-Z]+}')
+  path(@PathVariable id: number, @PathVariable name: string) {
+    return 'home/index...' + id + '===' + name;
   }
 
   @ApiOperation({ value: '@UserId 测试' })

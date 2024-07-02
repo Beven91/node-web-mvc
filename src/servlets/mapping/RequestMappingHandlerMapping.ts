@@ -23,6 +23,7 @@ import CorsUtils from '../util/CorsUtils';
 import HttpHeaders from '../http/HttpHeaders';
 import MediaType from '../http/MediaType';
 import { PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE } from './HandlerMapping';
+import PathMatcher from '../util/PathMatcher';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> implements InitializingBean {
 
@@ -55,6 +56,8 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
           const exp = (controllerPath + '/' + actionPath).replace(/\/{2,3}/, '/');
           values.push(exp);
         })
+        // 预构建模式缓存
+        PathMatcher.preBuildPattern(values);
       });
       requestMapping.value = values;
     }

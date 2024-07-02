@@ -1,6 +1,6 @@
 import path from 'path';
 import OrderModel from './webapp/models/OrderModel';
-import { ViewResolverRegistry, WebMvcConfigurationSupport } from "../src";
+import { HandlerInterceptorRegistry, ResourceHandlerRegistry, ViewResolverRegistry, WebMvcConfigurationSupport } from "../src";
 import AdminInterceptor from './webapp/interceptor/AdminInterceptor';
 import EncodeInterceptor from './webapp/interceptor/EncodeInterceptor';
 import EjsViewResolver from './webapp/resolvers/EjsViewResolver';
@@ -23,7 +23,7 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 
   cwd = path.resolve('./test/webapp')
 
-  addInterceptors(registry) {
+  addInterceptors(registry: HandlerInterceptorRegistry): void {
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());
   }
@@ -40,12 +40,13 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
     converters.addMessageConverters(new XmlHttpMessageConverter());
   }
 
-  addResourceHandlers(registry) {
+  addResourceHandlers(registry: ResourceHandlerRegistry): void {
     const dir = path.resolve('/Users/beven/Downloads');
     registry
       .addResourceHandler('/media/**')
       .addResourceLocations(dir);
   }
+
 
   configurePathMatch(configurer: PathMatchConfigurer) {
     configurer.setUrlPathHelper(new MyUrlPathHelper());

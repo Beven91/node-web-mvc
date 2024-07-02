@@ -32,6 +32,8 @@ export default class FilterHandlerAdapter {
     this.registrationBeans.push(registration);
     if (urlPatterns) {
       registration.setUrlPatterns(urlPatterns);
+      // 预构建匹配模式缓存
+      PathMatcher.preBuildPattern(urlPatterns);
     }
   }
 
