@@ -41,7 +41,7 @@ export default class PathPattern {
         this.parameters[parameterIndex++] = key;
         return `(${content || '[^/]*'})`
       })
-      .replace(holder, '.*')
+      .replace(holder, '.*');
     this.regexp = new RegExp(`^${express}$`);
   }
 
