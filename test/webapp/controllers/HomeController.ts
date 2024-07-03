@@ -67,14 +67,14 @@ export default class HomeController {
   ])
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
-  mapPost(@RequestBody data: City) {
+  mapPost(@RequestBody data: Map<string,any>) {
     const values: string[] = [
       `Type: ${Object.prototype.toString.call(data)}`
     ];
     console.log(data);
-    // data.forEach((value, key) => {
-    //   values.push(`${key}:${value}`)
-    // })
+    data.forEach((value, key) => {
+      values.push(`${key}:${value}`)
+    })
     return values.join('\n');
   }
 
@@ -146,9 +146,9 @@ export default class HomeController {
   }
 
   @ApiOperation({ value: '@PathVariable 测试' })
-  @GetMapping('/path/*-{id}/{name:[a-zA-Z]+}')
-  path(@PathVariable id: number, @PathVariable name: string) {
-    return 'home/index...' + id + '===' + name;
+  @GetMapping('/path/{id}')
+  path(@PathVariable id: number) {
+    return 'home/index...' + id + '===';
   }
 
   @ApiOperation({ value: '@UserId 测试' })
@@ -166,7 +166,7 @@ export default class HomeController {
   @ApiImplicitParams([
     { description: '类型', name: 'user', example: demoData }
   ])
-  @GetMapping('/return2')
+  @PostMapping('/return2')
   returnData2(@RequestBody @Valid user: UserInfo) {
 
   }
