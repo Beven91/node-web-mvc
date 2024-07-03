@@ -3,11 +3,11 @@
  * @description 类型转换
  */
 
-import SerializationCreateInstanceError from "../../../errors/SerializationCreateInstanceError";
-import ValueConvertError from "../../../errors/ValueConvertError";
-import Javascript from "../../../interface/Javascript";
-import { ClazzType } from "../../../interface/declare";
-import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
+import SerializationCreateInstanceError from "../errors/SerializationCreateInstanceError";
+import ValueConvertError from "../errors/ValueConvertError";
+import Javascript from "../interface/Javascript";
+import { ClazzType } from "../interface/declare";
+import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
 import { toBigInt, toBoolean, toDate, toNumber, toString } from "./BasicTypeConverter";
 
 export const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;

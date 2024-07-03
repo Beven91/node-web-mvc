@@ -1,5 +1,5 @@
-import ValueConvertError from "../../../errors/ValueConvertError";
-import { ClazzType } from "../../../interface/declare";
+import ValueConvertError from "../errors/ValueConvertError";
+import { ClazzType } from "../interface/declare";
 
 export function toBigInt(value: any) {
   try {

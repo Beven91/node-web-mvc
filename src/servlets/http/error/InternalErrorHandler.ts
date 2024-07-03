@@ -1,13 +1,13 @@
 import Javascript from "../../../interface/Javascript";
 import Component from "../../../ioc/annotations/Component";
 import { BeanFactory } from "../../../ioc/factory/BeanFactory";
+import Serialization from "../../../serialization/Serialization";
 import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
 import ServletContext from "../../http/ServletContext";
 import ModelAndView from "../../models/ModelAndView";
 import ViewRender from "../../view/ViewRender";
 import ViewResolverRegistry from "../../view/ViewResolverRegistry";
 import MediaType from "../MediaType";
-import Serialization from "../serialization/Serialization";
 import DefaultErrorAttributes from "./DefaultErrorAttributes";
 import ErrorAttributes from "./ErrorAttributes";
 

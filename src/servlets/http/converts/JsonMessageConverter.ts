@@ -5,7 +5,7 @@
 import ServletContext from '../ServletContext';
 import MediaType from '../MediaType';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
-import Serialization from '../serialization/Serialization';
+import Serialization from '../../../serialization/Serialization';
 
 export default class JsonMessageConverter extends AbstractHttpMessageConverter<Object> {
 

@@ -55,7 +55,6 @@ export { default as HandlerAdapter } from './servlets/method/HandlerAdapter';
 export { default as AbstractHandlerMethodAdapter } from './servlets/method/AbstractHandlerMethodAdapter';
 export { default as HandlerMethodArgumentResolver } from './servlets/method/argument/HandlerMethodArgumentResolver';
 export { default as ArgumentsResolvers } from './servlets/method/argument/ArgumentsResolvers';
-export { default as TypeConverter } from './servlets/http/serialization/TypeConverter';
 export { default as PathVariableMapMethodArgumentResolver } from './servlets/method/argument/PathVariableMapMethodArgumentResolver';
 export { default as RequestHeaderMapMethodArgumentResolver } from './servlets/method/argument/RequestHeaderMapMethodArgumentResolver';
 export { default as RequestParamMapMethodArgumentResolver } from './servlets/method/argument/RequestParamMapMethodArgumentResolver';
@@ -208,7 +207,8 @@ export { default as Size } from './validation/annotation/Size';
 export { default as Validator } from './validation/Validator';
 export { default as DataValidator } from './validation/DataValidator';
 export { default as ValidationContext } from './validation/ValidationContext';
-
+export { default as TypeConverter } from './serialization/TypeConverter';
+export { default as JsonFormat } from './serialization/JsonFormat';
 
 
 hot.create(module);

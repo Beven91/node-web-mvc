@@ -1,7 +1,7 @@
 import UnexpectedTypeException from "../../errors/UnexpectedTypeException";
+import { TypedArray } from "../../serialization/TypeConverter";
 import Target from "../../servlets/annotations/Target";
 import ElementType from "../../servlets/annotations/annotation/ElementType";
-import { TypedArray } from "../../servlets/http/serialization/TypeConverter";
 import ValidationContext from "../ValidationContext";
 import Constraints from "./Constraints";
 

@@ -3,7 +3,7 @@
  * 序列化工具
  */
 
-import { ClazzType } from "../../../interface/declare";
+import { ClazzType } from "../interface/declare";
 import TypeConverter, { TypedArray } from "./TypeConverter";
 
 const converter = new TypeConverter();

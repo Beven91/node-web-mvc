@@ -12,7 +12,6 @@ import PathVariableMapMethodArgumentResolver from './PathVariableMapMethodArgume
 import ServletContextMethodArgumentResolver from './ServletContextMethodArgumentResolver';
 import HandlerMethod from '../HandlerMethod';
 import ArgumentResolvError from '../../../errors/ArgumentResolvError';
-import TypeConverter from '../../http/serialization/TypeConverter';
 import IllegalArgumentException from '../../../errors/IllegalArgumentException';
 import ParamAnnotation from '../../annotations/params/ParamAnnotation';
 import MessageConverter from '../../http/converts/MessageConverter';
@@ -25,6 +24,7 @@ import ContentNegotiationManager from '../../http/accept/ContentNegotiationManag
 import RequestPartArgumentResolver from './RequestPartArgumentResolver';
 import HttpEntityMethodProcessor from '../processor/HttpEntityMethodProcessor';
 import DataValidator from '../../../validation/DataValidator';
+import TypeConverter from '../../../serialization/TypeConverter';
 
 const converter = new TypeConverter();
 
