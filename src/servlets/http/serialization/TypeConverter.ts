@@ -28,7 +28,8 @@ export default class TypeConverter {
     if (value === null || value === undefined) {
       return null;
     } else if (!type) {
-      throw new Error('dataType not present');
+      return value;
+      // throw new Error(`dataType not present`);
     }
     const clazzType = Javascript.createTyper(type);
     if (clazzType.isType(BigInt)) {
