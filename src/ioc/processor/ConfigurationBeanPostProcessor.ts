@@ -21,7 +21,7 @@ export default class ConfigurationBeanPostProcessor extends InstantiationAwareBe
 
   postProcessAfterInitialization(beanInstance: object, beanName: string): object {
     const beanType = beanInstance?.constructor as ClazzType;
-    if (beanInstance && !!RuntimeAnnotation.getAnnotation(Configuration, beanType)) {
+    if (beanInstance && RuntimeAnnotation.hasClassAnnotation(beanType, Configuration)) {
       // 代理配置实例方法
       this.proxyConfigurationInstance(beanInstance, beanType);
     }
