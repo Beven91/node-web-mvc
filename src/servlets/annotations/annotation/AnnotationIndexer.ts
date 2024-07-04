@@ -26,7 +26,7 @@ export default class AnnotationIndexer {
 
   methods: Map<Function, MethodIndexer>
 
-  static createIfNeed(ctor: Function) {
+  static createIndexerIfNeed(ctor: Function) {
     if (!ctor[annotationsSymbol]) {
       ctor[annotationsSymbol] = new AnnotationIndexer();
     }
