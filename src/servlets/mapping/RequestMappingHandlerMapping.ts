@@ -68,7 +68,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
   }
 
   registerAllAnnotationMappings() {
-    const annotations = RuntimeAnnotation.getTypedRuntimeAnnotations(RequestMapping);
+    const annotations = RuntimeAnnotation.getAnnotations(RequestMapping);
     annotations.forEach((annotation) => {
       this.registerAnnotationMappings(annotation);
     })
