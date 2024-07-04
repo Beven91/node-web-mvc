@@ -176,7 +176,7 @@ function registerHotUpdate(handlerMapping: RequestMappingHandlerMapping) {
     })
     .postend((latest) => {
       const file = latest.filename;
-      const annotations = RuntimeAnnotation.getTypedRuntimeAnnotations(RequestMapping);
+      const annotations = RuntimeAnnotation.getAnnotations(RequestMapping);
       annotations.forEach((annotation) => {
         if (Tracer.isDependency(annotation.ctor, file)) {
           handlerMapping.registerAnnotationMappings(annotation);
