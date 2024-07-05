@@ -29,6 +29,7 @@ export default class AnnotationIndexer {
   static createIndexerIfNeed(ctor: Function) {
     if (!ctor[annotationsSymbol]) {
       ctor[annotationsSymbol] = new AnnotationIndexer();
+      ctor[annotationsSymbol].owner = ctor;
     }
     return ctor[annotationsSymbol] as AnnotationIndexer;
   }
@@ -112,14 +113,14 @@ export default class AnnotationIndexer {
   static getClazzAnnotation(clazz: Function, annotationType: IAnnotationOrClazz) {
     const indexer = this.getIndexer(clazz);
     if (indexer) {
-      return indexer.clazz.get(annotationType)?.[0] || this.findAnnotation(indexer.clazz, annotationType);
+      return this.findAnnotation(indexer.clazz, annotationType);
     }
   }
 
   static getMethodAnnotation(clazz: Function, methodKey: string | Function, annotationType: IAnnotationOrClazz) {
     const indexer = this.getMethodIndexer(clazz, methodKey);
     if (indexer) {
-      return indexer.annotations.get(annotationType)?.[0] || this.findAnnotation(indexer.annotations, annotationType);
+      return this.findAnnotation(indexer.annotations, annotationType);
     }
   }
 
@@ -127,25 +128,28 @@ export default class AnnotationIndexer {
     const indexer = this.getIndexer(clazz);
     const property = indexer?.properties?.[name];
     if (property) {
-      return property.get(annotationType)?.[0] || this.findAnnotation(property, annotationType);
+      return this.findAnnotation(property, annotationType);
     }
   }
 
   static getParameterAnnotation(clazz: Function, methodKey: string | Function, paramName: string, annotationType: IAnnotationOrClazz) {
     const parameter = this.getMethodIndexer(clazz, methodKey)?.parameters?.[paramName];
-    if (!parameter) {
-      return parameter.get(annotationType)?.[0] || this.findAnnotation(parameter, annotationType);
+    if (parameter) {
+      return this.findAnnotation(parameter, annotationType);
     };
   }
 
   static findAnnotation(info: Map<Function, RuntimeAnnotation[]>, annotationType?: IAnnotationOrClazz) {
     const annotations = info[mapAnnotationsSymbol];
     const len = arguments.length;
+    const cacheKey = (annotationType as IAnnotation)?.NativeAnnotation || annotationType;
     if (!annotations) {
       return null;
     }
     if (len == 1) {
       return annotations[0];
+    } else if (info.get(cacheKey)) {
+      return info.get(cacheKey)[0];
     } else {
       return annotations.find((m) => this.isAnnotationTypeOf(m, annotationType))
     }

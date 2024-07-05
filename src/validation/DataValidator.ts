@@ -1,6 +1,6 @@
 import MethodArgumentNotValidException from "../errors/MethodArgumentNotValidException";
 import Javascript from "../interface/Javascript";
-import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
+import AnnotationIndexer from "../servlets/annotations/annotation/AnnotationIndexer";
 import MethodParameter from "../servlets/method/MethodParameter";
 import ValidationContext from "./ValidationContext";
 import ValidationMessage from "./ValidationMessage";
@@ -20,7 +20,7 @@ export default class DataValidator {
   private getValidateAnnotation(parameter: MethodParameter) {
     const annotations = parameter.getParameterAnnotations();
     return annotations.find(annotation => {
-      return RuntimeAnnotation.isAnnotationTypeOf(annotation, Valid) || RuntimeAnnotation.isAnnotationTypeOf(annotation, Validated);
+      return AnnotationIndexer.isAnnotationTypeOf(annotation, Valid) || AnnotationIndexer.isAnnotationTypeOf(annotation, Validated);
     })?.nativeAnnotation as InstanceType<typeof Validated>;
   }
 

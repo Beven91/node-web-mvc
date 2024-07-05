@@ -10,6 +10,7 @@ import { mergeAnnotationSymbol } from '../Merge';
 import AliasFor from '../AliasFor';
 import { ClazzType } from '../../../interface/declare';
 import MetaProperty from './MetaProperty';
+import AnnotationIndexer from './AnnotationIndexer';
 
 const propertiesSymbol = Symbol('properties');
 
@@ -28,12 +29,6 @@ export interface IAnnotation extends Function, LinkAnnotationType<any> {
 }
 
 export type IAnnotationOrClazz = IAnnotationClazz | IAnnotation
-
-const isAnnotationTypeOf = (m: RuntimeAnnotation, type: IAnnotation | IAnnotationClazz) => {
-  const nativeAnnotation = m.nativeAnnotation;
-  const NativeAnnotation = (type as IAnnotation).NativeAnnotation;
-  return nativeAnnotation instanceof type || (NativeAnnotation && nativeAnnotation instanceof NativeAnnotation);
-};
 
 const isMatchType = (m: RuntimeAnnotation, clazz: Function) => {
   if (m.ctor === clazz) {
@@ -74,7 +69,7 @@ export default class RuntimeAnnotation<A = any> {
     return fn;
   }
 
-  public readonly methodName
+  public readonly methodName: string
 
   /**
    * 标注目标名称
@@ -145,25 +140,23 @@ export default class RuntimeAnnotation<A = any> {
     return Reflect.getMetadata('design:type', this.target, this.name);
   }
 
-  static isAnnotationTypeOf = isAnnotationTypeOf
-
   /**
    * 获取所有指定类型的注解
    * @param type 注解类型
    */
   static getTypedRuntimeAnnotations<C extends IAnnotationClazz>(type: C, match?: (m: RuntimeAnnotation) => boolean) {
     const isMatch = match || (() => true);
-    return runtimeAnnotations.filter((m) => isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<C>[];
+    return runtimeAnnotations.filter((m) => AnnotationIndexer.isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<C>[];
   }
 
-   /**
-   * 获取指定类型的注解
-   * @param type 注解类型
-   */
-   static getTypedRuntimeAnnotation<C extends IAnnotationClazz>(type: C, match?: (m: RuntimeAnnotation) => boolean) {
+  /**
+  * 获取指定类型的注解
+  * @param type 注解类型
+  */
+  static getTypedRuntimeAnnotation<C extends IAnnotationClazz>(type: C, match?: (m: RuntimeAnnotation) => boolean) {
     const isMatch = match || (() => true);
-    return runtimeAnnotations.find((m) => isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<C>;
-  } 
+    return runtimeAnnotations.find((m) => AnnotationIndexer.isAnnotationTypeOf(m, type) && isMatch(m)) as RuntimeAnnotation<C>;
+  }
 
   /**
    * 根据现有注解来获取相同作用于下对应的指定类型的注解
@@ -186,11 +179,12 @@ export default class RuntimeAnnotation<A = any> {
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function): RuntimeAnnotation[]
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C): RuntimeAnnotation<C>[]
   static getClassAnnotations<C extends IAnnotationOrClazz>(clazz: Function, annotationType?: C) {
-    const isClassAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.elementType == ElementType.TYPE;
-    if (arguments.length > 1) {
-      return runtimeAnnotations.filter((m) => isClassAnnotation(m) && isAnnotationTypeOf(m, annotationType));
+    const indexcer = AnnotationIndexer.getIndexer(clazz);
+    if (!indexcer) return [];
+    if (arguments.length == 1) {
+      return AnnotationIndexer.findAnnotations(indexcer.clazz);
     }
-    return runtimeAnnotations.filter(isClassAnnotation);
+    return AnnotationIndexer.findAnnotations(indexcer.clazz, annotationType);
   }
 
   /**
@@ -199,7 +193,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param {Function} type 注解类型
    */
   static getClassAnnotation<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C) {
-    return this.getClassAnnotations(clazz, annotationType)[0];
+    return AnnotationIndexer.getClazzAnnotation(clazz, annotationType);
   }
 
   /**
@@ -211,10 +205,6 @@ export default class RuntimeAnnotation<A = any> {
     return !!this.getClassAnnotation(clazz, type);
   }
 
-  static get allAnnotations() {
-    return runtimeAnnotations;
-  }
-
   /**
    * 获取指定类型的多个注解信息
    * @param {Function} type 注解类型
@@ -224,7 +214,7 @@ export default class RuntimeAnnotation<A = any> {
     const isScope = arguments.length >= 2 ? (m: RuntimeAnnotation) => isMatchType(m, clazz) : () => true;
     const types = annotationType instanceof Array ? annotationType : [annotationType];
     return runtimeAnnotations.filter((m) => {
-      return isScope(m) && !!types.find((t) => isAnnotationTypeOf(m, t));
+      return isScope(m) && !!types.find((t) => AnnotationIndexer.isAnnotationTypeOf(m, t));
     });
   }
 
@@ -233,11 +223,8 @@ export default class RuntimeAnnotation<A = any> {
    * @param {Function} type 注解类型
    * @param {Function} clazz 被修饰的类 
    */
-  static getAnnotation<C extends IAnnotationOrClazz>(annotationType: C, clazz?: Function) {
-    if (arguments.length == 1) {
-      return this.getAnnotations(annotationType)[0];
-    }
-    return this.getAnnotations(annotationType, clazz)[0];
+  static getAnnotation<C extends IAnnotationOrClazz>(annotationType: C, clazz?: Function): RuntimeAnnotation<C> {
+    return this.getAnnotations.call(this, ...arguments)[0];
   }
 
   /**
@@ -248,11 +235,12 @@ export default class RuntimeAnnotation<A = any> {
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function): RuntimeAnnotation[]
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C): RuntimeAnnotation<C>[]
   static getMethodAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType?: C): RuntimeAnnotation[] {
-    const isMethodAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && (m.name == method || m.method == method) && m.elementType == ElementType.METHOD;
-    if (arguments.length > 2) {
-      return runtimeAnnotations.filter((m) => isMethodAnnotation(m) && isAnnotationTypeOf(m, annotationType));
+    const methodIndexer = AnnotationIndexer.getMethodIndexer(clazz, method);
+    if (!methodIndexer) return [];
+    if (arguments.length == 2) {
+      return AnnotationIndexer.findAnnotations(methodIndexer.annotations);
     }
-    return runtimeAnnotations.filter(isMethodAnnotation);
+    return AnnotationIndexer.findAnnotations(methodIndexer.annotations, annotationType);
   }
 
   /**
@@ -261,7 +249,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param method 函数名称
    */
   static getMethodAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C) {
-    return this.getMethodAnnotations(clazz, method, annotationType)[0];
+    return AnnotationIndexer.getMethodAnnotation(clazz, method, annotationType);
   }
 
   /**
@@ -272,12 +260,12 @@ export default class RuntimeAnnotation<A = any> {
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string): RuntimeAnnotation[]
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType: C): RuntimeAnnotation<C>[]
   static getMethodParamAnnotations<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType?: C) {
-    const isMethodParamAnnotation = (m: RuntimeAnnotation) => isMatchType(m, clazz) && m.name == method && m.elementType == ElementType.PARAMETER && (m.paramName === paramName || paramName === undefined)
-    if (arguments.length > 3) {
-      return runtimeAnnotations.filter((m) => isMethodParamAnnotation(m) && isAnnotationTypeOf(m, annotationType));
-    } else {
-      return runtimeAnnotations.filter(isMethodParamAnnotation);
+    const parameterIndexer = AnnotationIndexer.getMethodIndexer(clazz, method)?.parameters?.[paramName];
+    if (!parameterIndexer) return [];
+    if (arguments.length == 3) {
+      return AnnotationIndexer.findAnnotations(parameterIndexer);
     }
+    return AnnotationIndexer.findAnnotations(parameterIndexer, annotationType);
   }
 
   /**
@@ -287,7 +275,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param paramName 参数下标
    */
   static getMethodParamAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType?: C) {
-    return this.getMethodParamAnnotations(clazz, method, paramName, annotationType)[0];
+    return AnnotationIndexer.getParameterAnnotation(clazz, method, paramName, annotationType);
   }
 
   /**
@@ -321,7 +309,7 @@ export default class RuntimeAnnotation<A = any> {
       const value = initializer[key];
       nativeAnnotation[key] = value;
       if (aliasAnno) {
-        const target = aliasAnno.annotation ? mergeAnnotations.find((m) => isAnnotationTypeOf(m, aliasAnno.annotation))?.nativeAnnotation : nativeAnnotation;
+        const target = aliasAnno.annotation ? mergeAnnotations.find((m) => AnnotationIndexer.isAnnotationTypeOf(m, aliasAnno.annotation))?.nativeAnnotation : nativeAnnotation;
         if (target) {
           const aliasKey = aliasAnno.value || key;
           // 如果有别名,则执行别名赋值
@@ -331,7 +319,7 @@ export default class RuntimeAnnotation<A = any> {
     });
   }
 
-  constructor(meta: any[], NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, ownerAnnotation?: RuntimeAnnotation) {
+  constructor(meta: any, NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, ownerAnnotation?: RuntimeAnnotation) {
     const [target, name, descritpor,] = meta;
 
     if (ownerAnnotation && ownerAnnotation instanceof RuntimeAnnotation) {
@@ -341,11 +329,7 @@ export default class RuntimeAnnotation<A = any> {
     this.meta = meta;
     this.target = target;
     this.elementType = checkAnnotation(elementTypes, meta, NativeAnnotation.name);
-
-    let properties = this.ctor[propertiesSymbol];
-    if (!properties) {
-      properties = this.ctor[propertiesSymbol] = {};
-    }
+    const indexer = AnnotationIndexer.createIndexerIfNeed(this.ctor);
 
     // 初始化元信息
     switch (this.elementType) {
@@ -360,15 +344,10 @@ export default class RuntimeAnnotation<A = any> {
       case ElementType.PROPERTY:
         this.name = name;
         this.descriptor = descritpor;
-        if (!properties[name]) {
-          properties[name] = this;
-        }
-        if (Javascript.createTyper(NativeAnnotation).isType(MetaProperty)) {
-          properties[name] = this;
-        }
         break;
       case ElementType.PARAMETER:
         this.name = name;
+        this.methodName = name;
         this.paramIndex = descritpor;
         this.paramName = Javascript.resolveParameters(target[name])[this.paramIndex];
         break;
@@ -389,6 +368,8 @@ export default class RuntimeAnnotation<A = any> {
       RuntimeAnnotation.mergeAnnotationValues(this, { value: initializer });
     }
 
+    // 添加到索引中
+    indexer.addAnnotation(this);
     // 将注解添加到注解列表
     runtimeAnnotations.push(this);
   }
