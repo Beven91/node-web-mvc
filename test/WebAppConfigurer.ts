@@ -23,8 +23,8 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
   cwd = path.resolve('./test/webapp')
 
   addInterceptors(registry: HandlerInterceptorRegistry): void {
-    registry.addInterceptor(new AdminInterceptor());
-    registry.addInterceptor(new EncodeInterceptor());
+    // registry.addInterceptor(new AdminInterceptor());
+    // registry.addInterceptor(new EncodeInterceptor());
   }
 
   configureViewResolvers(registry: ViewResolverRegistry) {

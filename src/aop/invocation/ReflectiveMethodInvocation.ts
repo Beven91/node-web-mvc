@@ -50,8 +50,10 @@ export default class ReflectiveMethodInvocation implements ProxyMethodInvocation
       if (interceptor instanceof MethodInterceptor) {
         return interceptor.invoke(this);
       } else {
-        // 其他暂不支持
-        console.warn('Unsupported Interceptor:', interceptor);
+        if (interceptor) {
+          // 其他暂不支持
+          console.warn('Unsupported Interceptor:', interceptor);
+        }
         return this.processed();
       }
     }

@@ -274,20 +274,45 @@ export default class RuntimeAnnotation<A = any> {
    * @param method 函数名称
    * @param paramName 参数下标
    */
-  static getMethodParamAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType?: C) {
+  static getMethodParamAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string, paramName: string, annotationType?: C): RuntimeAnnotation<C> {
     return AnnotationIndexer.getParameterAnnotation(clazz, method, paramName, annotationType);
   }
 
   /**
-   * 获取指定类的原始属性定义的注解信息
+   * 获取指定类的属性上的注解信息
+   * @param clazz 属性所在类
+   * @param name 属性名称
+   * @param annotationType 要获取的注解类型,如果不指定则返回该属性上的所有注解
+   */
+  static getPropertyAnnotations<C extends IAnnotationOrClazz>(clazz: Function, name: string, annotationType?: C): RuntimeAnnotation<C>[] {
+    const property = AnnotationIndexer.getIndexer(clazz)?.properties?.[name];
+    if (!property) return [];
+    if (arguments.length == 2) {
+      return AnnotationIndexer.findAnnotations(property);
+    } else {
+      return AnnotationIndexer.findAnnotations(property, annotationType);
+    }
+  }
+
+  /**
+   * 获取指定类的属性上的注解信息
+   * @param clazz 属性所在类
+   * @param name 属性名称
+   * @param annotationType 要获取的注解类型
+   */
+  static getPropertyAnnotation<C extends IAnnotationOrClazz>(clazz: Function, name: string, annotationType?: C): RuntimeAnnotation<C> {
+    return AnnotationIndexer.getPropertyAnnotation(clazz, name, annotationType);
+  }
+
+  /**
+   * 获取指定类的所有属性名称
    * @param clazz 
    * @returns 
    */
-  static getClazzMetaPropertyAnnotations(clazz: any) {
-    if (!clazz) {
-      return {};
-    }
-    return clazz[propertiesSymbol] as Record<string, RuntimeAnnotation<MetaProperty>> || {};
+  static getClazzPropertyKeys(clazz: Function) {
+    const indexcer = AnnotationIndexer.getIndexer(clazz);
+    if (!indexcer) return [];
+    return Object.keys(indexcer.properties);
   }
 
   /**

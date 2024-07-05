@@ -4,6 +4,8 @@
  */
 
 import { ClazzType } from "../interface/declare";
+import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
+import JsonSerialize from "./JsonSerialize";
 import TypeConverter, { TypedArray } from "./TypeConverter";
 
 const converter = new TypeConverter();
@@ -24,7 +26,10 @@ export default class Serialization {
    * @returns 
    */
   serialize(data: any) {
-    return JSON.stringify(data, this.enhancedStringify.bind(this), 2);
+    const scope = this;
+    return JSON.stringify(data, function (key, value) {
+      return scope.enhancedStringify(key, value, this);
+    }, 2);
   }
 
   private mapTypeStringify(map: Map<string, any>) {
@@ -51,12 +56,17 @@ export default class Serialization {
     return data;
   }
 
-  private enhancedStringify(key: string, value: any) {
+  private enhancedStringify(key: string, value: any, owner: object) {
+    const serializer = RuntimeAnnotation.getPropertyAnnotation(owner?.constructor, key, JsonSerialize)?.nativeAnnotation?.getSerializer?.();
+    if (serializer) {
+      // 自定义序列化
+      return serializer.serialize(value);
+    }
     if (value instanceof Map) {
       return this.mapTypeStringify(value);
-    } else if(value instanceof Set) {
+    } else if (value instanceof Set) {
       return this.setTypeStringify(value);
-    } else if(value instanceof TypedArray) {
+    } else if (value instanceof TypedArray) {
       return this.typedArrayStringify(value);
     }
     return value;

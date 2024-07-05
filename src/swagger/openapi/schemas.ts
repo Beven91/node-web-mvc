@@ -5,6 +5,7 @@
  * https://generator3.swagger.io/openapi.json
  */
 import { ClazzType } from "../../interface/declare";
+import MetaProperty from "../../servlets/annotations/annotation/MetaProperty";
 import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
 import MultipartFile from "../../servlets/http/MultipartFile";
 import ApiModel from "../annotations/ApiModel";
@@ -13,7 +14,7 @@ import { ApiModelInfo, ApiModelPropertyInfo, SchemeRef, SchemeRefExt } from "./d
 import GenericType from "./generic";
 import TypeMappings from "./typemappings";
 
-type A =  typeof ApiModelProperty;
+type A = typeof ApiModelProperty;
 
 export default class Schemas {
 
@@ -59,20 +60,16 @@ export default class Schemas {
   }
 
   private buildApiModelProperties(clazzType: ClazzType) {
-    const properties = RuntimeAnnotation.getAnnotations(ApiModelProperty, clazzType).reduce((map, value) => {
-      map[value.name] = value;
-      return map;
-    }, {}) as Record<string, RuntimeAnnotation<typeof ApiModelProperty>>;
-    const metaProperties = RuntimeAnnotation.getClazzMetaPropertyAnnotations(clazzType);
     const modelProperties: Record<string, ApiModelPropertyInfo | SchemeRef> = {};
-    const keys = [...Object.keys(properties), ...Object.keys(metaProperties)];
+    const keys = RuntimeAnnotation.getClazzPropertyKeys(clazzType);
     for (let key of keys) {
       if (modelProperties[key]) continue;
-      const property = properties[key];
-      const metaProperty = metaProperties[key];
+      const basicProperty = RuntimeAnnotation.getPropertyAnnotations(clazzType, key)[0];
+      const property = RuntimeAnnotation.getPropertyAnnotation(clazzType, key, ApiModelProperty);
+      const metaProperty = RuntimeAnnotation.getPropertyAnnotation(clazzType, key, MetaProperty);
       const anno = property?.nativeAnnotation;
-      const dataType = anno?.dataType || metaProperty?.dataType || anno.example?.constructor;
-      const name = property?.name || metaProperty?.name;
+      const dataType = anno?.dataType || basicProperty?.dataType || anno.example?.constructor;
+      const name = property?.name || basicProperty?.name;
       const isGenericTemplate = GenericType.isGeneric(dataType);
       const typeInfo = isGenericTemplate ? { type: dataType } : this.typemappings.make(dataType, metaProperty?.nativeAnnotation?.itemType);
       modelProperties[name] = {

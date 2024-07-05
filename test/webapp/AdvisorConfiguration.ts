@@ -14,7 +14,7 @@ export default class AdvisorConfiguration {
       return !!RuntimeAnnotation.getAnnotation(Controller, clazz) && clazz.name !== 'SwaggerController';
     })
     advisor.setPointcut(functionPointcut);
-    advisor.setAdvice(new LogMethodInterceptor());
+    // advisor.setAdvice(new LogMethodInterceptor());
 
     return advisor;
   }

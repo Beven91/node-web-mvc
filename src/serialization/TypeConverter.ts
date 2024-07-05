@@ -7,8 +7,13 @@ import SerializationCreateInstanceError from "../errors/SerializationCreateInsta
 import ValueConvertError from "../errors/ValueConvertError";
 import Javascript from "../interface/Javascript";
 import { ClazzType } from "../interface/declare";
+import MetaProperty from "../servlets/annotations/annotation/MetaProperty";
 import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
 import { toBigInt, toBoolean, toDate, toNumber, toString } from "./BasicTypeConverter";
+import { parseDate } from "./date/DateUtils";
+import JsonDeserialize from "./JsonDeserialize";
+import JsonFormat from "./JsonFormat";
+import JsonSerialize from "./JsonSerialize";
 
 export const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;
 
@@ -105,7 +110,6 @@ export default class TypeConverter {
   }
 
   toClass(data: object, dataType: ClazzType, itemType?: any) {
-    const properties = RuntimeAnnotation.getClazzMetaPropertyAnnotations(dataType);
     const instance = this.createInstance(dataType);
     const keys = Object.keys(data);
     for (const key of keys) {
@@ -115,13 +119,34 @@ export default class TypeConverter {
         // 如果是只读属性
         continue;
       }
-      const anno = properties[key];
-      if (!anno) {
-        instance[key] = value;
-      } else {
-        instance[key] = this.convert(value, anno.dataType, anno.nativeAnnotation.itemType);
-      }
+      instance[key] = this.handlePropertyValue(dataType, key, value);
     }
     return instance;
+  }
+
+  private handlePropertyValue(clazz: ClazzType, name: string, value: any) {
+    const basicProperty = RuntimeAnnotation.getPropertyAnnotations(clazz, name)[0]
+    if (!basicProperty) {
+      return value;
+    }
+    const deserializer = RuntimeAnnotation.getPropertyAnnotation(clazz, name, JsonDeserialize)?.nativeAnnotation?.getDeserializer?.();
+    if(deserializer) {
+      // 自定义反序列化
+      return deserializer.deserialize(value);
+    }
+    const clazzType = Javascript.createTyper(basicProperty.dataType);
+    if (clazzType.isType(Date)) {
+      return this.handleDateProperty(clazz, basicProperty.dataType, name, value);
+    }
+    const metaProperty = RuntimeAnnotation.getPropertyAnnotation(clazz, name, MetaProperty);
+    return this.convert(value, basicProperty.dataType, metaProperty.nativeAnnotation.itemType);
+  }
+
+  private handleDateProperty(clazz: ClazzType, dataType: ClazzType, name: string, value: any) {
+    const jsonFormat = RuntimeAnnotation.getPropertyAnnotation(clazz, name, JsonFormat);
+    if (!jsonFormat) {
+      return toDate(value, dataType);
+    }
+    return parseDate(value, jsonFormat.nativeAnnotation.pattern);
   }
 }

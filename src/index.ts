@@ -209,6 +209,10 @@ export { default as DataValidator } from './validation/DataValidator';
 export { default as ValidationContext } from './validation/ValidationContext';
 export { default as TypeConverter } from './serialization/TypeConverter';
 export { default as JsonFormat } from './serialization/JsonFormat';
+export { default as JsonDeserialize } from './serialization/JsonDeserialize';
+export { default as JsonDeserializer } from './serialization/JsonDeserializer';
+export { default as JsonSerialize } from './serialization/JsonSerialize';
+export { default as JsonSerializer } from './serialization/JsonSerializer';
 
 
 hot.create(module);
