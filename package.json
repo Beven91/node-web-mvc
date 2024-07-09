@@ -8,7 +8,7 @@
     "test": "test"
   },
   "scripts": {
-    "demo":"ts-node ./test/demo.ts",
+    "demo":"ts-node ./src/serialization/date/DateConverter.ts",
     "start": "ts-node ./test/index.ts",
     "start2": "ts-node ./test/www.ts",
     "build": "tsc",
