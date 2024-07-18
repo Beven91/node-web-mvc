@@ -27,4 +27,5 @@ export const demoData = {
     1,
     2,
   ],
+  color: '#4990e2'
 }

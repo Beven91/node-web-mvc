@@ -1,6 +1,9 @@
-import { AssertFalse, AssertTrue, Digits, Furture, JsonFormat, Max, Min, NotNull, Null, Past, Pattern, Size, Valid, Validated } from '../../../src';
+import { AssertFalse, AssertTrue, Digits, Furture, JsonDeserialize, JsonFormat, JsonSerialize, Max, Min, NotNull, Null, Past, Pattern, Size, Valid, Validated } from '../../../src';
 import ApiModel from '../../../src/swagger/annotations/ApiModel';
 import ApiModelProperty from '../../../src/swagger/annotations/ApiModelProperty';
+import ColorDeserializer from '../globalization/ColorDeseriailzer';
+import ColorSerializer from '../globalization/ColorSerializer';
+import Color from './Color';
 import OrderModel from './OrderModel';
 
 export const score = 121;
@@ -108,5 +111,9 @@ export default class UserInfo extends A {
   @Valid
   @NotNull({ message: 'address不能为空' })
   public address: AddressInfo
+
+  @JsonSerialize({ using: ColorSerializer })
+  @JsonDeserialize({ using: ColorDeserializer })
+  public color: Color
 
 }
