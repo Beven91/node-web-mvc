@@ -124,6 +124,8 @@ export { default as UnsupportReturnValueHandlerError } from './errors/UnsupportR
 export { default as ViewNotFoundError } from './errors/ViewNotFoundError';
 export { default as MethodArgumentNotValidException } from './errors/MethodArgumentNotValidException';
 export { default as UnexpectedTypeException } from './errors/UnexpectedTypeException';
+export { default as DateTimeParseException } from './errors/DateTimeParseException';
+export { default as InvalidDateTimeFormatException } from './errors/InvalidDateTimeFormatException';
 export { default as InternalResourceView } from './servlets/view/InternalResourceView';
 export { default as RedirectView } from './servlets/view/RedirectView';
 export { default as ElementType } from './servlets/annotations/annotation/ElementType';
@@ -213,6 +215,7 @@ export { default as JsonDeserialize } from './serialization/JsonDeserialize';
 export { default as JsonDeserializer } from './serialization/JsonDeserializer';
 export { default as JsonSerialize } from './serialization/JsonSerialize';
 export { default as JsonSerializer } from './serialization/JsonSerializer';
-
+export { default as DateConverter } from './serialization/date/DateConverter';
+export { default as DateTimeTextProvider } from './serialization/date/DateTimeTextProvider';
 
 hot.create(module);

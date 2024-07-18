@@ -1,0 +1,65 @@
+{
+  "monthsShort": [
+    "janv.",
+    "févr.",
+    "mars",
+    "avr.",
+    "mai",
+    "juin",
+    "juil.",
+    "août",
+    "sept.",
+    "oct.",
+    "nov.",
+    "déc."
+  ],
+  "months": [
+    "janvier",
+    "février",
+    "mars",
+    "avril",
+    "mai",
+    "juin",
+    "juillet",
+    "août",
+    "septembre",
+    "octobre",
+    "novembre",
+    "décembre"
+  ],
+  "week": [
+    "dimanche",
+    "lundi",
+    "mardi",
+    "mercredi",
+    "jeudi",
+    "vendredi",
+    "samedi"
+  ],
+  "weekShort": [
+    "dim.",
+    "lun.",
+    "mar.",
+    "mer.",
+    "jeu.",
+    "ven.",
+    "sam."
+  ],
+  "weekdaysMin": [
+    "di",
+    "lu",
+    "ma",
+    "me",
+    "je",
+    "ve",
+    "sa"
+  ],
+  "pam": [
+    "AM",
+    "PM"
+  ],
+  "weekDefine": {
+    "firstDayOfWeek": 1,
+    "dminimalDaysInFirstWeeky": 4
+  }
+}

@@ -22,7 +22,7 @@ export default {
     const year = date.getFullYear();
     return exp == 'yy' ? year.toString().slice(-2) : padZero(year, exp.length);
   },
-  // 月 MM:不足两位补0  M:不补0 MMM 简写  MMMM 全写
+  // 月(0-) MM:不足两位补0  M:不补0 MMM 简写  MMMM 全写
   'M': (date: Date, exp: string, locale: Locale) => {
     checkLimit(exp, 4);
     const month = date.getMonth();
@@ -31,6 +31,7 @@ export default {
     }
     return DateTimeTextProvider.getMonth(month, locale, exp.length > 3);
   },
+  // 月份(1-12)
   // 日 dd:不足两位补0  d:不补0
   'd': (date: Date, exp: string, locale: Locale) => {
     checkLimit(exp, 2);
@@ -63,6 +64,14 @@ export default {
   },
   // 季度
   'q': (date: Date) => Math.floor((date.getMonth() + 3) / 3).toString(),
+  // 当月第N周
+  'W': (date: Date, exp: string, locale: Locale) => {
+    return DateTimeTextProvider.getWeekOfMonth(date, locale);
+  },
+  // 当年的第N周
+  'w': (date: Date, exp: string, locale: Locale) => {
+    return DateTimeTextProvider.getWeekOfYear(date, locale);
+  },
   // 星期
   'E': (date: Date, exp: string, locale: Locale) => {
     checkLimit(exp, 4);

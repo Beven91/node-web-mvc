@@ -9,7 +9,6 @@ import Tracer from "./Tracer";
 import { mergeAnnotationSymbol } from '../Merge';
 import AliasFor from '../AliasFor';
 import { ClazzType } from '../../../interface/declare';
-import MetaProperty from './MetaProperty';
 import AnnotationIndexer from './AnnotationIndexer';
 
 const propertiesSymbol = Symbol('properties');

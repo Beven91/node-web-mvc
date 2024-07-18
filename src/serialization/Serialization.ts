@@ -5,8 +5,10 @@
 
 import { ClazzType } from "../interface/declare";
 import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
+import JsonFormat from "./JsonFormat";
 import JsonSerialize from "./JsonSerialize";
 import TypeConverter, { TypedArray } from "./TypeConverter";
+import DateConverter from "./date/DateConverter";
 
 const converter = new TypeConverter();
 
@@ -56,13 +58,26 @@ export default class Serialization {
     return data;
   }
 
+  private dateStringify(date: Date, clazz: ClazzType, name: string, value: string) {
+    const jsonFormat = RuntimeAnnotation.getPropertyAnnotation(clazz, name, JsonFormat);
+    if (!jsonFormat) {
+      return value;
+    }
+    const converter = DateConverter.of(jsonFormat.nativeAnnotation.pattern, jsonFormat.nativeAnnotation.locale);
+    return converter.format(date);
+  }
+
   private enhancedStringify(key: string, value: any, owner: object) {
-    const serializer = RuntimeAnnotation.getPropertyAnnotation(owner?.constructor, key, JsonSerialize)?.nativeAnnotation?.getSerializer?.();
+    const clazz = owner?.constructor as ClazzType;
+    const nativeValue = owner?.[key];
+    const serializer = RuntimeAnnotation.getPropertyAnnotation(clazz, key, JsonSerialize)?.nativeAnnotation?.getSerializer?.();
     if (serializer) {
       // 自定义序列化
       return serializer.serialize(value);
     }
-    if (value instanceof Map) {
+    if (nativeValue instanceof Date) {
+      return this.dateStringify(nativeValue, clazz, key, value);
+    } else if (value instanceof Map) {
       return this.mapTypeStringify(value);
     } else if (value instanceof Set) {
       return this.setTypeStringify(value);

@@ -2,6 +2,11 @@ import Locale from "../../locale/Locale";
 import DateTimeTextProvider from "./DateTimeTextProvider";
 import { checkLimit } from "./formatters";
 
+export const getNormalDay = (date:Date)=> {
+  const day = date.getDay();
+  return day == 0 ? 7 : day;
+} 
+
 // 最小单位解析器
 export default {
   // 年
@@ -12,6 +17,9 @@ export default {
   // 月 MM:不足两位补0  M:不补0 MMM 月份简写 MMMM: 月份完整名称
   'M': (raw: string, exp: string, locale: Locale) => {
     checkLimit(exp, 4);
+    if(exp.length == 1) {
+      return Number(raw) < 13 ? raw : null;
+    }
     if (exp.length < 3) {
       return raw.length == exp.length ? raw : null;
     }
@@ -20,26 +28,41 @@ export default {
   // 日 dd:不足两位补0  d:不补0
   'd': (raw: string, exp: string, locale: Locale) => {
     checkLimit(exp, 2);
+    if(exp.length == 1) {
+      return Number(raw) < 32 ? raw : null;
+    }
     return raw.length == exp.length ? raw : null;
   },
   // 小时(24小时制) HH:不足两位补0   H:不补0
   'H': (raw: string, exp: string, locale: Locale) => {
     checkLimit(exp, 2);
+    if(exp.length == 1) {
+      return Number(raw) < 24 ? raw : null;
+    }
     return raw.length == exp.length ? raw : null;
   },
   // 小时(12小时制) hh:不足两位补0   h:不补0
   'h': (raw: string, exp: string, locale: Locale) => {
     checkLimit(exp, 2);
+    if(exp.length == 1) {
+      return Number(raw) < 24 ? raw : null;
+    }
     return raw.length == exp.length ? raw : null;
   },
   // 分钟 mm:不足两位补0   m:不补0
   'm': (raw: string, exp: string, locale: Locale) => {
     checkLimit(exp, 2);
+    if(exp.length == 1) {
+      return Number(raw) < 61 ? raw : null;
+    }
     return raw.length == exp.length ? raw : null;
   },
   // 秒  ss:不足两位补0   s:不补0
   's': (raw: string, exp: string, locale: Locale) => {
     checkLimit(exp, 2);
+    if(exp.length == 1) {
+      return Number(raw) < 61 ? raw : null;
+    }
     return raw.length == exp.length ? raw : null;
   },
   // 毫秒 S SS SSS 根据配置返回对应的毫秒位数

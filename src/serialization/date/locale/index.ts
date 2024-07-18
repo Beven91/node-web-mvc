@@ -1,1 +1,0 @@
-import './zh-CN';
