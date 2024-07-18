@@ -53,9 +53,8 @@ export default class MultipartController {
   ])
   @PostMapping('/upload2')
   async upload2(@RequestPart files: Array<MultipartFile>,@RequestPart name: string) {
-    console.log(files[0].size)
     for (let file of files) {
-      await file.transferTo('app_data/images/' + file.name)
+      await file.transferTo('images/' + file.name)
     }
     return {
       status: 0,

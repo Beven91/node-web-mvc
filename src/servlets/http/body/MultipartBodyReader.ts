@@ -53,13 +53,22 @@ export default class MultipartBodyReader extends AbstractBodyReader {
                 subpart.clearBuffer();
                 break;
               case 'body':
-                const v = subpart.finish(mediaType.charset);
-                formValues[subpart.name] = v;
-                if (v instanceof MultipartFile) {
-                  request.servletContext.addReleaseQueue(() => v.destory());
+                {
+                  const name = subpart.name;
+                  const v = subpart.finish(mediaType.charset);
+                  if (formValues[name] instanceof Array) {
+                    formValues[name].push(v);
+                  } else if (formValues[name]) {
+                    formValues[name] = [formValues[name], v]
+                  } else {
+                    formValues[name] = v;
+                  }
+                  if (v instanceof MultipartFile) {
+                    request.servletContext.addReleaseQueue(() => v.destory());
+                  }
+                  // 读取结束，开始读取下一个subpart
+                  subpart = new MultipartSubpart(startBoundary, this.multipart, subpart.tempRaw);
                 }
-                // 读取结束，开始读取下一个subpart
-                subpart = new MultipartSubpart(startBoundary, this.multipart, subpart.tempRaw);
                 break;
             }
           })
