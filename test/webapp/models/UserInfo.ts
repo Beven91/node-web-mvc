@@ -1,4 +1,4 @@
-import { AssertFalse, AssertTrue, Digits, Furture, Max, Min, NotNull, Null, Past, Pattern, Size, Valid, Validated } from '../../../src';
+import { AssertFalse, AssertTrue, Digits, Furture, JsonFormat, Max, Min, NotNull, Null, Past, Pattern, Size, Valid, Validated } from '../../../src';
 import ApiModel from '../../../src/swagger/annotations/ApiModel';
 import ApiModelProperty from '../../../src/swagger/annotations/ApiModelProperty';
 import OrderModel from './OrderModel';
@@ -89,6 +89,7 @@ export default class UserInfo extends A {
   @Size({ max: 3, message: 'uniqueNums最多{max}个' })
   public uniqueNums: Set<number>
 
+  @JsonFormat({ pattern: 'yyyy年MM月dd HH:mm:ss' })
   @Past({ message: 'passDate必须小于当前时间' })
   public passDate: Date
 
