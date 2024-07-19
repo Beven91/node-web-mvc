@@ -3,6 +3,8 @@
  * @description 断言工具集
  */
 
+import Javascript from "../../interface/Javascript";
+
 export default class Assert {
 
   /**
@@ -11,25 +13,8 @@ export default class Assert {
    * @param ctor 类型
    */
   static isType(value, ctor, message?: string) {
-    let equal = false;
-    switch (typeof value) {
-      case 'string':
-        equal = ctor === String;
-        break;
-      case 'number':
-        equal = ctor === Number;
-        break;
-      case 'boolean':
-        equal = ctor === Boolean;
-        break;
-      case 'bigint':
-        equal = ctor === BigInt;
-        break;
-      default:
-        equal = value instanceof ctor;
-        break;
-    }
-    if (!equal) {
+    const typer = Javascript.createTyper(value?.constructor);
+    if (!typer.isType(ctor)) {
       const type = Object.prototype.toString.call(value);
       const name = type.replace('[object ', '').replace(']', '');
       throw new Error(`[Assertion failed] - ${message || 'the value must be type:' + name}`);
