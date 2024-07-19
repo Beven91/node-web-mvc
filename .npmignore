@@ -5,3 +5,9 @@ node_modules
 test
 tsconfig.json
 build.js
+jest.config.js
+pnpm-lock.yaml
+.npmrc
+.gitignore
+.eslintrc
+.eslintignore
