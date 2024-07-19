@@ -23,6 +23,7 @@ yarn add node-web-mvc reflect-metadata
 
 ```
 
+
 ## 启动
 
 `node-web-mvc` 默认支持三种启动模式
@@ -34,6 +35,33 @@ yarn add node-web-mvc reflect-metadata
 - koa 通过`koa`的中间件类附加服务
 
 - 如果要接入到其他类型框架，可参考[`如何定制一个上下文`](#如何定制一个上下文)
+
+
+### tsconfig
+
+```json
+{
+  "ts-node": {
+    "transpileOnly": true,
+    "typeCheck": true
+  },
+  "compilerOptions": {
+    "module": "CommonJS",
+    "target": "ES6",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "esModuleInterop":true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators":true,
+    "downlevelIteration":true,
+  },
+  "exclude": [
+    "node_modules",
+  ]
+}
+```
 
 
 ### node 模式
