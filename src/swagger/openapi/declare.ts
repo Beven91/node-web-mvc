@@ -84,7 +84,10 @@ export interface SchemeRef {
   $ref: string
 }
 
-export interface SchemeRefExt extends SchemeRef {
+export interface GenericTypeSchemeRefExt {
+  refType: SchemeRef
+  name: string
+  template: string
   clazzType: ClazzType
 }
 

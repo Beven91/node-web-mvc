@@ -247,7 +247,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param clazz 函数所在类 
    * @param method 函数名称
    */
-  static getMethodAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C) {
+  static getMethodAnnotation<C extends IAnnotationOrClazz>(clazz: Function, method: string | Function, annotationType: C): RuntimeAnnotation<C> {
     return AnnotationIndexer.getMethodAnnotation(clazz, method, annotationType);
   }
 

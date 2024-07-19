@@ -47,7 +47,7 @@ export default class OpenApiModel {
   /**
    * 驼峰命名转换成 - 符号链接
    */
-  clampName(name) {
+  clampToJoinName(name: string) {
     const k = name.length;
     let newName = '';
     for (let i = 0; i < k; i++) {
@@ -59,9 +59,22 @@ export default class OpenApiModel {
     return newName.replace(/^-/, '');
   }
 
+  /**
+   * 将 -转换成小驼峰命名
+   */
+  toClamp(name: string){
+    const segments = name.split('-');
+    return segments.map((m,i)=>{
+      if(i === 0) {
+        return m[0].toLowerCase() + m.slice(1);
+      }
+      return m[0].toUpperCase() + m.slice(1);
+    }).join('');
+  }
+
   createTags(annotation: RuntimeAnnotation<typeof Controller>) {
     const apiAnno = RuntimeAnnotation.getClassAnnotation(annotation.ctor, Api)?.nativeAnnotation;
-    const name = this.clampName(annotation.ctor.name);
+    const name = this.clampToJoinName(annotation.ctor.name);
     return (apiAnno?.tags || [{
       name: name,
       description: apiAnno?.description || name,
@@ -73,6 +86,7 @@ export default class OpenApiModel {
    * 获取完整的swaager openapi.json
    */
   build(contextPath: string) {
+    const operationIds = {} as object;
     const id = require.resolve(path.resolve('package.json'));
     delete require.cache[id];
     const pkg = require(id);
@@ -91,7 +105,7 @@ export default class OpenApiModel {
       const actions = RuntimeAnnotation.getAnnotations(RequestMapping, controller.ctor).filter((m) => m.elementType === ElementType.METHOD);
       for (let action of actions) {
         // 构建操作
-        this.buildOperation(paths, action, controllerTags, definition);
+        this.buildOperation(paths, action, controllerTags, definition, operationIds);
       }
       tags.push(...controllerTags);
     }
@@ -100,9 +114,9 @@ export default class OpenApiModel {
         contact: {
           email: pkg.author || contributor.email || ''
         },
-        license: {
-          name: pkg.license,
-          url: pkg.licenseUrl || ''
+        "license" : {
+          "name" : "Apache 2.0",
+          "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
         },
         title: pkg.name,
         version: pkg.version,
@@ -118,10 +132,9 @@ export default class OpenApiModel {
         }
       }),
       paths: paths,
-      basePath: contextPath,
-      // servers: [
-      //   { url: WebMvcConfigurationSupport.configurer.contextPath || '/' }
-      // ],
+      servers: [
+        { url: contextPath }
+      ],
       components: {
         schemas: definition.build()
       },
@@ -132,20 +145,26 @@ export default class OpenApiModel {
   /**
    * 创建api操作的所有paths
    */
-  private buildOperation(paths: ApiPaths, action: RuntimeAnnotation<typeof RequestMapping>, tags: ApiTag[], definition: Schemas) {
+  private buildOperation(paths: ApiPaths, action: RuntimeAnnotation<typeof RequestMapping>, tags: ApiTag[], definition: Schemas, operationIds: object) {
     const apiOperation = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation)?.nativeAnnotation;
     const mapping = RequestMapping.getMappingInfo(action.ctor, action.methodName);
     if (!mapping) {
       return;
     }
+    const utags = apiOperation?.tags || tags.map((tag) => tag.name);
+    let operationId = action.methodName;
+    if(operationIds[operationId]) {
+      operationId = this.toClamp(`${utags[0]}-${operationId}`);
+    }
+    operationIds[action.methodName] = true;
     const returnType = apiOperation?.returnType || action.returnType;
     const code = apiOperation?.code || '200';
     const consumes = apiOperation?.consumes || mapping.consumes || [];
     const parameters = this.buildOperationParameters(action, definition);
     const operationDoc = {
       deprecated: false,
-      operationId: action.methodName,
-      tags: apiOperation?.tags || tags.map((tag) => tag.name),
+      operationId: operationId,
+      tags: utags,
       summary: apiOperation?.value,
       description: apiOperation?.notes,
       parameters: parameters.filter((m) => this.isNotBodyParameter(m)),
@@ -266,6 +285,9 @@ export default class OpenApiModel {
         }
       }
     })
+    if(Object.keys(requestBody.content).length < 1) {
+      return undefined;
+    }
     return requestBody;
   }
 

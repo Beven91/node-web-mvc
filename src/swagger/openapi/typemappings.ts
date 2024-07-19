@@ -1,7 +1,7 @@
 import Javascript from "../../interface/Javascript";
 import { ClazzType } from "../../interface/declare";
 import MultipartFile from "../../servlets/http/MultipartFile";
-import { ApiModelPropertyInfo, SchemeRef, SchemeRefExt } from "./declare";
+import { ApiModelPropertyInfo, SchemeRef, GenericTypeSchemeRefExt } from "./declare";
 
 const alias: Record<string, any> = {
   'undefined': { type: 'string' },
@@ -44,15 +44,23 @@ const mappings = [
 
 export default class TypeMappings {
 
-  public readonly referenceTypes: SchemeRefExt[] = [];
+  public readonly referenceTypes: GenericTypeSchemeRefExt[] = [];
 
   makeRef(name: string, dataType?: ClazzType) {
-    const type = { '$ref': `#/components/schemas/${name}` };
-    this.referenceTypes.push({
-      ...type,
+    return this.makeMetaRef(name, dataType).refType;
+  }
+
+  makeMetaRef(name: string, dataType?: ClazzType) {
+    const idName = name; //.replace(/<|>|\[|\]/g, '');
+    const type = { '$ref': `#/components/schemas/${idName}` };
+    const genericType = {
+      refType: type,
+      template: name,
+      name: idName,
       clazzType: dataType
-    });
-    return type;
+    };
+    this.referenceTypes.push(genericType);
+    return genericType;
   }
 
 

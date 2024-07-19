@@ -10,7 +10,7 @@ import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnno
 import MultipartFile from "../../servlets/http/MultipartFile";
 import ApiModel from "../annotations/ApiModel";
 import ApiModelProperty from "../annotations/ApiModelProperty";
-import { ApiModelInfo, ApiModelPropertyInfo, SchemeRef, SchemeRefExt } from "./declare";
+import { ApiModelInfo, ApiModelPropertyInfo, SchemeRef, GenericTypeSchemeRefExt } from "./declare";
 import GenericType from "./generic";
 import TypeMappings from "./typemappings";
 
@@ -88,12 +88,13 @@ export default class Schemas {
     }
   }
 
-  private buildApiGenericModel(schemas: Record<string, ApiModelInfo>, refType: SchemeRefExt) {
+  private buildApiGenericModel(schemas: Record<string, ApiModelInfo>, genericTypeRef: GenericTypeSchemeRefExt) {
+    const refType = genericTypeRef.refType;
     if (!refType.$ref) return;
-    const name = refType.$ref.split('schemas/').pop();
-    const typeInfo = refType as any as ApiModelPropertyInfo;
-    const genericType = new GenericType(name);
-    const typeName = genericType.isArray ? genericType.childName : name;
+    const name = genericTypeRef.name;
+    const typeInfo = genericTypeRef as any as ApiModelPropertyInfo;
+    const genericType = new GenericType(genericTypeRef.template);
+    const typeName = genericType.isArray ? genericType.childName : genericTypeRef.template;
     const isFile = typeName == MultipartFile.name;
     if (genericType.isArray) {
       delete refType.$ref;
@@ -104,20 +105,20 @@ export default class Schemas {
         typeInfo.items = this.typemappings.makeRef(typeName)
       }
     }
-    if (schemas[typeName] || isFile) {
+    if (schemas[name] || isFile) {
       // 如果已存在该类型,则直接忽略
       return;
     }
     const type2 = new GenericType(typeName);
     let baseModel = schemas[type2.name];
     const properties = {};
-    if (!baseModel && refType.clazzType) {
-      const clazzType = refType.clazzType;
+    if (!baseModel && genericTypeRef.clazzType) {
+      const clazzType = genericTypeRef.clazzType;
       const anno = { value: clazzType.name, description: '' };
-      this.buildApiModel(refType.clazzType, anno, schemas);
+      this.buildApiModel(genericTypeRef.clazzType, anno, schemas);
       baseModel = schemas[type2.name];
     }
-    if (!baseModel && !refType.clazzType) {
+    if (!baseModel && !genericTypeRef.clazzType) {
       // 如果没有baseModel，无法生成，跳过
       console.warn('OpenApi: Cannot found ref:' + type2.name)
       return;
@@ -126,13 +127,14 @@ export default class Schemas {
       const item = baseModel.properties[name] as ApiModelPropertyInfo;
       if (GenericType.isGeneric(item.type)) {
         const pGenericType = type2.fillTo(item.type);
-        properties[name] = this.typemappings.makeRef(pGenericType.toString());
-        this.buildApiGenericModel(schemas, properties[name]);
+        const info = this.typemappings.makeMetaRef(pGenericType.toString());
+        properties[name] = info.refType;
+        this.buildApiGenericModel(schemas, info);
       } else {
         properties[name] = item;
       }
     })
-    schemas[typeName] = {
+    schemas[name] = {
       ...baseModel,
       properties: properties
     }
