@@ -43,7 +43,6 @@ export default class UserInfo extends A {
     const user = new UserInfo();
     user.order = new OrderModel();
     user.userName = data.userName;
-    console.log('ss')
     return user;
   }
 

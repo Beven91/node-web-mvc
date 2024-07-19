@@ -71,7 +71,6 @@ export default class HomeController {
     const values: string[] = [
       `Type: ${Object.prototype.toString.call(data)}`
     ];
-    console.log(data);
     data.forEach((value, key) => {
       values.push(`${key}:${value}`)
     })
@@ -186,7 +185,6 @@ export default class HomeController {
   @ApiOperation({ value: '测试ResponseHttpEntity返回', returnType: ['hello'] })
   @GetMapping('/httpEntity')
   httpEntity(httpEntity: RequestEntity) {
-    console.log(httpEntity.headers['accept-language']);
     const entity = new ResponseEntity(HttpStatus.OK);
     entity.setHeader(HttpHeaders.LAST_MODIFIED, new Date().toUTCString());
     entity.setHeader('demo', '123424234')

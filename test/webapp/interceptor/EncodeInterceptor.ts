@@ -1,9 +1,8 @@
-import { HandlerInterceptorAdapter  } from '../../../src/index';
-
+import { HandlerInterceptorAdapter, HttpServletRequest } from '../../../src/index';
 
 export default class EncodeInterceptor extends HandlerInterceptorAdapter {
 
-  preHandle() {
+  preHandle(request: HttpServletRequest) {
     console.log('EncodeInterceptor.preHandle called.');
     return true;
   }
@@ -12,7 +11,7 @@ export default class EncodeInterceptor extends HandlerInterceptorAdapter {
     console.log('EncodeInterceptor.postHandle called.');
   }
 
-  afterCompletion(){
+  afterCompletion() {
     console.log('EncodeInterceptor.afterCompletion called.');
   }
 }

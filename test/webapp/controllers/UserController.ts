@@ -44,7 +44,6 @@ export default class UserController {
 
   @ExceptionHandler
   handleException(ex) {
-    console.log(UserInfo);
     return { code: -1, message: ex.message };
   }
 
