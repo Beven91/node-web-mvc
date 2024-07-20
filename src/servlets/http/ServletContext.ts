@@ -45,7 +45,7 @@ export default abstract class ServletContext {
   }
 
   public get isRequestHandled() {
-    return this.response.nativeResponse.writableFinished;
+    return this.response.headersSent;
   }
 
   /**

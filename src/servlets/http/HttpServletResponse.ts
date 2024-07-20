@@ -8,6 +8,9 @@ import { emptyOf, isEmpty } from '../util/ApiUtils';
 import HttpHeaders from './HttpHeaders';
 import MediaType from './MediaType';
 import { HttpHeaderValue } from '../../interface/declare';
+import type ServletContext from './ServletContext';
+
+const servletContextSymbol = Symbol('servletContext');
 
 export default class HttpServletResponse {
 
@@ -21,6 +24,13 @@ export default class HttpServletResponse {
    * nodejs原生ServerResponse
    */
   public readonly nativeResponse: ServerResponse
+
+  /**
+ * 当前请求上下文
+ */
+  public get servletContext() {
+    return this[servletContextSymbol] as ServletContext;
+  }
 
   /**
    * 判断返回头是否已经发送
@@ -209,6 +219,15 @@ export default class HttpServletResponse {
     const n = this.getHeaderValue(HttpHeaders.LAST_MODIFIED)[0];
     const date = new Date(n);
     return date;
+  }
+
+  setServletContext(context: ServletContext) {
+    Object.defineProperty(this,servletContextSymbol, {
+      value: context,
+      writable: false,
+      enumerable: false,
+      configurable: false
+    })
   }
 
   constructor(response: ServerResponse) {

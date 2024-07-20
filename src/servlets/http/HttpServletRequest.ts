@@ -71,7 +71,7 @@ export default class HttpServletRequest {
     return this.fdomain + this.path;
   }
 
-  public get requestUrl(){
+  public get requestUrl() {
     return this.fdomain + this.url;
   }
 
@@ -183,7 +183,12 @@ export default class HttpServletRequest {
   }
 
   setServletContext(context: ServletContext) {
-    this[servletContextSymbol] = context;
+    Object.defineProperty(this, servletContextSymbol, {
+      value: context,
+      writable: false,
+      enumerable: false,
+      configurable: false
+    })
   }
 
   /**
