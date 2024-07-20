@@ -17,13 +17,12 @@ export default class FilterHandlerAdapter {
   constructor(beanFactory: BeanFactory) {
     const filters = beanFactory.getBeanOfType(Filter);
     for (const filter of filters) {
-      const registration = new FilterRegistrationBean(filter);
       const anno = RuntimeAnnotation.getClassAnnotation(filter.constructor, WebFilter);
-      const urlPatterns = anno?.nativeAnnotation?.urlPatterns;
-      if (urlPatterns) {
-        const patterns = (urlPatterns instanceof Array ? urlPatterns : [urlPatterns]);
-        registration.setUrlPatterns(patterns);
+      let urlPatterns = anno?.nativeAnnotation?.urlPatterns;
+      if (urlPatterns && !(urlPatterns instanceof Array)) {
+        urlPatterns = [urlPatterns].filter(Boolean)
       }
+      this.addFilter(filter, urlPatterns as string []);
     }
   }
 

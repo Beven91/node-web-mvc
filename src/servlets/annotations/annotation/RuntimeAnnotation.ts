@@ -162,7 +162,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param anno 当前注解
    * @param type 要获取的注解类型
    */
-  static getAnnotationsByAnno<C extends IAnnotationClazz>(anno: RuntimeAnnotation, type: C) {
+  static getAnnotationsByAnno<C extends IAnnotationClazz>(anno: RuntimeAnnotation, type: C): RuntimeAnnotation<C>[] {
     if (!anno) {
       return [];
     }
@@ -191,7 +191,7 @@ export default class RuntimeAnnotation<A = any> {
    * @param {Function} clazz 被修饰的类 
    * @param {Function} type 注解类型
    */
-  static getClassAnnotation<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C) {
+  static getClassAnnotation<C extends IAnnotationOrClazz>(clazz: Function, annotationType: C): RuntimeAnnotation<C> {
     return AnnotationIndexer.getClazzAnnotation(clazz, annotationType);
   }
 
