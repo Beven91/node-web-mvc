@@ -48,6 +48,7 @@ Registry.launch({
     converters.addMessageConverters(new XmlHttpMessageConverter());
   },
   addResourceHandlers(registry){
+    console.log('=================>')
     registry.addResourceHandler('/aa/**').addResourceLocations(path.resolve('swagger-ui'));
   }
 });

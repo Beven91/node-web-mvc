@@ -156,5 +156,13 @@ export default class WebAppConfigurerOptions {
     } else {
       this.multipart.mediaRoot = tmpRoot;
     }
+    if (a) {
+      Object.keys(a).forEach((k) => {
+        const handler = a[k];
+        if (typeof handler == 'function') {
+          this[k] = handler;
+        }
+      });
+    }
   }
 }
