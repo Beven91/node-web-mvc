@@ -94,7 +94,7 @@ export default class ServletApplication {
   private onError(status: HttpStatus, res: HttpServletResponse, ex: Error) {
     const response = res.nativeResponse;
     ex && console.error(ex);
-    if (!response.writableFinished) {
+    if (!res.headersSent) {
       const content = `HTTP Status ${status.code} - ${status.message}`;
       response.setHeader('content-type', 'text/html');
       response
