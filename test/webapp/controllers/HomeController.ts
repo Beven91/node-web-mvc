@@ -11,10 +11,10 @@ import { MyGroup } from '../models/UserInfo';
 
 @Api({ description: '首页' })
 @RestController
-@CorsOrigin({
-  allowCredentials: true,
-  origins: ['http://local.test.shantaijk.cn:8082']
-})
+// @CorsOrigin({
+//   allowCredentials: true,
+//   origins: ['http://local.test.shantaijk.cn:8082']
+// })
 @RequestMapping({ value: '/home', method: ['GET', 'POST'] })
 export default class HomeController {
 

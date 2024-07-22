@@ -7,6 +7,7 @@ import XmlHttpMessageConverter from './webapp/converters/XmlHttpMessageConverter
 import UserIdArgumentResolver from './webapp/resolvers/UserIdArgumentResolver';
 import PathMatchConfigurer from '../src/servlets/config/PathMatchConfigurer';
 import MyUrlPathHelper from './webapp/globalization/MyUrlPathHelper';
+import CorsInterceptor from './webapp/interceptor/CorsInterceptor';
 
 export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 
@@ -23,6 +24,7 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
   cwd = path.resolve('./test/webapp')
 
   addInterceptors(registry: HandlerInterceptorRegistry): void {
+    registry.addInterceptor(new CorsInterceptor());
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());
   }
