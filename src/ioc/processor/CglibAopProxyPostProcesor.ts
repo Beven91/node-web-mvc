@@ -1,3 +1,7 @@
+/**
+ * @CglibAopProxyPostProcesor
+ * 动态代理，可用于实现aop
+ */
 import CglibAopProxy from "../../aop/CglibAopProxy";
 import PointcutAdvisor from "../../aop/advisor/PointcutAdvisor";
 import Method from "../../interface/Method";
@@ -32,6 +36,7 @@ export default class CglibAopProxyPostProcesor extends InstantiationAwareBeanPos
   postProcessAfterInitialization(beanInstance: object, beanName: string): object {
     if (beanInstance instanceof PointcutAdvisor) {
       this.advisorBeans.push(beanInstance);
+      return beanInstance;
     }
     return this.proxyInstance(beanInstance, beanInstance.constructor);
   }
@@ -42,20 +47,25 @@ export default class CglibAopProxyPostProcesor extends InstantiationAwareBeanPos
     }
     const scope = this;
     const proxy = new Proxy(beanInstance, {
-      get(target, p) {
-        const value = target[p];
+      get(target: object, p: string | symbol, receiver: any) {
+        const value = Reflect.get(target, p, receiver);
+        if(p == '@@origin') {
+          return target;
+        }
         if (typeof value === 'function' && !blacklist[p]) {
+          // 这里之所以使用新建一个Proxy拦截apply是不希望改完返回的value,如果新生成一个value会导致一些标记在函数上的注解无法获取
           return new Proxy(value, {
             apply(handler: Function, thisArg, args) {
               const aopProxy = scope.getAopProxy();
               const method = new Method(handler, beanType as ClazzType);
-              return aopProxy.intercept(proxy, thisArg, method, args);
+              // 这里之所以不使用thisArg 是因为在类的内部调用对应的函数不希望被代理拦截
+              return aopProxy.intercept(proxy, target, method, args);
             }
           })
         }
         return value;
       },
-    })
+    });
     return proxy;
   }
 }

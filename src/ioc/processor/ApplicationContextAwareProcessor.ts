@@ -1,4 +1,3 @@
-import { ClazzType } from "../../interface/declare";
 import AbstractApplicationContext from "../../servlets/context/AbstractApplicationContext";
 import ApplicationContextAware from "../../servlets/context/ApplicationContextAware";
 import InstantiationAwareBeanPostProcessor, { PropertyValue } from "./InstantiationAwareBeanPostProcessor";

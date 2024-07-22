@@ -1,3 +1,16 @@
+/**
+ * @module ConfigurationBeanPostProcessor
+ * 用于实现配置化bean注册
+ * 例如:
+ *  @Confugration
+ *  class A {
+ * 
+ *   @Bean
+ *   getMyInstance() {
+ *     return new MyInstance();
+ *   } 
+ *  }
+ */
 import { ClazzType } from "../../interface/declare";
 import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
 import Bean from "../annotations/Bean";

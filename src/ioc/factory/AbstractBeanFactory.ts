@@ -230,7 +230,9 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       const x = parameter.nativeAnnotation as InstanceType<typeof Qualifier>;
       return this.getBean(x.value || parameter.paramType);
     });
-    return handler.apply(instance, values);
+    // 这里获取原始的实例 为了保证在类内部调用函数不使用代理对象
+    const originInstance = instance['@@origin'] || instance;
+    return handler.apply(originInstance, values);
   }
 
   private getProcessors<T extends abstract new (...args: any[]) => any>(processorType: T) {

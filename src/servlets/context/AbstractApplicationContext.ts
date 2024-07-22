@@ -24,6 +24,10 @@ export default abstract class AbstractApplicationContext {
   }
 
   prepareBeanFactory() {
+   
+  }
+
+  registerBeanPostProcessor() {
     const factory = this.getBeanFactory();
     factory.addBeanPostProcessor(
       new AutowiredAnnotationBeanPostProcessor(factory),
@@ -90,6 +94,7 @@ export default abstract class AbstractApplicationContext {
 
   refresh() {
     this.prepareBeanFactory();
+    this.registerBeanPostProcessor();
     this.registerAllComponentBeans();
     this.createSingletonBeans();
     this.registerAllComponentBeans(true);
