@@ -1,11 +1,14 @@
+import Exception from "./Exception";
 
 
 export default class Normalizer {
   static normalizeError(ex: any) {
-    if (ex instanceof Error) {
+    if (ex instanceof Error || (typeof ex === 'object' && ex)) {
       return ex;
+    } else if (typeof ex === 'string') {
+      return new Error(ex);
     } else {
-      return new Error(ex?.message || ex?.errorMessage || ex?.errMsg || String(ex));
+      return new Exception('', ex);
     }
   }
 }
