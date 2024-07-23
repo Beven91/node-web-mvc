@@ -1,5 +1,5 @@
 import path from 'path';
-import { HandlerInterceptorRegistry, ResourceHandlerRegistry, ViewResolverRegistry, WebMvcConfigurationSupport } from "../src";
+import { CorsRegistry, HandlerInterceptorRegistry, ResourceHandlerRegistry, ViewResolverRegistry, WebMvcConfigurationSupport } from "../src";
 import AdminInterceptor from './webapp/interceptor/AdminInterceptor';
 import EncodeInterceptor from './webapp/interceptor/EncodeInterceptor';
 import EjsViewResolver from './webapp/resolvers/EjsViewResolver';
@@ -7,7 +7,6 @@ import XmlHttpMessageConverter from './webapp/converters/XmlHttpMessageConverter
 import UserIdArgumentResolver from './webapp/resolvers/UserIdArgumentResolver';
 import PathMatchConfigurer from '../src/servlets/config/PathMatchConfigurer';
 import MyUrlPathHelper from './webapp/globalization/MyUrlPathHelper';
-import CorsInterceptor from './webapp/interceptor/CorsInterceptor';
 
 export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 
@@ -23,8 +22,15 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 
   cwd = path.resolve('./test/webapp')
 
+  addCorsMappings(registry: CorsRegistry): void {
+    registry
+      .addMapping('/home/*')
+      .allowedMethods('GET', 'POST', 'PUT')
+      .allowedOrigins('*')
+      .exposedHeaders('X-Custom-Header')
+  }
+
   addInterceptors(registry: HandlerInterceptorRegistry): void {
-    registry.addInterceptor(new CorsInterceptor());
     registry.addInterceptor(new AdminInterceptor());
     registry.addInterceptor(new EncodeInterceptor());
   }

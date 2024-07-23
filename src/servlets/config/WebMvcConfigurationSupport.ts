@@ -34,6 +34,9 @@ import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageCo
 import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
 import JsonMessageConverter from '../http/converts/JsonMessageConverter';
 import MediaType from '../http/MediaType';
+import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
+import CorsConfiguration from '../cors/CorsConfiguration';
+import CorsRegistry from '../cors/CorsRegistry';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
 
@@ -45,11 +48,15 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   private contentNegotiationManager: ContentNegotiationManager
 
+  private pathMatchConfigurer: PathMatchConfigurer
+
   private viewResolvers: ViewResolverRegistry
 
   public beanFactory: BeanFactory
 
   private resourceConfig: ResourceConfig
+
+  private corsConfigurations: Map<string, CorsConfiguration>
 
   /**
    * 获取当前网站的基础路由目录
@@ -92,6 +99,13 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
       new JsonMessageConverter(),
       // new DefaultMessageConverter(),
     )
+  }
+
+  private getPathMatchConfigurer() {
+    if (!this.pathMatchConfigurer) {
+      this.pathMatchConfigurer = new PathMatchConfigurer();
+    }
+    return this.pathMatchConfigurer;
   }
 
   private getArgumentResolvers() {
@@ -139,6 +153,22 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     return this.resourceConfig;
   }
 
+  private getCorsConfigurations() {
+    if (!this.corsConfigurations) {
+      const registry = new CorsRegistry();
+      this.addCorsMappings(registry);
+      this.corsConfigurations = registry.getCorsConfigurations();
+    }
+    return this.corsConfigurations;
+  }
+
+  private initHandlerMapping(handlerMapping: AbstractHandlerMapping) {
+    const pathConfig = this.getPathMatchConfigurer();
+    handlerMapping.setPathMatcher(pathConfig.getPathMatcherOrDefault());
+    handlerMapping.setUrlPathHelper(pathConfig.getUrlPathHelperOrDefault());
+    handlerMapping.setCorsConfigurations(this.getCorsConfigurations())
+  }
+
   @Bean
   mvcContentNegotiationManager() {
     if (!this.contentNegotiationManager) {
@@ -155,22 +185,22 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   @Bean
   requestMappingHandlerMapping() {
-    const pathMatchConfigurer = new PathMatchConfigurer();
+    const pathConfig = this.getPathMatchConfigurer();
     const handlerMapping = new RequestMappingHandlerMapping();
     const interceptorRegistry = new HandlerInterceptorRegistry();
     this.addInterceptors?.(interceptorRegistry);
-    this.configurePathMatch?.(pathMatchConfigurer);
+    this.configurePathMatch?.(pathConfig);
     // swagger 处理
     OpenApi.initializeApi(this.swagger);
     handlerMapping.setOrder(0);
-    handlerMapping.setPathMatcher(pathMatchConfigurer.getPathMatcherOrDefault());
-    handlerMapping.setUrlPathHelper(pathMatchConfigurer.getUrlPathHelperOrDefault());
     handlerMapping.setInterceptors(interceptorRegistry.getInterceptors());
+    this.initHandlerMapping(handlerMapping);
     return handlerMapping;
   }
 
   @Bean
   resourceHandlerMapping() {
+    const pathConfig = this.getPathMatchConfigurer();
     const registry = new ResourceHandlerRegistry();
     const resourceConfig = this.getResourceConfig();
     const handlerMapping = new BeanNameUrlHandlerMapping(registry, resourceConfig);
@@ -179,6 +209,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     OpenApi.initializeResource(registry, this.swagger);
     // 注册额外的资源配置
     this.addResourceHandlers?.(registry);
+    this.initHandlerMapping(handlerMapping);
     return handlerMapping;
   }
 

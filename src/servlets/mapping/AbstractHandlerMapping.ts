@@ -20,6 +20,8 @@ import PreFlightHandler from "../cors/PreFlightHandler";
 import CorsInterceptor from "../cors/CorsInterceptor";
 import CorsProcessor from "../cors/CorsProcessor";
 import DefaultCorsProcessor from "../cors/DefaultCorsProcessor";
+import CorsConfiguration from "../cors/CorsConfiguration";
+import UrlBasedCorsConfigurationSource from "../cors/UrlBasedCorsConfigurationSource";
 
 const corsProcessorSymbol = Symbol['corsProcessor'];
 
@@ -29,9 +31,11 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
 
   protected pathMatcher: PathMatcher = new PathMatcher();
 
-  protected interceptors: HandlerInterceptor[]
+  protected interceptors: HandlerInterceptor[];
 
-  protected appContext: AbstractApplicationContext
+  protected appContext: AbstractApplicationContext;
+
+  protected corsConfigurationSource: CorsConfigurationSource;
 
   private order: number
 
@@ -108,7 +112,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   usesPathPatterns(): boolean {
     return true;
   }
-  
+
   /**
    * 扩展拦截器,主要用于子类使用。
    */
@@ -176,17 +180,14 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
     return this.order = value;
   }
 
-  private findCorsConfigurationSource(handler: object) {
-    let resolvedHandler = null;
+  private findCorsConfigurationSource(handler: object) : CorsConfigurationSource {
     if (handler instanceof HandlerExecutionChain) {
-      resolvedHandler = handler.getHandler() as any;
+      handler = handler.getHandler() as any;
     }
-    const configSource = resolvedHandler as CorsConfigurationSource
-    if (typeof configSource?.getCorsConfiguration == 'function') {
-      return configSource;
-    } else {
-      return null;
+    if (handler instanceof CorsConfigurationSource) {
+      return handler;
     }
+    return this.corsConfigurationSource;
   }
 
   private getCorsHandlerExecutionChain(chain: HandlerExecutionChain, handler: object, context: ServletContext) {
@@ -212,5 +213,16 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   getCorsConfiguration(handler: object, request: HttpServletRequest) {
     const configSource = this.findCorsConfigurationSource(handler);
     return configSource?.getCorsConfiguration?.(request);
+  }
+
+  setCorsConfigurations(config: Map<string, CorsConfiguration>) {
+    if (config?.size < 1) {
+      this.corsConfigurationSource = null;
+      return;
+    }
+    const source = new UrlBasedCorsConfigurationSource();
+    source.setPatchMatcher(this.pathMatcher);
+    source.setCorsConfigurations(config);
+    this.corsConfigurationSource = source;
   }
 }

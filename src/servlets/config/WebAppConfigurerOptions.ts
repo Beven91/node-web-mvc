@@ -13,6 +13,7 @@ import ViewResolverRegistry from '../view/ViewResolverRegistry';
 import Bytes from '../util/Bytes';
 import { HotOptions } from 'nodejs-hmr';
 import type MediaType from '../http/MediaType';
+import CorsRegistry from '../cors/CorsRegistry';
 
 declare type RunMode = 'node' | 'express' | 'koa' | string
 
@@ -134,6 +135,9 @@ export default class WebAppConfigurerOptions {
 
   // 扩展异常处理器
   extendHandlerExceptionResolvers?(resolvers: HandlerExceptionResolver[]) { }
+
+  // 全局配置跨域
+  addCorsMappings?(registry: CorsRegistry) { }
 
   constructor(a: WebAppConfigurerOptions) {
     const options = a || {} as WebAppConfigurerOptions;
