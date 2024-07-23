@@ -115,6 +115,10 @@ export default class MediaType {
     }
   }
 
+  isEmpty(){
+    return !this.type&& !this.subtype;
+  }
+
   toString() {
     const keys = Object.keys(this.parameters || {});
     const joinChar = keys?.length > 0 ? ';' : '';

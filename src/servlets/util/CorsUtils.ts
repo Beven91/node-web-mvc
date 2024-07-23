@@ -38,6 +38,8 @@ export default {
    * 判断当前是否为预请求
    */
   isPreFlightRequest(request: HttpServletRequest) {
+    console.log('ACCESS_CONTROL_REQUEST_METHOD', request.getHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD));
+    console.log('ORIGIN', request.getHeader(HttpHeaders.ORIGIN));
     return (
       request.method == HttpMethod.OPTIONS &&
       !!request.getHeader(HttpHeaders.ORIGIN) &&

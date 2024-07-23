@@ -2,9 +2,19 @@
  * @module MessageConverter
  * @description 内容转换器
  */
+import HttpMediaTypeNotSupportedException from '../../../errors/HttpMediaTypeNotSupportedException';
+import HttpMethod from '../HttpMethod';
 import MediaType from '../MediaType';
 import ServletContext from '../ServletContext';
 import HttpMessageConverter from './HttpMessageConverter';
+
+const NO_VALUE = {};
+
+const SUPPORTED_METHODS = new Set([
+  HttpMethod.POST,
+  HttpMethod.PUT,
+  HttpMethod.PATCH
+])
 
 export default class MessageConverter {
 
@@ -29,10 +39,22 @@ export default class MessageConverter {
   /**
    * 当前当前http的内容
    */
-  read(servletContext: ServletContext, dataType: Function): Promise<any> {
-    const mediaType = servletContext.request.mediaType;
+  async read(servletContext: ServletContext, dataType: Function) {
+    const request = servletContext.request;
+    const mediaType = request.mediaType;
+    const httpMethod = request.method;
     const converter = this.registerConverters.find((converter) => converter.canRead(dataType, mediaType));
-    return Promise.resolve(converter.read(servletContext, dataType));
+    let body = NO_VALUE;
+    if (converter) {
+      body = await converter.read(servletContext, dataType);
+    }
+    if (body !== NO_VALUE) {
+      return body;
+    }
+    if (!httpMethod || !SUPPORTED_METHODS.has(httpMethod) || (mediaType.isEmpty() && request.nativeRequest.readableLength < 1)) {
+      return null;
+    }
+    throw new HttpMediaTypeNotSupportedException(mediaType);
   }
 
   /**
