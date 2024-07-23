@@ -63,6 +63,7 @@ export default class DefaultCorsProcessor implements CorsProcessor {
 
   checkHeaders(config: CorsConfiguration, requestHeaders: string[]) {
     return config.checkHeaders(requestHeaders);
+
   }
 
   async handleInternal(request: HttpServletRequest, response: HttpServletResponse, config: CorsConfiguration, isPreFlightRequest: boolean) {

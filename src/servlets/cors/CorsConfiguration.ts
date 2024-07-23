@@ -71,7 +71,10 @@ export default class CorsConfiguration extends BaseCorsOptions {
   }
 
   private merge(items: any[], from?: any[]) {
-    return [].concat(items, from).filter(Boolean);
+    const set = new Set([].concat(items, from).filter(Boolean));
+    const elements = [];
+    set.forEach((m) => elements.push(m));
+    return elements;
   }
 
   addAllowedOrigin(origin: string) {

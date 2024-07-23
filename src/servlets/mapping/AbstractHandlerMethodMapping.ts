@@ -94,7 +94,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
       const methodCorsConfig = this.corsLookup.get(resolvedHandler);
       if (corsConfig && methodCorsConfig) {
         // 合并
-        corsConfig.combine(methodCorsConfig);
+        corsConfig = corsConfig.combine(methodCorsConfig);
       } else {
         // 补全
         corsConfig = corsConfig || methodCorsConfig;
