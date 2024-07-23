@@ -21,7 +21,6 @@ export { default as Scope } from './servlets/annotations/Scope';
 export { default as ControllerAdvice } from './servlets/annotations/ControllerAdvice';
 export { default as ExceptionHandler } from './servlets/annotations/ExceptionHandler';
 export { default as HandlerInterceptor } from './servlets/interceptor/HandlerInterceptor';
-export { default as HandlerInterceptorAdapter } from './servlets/interceptor/HandlerInterceptorAdapter';
 export { default as Api } from './swagger/annotations/Api';
 export { default as ApiOperation } from './swagger/annotations/ApiOperation';
 export { default as ApiIgnore } from './swagger/annotations/ApiIgnore';

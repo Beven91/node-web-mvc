@@ -1,10 +1,10 @@
 import type HttpServletRequest from "../http/HttpServletRequest";
 import type HttpServletResponse from "../http/HttpServletResponse";
-import HandlerInterceptorAdapter from "../interceptor/HandlerInterceptorAdapter";
+import HandlerInterceptor from "../interceptor/HandlerInterceptor";
 import CorsConfiguration from "./CorsConfiguration";
 import CorsProcessor from "./CorsProcessor";
 
-export default class CorsInterceptor extends HandlerInterceptorAdapter {
+export default class CorsInterceptor extends HandlerInterceptor {
 
   private corsConfig: CorsConfiguration
 

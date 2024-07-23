@@ -1,8 +1,8 @@
-import { HandlerInterceptorAdapter, HandlerMethod } from '../../../src/index';
+import { HandlerInterceptor, HandlerMethod } from '../../../src/index';
 import Security from '../annotations/Security';
 
 
-export default class AdminInterceptor extends HandlerInterceptorAdapter {
+export default class AdminInterceptor extends HandlerInterceptor {
 
   preHandle(request, response, handler: object) {
     if (!(handler instanceof HandlerMethod)) {

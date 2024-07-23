@@ -1,7 +1,7 @@
-import { HandlerInterceptorAdapter, HttpServletRequest, HttpServletResponse } from "../../../src";
+import { HandlerInterceptor, HttpServletRequest, HttpServletResponse } from "../../../src";
 
 
-export default class CorsInterceptor extends HandlerInterceptorAdapter {
+export default class CorsInterceptor extends HandlerInterceptor {
 
   preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: object): Promise<boolean> | boolean {
     console.log('after.........');

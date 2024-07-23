@@ -1,6 +1,6 @@
-import { HandlerInterceptorAdapter, HttpServletRequest } from '../../../src/index';
+import { HandlerInterceptor, HttpServletRequest } from '../../../src/index';
 
-export default class EncodeInterceptor extends HandlerInterceptorAdapter {
+export default class EncodeInterceptor extends HandlerInterceptor {
 
   preHandle(request: HttpServletRequest) {
     console.log('EncodeInterceptor.preHandle called.');

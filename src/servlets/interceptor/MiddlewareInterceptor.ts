@@ -3,11 +3,11 @@
  * @description 描述
  */
 
+import { HandlerInterceptor } from "../..";
 import { Middleware } from "../../interface/declare";
 import Middlewares from "../models/Middlewares";
-import HandlerInterceptorAdapter from "./HandlerInterceptorAdapter";
 
-export default class MiddlewareInterceptor extends HandlerInterceptorAdapter {
+export default class MiddlewareInterceptor extends HandlerInterceptor {
 
   private middlewares: Array<Middleware>
 
