@@ -6,6 +6,9 @@ import JsonSerializer from "./JsonSerializer";
 const instanceSymbol = Symbol('instance');
 
 class JsonSerialize {
+
+  __exclude_keys__ = 'getSerializer'
+
   using: typeof JsonSerializer
 
   getSerializer(): JsonSerializer {

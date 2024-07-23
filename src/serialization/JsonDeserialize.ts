@@ -7,6 +7,8 @@ const instanceSymbol = Symbol('instance');
 
 class JsonDeserialize {
 
+  __exclude_keys__ = 'getDeserializer'
+
   using: typeof JsonDeserializer
 
   getDeserializer(): JsonDeserializer {

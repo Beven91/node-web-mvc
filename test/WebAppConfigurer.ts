@@ -23,11 +23,11 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
   cwd = path.resolve('./test/webapp')
 
   addCorsMappings(registry: CorsRegistry): void {
-    registry
-      .addMapping('/home/*')
-      .allowedMethods('GET', 'POST', 'PUT')
-      .allowedOrigins('*')
-      .exposedHeaders('X-Custom-Header')
+    // registry
+    //   .addMapping('/home/*')
+    //   .allowedMethods('GET', 'POST', 'PUT')
+    //   .allowedOrigins('*')
+    //   .exposedHeaders('X-Custom-Header')
   }
 
   addInterceptors(registry: HandlerInterceptorRegistry): void {
