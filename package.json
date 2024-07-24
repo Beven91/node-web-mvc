@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "3.1.5",
+  "version": "3.1.6",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "directories": {
@@ -11,7 +11,7 @@
     "start": "ts-node ./test/index.ts",
     "start2": "ts-node ./test/www.ts",
     "build": "rimraf dist && tsc",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "test": "jest"
   },
   "engines": {
