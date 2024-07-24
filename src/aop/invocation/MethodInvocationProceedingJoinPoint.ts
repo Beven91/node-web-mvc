@@ -1,3 +1,4 @@
+import Javascript from "../../interface/Javascript";
 import Tracer from "../../servlets/annotations/annotation/Tracer";
 import JoinPoint from "./JoinPoint";
 import type { MethodInvocation } from "./MethodInvocation";
@@ -27,6 +28,8 @@ export default class MethodInvocationProceedingJoinPoint implements JoinPoint {
 
   getSignature(): string {
     const id = Tracer.getFullName(this.getTarget().constructor);
-    return `any ${id}.${this.methodInvocation.getMethod().handler.name}(any)`
+    const handler = this.methodInvocation.getMethod().handler;
+    const parameters = Javascript.resolveParameters(handler);
+    return `any ${id}.${handler.name}(${parameters.join(', ')})`
   }
 }
