@@ -34,10 +34,10 @@ export default function hotUpdate(
       removeKeys.forEach((key) => {
         const definition = beanFactory.getBeanDefinition(key);
         if (definition) {
-          // 移除Bean定义
-          beanFactory.removeBeanDefinition(key);
           // 移除Bean定义对应的实例对象
           beanFactory.removeBeanInstance(definition.clazz);
+          // 移除Bean定义
+          beanFactory.removeBeanDefinition(key);
         }
       })
       const annotations = RuntimeAnnotation.getAnnotations(Component);
