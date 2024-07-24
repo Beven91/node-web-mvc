@@ -47,7 +47,7 @@ yarn add node-web-mvc reflect-metadata
   },
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "ES6",
+    "target": "ES2017",
     "noImplicitAny": false,
     "removeComments": true,
     "esModuleInterop":true,
