@@ -28,18 +28,17 @@ export default function hotUpdate(
         }
       }
     })
-    .allDone((a) => {
+    .allDone(() => {
       const beanFactory = getBeanFactory();
-      // console.log('removeKeys', removeKeys);
       removeKeys.forEach((key) => {
         const definition = beanFactory.getBeanDefinition(key);
         if (definition) {
           // 移除Bean定义对应的实例对象
-          beanFactory.removeBeanInstance(definition.clazz);
+          beanFactory.removeBeanInstance(definition);
           // 移除Bean定义
           beanFactory.removeBeanDefinition(key);
         }
-      })
+      });
       const annotations = RuntimeAnnotation.getAnnotations(Component);
       annotations.forEach((annotation) => {
         const tracer = Tracer.getTracer(annotation.ctor);

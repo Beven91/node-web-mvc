@@ -27,13 +27,16 @@ export default class HomeController {
 
   @ApiOperation({ value: 'RequestParam get参数' })
   @GetMapping('/requestParamsGet')
-  requestParamsGet(@RequestParam name: string, @RequestParam id: number) {
+  async requestParamsGet(@RequestParam name: string, @RequestParam id: number) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
     return `name:${name},id:${id},${this.oService.getOrderName()}`;
   }
 
   @ApiOperation({ value: 'RequestParam post参数' })
   @PostMapping('/requestParamsPost')
   requestParamsPost(@RequestParam name: string, @RequestParam id: number) {
+    this.oService.sayHello();
+    this.orderService.sayHello();
     return `name:${name},id:${id}`;
   }
 
@@ -68,7 +71,7 @@ export default class HomeController {
   ])
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
-  mapPost(@RequestBody data: Map<string,any>) {
+  mapPost(@RequestBody data: Map<string, any>) {
     const values: string[] = [
       `Type: ${Object.prototype.toString.call(data)}`
     ];
@@ -112,8 +115,6 @@ export default class HomeController {
   //   { description: '编号', paramType: 'query', name: 'id', required: true }
   // ])
   requestParamWithMultipartFile(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
-    this.oService.sayHello();
-    this.orderService.sayHello();
     file.transferTo('a.jpg')
     return 'home/index...' + id + ',file.name=' + file.name;
   }

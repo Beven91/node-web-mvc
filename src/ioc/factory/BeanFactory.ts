@@ -1,5 +1,6 @@
 import { ClazzType } from "../../interface/declare"
 import BeanPostProcessor from "../processor/BeanPostProcessor"
+import BeanDefinition from "./BeanDefinition"
 import { BeanDefinitionRegistry } from "./BeanDefinitionRegistry"
 
 export interface BeanFactory extends BeanDefinitionRegistry {
@@ -41,14 +42,21 @@ export interface BeanFactory extends BeanDefinitionRegistry {
   /**
    * 获取指定类型的所有实例包括继承关系
    */
-  getBeanOfType<T extends abstract new (...args:any[]) => any>(beanType: T): InstanceType<T>[]
+  getBeansOfType<T extends abstract new (...args: any[]) => any>(beanType: T): InstanceType<T>[]
 
   /**
    * 添加一个或多个bean处理器
    */
   addBeanPostProcessor(...processors: BeanPostProcessor[]): void
 
-  removeBeanInstance(beanType: ClazzType): void
+  /**
+   * 移除指定类型的实例对象
+   * @param beanType 
+   */
+  removeBeanInstance(definition: BeanDefinition): void
 
+  /**
+   * 销毁工厂
+   */
   destory(): void
 }

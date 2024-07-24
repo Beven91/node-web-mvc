@@ -52,22 +52,22 @@ export default class DispatcherServlet {
 
   private initHandlerMappings() {
     this.handlerMappings = [
-      ...this.appContext.getBeanFactory().getBeanOfType(AbstractHandlerMapping),
+      ...this.appContext.getBeanFactory().getBeansOfType(AbstractHandlerMapping),
     ];
   }
 
   private initHandlerAdapters() {
     this.handlerAdapters = [
-      ...this.appContext.getBeanFactory().getBeanOfType(HandlerAdapter),
+      ...this.appContext.getBeanFactory().getBeansOfType(HandlerAdapter),
     ];
   }
 
   private initExceptionResolvers() {
-    this.exceptionResolver = this.appContext.getBeanFactory().getBeanOfType(HandlerExceptionResolverComposite)[0];
+    this.exceptionResolver = this.appContext.getBeanFactory().getBeansOfType(HandlerExceptionResolverComposite)[0];
   }
 
   private initErrorHandler() {
-    this.fallbackErrorHandler = this.appContext.getBeanFactory().getBeanOfType(InternalErrorHandler)[0];
+    this.fallbackErrorHandler = this.appContext.getBeanFactory().getBeansOfType(InternalErrorHandler)[0];
   }
 
   private initStrategies() {
@@ -79,7 +79,7 @@ export default class DispatcherServlet {
   }
 
   private initViewResolvers() {
-    this.viewResolverRegistry = this.appContext.getBeanFactory().getBeanOfType(ViewResolverRegistry)[0]
+    this.viewResolverRegistry = this.appContext.getBeanFactory().getBeansOfType(ViewResolverRegistry)[0]
   }
 
   /**

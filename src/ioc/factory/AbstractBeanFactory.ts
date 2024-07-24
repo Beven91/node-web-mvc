@@ -17,6 +17,7 @@ import { BeanFactory } from "./BeanFactory";
 import BeanFactoryAware from "./BeanFactoryAware";
 import BeanNameAware from "./BeanNameAware";
 import OrderedHelper from "./OrderedHelper";
+import ProxyHelper from "./ProxyHelper";
 
 export const isIocRemovedSymbol = Symbol('isIocRemoved');
 
@@ -59,7 +60,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   /**
    * 移除bean定义
    */
-  abstract removeBeanDefinition(beanName: string)
+  abstract removeBeanDefinition(beanName: string): BeanDefinition
 
   /**
    * 获取所有已注册的bean定义key
@@ -131,7 +132,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     return instance;
   }
 
-  getBeanOfType<T extends abstract new () => any>(beanType: T) {
+  getBeansOfType<T extends abstract new () => any>(beanType: T) {
     const result: InstanceType<T>[] = [];
     for (const beanInstance of this.beanInstancesCache.values()) {
       if (Javascript.createTyper(beanInstance.constructor).isType(beanType)) {
@@ -231,7 +232,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       return this.getBean(x.value || parameter.paramType);
     });
     // 这里获取原始的实例 为了保证在类内部调用函数不使用代理对象
-    const originInstance = instance['@@origin'] || instance;
+    const originInstance = ProxyHelper.getProxyOriginInstance(instance);
     return handler.apply(originInstance, values);
   }
 
@@ -386,9 +387,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     this.beanPostProcessors.push(...processors);
   }
 
-  removeBeanInstance(beanType: ClazzType): void {
-    const beanName = BeanDefinition.toBeanName(beanType);
-    const definition = this.getBeanDefinition(beanName);
+  removeBeanInstance(definition: BeanDefinition): void {
     const instance = this.beanInstancesCache.get(definition);
     this.beanInstancesCache.delete(definition);
     if (instance) {

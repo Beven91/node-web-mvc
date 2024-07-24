@@ -1,6 +1,8 @@
 import Method from "../../interface/Method";
 import Advice from "../advice/Advice";
 import MethodInterceptor from "../advice/MethodInterceptor";
+import JoinPoint from "./JoinPoint";
+import MethodInvocationProceedingJoinPoint from "./MethodInvocationProceedingJoinPoint";
 import ProxyMethodInvocation from "./ProxyMethodInvocation";
 
 export default class ReflectiveMethodInvocation implements ProxyMethodInvocation {
@@ -17,6 +19,8 @@ export default class ReflectiveMethodInvocation implements ProxyMethodInvocation
 
   private currentIndex: number
 
+  private joinPoint: JoinPoint
+
   constructor(proxy: object, target: object, method: Method, args: any[], interceptorOradvices: Advice[]) {
     this.proxy = proxy;
     this.target = target;
@@ -24,6 +28,7 @@ export default class ReflectiveMethodInvocation implements ProxyMethodInvocation
     this.args = args;
     this.currentIndex = -1;
     this.interceptors = interceptorOradvices;
+    this.joinPoint = new MethodInvocationProceedingJoinPoint(this, this.proxy)
   }
 
   getProxy(): object {
@@ -42,7 +47,11 @@ export default class ReflectiveMethodInvocation implements ProxyMethodInvocation
     return this.args;
   }
 
-  processed() {
+  getJoinPint(): JoinPoint {
+    return this.joinPoint;
+  }
+
+  proceed() {
     if (this.currentIndex >= (this.interceptors.length - 1)) {
       return this.invokeJoinpoint();
     } else {
@@ -54,7 +63,7 @@ export default class ReflectiveMethodInvocation implements ProxyMethodInvocation
           // 其他暂不支持
           console.warn('Unsupported Interceptor:', interceptor);
         }
-        return this.processed();
+        return this.proceed();
       }
     }
   }

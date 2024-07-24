@@ -52,7 +52,7 @@ export default class Tracer {
       return suffix;
     }
     const id = this.getTracer(clazz)?.id;
-    return this.getClassPath(id || clazz.name, suffix);
+    return this.getClassPath(id || clazz.name, suffix).replace(/\//g, '.').replace(/^\./,'');
   }
 
   static isDependency(clazz: Function, file) {

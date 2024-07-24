@@ -90,7 +90,9 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
   removeBeanDefinition(beanName: string) {
     if (this.containsBeanDefinition(beanName)) {
       this.debug('Remove Definition:', beanName);
+      const definition = this.beanDefinitions.get(beanName);
       this.beanDefinitions.delete(beanName);
+      return definition;
     }
   }
 

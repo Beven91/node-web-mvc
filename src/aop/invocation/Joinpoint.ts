@@ -1,8 +1,12 @@
 
-export interface Joinpoint {
+export default interface JoinPoint {
 
-  processed(): any
+  getThis(): object
 
-  getThis(): any
+  getTarget(): object
+
+  getArgs(): object[]
+
+  getSignature(): string
 
 }

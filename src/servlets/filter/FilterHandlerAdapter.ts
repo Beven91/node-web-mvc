@@ -15,7 +15,7 @@ export default class FilterHandlerAdapter {
   private readonly patchMatcher = new PathMatcher();
 
   constructor(beanFactory: BeanFactory) {
-    const filters = beanFactory.getBeanOfType(Filter);
+    const filters = beanFactory.getBeansOfType(Filter);
     for (const filter of filters) {
       const anno = RuntimeAnnotation.getClassAnnotation(filter.constructor, WebFilter);
       let urlPatterns = anno?.nativeAnnotation?.urlPatterns;

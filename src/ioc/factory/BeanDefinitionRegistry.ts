@@ -18,7 +18,7 @@ export interface BeanDefinitionRegistry {
   /**
    * 移除bean定义
    */
-  removeBeanDefinition(beanName: string)
+  removeBeanDefinition(beanName: string): BeanDefinition
 
   /**
    * 获取所有已注册的bean定义key
