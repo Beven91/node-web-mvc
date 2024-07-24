@@ -36,22 +36,26 @@ export default class CorsRegistration {
     this.config.allowCredentials = allowCredentials;
     return this;
   }
-  
+
+  allowOriginPatterns(...patterns: RegExp[]) {
+    this.config.originPatterns = patterns || [];
+  }
+
   allowPrivateNetwork(allowPrivateNetwork: boolean) {
     this.config.allowPrivateNetwork = allowPrivateNetwork;
     return this;
   }
-  
+
   maxAge(maxAge: number) {
     this.config.maxAge = maxAge;
     return this;
   }
 
-  getPathPattern(){
+  getPathPattern() {
     return this.pathPattern;
   }
 
-  getCorsConfiguration(){
+  getCorsConfiguration() {
     return this.config;
   }
 }
