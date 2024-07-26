@@ -1,10 +1,9 @@
-import Exception from "./Exception";
+import Exception from './Exception';
 
 export default class ResponseStatusException extends Exception {
+  public readonly code: number;
 
-  public readonly code: number
-
-  public readonly reason: string
+  public readonly reason: string;
 
   constructor(code: number, reason: string) {
     super(`status=${code},reason=${reason}`);
@@ -13,6 +12,6 @@ export default class ResponseStatusException extends Exception {
   }
 
   public getResponseHeaders(): Record<string, any> {
-    return {}
+    return {};
   }
 }

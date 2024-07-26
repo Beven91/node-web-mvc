@@ -1,6 +1,6 @@
-import Resource from "./Resource";
-import ResourceTransformerChain from "./ResourceTransformerChain";
-import HttpServletRequest from "../http/HttpServletRequest";
+import Resource from './Resource';
+import ResourceTransformerChain from './ResourceTransformerChain';
+import HttpServletRequest from '../http/HttpServletRequest';
 
 /**
  * @module ResourceTransformer

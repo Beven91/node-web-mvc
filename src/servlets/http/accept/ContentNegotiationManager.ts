@@ -1,15 +1,14 @@
-import HttpServletRequest from "../HttpServletRequest";
-import ContentNegotiationStrategy, { MEDIA_TYPE_ALL_LIST } from "./ContentNegotiationStrategy";
-import HeaderContentNegotiationStrategy from "./HeaderContentNegotiationStrategy";
+import HttpServletRequest from '../HttpServletRequest';
+import ContentNegotiationStrategy, { MEDIA_TYPE_ALL_LIST } from './ContentNegotiationStrategy';
+import HeaderContentNegotiationStrategy from './HeaderContentNegotiationStrategy';
 
 export default class ContentNegotiationManager {
-
-  private readonly strategies: ContentNegotiationStrategy[]
+  private readonly strategies: ContentNegotiationStrategy[];
 
   constructor() {
     this.strategies = [
-      new HeaderContentNegotiationStrategy()
-    ]
+      new HeaderContentNegotiationStrategy(),
+    ];
   }
 
   resolveMediaTypes(request: HttpServletRequest) {
@@ -23,5 +22,4 @@ export default class ContentNegotiationManager {
     }
     return MEDIA_TYPE_ALL_LIST;
   }
-
 }

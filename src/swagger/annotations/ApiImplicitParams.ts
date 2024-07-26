@@ -9,12 +9,11 @@ import AliasFor from '../../servlets/annotations/AliasFor';
 
 
 class ApiImplicitParams {
+  @AliasFor('value')
+  parameters?: ApiImplicitParamOptions[];
 
-  @AliasFor("value")
-  parameters?: ApiImplicitParamOptions[]
-
-  @AliasFor("parameters")
-  value: ApiImplicitParamOptions[]
+  @AliasFor('parameters')
+  value: ApiImplicitParamOptions[];
 }
 
 /**

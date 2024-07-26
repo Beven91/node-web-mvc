@@ -4,18 +4,16 @@
  * @description 标注指定方法返回值用于存储到ico容器
  */
 
-import AliasFor from "../../servlets/annotations/AliasFor";
-import Target from "../../servlets/annotations/Target";
-import ElementType from "../../servlets/annotations/annotation/ElementType";
+import AliasFor from '../../servlets/annotations/AliasFor';
+import Target from '../../servlets/annotations/Target';
+import ElementType from '../../servlets/annotations/annotation/ElementType';
 
-class Bean  {
+class Bean {
+  @AliasFor('name')
+  value?: string;
 
-  @AliasFor("name")
-  value?: string
-
-  @AliasFor("value")
-  name?: string
-
+  @AliasFor('value')
+  name?: string;
 }
 
 export default Target(ElementType.METHOD)(Bean);

@@ -1,9 +1,8 @@
-import MediaType from "../servlets/http/MediaType";
-import Exception from "./Exception";
+import MediaType from '../servlets/http/MediaType';
+import Exception from './Exception';
 
 export default class HttpMediaTypeNotAcceptableException extends Exception {
-
-  producibleTypes: MediaType[]
+  producibleTypes: MediaType[];
 
   constructor(producibleTypes: MediaType[]) {
     super('Could not find acceptable representation: ' + JSON.stringify(producibleTypes) );

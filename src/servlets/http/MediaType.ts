@@ -8,39 +8,38 @@ declare class Parameters {
 }
 
 export default class MediaType {
+  static ALL = new MediaType('*', '*');
+  static APPLICATION_ATOM_XML = new MediaType('application', 'atom+xml');
+  static APPLICATION_CBOR = new MediaType('application', 'cbor');
+  static APPLICATION_FORM_URLENCODED = new MediaType('application', 'x-www-form-urlencoded');
+  static APPLICATION_JSON = new MediaType('application', 'json');
+  static APPLICATION_JSON_UTF8 = new MediaType('application', 'json', { charset: 'utf-8' });
+  static APPLICATION_OCTET_STREAM = new MediaType('application', 'octet-stream');
+  static APPLICATION_PDF = new MediaType('application', 'pdf');
+  static APPLICATION_PROBLEM_JSON = new MediaType('application', 'problem+json');
+  static APPLICATION_PROBLEM_JSON_UTF8 = new MediaType('application', 'problem+json', { charset: 'utf-8' });
+  static APPLICATION_PROBLEM_XML = new MediaType('application', 'problem+xml');
+  static APPLICATION_RSS_XML = new MediaType('application', 'rss+xml');
+  static APPLICATION_STREAM_JSON = new MediaType('application', 'stream+json');
+  static APPLICATION_XHTML_XML = new MediaType('application', 'xhtml+xml');
+  static APPLICATION_XML = new MediaType('application', 'xml');
+  static IMAGE_GIF = new MediaType('image', 'gif');
+  static IMAGE_JPEG = new MediaType('image', 'jpeg');
+  static IMAGE_PNG = new MediaType('image', 'png');
+  static MULTIPART_FORM_DATA = new MediaType('multipart', 'form-data');
+  static MULTIPART_MIXED = new MediaType('multipart', 'mixed');
+  static MULTIPART_RELATED = new MediaType('multipart', 'related');
+  static TEXT_EVENT_STREAM = new MediaType('text', 'event-stream');
+  static TEXT_HTML = new MediaType('text', 'html');
+  static TEXT_MARKDOWN = new MediaType('text', 'markdown');
+  static TEXT_PLAIN = new MediaType('text', 'plain');
+  static TEXT_XML = new MediaType('text', 'xml');
 
-  static ALL = new MediaType('*', '*')
-  static APPLICATION_ATOM_XML = new MediaType("application", "atom+xml");
-  static APPLICATION_CBOR = new MediaType("application", "cbor");
-  static APPLICATION_FORM_URLENCODED = new MediaType("application", "x-www-form-urlencoded");
-  static APPLICATION_JSON = new MediaType("application", "json");
-  static APPLICATION_JSON_UTF8 = new MediaType("application", "json", { charset: 'utf-8' });
-  static APPLICATION_OCTET_STREAM = new MediaType("application", "octet-stream");
-  static APPLICATION_PDF = new MediaType("application", "pdf");
-  static APPLICATION_PROBLEM_JSON = new MediaType("application", "problem+json");
-  static APPLICATION_PROBLEM_JSON_UTF8 = new MediaType("application", "problem+json", { charset: 'utf-8' });
-  static APPLICATION_PROBLEM_XML = new MediaType("application", "problem+xml");
-  static APPLICATION_RSS_XML = new MediaType("application", "rss+xml");
-  static APPLICATION_STREAM_JSON = new MediaType("application", "stream+json");
-  static APPLICATION_XHTML_XML = new MediaType("application", "xhtml+xml");
-  static APPLICATION_XML = new MediaType("application", "xml");
-  static IMAGE_GIF = new MediaType("image", "gif");
-  static IMAGE_JPEG = new MediaType("image", "jpeg");
-  static IMAGE_PNG = new MediaType("image", "png");
-  static MULTIPART_FORM_DATA = new MediaType("multipart", "form-data");
-  static MULTIPART_MIXED = new MediaType("multipart", "mixed");
-  static MULTIPART_RELATED = new MediaType("multipart", "related");
-  static TEXT_EVENT_STREAM = new MediaType("text", "event-stream");
-  static TEXT_HTML = new MediaType("text", "html");
-  static TEXT_MARKDOWN = new MediaType("text", "markdown");
-  static TEXT_PLAIN = new MediaType("text", "plain");
-  static TEXT_XML = new MediaType("text", "xml");
+  public readonly type: string;
 
-  public readonly type: string
+  public readonly subtype: string;
 
-  public readonly subtype: string
-
-  public readonly parameters: Parameters
+  public readonly parameters: Parameters;
 
   public get charset() {
     return (this.parameters.charset || 'utf-8') as BufferEncoding;
@@ -51,11 +50,11 @@ export default class MediaType {
   }
 
   public get isWildcardType() {
-    return this.type === "*";
+    return this.type === '*';
   }
 
   public get isWildcardSubtype() {
-    return this.subtype[0] === "*";
+    return this.subtype[0] === '*';
   }
 
   public get subTypeSuffix() {
@@ -100,7 +99,7 @@ export default class MediaType {
   constructor(mediaType: string, sub?: string, parameters?: Parameters) {
     if (arguments.length === 1) {
       const parts = (mediaType || '').split(';');
-      const segments = parts.shift().split('/')
+      const segments = parts.shift().split('/');
       this.type = segments.shift().toLowerCase().trim();
       this.subtype = segments.join('/').toLowerCase().trim();
       this.parameters = {};
@@ -115,14 +114,14 @@ export default class MediaType {
     }
   }
 
-  isEmpty(){
+  isEmpty() {
     return !this.type&& !this.subtype;
   }
 
   toString() {
     const keys = Object.keys(this.parameters || {});
     const joinChar = keys?.length > 0 ? ';' : '';
-    return `${this.name}${joinChar}${keys.map((k) => `${k}=${this.parameters[k]}`)}`
+    return `${this.name}${joinChar}${keys.map((k) => `${k}=${this.parameters[k]}`)}`;
   }
 
   copyQualityValue(mediaType: MediaType) {
@@ -131,9 +130,9 @@ export default class MediaType {
       const parameters = {};
       Object.keys(this.parameters).forEach((k) => {
         parameters[k] = this.parameters[k];
-      })
+      });
       parameters['q'] = mediaType.parameters['q'];
-      return new MediaType(this.type, this.subtype, parameters)
+      return new MediaType(this.type, this.subtype, parameters);
     }
     return this;
   }
@@ -156,5 +155,4 @@ export default class MediaType {
     const size2 = Object.keys(mediaType2.parameters || {}).length;
     return size2 - size1;
   }
-
 }

@@ -6,24 +6,23 @@ import UserInfo, { score } from '../models/UserInfo';
 @RequestMapping('/user')
 @RestController
 export default class UserController {
-
-  private user: { name: string }
+  private user: { name: string };
 
   @ApiOperation({ value: '新增用户' })
   @PostMapping('/addUser')
   addUser() {
-    return { "name": "ok" }
+    return { 'name': 'ok' };
   }
 
   @ApiOperation({ value: '设置用户信息,缓存到控制器实例上' })
   @ApiImplicitParams([
-    RequestParam('name')
+    RequestParam('name'),
   ])
   @PostMapping('/setUser')
   setUser(name: string) {
     this.user = {
-      name: name
-    }
+      name: name,
+    };
     return this.user;
   }
 
@@ -33,7 +32,7 @@ export default class UserController {
     return this.user || {
       score: score,
       desc: UserInfo.desc,
-      name: '李白'
+      name: '李白',
     };
   }
 
@@ -47,7 +46,7 @@ export default class UserController {
     return { code: -1, message: ex.message };
   }
 
-  @PostMapping("/submit")
+  @PostMapping('/submit')
   submit(user: UserInfo) {
     return 'ok';
   }

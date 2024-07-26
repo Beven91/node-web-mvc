@@ -1,4 +1,4 @@
-import ValidationContext from "./ValidationContext";
+import ValidationContext from './ValidationContext';
 
 export default interface Validator {
   /**

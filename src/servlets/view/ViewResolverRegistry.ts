@@ -9,8 +9,7 @@ import BeanNameViewResolver from './resolvers/BeanNameViewResolver';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
 
 export default class ViewResolverRegistry {
-
-  private readonly registerResolvers: ViewResolver[]
+  private readonly registerResolvers: ViewResolver[];
 
   constructor(beanFactory: BeanFactory) {
     this.registerResolvers = [

@@ -3,13 +3,12 @@
  * @description 返回一个类似express中间件类型的中间件结果
  */
 
-import { Middleware } from "../../interface/declare";
-import HttpServletRequest from "../http/HttpServletRequest";
-import HttpServletResponse from "../http/HttpServletResponse";
+import { Middleware } from '../../interface/declare';
+import HttpServletRequest from '../http/HttpServletRequest';
+import HttpServletResponse from '../http/HttpServletResponse';
 
 export default class Middlewares {
-
-  private middlewares: Array<Middleware>
+  private middlewares: Array<Middleware>;
 
   public execute<T>(req: HttpServletRequest, resp: HttpServletResponse, fallback?: () => T | Promise<T>) {
     return new Promise<T>((resolve, reject) => {
@@ -26,7 +25,7 @@ export default class Middlewares {
           } catch (ex) {
             reject(ex);
           }
-        }
+        };
       });
       handler(request, response, resolve);
     });

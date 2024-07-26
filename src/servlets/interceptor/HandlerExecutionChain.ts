@@ -1,20 +1,19 @@
 /**
- * @module HandlerExecutionChain  
+ * @module HandlerExecutionChain
  * @description 拦截器执行链
  */
 import ServletContext from '../http/ServletContext';
 import HandlerInterceptor from './HandlerInterceptor';
 
 export default class HandlerExecutionChain {
+  private servletContext: ServletContext;
 
-  private servletContext: ServletContext
-
-  private handler: object
+  private handler: object;
 
   /**
    * interceptor中断时的拦截器下标
    */
-  private interceptorIndex: number
+  private interceptorIndex: number;
 
   /**
    * 构造一个拦截器注册器
@@ -28,7 +27,7 @@ export default class HandlerExecutionChain {
   /**
    * 当前注册所有拦截器实例
    */
-  private interceptors: Array<HandlerInterceptor>
+  private interceptors: Array<HandlerInterceptor>;
 
   /**
    * 获取当前执行链所有拦截器
@@ -43,10 +42,10 @@ export default class HandlerExecutionChain {
 
   /**
    * 添加拦截器到当前调用链末尾
-   * @param interceptor 
+   * @param interceptor
    */
   public addInterceptor(...interceptors: Array<HandlerInterceptor>) {
-    interceptors.forEach((interceptor) => this.interceptors.push(interceptor))
+    interceptors.forEach((interceptor) => this.interceptors.push(interceptor));
   }
 
   /**
@@ -57,8 +56,8 @@ export default class HandlerExecutionChain {
     const newInterceptors = [
       ...allInterceptors.slice(0, index),
       interceptor,
-      ...allInterceptors.slice(index)
-    ]
+      ...allInterceptors.slice(index),
+    ];
     this.interceptors.length = 0;
     this.interceptors.push(...newInterceptors);
   }
@@ -128,7 +127,7 @@ export default class HandlerExecutionChain {
       const interceptor = interceptors[i];
       promise = promise.then(() => {
         const { request, response } = servletContext;
-        return interceptor.afterCompletion(request, response, this.handler, ex)
+        return interceptor.afterCompletion(request, response, this.handler, ex);
       });
     }
     return promise;

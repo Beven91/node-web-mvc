@@ -1,20 +1,20 @@
-import ElementType, { reflectAnnotationType } from "./ElementType";
-import FunctionExtends from "./FunctionExtends";
-import type { IAnnotation, IAnnotationClazz } from "./RuntimeAnnotation";
-import RuntimeAnnotation from "./RuntimeAnnotation";
+import ElementType, { reflectAnnotationType } from './ElementType';
+import FunctionExtends from './FunctionExtends';
+import RuntimeAnnotation from './RuntimeAnnotation';
+import { IAnnotation, IAnnotationClazz } from './type';
 
 function parseArguments(args: any[]) {
   const mayAnnotation = args[args.length - 1];
   if (mayAnnotation instanceof RuntimeAnnotation) {
     return {
       args: args.slice(0, -1),
-      ownerAnnotation: mayAnnotation
-    }
+      ownerAnnotation: mayAnnotation,
+    };
   }
   return {
     args,
-    ownerAnnotation: null
-  }
+    ownerAnnotation: null,
+  };
 }
 
 /**
@@ -22,9 +22,9 @@ function parseArguments(args: any[]) {
  * @param { AnnotationOptions } options 注解参数
  */
 export default function create(elementTypes: ElementType | ElementType[], annotationType: IAnnotationClazz) {
-  const types = elementTypes instanceof Array ? elementTypes : [elementTypes];
-  const decorator = function () {
-    const { args, ownerAnnotation } = parseArguments(Array.prototype.slice.call(arguments));
+  const types = elementTypes instanceof Array ? elementTypes : [ elementTypes ];
+  const decorator = function(...params: any[]) {
+    const { args, ownerAnnotation } = parseArguments(Array.prototype.slice.call(params));
     if (this instanceof decorator) {
       // 如果是当做class使用,这里用于从外部继承原始的AnnotationType
       return FunctionExtends.extendInstance(this, annotationType, args, decorator);
@@ -37,7 +37,7 @@ export default function create(elementTypes: ElementType | ElementType[], annota
         const innerInfo = parseArguments(params);
         // 配置后创建注解
         new RuntimeAnnotation(innerInfo.args, annotationType, types, maybeInitializer, innerInfo.ownerAnnotation);
-      }
+      };
     }
     // 创建注解
     new RuntimeAnnotation(args, annotationType, types, {}, ownerAnnotation);

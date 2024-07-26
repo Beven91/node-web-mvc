@@ -13,7 +13,7 @@ const unitValues = {
 
 export default class Bytes {
   // 根据input计算出来的bytes
-  public readonly bytes: number
+  public readonly bytes: number;
 
   constructor(input: string | number, defaultValue: string) {
     input = (input === '' || input === null || input === undefined) ? defaultValue : input;

@@ -1,21 +1,20 @@
-import MethodArgumentNotValidException from "../errors/MethodArgumentNotValidException";
-import Javascript from "../interface/Javascript";
-import AnnotationIndexer from "../servlets/annotations/annotation/AnnotationIndexer";
-import MethodParameter from "../servlets/method/MethodParameter";
-import ValidationContext from "./ValidationContext";
-import ValidationMessage from "./ValidationMessage";
-import Constraints from "./annotation/Constraints";
-import Valid from "./annotation/Valid";
-import Validated, { ValidateGroupType } from "./annotation/Validated";
+import MethodArgumentNotValidException from '../errors/MethodArgumentNotValidException';
+import Javascript from '../interface/Javascript';
+import AnnotationIndexer from '../servlets/annotations/annotation/AnnotationIndexer';
+import MethodParameter from '../servlets/method/MethodParameter';
+import ValidationContext from './ValidationContext';
+import ValidationMessage from './ValidationMessage';
+import Constraints from './annotation/Constraints';
+import Valid from './annotation/Valid';
+import Validated, { ValidateGroupType } from './annotation/Validated';
 
 const validationMessage = new ValidationMessage();
 
 export default class DataValidator {
-
   /**
    * 获取配置在当前参数作用于上的验证注解
-   * @param parameter 
-   * @returns 
+   * @param parameter
+   * @returns
    */
   private getValidateAnnotation(parameter: MethodParameter) {
     const annotations = parameter.getParameterAnnotations();
@@ -26,7 +25,7 @@ export default class DataValidator {
 
   determineValidationHints(anno: InstanceType<typeof Validated>) {
     const value = anno.value || Constraints.EMPTY_GROUP;
-    return value instanceof Array ? value : [value].filter(Boolean);
+    return value instanceof Array ? value : [ value ].filter(Boolean);
   }
 
   async validate(model: object, parameter: MethodParameter) {
@@ -72,7 +71,7 @@ export default class DataValidator {
       }
       const currentPaths = paths ? `${paths}.${anno.name}` : anno.name;
       if (anno) {
-        // 如果配置了校验，则嵌套校验 
+        // 如果配置了校验，则嵌套校验
         await this.validateByAnnotation(value, groups, parameter, anno.dataType, currentPaths);
       }
     }

@@ -6,18 +6,17 @@ import HttpServletResponse from './HttpServletResponse';
 import ForwardEndlessLoopError from '../../errors/ForwardEndlessLoopError';
 
 export default class ApplicationDispatcher implements RequestDispatcher {
+  private readonly filterAdapter: FilterHandlerAdapter;
 
-  private readonly filterAdapter: FilterHandlerAdapter
+  private path: string;
 
-  private path: string
+  private query: string;
 
-  private query: string
-
-  private url: string
+  private url: string;
 
   constructor(filterAdapter: FilterHandlerAdapter, url: string) {
     this.url = String(url);
-    const [path, query] = this.url.split('?');
+    const [ path, query ] = this.url.split('?');
     this.path = path;
     this.query = query;
     this.filterAdapter = filterAdapter;
@@ -45,9 +44,9 @@ export default class ApplicationDispatcher implements RequestDispatcher {
     request.path = pathName;
     request.query = {
       ...(request.query || {}),
-      ...(querystring.parse((this.query || '').slice(1)))
-    }
-    request.pathVariables = {}
+      ...(querystring.parse((this.query || '').slice(1))),
+    };
+    request.pathVariables = {};
     return this.filterAdapter.doFilter(request, response);
   }
 }

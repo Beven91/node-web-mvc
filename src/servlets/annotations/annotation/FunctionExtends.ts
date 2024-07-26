@@ -4,7 +4,7 @@ interface ClassType {
   new(...args: any[]): any
 }
 
-const blacklist = ['length', 'name', 'prototype'];
+const blacklist = [ 'length', 'name', 'prototype' ];
 
 function extendInstance(target: any, parentType: ClassType, args: any[], wrapper: Function) {
   const ParentClazz = parentType;
@@ -26,10 +26,10 @@ function extendStatic(target: any, source: any) {
     if (typeof k == 'string' && blacklist.indexOf(k) < 0) {
       target[k] = source[k];
     }
-  })
+  });
 }
 
 export default {
   extendInstance,
-  extendStatic
-}
+  extendStatic,
+};

@@ -3,14 +3,13 @@
  * @description urlencode参数解析器
  */
 import ServletContext from '../../http/ServletContext';
-import MethodParameter from "../MethodParameter";
-import HandlerMethodArgumentResolver from "./HandlerMethodArgumentResolver";
+import MethodParameter from '../MethodParameter';
+import HandlerMethodArgumentResolver from './HandlerMethodArgumentResolver';
 import RequestParam from '../../annotations/params/RequestParam';
 import MultipartFile from '../../http/MultipartFile';
 import { isEmpty, isMultipartFiles } from '../../util/ApiUtils';
 
 export default class RequestParamMapMethodArgumentResolver implements HandlerMethodArgumentResolver {
-
   private readonly useDefaultResolution: boolean;
 
   constructor(useDefaultResolution?: boolean) {
@@ -51,7 +50,7 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
       if (isEmpty(v)) {
         return null;
       }
-      return v instanceof Array ? v : [v];
+      return v instanceof Array ? v : [ v ];
     }
     return query[name];
   }

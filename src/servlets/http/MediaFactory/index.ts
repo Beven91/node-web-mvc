@@ -4,16 +4,15 @@
  */
 import path from 'path';
 import fs from 'fs';
-import MediaType from "../MediaType";
+import MediaType from '../MediaType';
 
 const file = path.join(__dirname, '../../../../mime.type');
 
 const runtime = {
-  mimeTypes: null
-}
+  mimeTypes: null,
+};
 
 export default class MediaTypeFactory {
-
   /**
    * 加载所有MIME类型
    */
@@ -28,7 +27,7 @@ export default class MediaTypeFactory {
         const exts = (segments.find((s) => !!s) || '').split(' ').filter((s) => !!s);
         exts.forEach((ext) => {
           mediaTypes['.' + ext] = new MediaType(mediaType);
-        })
+        });
       }
     });
     return mediaTypes;
@@ -46,7 +45,7 @@ export default class MediaTypeFactory {
 
   /**
    * 获取指定文件的媒体类型
-   * @param filename 
+   * @param filename
    */
   static getMediaType(filename: string): MediaType {
     if (!filename) {

@@ -1,12 +1,11 @@
-import ViewNotFoundError from "../../errors/ViewNotFoundError";
-import ServletContext from "../http/ServletContext";
-import ModelAndView from "../models/ModelAndView";
-import View from "./View";
-import ViewResolverRegistry from "./ViewResolverRegistry";
+import ViewNotFoundError from '../../errors/ViewNotFoundError';
+import ServletContext from '../http/ServletContext';
+import ModelAndView from '../models/ModelAndView';
+import View from './View';
+import ViewResolverRegistry from './ViewResolverRegistry';
 
 export default class ViewRender {
-
-  viewResolverRegistry: ViewResolverRegistry
+  viewResolverRegistry: ViewResolverRegistry;
 
   constructor(viewResolverRegistry: ViewResolverRegistry) {
     this.viewResolverRegistry = viewResolverRegistry;
@@ -33,13 +32,13 @@ export default class ViewRender {
     if (mv.view instanceof View) {
       return mv.view;
     }
-    for (let resolver of viewResolvers) {
+    for (const resolver of viewResolvers) {
       const view = resolver.resolveViewName(mv.view, mv.model, request);
       if (view) {
         return view;
       }
     }
     // 如果没有查到视图，则抛出异常
-    throw new ViewNotFoundError(mv.view || "''");
+    throw new ViewNotFoundError(mv.view || '\'\'');
   }
 }

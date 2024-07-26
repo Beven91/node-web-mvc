@@ -5,7 +5,6 @@ import ResourceResolver from './ResourceResolver';
 import ResourceResolverChain from './ResourceResolverChain';
 
 export default class PathResourceResolver implements ResourceResolver {
-
   async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, nextChain: ResourceResolverChain): Promise<Resource> {
     return this.getResource(requestPath, locations);
   }
@@ -18,7 +17,7 @@ export default class PathResourceResolver implements ResourceResolver {
   private getResource(resourcePath: string, locations: Array<Resource>): Resource {
     const segments = (resourcePath).split('/');
     const first = segments.shift();
-    for (let location of locations) {
+    for (const location of locations) {
       const resource = location.createRelative(resourcePath);
       if (resource.isReadable) {
         return resource;

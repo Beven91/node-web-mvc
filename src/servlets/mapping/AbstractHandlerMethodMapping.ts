@@ -2,21 +2,20 @@
  * @module AbstractHandlerMethodMapping
  * @description 抽象请求方法映射
  */
-import AbstractHandlerMapping from "./AbstractHandlerMapping";
-import ServletContext from "../http/ServletContext";
-import HttpServletRequest from "../http/HttpServletRequest";
+import AbstractHandlerMapping from './AbstractHandlerMapping';
+import ServletContext from '../http/ServletContext';
+import HttpServletRequest from '../http/HttpServletRequest';
 import MappingRegistration from './registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod';
-import { ClazzType } from "../../interface/declare";
-import CorsConfiguration from "../cors/CorsConfiguration";
+import { ClazzType } from '../../interface/declare';
+import CorsConfiguration from '../cors/CorsConfiguration';
 
 export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHandlerMapping {
-
-  private readonly registrations: Map<T, MappingRegistration<T>>
+  private readonly registrations: Map<T, MappingRegistration<T>>;
 
   private readonly corsLookup: Map<HandlerMethod, CorsConfiguration>;
 
-  protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod
+  protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod;
 
   constructor() {
     super();
@@ -38,7 +37,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
 
   /**
    * 移除一个映射方法
-   * @param mapping 
+   * @param mapping
    */
   removeHandlerMethod(mapping: T) {
     this.registrations.delete(mapping);
@@ -46,7 +45,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
 
   /**
    * 获取所有注册的Mappings
-   * @returns 
+   * @returns
    */
   getRegistrations() {
     return this.registrations;
@@ -65,7 +64,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
    * 根据请求查找对应的HandlerMethod
    */
   lookupHandlerMethod(lookupPath: string, request: HttpServletRequest): HandlerMethod {
-    for (let registration of this.registrations.values()) {
+    for (const registration of this.registrations.values()) {
       const handler = this.match(registration, lookupPath, request);
       // 如果没有找到，则继续查找
       if (!handler) continue;
@@ -74,7 +73,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
   }
 
   getMappingForMethod(handler: HandlerMethod) {
-    for (let info of this.registrations.values()) {
+    for (const info of this.registrations.values()) {
       if (info.getHandlerMethod() === handler) {
         return info.getMapping();
       }

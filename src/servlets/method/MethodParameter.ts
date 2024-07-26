@@ -3,37 +3,37 @@
  * @description 请求参数配置类
  */
 
-import Javascript from "../../interface/Javascript"
-import RuntimeAnnotation, { IAnnotationClazz } from "../annotations/annotation/RuntimeAnnotation"
+import Javascript from '../../interface/Javascript';
+import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import { IAnnotationClazz } from '../annotations/annotation/type';
 
-export type RequestParamType = 'path' | 'query' | 'body' | 'header' | 'form' | 'part'  | ''
+export type RequestParamType = 'path' | 'query' | 'body' | 'header' | 'form' | 'part' | '';
 
 export default class MethodParameter {
-
   /**
    * 当前参数所属函数
    */
-  public readonly method: string
+  public readonly method: string;
 
   /**
    * 当前参数所属函数对应的类
    */
-  public readonly beanType: Function
+  public readonly beanType: Function;
 
   /**
    * 参数名称
    */
-  public readonly paramName: string
+  public readonly paramName: string;
 
   /**
    * 参数所在函数签名下标
    */
-  public readonly paramIndex: number
+  public readonly paramIndex: number;
 
   /**
    * 参数类型
    */
-  public readonly parameterType: any
+  public readonly parameterType: any;
 
   /**
    * 判断当前参数是否存在指定注解
@@ -59,7 +59,7 @@ export default class MethodParameter {
 
   /**
    * 获取当前参数上的所有注解
-   * @returns 
+   * @returns
    */
   public getParameterAnnotations() {
     return RuntimeAnnotation.getMethodParamAnnotations(this.beanType, this.method, this.paramName);

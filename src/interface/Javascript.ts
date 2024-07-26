@@ -26,7 +26,7 @@ export default class Javascript {
     if (!handler[symbol]) {
       const parts = handler.toString().split('(')[1] || '';
       const express = parts.split(')')[0] || '';
-      handler[symbol] = express.split(',').map((s) => s.trim()).filter((s) => !!s)
+      handler[symbol] = express.split(',').map((s) => s.trim()).filter((s) => !!s);
     }
     return handler[symbol];
   }
@@ -39,8 +39,8 @@ export default class Javascript {
       },
       isType: (parentType: Function) => {
         return childType && parentType === childType || parentType?.prototype?.isPrototypeOf?.(childType?.prototype);
-      }
-    }
+      },
+    };
   }
 
   static isClass(ctor: any) {
@@ -52,6 +52,13 @@ export default class Javascript {
       ctor[isClassSymbol] = source.indexOf('class ') === 0;
     }
     return ctor[isClassSymbol];
+  }
+
+  static defineHiddenProperty(data:object, name:symbol, value: any) {
+    Object.defineProperty(data, name, {
+      value: value,
+      enumerable: false,
+    });
   }
 }
 

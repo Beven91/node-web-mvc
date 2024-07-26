@@ -1,13 +1,12 @@
-import Javascript from "../../interface/Javascript";
-import Tracer from "../../servlets/annotations/annotation/Tracer";
-import JoinPoint from "./JoinPoint";
-import type { MethodInvocation } from "./MethodInvocation";
+import Javascript from '../../interface/Javascript';
+import Tracer from '../../servlets/annotations/annotation/Tracer';
+import JoinPoint from './JoinPoint';
+import type { MethodInvocation } from './MethodInvocation';
 
 export default class MethodInvocationProceedingJoinPoint implements JoinPoint {
+  private readonly methodInvocation: MethodInvocation;
 
-  private readonly methodInvocation: MethodInvocation
-
-  private readonly proxy: object
+  private readonly proxy: object;
 
   constructor(invocation: MethodInvocation, proxy: object) {
     this.methodInvocation = invocation;
@@ -30,6 +29,6 @@ export default class MethodInvocationProceedingJoinPoint implements JoinPoint {
     const id = Tracer.getFullName(this.getTarget().constructor);
     const handler = this.methodInvocation.getMethod().handler;
     const parameters = Javascript.resolveParameters(handler);
-    return `any ${id}.${handler.name}(${parameters.join(', ')})`
+    return `any ${id}.${handler.name}(${parameters.join(', ')})`;
   }
 }

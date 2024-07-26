@@ -2,19 +2,18 @@
  * @module ResourceRegionHttpMessageConverter
  */
 
-import AbstractHttpMessageConverter from "./AbstractHttpMessageConverter";
-import HttpHeaders from "../HttpHeaders";
-import HttpStatus from "../HttpStatus";
-import ResourceRegion from "../../resources/ResourceRegion";
-import ServletContext from "../ServletContext";
-import MediaType from "../MediaType";
-import HttpServletResponse from "../HttpServletResponse";
-import Javascript from "../../../interface/Javascript";
-import RegionsResource from "../../resources/RegionsResource";
-import GzipResource from "../../resources/GzipResource";
+import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
+import HttpHeaders from '../HttpHeaders';
+import HttpStatus from '../HttpStatus';
+import ResourceRegion from '../../resources/ResourceRegion';
+import ServletContext from '../ServletContext';
+import MediaType from '../MediaType';
+import HttpServletResponse from '../HttpServletResponse';
+import Javascript from '../../../interface/Javascript';
+import RegionsResource from '../../resources/RegionsResource';
+import GzipResource from '../../resources/GzipResource';
 
 export default class ResourceRegionHttpMessageConverter extends AbstractHttpMessageConverter<RegionsResource> {
-
   constructor() {
     super(MediaType.ALL);
   }
@@ -24,13 +23,13 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
   }
 
   async readInternal(servletContext: ServletContext): Promise<any> {
-    throw new Error("ResourceRegionHttpMessageConverter not support read");
+    throw new Error('ResourceRegionHttpMessageConverter not support read');
   }
 
   async writeInternal(resource: RegionsResource, servletContext: ServletContext) {
     const regions = resource.regions;
     const response = servletContext.response;
-    for (let region of regions) {
+    for (const region of regions) {
       await this.writeRegion(region, servletContext.response);
     }
     return response.end();
@@ -54,7 +53,7 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
     } else {
       response.setHeader(HttpHeaders.TRANSFER_ENCODING, 'chunked');
     }
-    response.setStatus(HttpStatus.PARTIAL_CONTENT)
+    response.setStatus(HttpStatus.PARTIAL_CONTENT);
     response.nativeResponse.statusCode = 206;
     await resource.pipe(nativeResponse, start, end);
   }

@@ -8,7 +8,6 @@ import ParamAnnotation from './ParamAnnotation';
 import ElementType from '../annotation/ElementType';
 
 class RequestPart extends ParamAnnotation {
-
   constructor() {
     super('part');
   }
@@ -16,10 +15,10 @@ class RequestPart extends ParamAnnotation {
 
 /**
  * 从multipart-data请求参数中，提取指定名称的参数值
- * 
+ *
  *  action(@RequestPart id)
- * 
+ *
  *  action(@RequestPart({ required: true }) id)
- * 
+ *
  */
 export default Target(ElementType.PARAMETER)(RequestPart);

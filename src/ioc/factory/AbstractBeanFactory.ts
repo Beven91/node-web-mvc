@@ -1,31 +1,30 @@
-import BeanCreationException from "../../errors/BeanCreationException";
-import BeanPropertyCreationException from "../../errors/BeanPropertyCreationException";
-import Exception from "../../errors/Exception";
-import LoopDependenciesException, { DependencyBeanDefinition } from "../../errors/LoopDependenciesException";
-import Javascript from "../../interface/Javascript";
-import { ClazzType } from "../../interface/declare";
-import ElementType from "../../servlets/annotations/annotation/ElementType";
-import RuntimeAnnotation, { } from "../../servlets/annotations/annotation/RuntimeAnnotation";
-import Autowired from "../annotations/Autowired";
-import Qualifier from "../annotations/Qualifier";
-import BeanPostProcessor from "../processor/BeanPostProcessor";
-import InitializingBean from "../processor/InitializingBean";
-import InstantiationAwareBeanPostProcessor, { PropertyValue } from "../processor/InstantiationAwareBeanPostProcessor";
-import Aware from "./Aware";
-import BeanDefinition from "./BeanDefinition";
-import { BeanFactory } from "./BeanFactory";
-import BeanFactoryAware from "./BeanFactoryAware";
-import BeanNameAware from "./BeanNameAware";
-import OrderedHelper from "./OrderedHelper";
-import ProxyHelper from "./ProxyHelper";
+import BeanCreationException from '../../errors/BeanCreationException';
+import BeanPropertyCreationException from '../../errors/BeanPropertyCreationException';
+import Exception from '../../errors/Exception';
+import LoopDependenciesException, { DependencyBeanDefinition } from '../../errors/LoopDependenciesException';
+import Javascript from '../../interface/Javascript';
+import { ClazzType } from '../../interface/declare';
+import ElementType from '../../servlets/annotations/annotation/ElementType';
+import RuntimeAnnotation, { } from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import Autowired from '../annotations/Autowired';
+import Qualifier from '../annotations/Qualifier';
+import BeanPostProcessor from '../processor/BeanPostProcessor';
+import InitializingBean from '../processor/InitializingBean';
+import InstantiationAwareBeanPostProcessor, { PropertyValue } from '../processor/InstantiationAwareBeanPostProcessor';
+import Aware from './Aware';
+import BeanDefinition from './BeanDefinition';
+import { BeanFactory } from './BeanFactory';
+import BeanFactoryAware from './BeanFactoryAware';
+import BeanNameAware from './BeanNameAware';
+import OrderedHelper from './OrderedHelper';
+import ProxyHelper from './ProxyHelper';
 
 export const isIocRemovedSymbol = Symbol('isIocRemoved');
 
 export default abstract class AbstractBeanFactory implements BeanFactory {
+  protected readonly id: number;
 
-  protected readonly id: number
-
-  private readonly createChains: DependencyBeanDefinition[]
+  private readonly createChains: DependencyBeanDefinition[];
 
   constructor() {
     this.id = performance.now();
@@ -33,43 +32,43 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   }
 
   // bean处理器
-  private readonly beanPostProcessors: BeanPostProcessor[] = []
+  private readonly beanPostProcessors: BeanPostProcessor[] = [];
 
   // bean实例缓存
-  private readonly beanInstancesCache: Map<BeanDefinition, any> = new Map<BeanDefinition, any>()
+  private readonly beanInstancesCache: Map<BeanDefinition, any> = new Map<BeanDefinition, any>();
 
   /**
    * 是否包含指定名称bean定义
-   * @param key 
+   * @param key
    */
-  abstract containsBeanDefinition(beanName: string)
+  abstract containsBeanDefinition(beanName: string);
 
   /**
    * 根据bean名称获取对应的定义
    * @param beanName bean类型
    */
-  abstract getBeanDefinition(beanName: string): BeanDefinition
+  abstract getBeanDefinition(beanName: string): BeanDefinition;
 
   /**
    * 注册一个bean
-   * @param beanName bean名称 
+   * @param beanName bean名称
    * @param beanDefinition bean定义
    */
-  abstract registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition)
+  abstract registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition);
 
   /**
    * 移除bean定义
    */
-  abstract removeBeanDefinition(beanName: string): BeanDefinition
+  abstract removeBeanDefinition(beanName: string): BeanDefinition;
 
   /**
    * 获取所有已注册的bean定义key
    */
-  abstract getBeanDefinitionNames(): IterableIterator<string>
+  abstract getBeanDefinitionNames(): IterableIterator<string>;
 
   /**
    * 判断传入名称的bean是否为单例
-   * @param key 
+   * @param key
    */
   isSingleton(key: string): boolean {
     return this.getBeanDefinition(key)?.scope === 'singleton';
@@ -77,7 +76,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
 
   /**
    * 判断传入名称的bean是否为原型
-   * @param key 
+   * @param key
    */
   isPrototype(key: string): boolean {
     return this.getBeanDefinition(key)?.scope === 'prototype';
@@ -85,7 +84,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
 
   /**
    * 指定指定名称的bean构造函数或者类
-   * @param name 
+   * @param name
    */
   getType(name: string) {
     const definition = this.getBeanDefinition(name);
@@ -100,8 +99,8 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
 
   /**
    * 是否包含指定名称的bean
-   * @param key 
-   * @returns 
+   * @param key
+   * @returns
    */
   containsBean(key: string) {
     return this.containsBeanDefinition(key);
@@ -126,13 +125,13 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     let instance: T = null;
     if (definition) {
       instance = this.doGetBean<T>(definition, beanName);
-      // throw new BeanDefinitionNotfoundException(name);  
+      // throw new BeanDefinitionNotfoundException(name);
     }
     this.debug('GetBean ', beanName, instance ? 'ok' : 'fail');
     return instance;
   }
 
-  getBeansOfType<T extends abstract new () => any>(beanType: T) {
+  getBeansOfType<T extends abstract new() => any>(beanType: T) {
     const result: InstanceType<T>[] = [];
     for (const beanInstance of this.beanInstancesCache.values()) {
       if (Javascript.createTyper(beanInstance.constructor).isType(beanType)) {
@@ -176,7 +175,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     } catch (ex) {
       throw new BeanCreationException(definition, beanName, `BeanPostProcessor before instantiation of bean failed`, ex);
     }
-    return this.doCreateBean(definition, beanName)
+    return this.doCreateBean(definition, beanName);
   }
 
   private checkLoopDependencies(definition: BeanDefinition, beanName: string) {
@@ -225,7 +224,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     }
     // 创建函数bean
     const handler = definition.method;
-    const annotations = RuntimeAnnotation.getAnnotations([Qualifier, Autowired], ownerClazz);
+    const annotations = RuntimeAnnotation.getAnnotations([ Qualifier, Autowired ], ownerClazz);
     const parameters = annotations.filter((m) => m.elementType == ElementType.PARAMETER && m.method == handler);
     const values = parameters.map((parameter) => {
       const x = parameter.nativeAnnotation as InstanceType<typeof Qualifier>;
@@ -236,7 +235,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     return handler.apply(originInstance, values);
   }
 
-  private getProcessors<T extends abstract new (...args: any[]) => any>(processorType: T) {
+  private getProcessors<T extends abstract new(...args: any[]) => any>(processorType: T) {
     const processors = this.beanPostProcessors.filter((m) => m instanceof processorType);
     return processors as InstanceType<T>[];
   }
@@ -272,7 +271,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * 执行实例化after事件
    * @param instance 当前bean实例
    * @param beanName 当前bean名称
-   * @returns 
+   * @returns
    */
   private applyBeanPostProcessorsAfterInstantiation(instance: object, beanName: string) {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
@@ -347,9 +346,8 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
         Object.defineProperty(beanInstance, p.name, {
           get() {
             return value();
-          }
-        })
-
+          },
+        });
       } else {
         beanInstance[p.name] = value;
       }

@@ -1,4 +1,4 @@
-import Exception from "./Exception";
+import Exception from './Exception';
 
 export default class InvalidBeanDefinitionException extends Exception {
   public definition: any;

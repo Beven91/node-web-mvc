@@ -3,14 +3,14 @@
  * @description controller请求方法映射处理器
  */
 import hot from 'nodejs-hmr';
-import AbstractHandlerMethodMapping from "./AbstractHandlerMethodMapping";
+import AbstractHandlerMethodMapping from './AbstractHandlerMethodMapping';
 import RequestMappingInfo, { ensureArray } from './RequestMappingInfo';
-import HttpServletRequest from "../http/HttpServletRequest";
+import HttpServletRequest from '../http/HttpServletRequest';
 import MappingRegistration from '../mapping/registry/MappingRegistration';
-import HandlerMethod from '../method/HandlerMethod'
-import RequestMapping, { RequestMappingExt } from "../annotations/mapping/RequestMapping";
-import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
-import ElementType from "../annotations/annotation/ElementType";
+import HandlerMethod from '../method/HandlerMethod';
+import RequestMapping, { RequestMappingExt } from '../annotations/mapping/RequestMapping';
+import RuntimeAnnotation, { } from '../annotations/annotation/RuntimeAnnotation';
+import ElementType from '../annotations/annotation/ElementType';
 import ServletContext from '../http/ServletContext';
 import HttpStatusHandlerMethod from '../method/HttpStatusHandlerMethod';
 import HttpStatus from '../http/HttpStatus';
@@ -26,7 +26,6 @@ import { PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE } from './HandlerMapping';
 import PathMatcher from '../util/PathMatcher';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> implements InitializingBean {
-
   constructor() {
     super();
     registerHotUpdate(this);
@@ -47,7 +46,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     const produces = anno.produces || controllerAnno?.produces || '';
     const requestMapping = new RequestMappingInfo(anno.value, anno.method, ensureArray(produces), anno.params, anno.headers, anno.consumes);
     const actionPaths = requestMapping.value || [];
-    const controllerPaths = ensureArray(controllerAnno?.value || ['']);
+    const controllerPaths = ensureArray(controllerAnno?.value || [ '' ]);
     const values = [];
     if (controllerPaths.length > 0) {
       // 合并controller路由
@@ -55,7 +54,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
         actionPaths.map((actionPath) => {
           const exp = (controllerPath + '/' + actionPath).replace(/\/{2,3}/, '/');
           values.push(exp);
-        })
+        });
         // 预构建模式缓存
         PathMatcher.preBuildPattern(values);
       });
@@ -71,7 +70,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     const annotations = RuntimeAnnotation.getAnnotations(RequestMapping);
     annotations.forEach((annotation) => {
       this.registerAnnotationMappings(annotation);
-    })
+    });
   }
 
   private isConsumeable(servletContext: ServletContext, mapping: RequestMappingInfo) {
@@ -113,7 +112,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     const pathPatterns = mapping.value;
     const matcher = this.pathMatcher;
     const requestMethod = this.getRequestMethod(request);
-    for (let pattern of pathPatterns) {
+    for (const pattern of pathPatterns) {
       const result = matcher.matchPattern(pattern, path);
       // 如果当前路由匹配成功
       if (result && mapping.method[requestMethod]) {
@@ -134,10 +133,10 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
       const corsConfig = new CorsConfiguration();
       this.updateCorsConfig(corsConfig, clazzCors);
       this.updateCorsConfig(corsConfig, methodCors);
-      const methods = mapping.method instanceof Array ? mapping.method : [mapping.method];
+      const methods = mapping.method instanceof Array ? mapping.method : [ mapping.method ];
       methods.forEach((method) => {
         corsConfig.addAllowedMethod(method);
-      })
+      });
       return corsConfig.applyPermitDefaultValues();
     }
   }
@@ -154,7 +153,6 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
       config.maxAge = anno.maxAge;
     }
   }
-
 }
 
 // 热更新支持
@@ -166,7 +164,7 @@ function registerHotUpdate(handlerMapping: RequestMappingHandlerMapping) {
       const file = old.filename;
       const registration = handlerMapping.getRegistrations();
       const removeKeys = [] as any[];
-      for (let element of registration.values()) {
+      for (const element of registration.values()) {
         const beanType = element.getHandlerMethod()?.beanType;
         if (Tracer.isDependency(beanType, file)) {
           removeKeys.push(element.getMapping());
@@ -182,5 +180,5 @@ function registerHotUpdate(handlerMapping: RequestMappingHandlerMapping) {
           handlerMapping.registerAnnotationMappings(annotation);
         }
       });
-    })
+    });
 }

@@ -6,13 +6,13 @@ import HandlerMethod from '../../method/HandlerMethod';
 
 export default class MappingRegistration<T> {
   // 映射配置
-  private mapping: T
+  private mapping: T;
 
   // 当前映射对应的执行函数
-  private readonly handlerMethod: HandlerMethod
+  private readonly handlerMethod: HandlerMethod;
 
   // 映射名称
-  private mappingName: string
+  private mappingName: string;
 
   constructor(mapping: T, handlerMethod: HandlerMethod, mappingName: string) {
     this.mapping = mapping;

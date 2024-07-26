@@ -3,30 +3,29 @@
  * @module AbstractHandlerMapping
  * @description 抽象映射处理器
  */
-import HandlerMapping from "./HandlerMapping";
+import HandlerMapping, { HANDLE_MAPPING_PATH } from './HandlerMapping';
 import HandlerExecutionChain from '../interceptor/HandlerExecutionChain';
 import ServletContext from '../http/ServletContext';
 import HandlerInterceptor from '../interceptor/HandlerInterceptor';
 import MappedInterceptor from '../interceptor/MappedInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
-import UrlPathHelper from "../util/UrlPathHelper";
-import PathMatcher from "../util/PathMatcher";
-import ApplicationContextAware from "../context/ApplicationContextAware";
-import AbstractApplicationContext from "../context/AbstractApplicationContext";
-import Ordered from "../context/Ordered";
-import CorsUtils from "../util/CorsUtils";
-import CorsConfigurationSource from "../cors/CorsConfigurationSource";
-import PreFlightHandler from "../cors/PreFlightHandler";
-import CorsInterceptor from "../cors/CorsInterceptor";
-import CorsProcessor from "../cors/CorsProcessor";
-import DefaultCorsProcessor from "../cors/DefaultCorsProcessor";
-import CorsConfiguration from "../cors/CorsConfiguration";
-import UrlBasedCorsConfigurationSource from "../cors/UrlBasedCorsConfigurationSource";
+import UrlPathHelper from '../util/UrlPathHelper';
+import PathMatcher from '../util/PathMatcher';
+import ApplicationContextAware from '../context/ApplicationContextAware';
+import AbstractApplicationContext from '../context/AbstractApplicationContext';
+import Ordered from '../context/Ordered';
+import CorsUtils from '../util/CorsUtils';
+import CorsConfigurationSource from '../cors/CorsConfigurationSource';
+import PreFlightHandler from '../cors/PreFlightHandler';
+import CorsInterceptor from '../cors/CorsInterceptor';
+import CorsProcessor from '../cors/CorsProcessor';
+import DefaultCorsProcessor from '../cors/DefaultCorsProcessor';
+import CorsConfiguration from '../cors/CorsConfiguration';
+import UrlBasedCorsConfigurationSource from '../cors/UrlBasedCorsConfigurationSource';
 
 const corsProcessorSymbol = Symbol['corsProcessor'];
 
 export default abstract class AbstractHandlerMapping extends ApplicationContextAware implements HandlerMapping, Ordered {
-
   protected urlPathHelper: UrlPathHelper = new UrlPathHelper();
 
   protected pathMatcher: PathMatcher = new PathMatcher();
@@ -37,10 +36,10 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
 
   protected corsConfigurationSource: CorsConfigurationSource;
 
-  private order: number
+  private order: number;
 
   public get corsProcessor() {
-    return this[corsProcessorSymbol] as CorsProcessor
+    return this[corsProcessorSymbol] as CorsProcessor;
   }
 
   public set corsProcessor(value: CorsProcessor) {
@@ -53,8 +52,6 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
     // 扩展拦截器配置，使用于子类
     this.extendInterceptors();
   }
-
-  static HANDLE_MAPPING_PATH = '@@HANDLE_MAPPING_PATH@@'
 
   public setUrlPathHelper(value: UrlPathHelper) {
     this.urlPathHelper = value;
@@ -72,7 +69,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   }
 
   // 默认处理器,如果 getHandlerInternal 没有返回handler，则使用当前配置的默认处理器
-  private defaultHandler: any
+  private defaultHandler: any;
 
   /**
    * 从 this.interceptors 适配后拦截器
@@ -147,11 +144,11 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   /**
    * 根据当前request请求对象，获取对应的处理器
    */
-  protected abstract getHandlerInternal(context: ServletContext): object
+  protected abstract getHandlerInternal(context: ServletContext): object;
 
   protected initLookupPath(request: HttpServletRequest) {
     const url = this.urlPathHelper.getServletPath(request);
-    request.setAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH, url);
+    request.setAttribute(HANDLE_MAPPING_PATH, url);
     return url;
   }
 
@@ -162,7 +159,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
     const chain = handler instanceof HandlerExecutionChain ? handler : new HandlerExecutionChain(handler, context);
     // 依次遍历拦截器，将拦截器添加到调用链。
     const interceptors = this.adaptedInterceptors || [];
-    for (let interceptor of interceptors) {
+    for (const interceptor of interceptors) {
       if (interceptor instanceof MappedInterceptor) {
         interceptor.matches(context.request) ? chain.addInterceptor(interceptor) : undefined;
       } else {

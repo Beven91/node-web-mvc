@@ -1,11 +1,10 @@
-import ServletContext from "../../http/ServletContext";
-import ModelAndView from "../../models/ModelAndView";
-import HandlerMethod from "../HandlerMethod";
-import HandlerExceptionResolver from "./HandlerExceptionResolver";
+import ServletContext from '../../http/ServletContext';
+import ModelAndView from '../../models/ModelAndView';
+import HandlerMethod from '../HandlerMethod';
+import HandlerExceptionResolver from './HandlerExceptionResolver';
 
 export default class HandlerExceptionResolverComposite implements HandlerExceptionResolver {
-
-  private exceptionResolvers: HandlerExceptionResolver[]
+  private exceptionResolvers: HandlerExceptionResolver[];
 
   setExeceptionResolvers(exceptionResolvers: HandlerExceptionResolver[]) {
     this.exceptionResolvers = exceptionResolvers;
@@ -16,7 +15,7 @@ export default class HandlerExceptionResolverComposite implements HandlerExcepti
   }
 
   async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView> {
-    for (let resolver of this.getExceptionResolvers()) {
+    for (const resolver of this.getExceptionResolvers()) {
       const mv = await resolver.resolveException(servletContext, handler, error);
       if (mv) {
         return mv;

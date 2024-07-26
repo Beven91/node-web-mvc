@@ -4,24 +4,23 @@
  * 例如:
  *  @Confugration
  *  class A {
- * 
+ *
  *   @Bean
  *   getMyInstance() {
  *     return new MyInstance();
- *   } 
+ *   }
  *  }
  */
-import { ClazzType } from "../../interface/declare";
-import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
-import Bean from "../annotations/Bean";
-import Configuration from "../annotations/Configuration";
-import { BeanFactory } from "../factory/BeanFactory";
-import { methodBeanNameSymbol } from "../factory/DefaultListableBeanFactory";
-import InstantiationAwareBeanPostProcessor, { PropertyValue } from "./InstantiationAwareBeanPostProcessor";
+import { ClazzType } from '../../interface/declare';
+import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import Bean from '../annotations/Bean';
+import Configuration from '../annotations/Configuration';
+import { BeanFactory } from '../factory/BeanFactory';
+import { methodBeanNameSymbol } from '../factory/DefaultListableBeanFactory';
+import InstantiationAwareBeanPostProcessor, { PropertyValue } from './InstantiationAwareBeanPostProcessor';
 
 export default class ConfigurationBeanPostProcessor extends InstantiationAwareBeanPostProcessor {
-
-  private readonly beanFactory: BeanFactory
+  private readonly beanFactory: BeanFactory;
 
   constructor(beanFactory: BeanFactory) {
     super();
@@ -53,8 +52,8 @@ export default class ConfigurationBeanPostProcessor extends InstantiationAwareBe
       proto[anno.methodName] = new Proxy(anno.method, {
         apply() {
           return beanFactory.getBean(name);
-        }
+        },
       });
-    })
+    });
   }
 }

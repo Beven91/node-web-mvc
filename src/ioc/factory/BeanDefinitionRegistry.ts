@@ -1,10 +1,9 @@
-import { ClazzType } from "../../interface/declare"
-import BeanDefinition from "./BeanDefinition"
+import BeanDefinition from './BeanDefinition';
 
 export interface BeanDefinitionRegistry {
   /**
    * 注册一个bean定义
-   * @param beanName bean名称 
+   * @param beanName bean名称
    * @param beanDefinition bean定义
    */
   registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition)

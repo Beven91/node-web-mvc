@@ -12,8 +12,7 @@ import ResourceTransformerChain from './ResourceTransformerChain';
 import HttpHeaders from '../http/HttpHeaders';
 
 export default class GzipResourceTransformer implements ResourceTransformer {
-
-  private config: ResourceConfig
+  private config: ResourceConfig;
 
   constructor(config: ResourceConfig) {
     this.config = config;
@@ -24,7 +23,7 @@ export default class GzipResourceTransformer implements ResourceTransformer {
       // 如果没有开启gzip
       return false;
     }
-    const acceptEncoding = request.getHeaderValue(HttpHeaders.ACCEPT_ENCODING).join(',')
+    const acceptEncoding = request.getHeaderValue(HttpHeaders.ACCEPT_ENCODING).join(',');
     if (!/gzip/.test(acceptEncoding)) {
       // 如果客户端不支持gzip
       return false;

@@ -1,15 +1,14 @@
-import HttpStatus from "../http/HttpStatus";
-import View from "../view/View";
+import HttpStatus from '../http/HttpStatus';
+import View from '../view/View';
 
 export default class ModelAndViewContainer {
+  public status: HttpStatus;
 
-  public status: HttpStatus
-
-  public view: View | string
+  public view: View | string;
 
   public redirect: Record<string, any> = {};
 
-  public requestHandled: boolean
+  public requestHandled: boolean;
 
   public isViewReference() {
     return typeof this.view == 'string';
@@ -28,7 +27,7 @@ export default class ModelAndViewContainer {
     if (!attributes) return;
     Object.keys(attributes).forEach((key) => {
       this.model[key] = attributes[key];
-    })
+    });
   }
 
   containAttribute(name: string) {
@@ -41,6 +40,6 @@ export default class ModelAndViewContainer {
       if (!this.containAttribute(key)) {
         this.model[key] = attributes[key];
       }
-    })
+    });
   }
 }

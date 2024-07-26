@@ -8,7 +8,6 @@ import OpenApi from '../openapi/index';
 @ApiIgnore
 @RestController
 export default class SwaggerController {
-
   /**
    * 用于构建当前环境的所有接口的openapi.json文档结构文件
    */

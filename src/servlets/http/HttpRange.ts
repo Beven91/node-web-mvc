@@ -2,16 +2,15 @@
  * @module HttpRange
  */
 
-import HttpHeaders from "./HttpHeaders";
-import HttpServletRequest from "./HttpServletRequest";
+import HttpHeaders from './HttpHeaders';
+import HttpServletRequest from './HttpServletRequest';
 
 export default class HttpRange {
+  public readonly unit: string;
 
-  public readonly unit: string
+  public readonly start: number;
 
-  public readonly start: number
-
-  public readonly end: number
+  public readonly end: number;
 
   constructor(unit: string, start, end) {
     this.unit = unit;

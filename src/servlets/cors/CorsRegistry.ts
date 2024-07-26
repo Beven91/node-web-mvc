@@ -1,8 +1,7 @@
-import CorsConfiguration from "./CorsConfiguration";
-import CorsRegistration from "./CorsRegistration";
+import CorsConfiguration from './CorsConfiguration';
+import CorsRegistration from './CorsRegistration';
 
 export default class CorsRegistry {
-
   private readonly registrations: CorsRegistration[];
 
   constructor() {

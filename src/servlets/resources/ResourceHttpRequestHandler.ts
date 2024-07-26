@@ -21,7 +21,6 @@ import ResourceResolverChain from './ResourceResolverChain';
 import PathResourceResolver from './PathResourceResolver';
 import ResourceResolver from './ResourceResolver';
 import GzipResourceTransformer from './GzipResourceTransformer';
-import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
 import ResourceHttpMessageConverter from '../http/converts/ResourceHttpMessageConverter';
 import ResourceRegionHttpMessageConverter from '../http/converts/ResourceRegionHttpMessageConverter';
 import RegionsResource from './RegionsResource';
@@ -29,24 +28,25 @@ import type { ResourceConfig } from '../config/WebAppConfigurerOptions';
 import HttpRequestHandler from '../http/HttpRequestHandler';
 import ResourceTransformer from './ResourceTransformer';
 import DefaultResourceTransformerChain from './DefaultResourceTransformerChain';
+import { HANDLE_MAPPING_PATH } from '../mapping/HandlerMapping';
+import DefaultResourceResolverChain from './DefaultResourceResolverChain';
 
 export default class ResourceHttpRequestHandler implements HttpRequestHandler {
-
   // 当前对应的配置
-  public readonly registration: ResourceHandlerRegistration
+  public readonly registration: ResourceHandlerRegistration;
 
   // 允许使用的请求方式
-  private allowHeaders = [HttpMethod.GET, HttpMethod.HEAD]
+  private allowHeaders = [ HttpMethod.GET, HttpMethod.HEAD ];
 
-  private readonly resourceConfig: ResourceConfig
+  private readonly resourceConfig: ResourceConfig;
 
-  private readonly resourceHttpMessageConverter: ResourceHttpMessageConverter
+  private readonly resourceHttpMessageConverter: ResourceHttpMessageConverter;
 
-  private readonly resourceRegionHttpMessageConverter: ResourceRegionHttpMessageConverter
+  private readonly resourceRegionHttpMessageConverter: ResourceRegionHttpMessageConverter;
 
-  private resourceResolverChain: ResourceResolverChain
+  private resourceResolverChain: ResourceResolverChain;
 
-  private resourceTransformerChain: ResourceTransformerChain
+  private resourceTransformerChain: ResourceTransformerChain;
 
   constructor(registration: ResourceHandlerRegistration, config: ResourceConfig) {
     this.registration = registration;
@@ -67,7 +67,7 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
         resolvers.push(...this.registration.resourceChainRegistration.resolvers);
         transformers.push(...this.registration.resourceChainRegistration.transformers);
       }
-      this.resourceResolverChain = new ResourceResolverChain(resolvers);
+      this.resourceResolverChain = new DefaultResourceResolverChain(resolvers);
       this.resourceTransformerChain = new DefaultResourceTransformerChain(this.resourceResolverChain, transformers);
     }
   }
@@ -105,17 +105,17 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
       const regionsResource = new RegionsResource(regions, resource);
       await this.resourceRegionHttpMessageConverter.write(regionsResource, servletContext);
     } catch (ex) {
-      response.setHeader("Content-Range", "bytes */" + resource.contentLength);
+      response.setHeader('Content-Range', 'bytes */' + resource.contentLength);
       response.sendError(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE);
     }
   }
 
   /**
    * 处理请求url
-   * @param request 
+   * @param request
    */
   processPath(request: HttpServletRequest) {
-    const url = request.getAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
+    const url = request.getAttribute(HANDLE_MAPPING_PATH);
     return decodeURIComponent(url.replace(/\\/g, '/').replace(/\/\//g, '/').replace(/^\//, ''));
   }
 
@@ -144,7 +144,7 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
     }
     if (request.method === HttpMethod.OPTIONS) {
       // 返回允许使用的方法
-      response.setHeader(HttpHeaders.ALLOW, this.allowHeaders.join(','))
+      response.setHeader(HttpHeaders.ALLOW, this.allowHeaders.join(','));
       response.end();
       return;
     }

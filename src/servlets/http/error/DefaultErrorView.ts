@@ -1,10 +1,10 @@
-import Component from "../../../ioc/annotations/Component";
-import type HttpServletRequest from "../../http/HttpServletRequest";
-import type HttpServletResponse from "../../http/HttpServletResponse";
-import View from "../../view/View";
-import MediaType from "../MediaType";
+import Component from '../../../ioc/annotations/Component';
+import type HttpServletRequest from '../../http/HttpServletRequest';
+import type HttpServletResponse from '../../http/HttpServletResponse';
+import View from '../../view/View';
+import MediaType from '../MediaType';
 
-@Component("error")
+@Component('error')
 export default class DefaultErrorView extends View {
   async render(model: any, request: HttpServletRequest, response: HttpServletResponse) {
     const template = `
@@ -17,7 +17,7 @@ export default class DefaultErrorView extends View {
         <div>There was an unexpected error (type=${model.message}, status=${model.code}).</div>
       </body>
     </html>
-    `
+    `;
     await response.fullResponse(template.trim(), MediaType.TEXT_HTML);
   }
 }

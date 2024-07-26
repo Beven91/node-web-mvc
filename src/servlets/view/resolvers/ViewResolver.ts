@@ -3,8 +3,8 @@
  * @description 视图解析基类
  */
 
-import View from "../View";
-import HttpServletRequest from "../../http/HttpServletRequest";
+import View from '../View';
+import HttpServletRequest from '../../http/HttpServletRequest';
 
 export default interface ViewResolver {
 

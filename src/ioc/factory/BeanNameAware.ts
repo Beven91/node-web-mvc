@@ -1,7 +1,5 @@
-import Aware from "./Aware";
+import Aware from './Aware';
 
 export default abstract class BeanNameAware extends Aware {
-
-  abstract setBeanName(name: string) 
-
+  abstract setBeanName(name: string)
 }

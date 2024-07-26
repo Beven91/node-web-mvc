@@ -19,13 +19,12 @@ const example = `
         </item>
     </rows>
 </root>
-`
+`;
 
 @Api({ value: '文件上传' })
 @RequestMapping('/multipart')
 @RestController
 export default class MultipartController {
-
   // @Autowired
   // public userInfo;
 
@@ -37,8 +36,8 @@ export default class MultipartController {
       status: 0,
       desc: desc,
       id: id,
-      message: '上传成功'
-    }
+      message: '上传成功',
+    };
   }
 
   @GetMapping('/upload')
@@ -49,18 +48,18 @@ export default class MultipartController {
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @ApiImplicitParams([
     { name: 'files', description: '证书', required: true, dataType: 'MultipartFile[]' },
-    { name: 'name', description: '用户id' }
+    { name: 'name', description: '用户id' },
   ])
   @PostMapping('/upload2')
-  async upload2(@RequestPart files: Array<MultipartFile>,@RequestPart name: string) {
-    for (let file of files) {
-      await file.transferTo('images/' + file.name)
+  async upload2(@RequestPart files: Array<MultipartFile>, @RequestPart name: string) {
+    for (const file of files) {
+      await file.transferTo('images/' + file.name);
     }
     return {
       status: 0,
       name: name,
-      message: '上传成功'
-    }
+      message: '上传成功',
+    };
   }
 
   @ApiOperation({ value: 'xml测试', notes: 'application/json测试' })
@@ -78,9 +77,9 @@ export default class MultipartController {
   async qrcode(@ServletResponse response: HttpServletResponse) {
     const buffer = fs.readFileSync(path.join(__dirname, 'aseets', 'qrcode.png'));
     response.setHeader('Content-Type', 'image/png');
-    response.setHeader('Content-Length', buffer.length)
+    response.setHeader('Content-Length', buffer.length);
     // setTimeout(()=>{
     response.setStatus(200).end(buffer);
     // return response.setStatus(200).end(buffer);
   }
-} 
+}

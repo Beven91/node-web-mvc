@@ -5,17 +5,16 @@
 import MediaType from '../MediaType';
 import MultipartFile from '../MultipartFile';
 import AbstractBodyReader from './AbstractBodyReader';
-import type { Multipart } from '../../config/WebAppConfigurerOptions';
 import type HttpServletRequest from '../HttpServletRequest';
 import NoBoundaryException from '../../../errors/NoBoundaryException';
 import MultipartSubpart from './MultipartSubpart';
+import MultipartConfig from '../../config/MultipartConfig';
 
 export default class MultipartBodyReader extends AbstractBodyReader {
+  private readonly multipart: MultipartConfig;
 
-  private readonly multipart: Multipart
-
-  constructor(config: Multipart) {
-    super(MediaType.MULTIPART_FORM_DATA)
+  constructor(config: MultipartConfig) {
+    super(MediaType.MULTIPART_FORM_DATA);
     this.multipart = config;
   }
 
@@ -59,7 +58,7 @@ export default class MultipartBodyReader extends AbstractBodyReader {
                   if (formValues[name] instanceof Array) {
                     formValues[name].push(v);
                   } else if (formValues[name]) {
-                    formValues[name] = [formValues[name], v]
+                    formValues[name] = [ formValues[name], v ];
                   } else {
                     formValues[name] = v;
                   }
@@ -71,14 +70,14 @@ export default class MultipartBodyReader extends AbstractBodyReader {
                 }
                 break;
             }
-          })
+          });
         } catch (ex) {
           reject(ex);
         }
       });
       nativeRequest.on('end', () => {
-        resolve(formValues)
+        resolve(formValues);
       });
-    })
+    });
   }
 }

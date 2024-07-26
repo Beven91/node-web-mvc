@@ -1,15 +1,14 @@
-import { BeanFactory } from "../../ioc/factory/BeanFactory";
-import RuntimeAnnotation from "../annotations/annotation/RuntimeAnnotation";
-import HttpServletRequest from "../http/HttpServletRequest";
-import HttpServletResponse from "../http/HttpServletResponse";
-import PathMatcher from "../util/PathMatcher";
-import Filter from "./Filter";
-import FilterChain from "./FilterChain";
-import FilterRegistrationBean from "./FilterRegistrationBean";
-import WebFilter from "./WebFilter";
+import { BeanFactory } from '../../ioc/factory/BeanFactory';
+import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
+import HttpServletRequest from '../http/HttpServletRequest';
+import HttpServletResponse from '../http/HttpServletResponse';
+import PathMatcher from '../util/PathMatcher';
+import DefaultFilterChain from './DefaultFilterChain';
+import Filter from './Filter';
+import FilterRegistrationBean from './FilterRegistrationBean';
+import WebFilter from './WebFilter';
 
 export default class FilterHandlerAdapter {
-
   private readonly registrationBeans: FilterRegistrationBean[] = [];
 
   private readonly patchMatcher = new PathMatcher();
@@ -20,7 +19,7 @@ export default class FilterHandlerAdapter {
       const anno = RuntimeAnnotation.getClassAnnotation(filter.constructor, WebFilter);
       let urlPatterns = anno?.nativeAnnotation?.urlPatterns;
       if (urlPatterns && !(urlPatterns instanceof Array)) {
-        urlPatterns = [urlPatterns].filter(Boolean)
+        urlPatterns = [ urlPatterns ].filter(Boolean);
       }
       this.addFilter(filter, urlPatterns as string []);
     }
@@ -48,7 +47,7 @@ export default class FilterHandlerAdapter {
   }
 
   async doFilter(request: HttpServletRequest, response: HttpServletResponse) {
-    const chain = new FilterChain(this.matchFilters(request));
+    const chain = new DefaultFilterChain(this.matchFilters(request));
     return chain.doFilter(request, response);
   }
 }

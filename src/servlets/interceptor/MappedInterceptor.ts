@@ -6,21 +6,20 @@ import HandlerInterceptor from './HandlerInterceptor';
 import HttpServletRequest from '../http/HttpServletRequest';
 import HttpServletResponse from '../http/HttpServletResponse';
 import PathMatcher from '../util/PathMatcher';
-import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
+import { HANDLE_MAPPING_PATH } from '../mapping/HandlerMapping';
 
 export default class MappedInterceptor implements HandlerInterceptor {
-
   // 包含项规则列表
-  private includePatterns: Array<string>
+  private includePatterns: Array<string>;
 
   // 排除项规则列表
-  private excludePatterns: Array<string>
+  private excludePatterns: Array<string>;
 
   // 当前实际承载的拦截器
-  private interceptor: HandlerInterceptor
+  private interceptor: HandlerInterceptor;
 
   // 路径匹配器
-  private pathMatcher = new PathMatcher()
+  private pathMatcher = new PathMatcher();
 
   /**
    * 构造一个路径匹配型拦截器
@@ -39,9 +38,9 @@ export default class MappedInterceptor implements HandlerInterceptor {
    */
   matches(request: HttpServletRequest): boolean {
     // 这里仅做根据请求路径进行匹配，暂不支持高级路径匹配
-    const path =  request.getAttribute(AbstractHandlerMapping.HANDLE_MAPPING_PATH);
+    const path = request.getAttribute(HANDLE_MAPPING_PATH);
     // 1.优先执行排除项
-    for (let pattern of this.excludePatterns) {
+    for (const pattern of this.excludePatterns) {
       if (this.matchPattern(pattern, path)) {
         // 如果匹配为排除项，则返回false
         return false;
@@ -52,7 +51,7 @@ export default class MappedInterceptor implements HandlerInterceptor {
       return true;
     }
     // 3. 匹配包含项
-    for (let pattern of this.includePatterns) {
+    for (const pattern of this.includePatterns) {
       if (this.matchPattern(pattern, path)) {
         return true;
       }
@@ -62,7 +61,7 @@ export default class MappedInterceptor implements HandlerInterceptor {
 
   /**
    * 执行路径规则匹配
-   * @param pattern 规则 
+   * @param pattern 规则
    * @param path 路径
    */
   private matchPattern(pattern: string, path: string) {

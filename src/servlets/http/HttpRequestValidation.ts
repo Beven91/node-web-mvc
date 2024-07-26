@@ -3,22 +3,21 @@
  * @description http请求校验
  */
 
-import RequestUtil from "../util/RequestUtil";
-import HttpHeaders from "./HttpHeaders";
-import HttpMethod from "./HttpMethod";
-import HttpServletRequest from "./HttpServletRequest";
-import HttpServletResponse from "./HttpServletResponse";
-import HttpStatus from "./HttpStatus";
+import RequestUtil from '../util/RequestUtil';
+import HttpHeaders from './HttpHeaders';
+import HttpMethod from './HttpMethod';
+import HttpServletRequest from './HttpServletRequest';
+import HttpServletResponse from './HttpServletResponse';
+import HttpStatus from './HttpStatus';
 
-const etagRegex = new RegExp("\\*|\\s*((W\\/)?(\"[^\"]*\"))\\s*,?");
+const etagRegex = new RegExp('\\*|\\s*((W\\/)?("[^"]*"))\\s*,?');
 
 export default class HttpRequestValidation {
+  private request: HttpServletRequest;
 
-  private request: HttpServletRequest
+  private response: HttpServletResponse;
 
-  private response: HttpServletResponse
-
-  private notModified: boolean
+  private notModified: boolean;
 
   constructor(request: HttpServletRequest, response: HttpServletResponse) {
     this.request = request;
@@ -93,14 +92,14 @@ export default class HttpRequestValidation {
       return false;
     }
     etag = RequestUtil.padEtagIfNecessary(etag);
-    if (etag.startsWith("W/")) {
+    if (etag.startsWith('W/')) {
       etag = etag.substring(2);
     }
     const match = (value: string) => {
       const r = value.match(etagRegex);
       return r && r[3] === etag;
-    }
-    const elements = ifNoneMatch instanceof Array ? ifNoneMatch : [ifNoneMatch];
+    };
+    const elements = ifNoneMatch instanceof Array ? ifNoneMatch : [ ifNoneMatch ];
     this.notModified = !!elements.find(match);
     return true;
   }

@@ -1,10 +1,9 @@
-import AbstractApplicationContext from "../../servlets/context/AbstractApplicationContext";
-import ApplicationContextAware from "../../servlets/context/ApplicationContextAware";
-import InstantiationAwareBeanPostProcessor, { PropertyValue } from "./InstantiationAwareBeanPostProcessor";
+import type AbstractApplicationContext from '../../servlets/context/AbstractApplicationContext';
+import ApplicationContextAware from '../../servlets/context/ApplicationContextAware';
+import InstantiationAwareBeanPostProcessor, { PropertyValue } from './InstantiationAwareBeanPostProcessor';
 
 export default class ApplicationContextAwareProcessor extends InstantiationAwareBeanPostProcessor {
-  
-  private readonly context: AbstractApplicationContext
+  private readonly context: AbstractApplicationContext;
 
   constructor(context: AbstractApplicationContext) {
     super();

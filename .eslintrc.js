@@ -2,7 +2,6 @@ module.exports = {
   'parser': '@typescript-eslint/parser',
   'plugins': [ '@typescript-eslint' ],
   'extends': [
-    'plugin:react/recommended',
     'plugin:@typescript-eslint/recommended',
     'google',
   ],
@@ -13,6 +12,8 @@ module.exports = {
     commonjs: true,
   },
   'rules': {
+    '@typescript-eslint/no-explicit-any': 0,
+    '@typescript-eslint/ban-types': 0,
     'new-cap': 0,
     'no-console': 0,
     'require-jsdoc': 0,
@@ -36,6 +37,13 @@ module.exports = {
     'no-invalid-this': 0,
     'no-case-declarations': 0,
     'import/extensions': 0,
+    'valid-jsdoc': 0,
+    'no-unused-vars': 'off',
+    'semi': 0,
+    '@typescript-eslint/semi': [ 'error', 'always' ],
+    '@typescript-eslint/no-unused-vars': 0,
+    '@typescript-eslint/no-this-alias': 0,
+    'space-before-function-paren': [ 'error', 'never' ],
   },
   'globals': {
   },

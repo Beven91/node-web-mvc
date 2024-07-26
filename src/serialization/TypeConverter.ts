@@ -3,16 +3,16 @@
  * @description 类型转换
  */
 
-import SerializationCreateInstanceError from "../errors/SerializationCreateInstanceError";
-import ValueConvertError from "../errors/ValueConvertError";
-import Javascript from "../interface/Javascript";
-import { ClazzType } from "../interface/declare";
-import MetaProperty from "../servlets/annotations/annotation/MetaProperty";
-import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
-import { toBigInt, toBoolean, toDate, toNumber, toString } from "./BasicTypeConverter";
-import DateConverter from "./date/DateConverter";
-import JsonDeserialize from "./JsonDeserialize";
-import JsonFormat from "./JsonFormat";
+import SerializationCreateInstanceError from '../errors/SerializationCreateInstanceError';
+import ValueConvertError from '../errors/ValueConvertError';
+import Javascript from '../interface/Javascript';
+import { ClazzType } from '../interface/declare';
+import MetaProperty from '../servlets/annotations/annotation/MetaProperty';
+import RuntimeAnnotation from '../servlets/annotations/annotation/RuntimeAnnotation';
+import { toBigInt, toBoolean, toDate, toNumber, toString } from './BasicTypeConverter';
+import DateConverter from './date/DateConverter';
+import JsonDeserialize from './JsonDeserialize';
+import JsonFormat from './JsonFormat';
 
 export const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;
 
@@ -39,7 +39,7 @@ export default class TypeConverter {
     if (clazzType.isType(BigInt)) {
       return toBigInt(value);
     } else if (clazzType.isType(String)) {
-      return toString(value, type)
+      return toString(value, type);
     } else if (clazzType.isType(Number)) {
       return toNumber(value, type);
     } else if (clazzType.isType(Boolean)) {
@@ -63,10 +63,10 @@ export default class TypeConverter {
 
   toSet(value: object, type: ClazzType, itemType?: any) {
     const set = new type() as Set<any>;
-    const items = value instanceof Array ? value : [value];
+    const items = value instanceof Array ? value : [ value ];
     items.forEach((value) => {
       set.add(itemType ? this.convert(value, itemType) : value);
-    })
+    });
     return set;
   }
 
@@ -83,7 +83,7 @@ export default class TypeConverter {
   }
 
   toArray(value: object, type: ClazzType, itemType?: any) {
-    const values = value instanceof Array ? value : [value];
+    const values = value instanceof Array ? value : [ value ];
     const instance = this.createInstance(type);
     if (value == null) {
       return instance;
@@ -124,7 +124,7 @@ export default class TypeConverter {
   }
 
   private handlePropertyValue(clazz: ClazzType, name: string, value: any) {
-    const basicProperty = RuntimeAnnotation.getPropertyAnnotations(clazz, name)[0]
+    const basicProperty = RuntimeAnnotation.getPropertyAnnotations(clazz, name)[0];
     if (!basicProperty) {
       return value;
     }

@@ -1,5 +1,5 @@
 /**
- * @module HttpServletRequest 
+ * @module HttpServletRequest
  * @description Http请求类
  */
 import querystring from 'querystring';
@@ -8,13 +8,14 @@ import MediaType from './MediaType';
 import HttpMethod from './HttpMethod';
 import ServletContext from './ServletContext';
 import RequestMemoryStream from './RequestMemoryStream';
-import FilterHandlerAdapter from '../filter/FilterHandlerAdapter';
-import ApplicationDispatcher from './ApplicationDispatcher';
-import RequestBodyReader from './body/RequestBodyReader';
-import type { Multipart } from '../config/WebAppConfigurerOptions';
 import { isEmpty } from '../util/ApiUtils';
+import { IRequestBodyReader } from './body/IRequestBodyReader';
+import { RequestDispatcher } from './RequestDispatcher';
+import Javascript from '../../interface/Javascript';
 
-declare class Query {
+type CreateDispatcherHandler = (path: string) => RequestDispatcher;
+
+declare class URLQuery {
   [propName: string]: any
 }
 
@@ -23,13 +24,12 @@ declare class Cookies {
 }
 
 const servletContextSymbol = Symbol('servletContext');
-const filterAdapterSymbol = Symbol('filterAdapter');
+const createDispatcherSymbol = Symbol('createDispatcher');
 
 export default class HttpServletRequest {
+  private _cookies: Cookies;
 
-  private _cookies: Cookies
-
-  private readonly request: IncomingMessage
+  private readonly request: IncomingMessage;
 
   public get cookies() {
     return this._cookies;
@@ -75,7 +75,7 @@ export default class HttpServletRequest {
     return this.fdomain + this.url;
   }
 
-  private params: Map<any, any>
+  private params: Map<any, any>;
 
   /**
    * 设置属性值
@@ -88,7 +88,7 @@ export default class HttpServletRequest {
 
   /**
    * 获取属性值
-   * @param name 属性名称 
+   * @param name 属性名称
    */
   public getAttribute<T = any>(name) {
     return this.params.get(name) as T;
@@ -97,22 +97,22 @@ export default class HttpServletRequest {
   /**
    * 请求参数
    */
-  public query: Query
+  public query: URLQuery;
 
   /**
    * 当前客户端请求域名
    */
-  public host: string
+  public host: string;
 
   /**
    * 请求谓词
    */
-  public method: HttpMethod
+  public method: HttpMethod;
 
   /**
    * 当前请求端口
    */
-  public port: string
+  public port: string;
 
   /**
    * 当前请求路径
@@ -122,31 +122,31 @@ export default class HttpServletRequest {
   /**
    * 当前请求协议
    */
-  public protocol: string
+  public protocol: string;
 
   /**
    * 当前内容类型
    */
-  public mediaType: MediaType
+  public mediaType: MediaType;
 
   /**
    * 当前pathVariables
    */
-  public pathVariables: any
+  public pathVariables: any;
 
   /**
    * 请求头信息
    */
   public headers: IncomingHttpHeaders;
 
-  public bodyReader: RequestBodyReader
+  public bodyReader: IRequestBodyReader;
 
-  public readonly contextPath: string
+  public readonly contextPath: string;
 
   /**
    * 当前正在读取的body内容
    */
-  public body: any
+  public body: any;
 
   /**
    * 将可读流输送传入写出流
@@ -160,10 +160,10 @@ export default class HttpServletRequest {
    */
   public get hasBody() {
     const method = this.method;
-    return !(method === HttpMethod.HEAD || method === HttpMethod.GET)
+    return !(method === HttpMethod.HEAD || method === HttpMethod.GET);
   }
 
-  constructor(request: IncomingMessage, contextPath: string, filterAdapter: FilterHandlerAdapter, multipart: Multipart) {
+  constructor(request: IncomingMessage, contextPath: string, createDispatcher: CreateDispatcherHandler, reader: IRequestBodyReader) {
     const protocol = (request.socket as any).encrypted ? 'https' : 'http';
     const uRL = new URL(request.url, `${protocol}://${request.headers.host}`);
     this.headers = request.headers;
@@ -178,22 +178,17 @@ export default class HttpServletRequest {
     this.mediaType = new MediaType(this.headers['content-type']);
     this._cookies = this.parseCookie(request.headers['cookie']);
     this.params = new Map<any, any>();
-    this[filterAdapterSymbol] = filterAdapter;
-    this.bodyReader = new RequestBodyReader(multipart);
+    Javascript.defineHiddenProperty(this, createDispatcherSymbol, createDispatcher);
+    this.bodyReader = reader;
   }
 
   setServletContext(context: ServletContext) {
-    Object.defineProperty(this, servletContextSymbol, {
-      value: context,
-      writable: false,
-      enumerable: false,
-      configurable: false
-    })
+    Javascript.defineHiddenProperty(this, servletContextSymbol, context);
   }
 
   /**
    * 解析cookie
-   * @param cookieStr 
+   * @param cookieStr
    */
   private parseCookie(cookieStr): Cookies {
     const cookies = {};
@@ -210,12 +205,12 @@ export default class HttpServletRequest {
   }
 
   public getHeader(name: string) {
-    return this.nativeRequest.headers[(name || '').toLowerCase()]
+    return this.nativeRequest.headers[(name || '').toLowerCase()];
   }
 
   public getHeaderValue(name: string) {
     const v = this.getHeader(name);
-    return v instanceof Array ? v : isEmpty(v) ? [] : [v];
+    return v instanceof Array ? v : isEmpty(v) ? [] : [ v ];
   }
 
   public getHeaderSingleValue(name: string) {
@@ -235,14 +230,15 @@ export default class HttpServletRequest {
   }
 
   public getRequestDispatcher(path: string) {
-    return new ApplicationDispatcher(this[filterAdapterSymbol], path);
+    const createDispatcher = this[createDispatcherSymbol] as CreateDispatcherHandler;
+    return createDispatcher(path);
   }
 
   /**
    * 读取body内容为buffer
-   * @returns 
+   * @returns
    */
   public readBodyAsBuffer() {
-    return RequestMemoryStream.readBody(this)
+    return RequestMemoryStream.readBody(this.nativeRequest);
   }
 }

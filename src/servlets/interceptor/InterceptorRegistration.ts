@@ -1,30 +1,29 @@
 
 /**
- * @module InterceptorRegistration 
+ * @module InterceptorRegistration
  * @description 拦截器登记信息
  */
-import HandlerInterceptor from "./HandlerInterceptor";
-import MappedInterceptor from "./MappedInterceptor";
-import PathMatcher from "../util/PathMatcher";
+import HandlerInterceptor from './HandlerInterceptor';
+import MappedInterceptor from './MappedInterceptor';
+import PathMatcher from '../util/PathMatcher';
 
 export default class InterceptorRegistration {
-
   // 登记的拦截器实例
-  public readonly interceptor: HandlerInterceptor
+  public readonly interceptor: HandlerInterceptor;
 
   // 包含项规则列表
-  public readonly includePatterns = new Array<string>()
+  public readonly includePatterns:string[] = [];
 
   // 排除项规则列表
-  public readonly excludePatterns = new Array<string>()
+  public readonly excludePatterns: string[] = [];
 
   // 路径匹配器。
-  private pathMatcher: PathMatcher
+  private pathMatcher: PathMatcher;
 
   /**
    * 在注册表中的顺序
    */
-  private order = 0
+  private order = 0;
 
   /**
    * 构造一个拦截器登记实例
@@ -52,7 +51,7 @@ export default class InterceptorRegistration {
 
   /**
    * 设置当前路径匹配器
-   * @param patterns 
+   * @param patterns
    */
   setPathMatcher(pathMatcher: PathMatcher) {
     this.pathMatcher = pathMatcher;
@@ -73,7 +72,7 @@ export default class InterceptorRegistration {
    * 添加拦截器排除规则。
    * 注意：（【排除项规则】 优先级高于 【包含规则】）
    * 通过url排除规则，来设置当前拦截器，在命中排除规则后，将不会执行。
-   * @param patterns 
+   * @param patterns
    */
   excludePathPatterns(...patterns: Array<string>) {
     this.excludePatterns.push(...patterns);

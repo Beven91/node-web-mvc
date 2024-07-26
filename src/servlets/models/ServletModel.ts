@@ -1,6 +1,6 @@
 
 /**
- * @module ServletModel 
+ * @module ServletModel
  * @description 执行action的返回结果类
  */
 

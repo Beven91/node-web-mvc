@@ -3,20 +3,18 @@
  * @description 用于httprequest类型请求
  */
 
-import HttpServletRequest from "../http/HttpServletRequest";
-import PathMatcher from '../util/PathMatcher';
+import HttpServletRequest from '../http/HttpServletRequest';
 import ResourceHandlerRegistration from '../resources/ResourceHandlerRegistration';
-import ResourceHandlerRegistry from "../resources/ResourceHandlerRegistry";
-import ResourceHttpRequestHandler from "../resources/ResourceHttpRequestHandler";
-import type { ResourceConfig, ResourceOptions } from "../config/WebAppConfigurerOptions";
-import AbstractHandlerMapping from "../mapping/AbstractHandlerMapping";
-import ServletContext from "../http/ServletContext";
+import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
+import ResourceHttpRequestHandler from '../resources/ResourceHttpRequestHandler';
+import type { ResourceConfig } from '../config/WebAppConfigurerOptions';
+import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
+import ServletContext from '../http/ServletContext';
 
 export default class BeanNameUrlHandlerMapping extends AbstractHandlerMapping {
+  private readonly registry: ResourceHandlerRegistry;
 
-  private readonly registry: ResourceHandlerRegistry
-
-  private readonly resource: ResourceConfig
+  private readonly resource: ResourceConfig;
 
   constructor(registry: ResourceHandlerRegistry, resource: ResourceConfig) {
     super();
@@ -39,7 +37,7 @@ export default class BeanNameUrlHandlerMapping extends AbstractHandlerMapping {
   match(mapping: ResourceHandlerRegistration, path: string, request: HttpServletRequest): boolean {
     const pathPatterns = mapping.pathPatterns;
     const matcher = this.pathMatcher;
-    for (let pattern of pathPatterns) {
+    for (const pattern of pathPatterns) {
       const result = matcher.matchPattern(pattern, path);
       // 如果当前路由匹配成功
       if (result) {

@@ -35,7 +35,7 @@ export default class OpenApiModel {
     registry
       .addResourceHandler('/swagger-ui/**')
       .addResourceLocations(swaggerLocation)
-      .setCacheControl({ maxAge: 0 })
+      .setCacheControl({ maxAge: 0 });
   }
 
   static initializeApi(enable: boolean) {
@@ -62,10 +62,10 @@ export default class OpenApiModel {
   /**
    * 将 -转换成小驼峰命名
    */
-  toClamp(name: string){
+  toClamp(name: string) {
     const segments = name.split('-');
-    return segments.map((m,i)=>{
-      if(i === 0) {
+    return segments.map((m, i)=>{
+      if (i === 0) {
         return m[0].toLowerCase() + m.slice(1);
       }
       return m[0].toUpperCase() + m.slice(1);
@@ -75,11 +75,11 @@ export default class OpenApiModel {
   createTags(annotation: RuntimeAnnotation<typeof Controller>) {
     const apiAnno = RuntimeAnnotation.getClassAnnotation(annotation.ctor, Api)?.nativeAnnotation;
     const name = this.clampToJoinName(annotation.ctor.name);
-    return (apiAnno?.tags || [{
+    return (apiAnno?.tags || [ {
       name: name,
       description: apiAnno?.description || name,
-      externalDocs: apiAnno?.externalDocs
-    }]);
+      externalDocs: apiAnno?.externalDocs,
+    } ]);
   }
 
   /**
@@ -89,13 +89,15 @@ export default class OpenApiModel {
     const operationIds = {} as object;
     const id = require.resolve(path.resolve('package.json'));
     delete require.cache[id];
+    // TODO: 如果要支持mjs场景这里需要考虑如何改造
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pkg = require(id);
     const tags: ApiTag[] = [];
     const paths: ApiPaths = {};
     const contributor = (pkg.contributors || [])[0] || {};
     const controllers = RuntimeAnnotation.getAnnotations(Controller);
     const definition = new Schemas();
-    for (let controller of controllers) {
+    for (const controller of controllers) {
       if (RuntimeAnnotation.hasClassAnnotation(controller.ctor, ApiIgnore)) {
         // 如果忽略该控制器
         continue;
@@ -103,7 +105,7 @@ export default class OpenApiModel {
       // 创建tags
       const controllerTags = this.createTags(controller);
       const actions = RuntimeAnnotation.getAnnotations(RequestMapping, controller.ctor).filter((m) => m.elementType === ElementType.METHOD);
-      for (let action of actions) {
+      for (const action of actions) {
         // 构建操作
         this.buildOperation(paths, action, controllerTags, definition, operationIds);
       }
@@ -111,16 +113,16 @@ export default class OpenApiModel {
     }
     return {
       info: {
-        contact: {
-          email: pkg.author || contributor.email || ''
+        'contact': {
+          email: pkg.author || contributor.email || '',
         },
-        "license" : {
-          "name" : "Apache 2.0",
-          "url" : "http://www.apache.org/licenses/LICENSE-2.0.html"
+        'license': {
+          'name': 'Apache 2.0',
+          'url': 'http://www.apache.org/licenses/LICENSE-2.0.html',
         },
-        title: pkg.name,
-        version: pkg.version,
-        description: pkg.description || ''
+        'title': pkg.name,
+        'version': pkg.version,
+        'description': pkg.description || '',
       },
       tags: tags.sort((a, b) => {
         if (a.name > b.name) {
@@ -133,10 +135,10 @@ export default class OpenApiModel {
       }),
       paths: paths,
       servers: [
-        { url: contextPath }
+        { url: contextPath },
       ],
       components: {
-        schemas: definition.build()
+        schemas: definition.build(),
       },
       openapi: '3.0.1',
     };
@@ -153,7 +155,7 @@ export default class OpenApiModel {
     }
     const utags = apiOperation?.tags || tags.map((tag) => tag.name);
     let operationId = action.methodName;
-    if(operationIds[operationId]) {
+    if (operationIds[operationId]) {
       operationId = this.toClamp(`${utags[0]}-${operationId}`);
     }
     operationIds[action.methodName] = true;
@@ -170,22 +172,22 @@ export default class OpenApiModel {
       parameters: parameters.filter((m) => this.isNotBodyParameter(m)),
       requestBody: this.buildOperationConsumes(action, parameters, consumes),
       responses: {
-        "201": { "description": "Created" },
-        "401": { "description": "Unauthorized" },
-        "403": { "description": "Forbidden" },
-        "404": { "description": "Not Found" },
+        '201': { 'description': 'Created' },
+        '401': { 'description': 'Unauthorized' },
+        '403': { 'description': 'Forbidden' },
+        '404': { 'description': 'Not Found' },
         [code]: {
-          "description": "OK",
-          "content": this.buildOperationProduces(returnType, mapping, definition)
-        }
-      }
-    }
+          'description': 'OK',
+          'content': this.buildOperationProduces(returnType, mapping, definition),
+        },
+      },
+    };
     mapping.value.forEach((url) => {
       Object.keys(mapping.method).forEach((method) => {
         const path = (paths[url] = paths[url] || {}) as ApiOperationPaths;
         path[method.toLowerCase()] = operationDoc;
       });
-    })
+    });
   }
 
   private isNotBodyParameter(m: ApiOperationParameter) {
@@ -195,7 +197,7 @@ export default class OpenApiModel {
 
   /**
    * 构建api接口操作参数
-   * @param operation 
+   * @param operation
    */
   private buildOperationParameters(action: RuntimeAnnotation<typeof RequestMapping>, definition: Schemas) {
     const operationAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation);
@@ -225,8 +227,8 @@ export default class OpenApiModel {
         type: '',
         schema: {
           $ref: null,
-        }
-      }
+        },
+      };
     }).filter(Boolean);
     return finalParameters.map((parameter) => {
       const typeInfo = definition.typemappings.make(parameter.dataType || parameter.example?.constructor);
@@ -236,8 +238,8 @@ export default class OpenApiModel {
         description: parameter.description,
         in: parameter.in,
         example: emptyOf(parameter.example, undefined),
-        schema: typeInfo
-      } as ApiOperationParameter
+        schema: typeInfo,
+      } as ApiOperationParameter;
     }).filter(Boolean);
   }
 
@@ -256,50 +258,50 @@ export default class OpenApiModel {
   private buildOperationConsumes(action: RuntimeAnnotation<typeof RequestMapping>, parameters: ApiOperationParameter[], consumes: string[]) {
     const requestBody = { content: {} } as ApiOperationResponseBody;
     const body = parameters.find((m) => m.in == 'body');
-    const multiparts = parameters.filter((m) => this.isMultipartFile(m.schema) || (m.in as string) == 'part')
+    const multiparts = parameters.filter((m) => this.isMultipartFile(m.schema) || (m.in as string) == 'part');
     if (multiparts.length > 0) {
       const meta = requestBody.content['multipart/form-data'] = {
         schema: {
           required: multiparts.filter((m) => m.required).map((m) => m.name),
           properties: {},
-          type: 'object'
-        }
-      }
+          type: 'object',
+        },
+      };
       multiparts.forEach((m) => {
         meta.schema.properties[m.name] = {
           ...m.schema,
-        }
-      })
+        };
+      });
     }
     if (body) {
       requestBody.content['application/json'] = {
         example: emptyOf(body.example, undefined),
-        schema: body.schema as SchemeRef
-      }
+        schema: body.schema as SchemeRef,
+      };
     }
     consumes.forEach((m) => {
       if (requestBody.content[m]) return;
       requestBody.content[m] = {
         schema: {
-          type: 'string'
-        }
-      }
-    })
-    if(Object.keys(requestBody.content).length < 1) {
+          type: 'string',
+        },
+      };
+    });
+    if (Object.keys(requestBody.content).length < 1) {
       return undefined;
     }
     return requestBody;
   }
 
   private buildOperationProduces(returnType: any, mapping: RequestMappingInfo, definition: Schemas) {
-    const produces = mapping.produces?.length < 1 ? ['*/*'] : mapping.produces;
+    const produces = mapping.produces?.length < 1 ? [ '*/*' ] : mapping.produces;
     const contents = {};
     produces.forEach((name) => {
       const schema = returnType ? definition.typemappings.make(returnType) : undefined;
       contents[name] = {
-        schema: schema || { type: 'string' }
-      }
-    })
+        schema: schema || { type: 'string' },
+      };
+    });
     return Object.keys(contents).length < 1 ? undefined : contents;
   }
 }

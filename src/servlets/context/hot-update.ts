@@ -1,15 +1,15 @@
-import hot from "nodejs-hmr";
-import type AbstractApplicationContext from "./AbstractApplicationContext";
-import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
-import Component from "../../ioc/annotations/Component";
-import Tracer from "../annotations/annotation/Tracer";
-import BeanDefinition from "../../ioc/factory/BeanDefinition";
+import hot from 'nodejs-hmr';
+import RuntimeAnnotation, { } from '../annotations/annotation/RuntimeAnnotation';
+import Component from '../../ioc/annotations/Component';
+import Tracer from '../annotations/annotation/Tracer';
+import BeanDefinition from '../../ioc/factory/BeanDefinition';
+import AbstractBeanFactory from '../../ioc/factory/AbstractBeanFactory';
 
 // 开发模式热更新
 export default function hotUpdate(
-  getBeanFactory: AbstractApplicationContext['getBeanFactory'],
-  registerWithAnnotation: AbstractApplicationContext['registerWithAnnotation'],
-  createSingletonBeans: AbstractApplicationContext['createSingletonBeans']
+  getBeanFactory: () => AbstractBeanFactory,
+  registerWithAnnotation: (annotation: RuntimeAnnotation) => void,
+  createSingletonBeans: () => void
 ) {
   const updateFiles: string[] = [];
   const removeKeys: any[] = [];
@@ -19,7 +19,7 @@ export default function hotUpdate(
     .preload((old) => {
       updateFiles.push(old.filename);
       const beanFactory = getBeanFactory();
-      for (let key of beanFactory.getBeanDefinitionNames()) {
+      for (const key of beanFactory.getBeanDefinitionNames()) {
         const definition = beanFactory.getBeanDefinition(key);
         const tracer = Tracer.getTracer(definition.clazz || definition.methodClazz);
         if (tracer?.isDependency?.(old.filename)) {
@@ -53,5 +53,5 @@ export default function hotUpdate(
       createSingletonBeans();
       updateFiles.length = 0;
       removeKeys.length = 0;
-    })
+    });
 }

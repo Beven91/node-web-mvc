@@ -3,9 +3,9 @@
  * @description 解析静态资源路径
  */
 
-import HttpServletRequest from "../http/HttpServletRequest";
+import HttpServletRequest from '../http/HttpServletRequest';
 import ResourceResolverChain from './ResourceResolverChain';
-import Resource from "./Resource";
+import Resource from './Resource';
 
 export default interface ResourceResolver {
 

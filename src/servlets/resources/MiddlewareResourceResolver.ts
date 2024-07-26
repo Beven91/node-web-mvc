@@ -10,8 +10,7 @@ import Middlewares from '../models/Middlewares';
 import { Middleware } from '../../interface/declare';
 
 export default class MiddlewareResourceResolver implements ResourceResolver {
-
-  private middlewares: Array<Middleware>
+  private middlewares: Array<Middleware>;
 
   /**
    * @param configId webpack配置文件
@@ -38,7 +37,7 @@ export default class MiddlewareResourceResolver implements ResourceResolver {
         // 如果中间件，没有捕获到资源，则使用下一个解析器。
         return next.resolveResource(request, requestPath, locations);
       }
-    )
+    );
   }
 
   /**

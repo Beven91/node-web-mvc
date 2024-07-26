@@ -1,11 +1,10 @@
-import { BeanFactory } from "../../../ioc/factory/BeanFactory";
-import HttpServletRequest from "../../http/HttpServletRequest";
-import View from "../View";
-import ViewResolver from "./ViewResolver";
+import { BeanFactory } from '../../../ioc/factory/BeanFactory';
+import HttpServletRequest from '../../http/HttpServletRequest';
+import View from '../View';
+import ViewResolver from './ViewResolver';
 
 
 export default class BeanNameViewResolver implements ViewResolver {
-
   private readonly beanFactory: BeanFactory;
 
   constructor(beanFactory: BeanFactory) {

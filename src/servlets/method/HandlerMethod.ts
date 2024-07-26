@@ -4,27 +4,27 @@
  */
 import MethodParameter from './MethodParameter';
 import Javascript from '../../interface/Javascript';
-import RuntimeAnnotation, { IAnnotation } from '../annotations/annotation/RuntimeAnnotation';
+import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
 import ResponseStatus from '../annotations/ResponseStatus';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
 import { ClazzType } from '../../interface/declare';
+import { IAnnotation } from '../annotations/annotation/type';
 
 export interface BeanTypeClazz {
   new(...args: any[]): any
 }
 
 export default class HandlerMethod {
+  private isBeanType: boolean;
 
-  private isBeanType: boolean
-
-  public readonly beanFactory: BeanFactory
+  public readonly beanFactory: BeanFactory;
 
   /**
    * 对应的action
    */
   public readonly method: Function;
 
-  public readonly methodName: string
+  public readonly methodName: string;
 
   public get beanTypeName() {
     return this.beanType ? this.beanType.name : '';
@@ -33,39 +33,39 @@ export default class HandlerMethod {
   /**
    * 当前bean的类型
    */
-  public readonly beanType: BeanTypeClazz
+  public readonly beanType: BeanTypeClazz;
 
   /**
    * 对应controller实例
    */
-  public readonly bean: any
+  public readonly bean: any;
 
   // 当前函数，参数列表
-  public readonly parameters: Array<MethodParameter>
+  public readonly parameters: Array<MethodParameter>;
 
   /**
    * 调用当前方法的参数值
    */
-  public argumentValues: any[]
+  public argumentValues: any[];
 
   /**
    * 当前请求返回的状态码
    */
-  public responseStatus: number
+  public responseStatus: number;
 
   /**
    * 当前状态码产生的原因
    */
-  public responseStatusReason: string
+  public responseStatusReason: string;
 
-  public readonly resolvedFromHandlerMethod: HandlerMethod
+  public readonly resolvedFromHandlerMethod: HandlerMethod;
 
   /**
    * 构造一个方法执行器
    */
-  constructor(bean: InstanceType<BeanTypeClazz>, method: Function)
-  constructor(bean: InstanceType<BeanTypeClazz>, method: HandlerMethod)
-  constructor(beanType: ClazzType, method: Function, beanFactory?: BeanFactory)
+  constructor(bean: InstanceType<BeanTypeClazz>, method: Function);
+  constructor(bean: InstanceType<BeanTypeClazz>, method: HandlerMethod);
+  constructor(beanType: ClazzType, method: Function, beanFactory?: BeanFactory);
   constructor(bean: InstanceType<BeanTypeClazz> | ClazzType, method: Function | HandlerMethod, beanFactory?: BeanFactory) {
     if (method instanceof HandlerMethod) {
       const handler = method as HandlerMethod;

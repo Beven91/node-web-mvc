@@ -1,52 +1,51 @@
-import { randomUUID } from "crypto";
-import MediaType from "../MediaType";
-import fs from 'fs'
+import { randomUUID } from 'crypto';
+import MediaType from '../MediaType';
+import fs from 'fs';
 import path from 'path';
-import MultipartFile from "../MultipartFile";
-import { Multipart } from "../../config/WebAppConfigurerOptions";
+import MultipartFile from '../MultipartFile';
 import EntityTooLargeError from '../../../errors/EntityTooLargeError';
+import MultipartConfig from '../../config/MultipartConfig';
 
-export type ReadStatus = 'boundary' | 'header' | 'body' | 'after-boundary'
+export type ReadStatus = 'boundary' | 'header' | 'body' | 'after-boundary';
 
 export default class MultipartSubpart {
+  public raw: number[];
 
-  public raw: number[]
+  public tempRaw: number[];
 
-  public tempRaw: number[]
+  public name: string;
 
-  public name: string
+  public mediaType: MediaType;
 
-  public mediaType: MediaType
+  public filename: string;
 
-  public filename: string
+  public isFile: boolean;
 
-  public isFile: boolean
+  public size: number;
 
-  public size: number
+  public needTryBoundary: boolean;
 
-  public needTryBoundary: boolean
+  public boundary: string;
 
-  public boundary: string
+  public writter?: fs.WriteStream;
 
-  public writter?: fs.WriteStream
+  public headers: Record<string, string>;
 
-  public headers: Record<string, string>
+  private readonly mediaRoot: string;
 
-  private readonly mediaRoot: string
+  private previousCode: number;
 
-  private previousCode: number
-
-  public status: ReadStatus
+  public status: ReadStatus;
 
   private maxFileSize: number;
 
-  private chunkSize: number
+  private chunkSize: number;
 
   public get currentBuffer() {
     return Buffer.from(this.raw);
   }
 
-  constructor(boundary: string, config: Multipart, raw: number[]) {
+  constructor(boundary: string, config: MultipartConfig, raw: number[]) {
     this.boundary = boundary;
     this.headers = {};
     this.raw = raw || [];
@@ -146,7 +145,7 @@ export default class MultipartSubpart {
     const segments = content.split(';');
     const info = {} as { filename: string, name: string };
     segments.forEach((segment) => {
-      const [k, v] = segment.trim().split('=');
+      const [ k, v ] = segment.trim().split('=');
       info[k] = v ? v.slice(1, v.length - 1) : '';
     });
     return info;
@@ -159,7 +158,7 @@ export default class MultipartSubpart {
       this.writter = this.isFile ? fs.createWriteStream(path.join(tempRoot, randomUUID())) : undefined;
       return false;
     }
-    const [keyName, value] = content.split(':');
+    const [ keyName, value ] = content.split(':');
     const key = keyName.trim();
     switch (key.toLowerCase()) {
       case 'content-disposition':

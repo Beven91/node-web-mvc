@@ -12,10 +12,9 @@ import ModelAndViewContainer from '../models/ModelAndViewContainer';
 import ModelAndView from '../models/ModelAndView';
 
 export default class RequestMappingHandlerAdapter extends AbstractHandlerMethodAdapter {
-
   private argumentResolver: ArgumentsResolvers;
 
-  private returnvalueHandlers: HandlerMethodReturnValueHandler[]
+  private returnvalueHandlers: HandlerMethodReturnValueHandler[];
 
   public setArgumentResolver(value: ArgumentsResolvers) {
     this.argumentResolver = value;

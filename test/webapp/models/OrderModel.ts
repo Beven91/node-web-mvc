@@ -1,22 +1,19 @@
-import { Repository, ApiModel, ApiModelProperty, Autowired } from "../../../src";
-import Keneral from "./Keneral";
+import { Repository, ApiModel, ApiModelProperty, Autowired } from '../../../src';
+import Keneral from './Keneral';
 
 class BaseOrder {
-
   @ApiModelProperty({ value: '地址' })
-  address: string
-
+  address: string;
 }
 
 enum OrderType {
   MALL = 'M',
-  STMP = "S"
+  STMP = 'S'
 }
 
 @Repository
 @ApiModel({ description: '订单' })
 export default class OrderModel extends BaseOrder {
-
   constructor() {
     super();
     this.orderId = 10086;
@@ -24,12 +21,11 @@ export default class OrderModel extends BaseOrder {
   }
 
   @Autowired
-  private kk: Keneral
+  private kk: Keneral;
 
   @ApiModelProperty({ value: '订单编号' })
-  orderId: number
+  orderId: number;
 
   @ApiModelProperty({ value: '类型', enum: OrderType })
-  orderType: OrderType
-
+  orderType: OrderType;
 }

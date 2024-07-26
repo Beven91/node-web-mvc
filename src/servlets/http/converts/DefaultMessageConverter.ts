@@ -7,7 +7,6 @@ import MediaType from '../MediaType';
 import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 
 export default class DefaultMessageConverter extends AbstractHttpMessageConverter<any> {
-
   constructor() {
     super(MediaType.ALL);
   }

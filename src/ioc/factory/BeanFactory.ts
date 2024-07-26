@@ -1,7 +1,7 @@
-import { ClazzType } from "../../interface/declare"
-import BeanPostProcessor from "../processor/BeanPostProcessor"
-import BeanDefinition from "./BeanDefinition"
-import { BeanDefinitionRegistry } from "./BeanDefinitionRegistry"
+import { ClazzType } from '../../interface/declare';
+import BeanPostProcessor from '../processor/BeanPostProcessor';
+import BeanDefinition from './BeanDefinition';
+import { BeanDefinitionRegistry } from './BeanDefinitionRegistry';
 
 export interface BeanFactory extends BeanDefinitionRegistry {
   /**
@@ -51,7 +51,7 @@ export interface BeanFactory extends BeanDefinitionRegistry {
 
   /**
    * 移除指定类型的实例对象
-   * @param beanType 
+   * @param beanType
    */
   removeBeanInstance(definition: BeanDefinition): void
 

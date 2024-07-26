@@ -4,11 +4,11 @@
  * @description 标注指定类为一个rest 风格的controller
  */
 
-import Target from "./Target";
-import ElementType from "./annotation/ElementType";
-import ResponseBody from "./ResponseBody";
-import Controller from "./Controller";
-import Merge from "./Merge";
+import Target from './Target';
+import ElementType from './annotation/ElementType';
+import ResponseBody from './ResponseBody';
+import Controller from './Controller';
+import Merge from './Merge';
 
 @Merge(
   Controller,

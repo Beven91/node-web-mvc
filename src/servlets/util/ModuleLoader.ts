@@ -7,7 +7,6 @@ import path from 'path';
 import hot from 'nodejs-hmr';
 
 export default class ModuleLoader {
-
   /**
    * 装载指定目录下对应模块
    * @param dir 目录
@@ -20,7 +19,7 @@ export default class ModuleLoader {
 
   /**
    * 判断当前模块是否可加载
-   * @param id 
+   * @param id
    */
   private loadable(id) {
     const ext = path.extname(id);
@@ -49,4 +48,4 @@ export default class ModuleLoader {
 
 hot.create(module).accept(() => {
 
-})
+});

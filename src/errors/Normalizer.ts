@@ -1,5 +1,4 @@
-import Exception from "./Exception";
-
+import Exception from './Exception';
 
 export default class Normalizer {
   static normalizeError(ex: any) {

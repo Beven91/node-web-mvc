@@ -1,5 +1,5 @@
-import HttpServletRequest from "./HttpServletRequest";
-import HttpServletResponse from "./HttpServletResponse";
+import HttpServletRequest from './HttpServletRequest';
+import HttpServletResponse from './HttpServletResponse';
 
 export default interface HttpRequestHandler {
 

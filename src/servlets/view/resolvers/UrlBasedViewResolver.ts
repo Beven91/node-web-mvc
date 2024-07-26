@@ -12,21 +12,20 @@ const IS_REDIRECT = /^redirect:/;
 const IS_FORWARD = /^forward:/;
 
 export default class UrlBasedViewResolver implements ViewResolver {
-
   /**
    * 用于拼接在视图名的前缀
    */
-  private prefix: string
+  private prefix: string;
 
   /**
    * 用于追加在视频名后的后缀
    */
-  private suffix: string
+  private suffix: string;
 
   /**
    * 构造一个 UrlBasedViewResolver 视图解析器
    * @param prefix 用于拼接在视图名的前缀
-   * @param suffix 用于追加在视频名后的后缀 
+   * @param suffix 用于追加在视频名后的后缀
    */
   constructor(prefix = '', suffix = '') {
     this.prefix = prefix;
@@ -41,9 +40,9 @@ export default class UrlBasedViewResolver implements ViewResolver {
      */
   resolveViewName(viewName: string, model: any, request: HttpServletRequest): View {
     if (IS_REDIRECT.test(viewName)) {
-      return new RedirectView(viewName.replace(IS_REDIRECT, ''))
+      return new RedirectView(viewName.replace(IS_REDIRECT, ''));
     } else if (IS_FORWARD.test(viewName)) {
-      return new InternalResourceView(viewName.replace(IS_FORWARD, ''))
+      return new InternalResourceView(viewName.replace(IS_FORWARD, ''));
     }
     // 执行内部匹配,主要用于子类重写用
     const name = this.prefix + viewName + this.suffix;

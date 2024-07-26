@@ -1,15 +1,14 @@
-import { ClazzType } from "../interface/declare";
-import Target from "../servlets/annotations/Target";
-import ElementType from "../servlets/annotations/annotation/ElementType";
-import JsonDeserializer from "./JsonDeserializer";
+import { ClazzType } from '../interface/declare';
+import Target from '../servlets/annotations/Target';
+import ElementType from '../servlets/annotations/annotation/ElementType';
+import JsonDeserializer from './JsonDeserializer';
 
 const instanceSymbol = Symbol('instance');
 
 class JsonDeserialize {
+  __exclude_keys__ = 'getDeserializer';
 
-  __exclude_keys__ = 'getDeserializer'
-
-  using: typeof JsonDeserializer
+  using: typeof JsonDeserializer;
 
   getDeserializer(): JsonDeserializer {
     if (!this.using) {
@@ -21,7 +20,6 @@ class JsonDeserialize {
     }
     return this[instanceSymbol];
   }
-
 }
 
-export default Target([ElementType.PROPERTY])(JsonDeserialize);
+export default Target([ ElementType.PROPERTY ])(JsonDeserialize);

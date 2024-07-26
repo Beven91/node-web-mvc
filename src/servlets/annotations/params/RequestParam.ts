@@ -8,8 +8,7 @@ import ParamAnnotation from './ParamAnnotation';
 import ElementType from '../annotation/ElementType';
 
 class RequestParam extends ParamAnnotation {
-
-  file?: boolean
+  file?: boolean;
 
   constructor() {
     super('query');
@@ -18,10 +17,10 @@ class RequestParam extends ParamAnnotation {
 
 /**
  * 从query请求参数中，提取指定名称的参数值
- * 
+ *
  *  action(@RequestParam id)
- * 
+ *
  *  action(@RequestParam({ required: true }) id)
- * 
+ *
  */
 export default Target(ElementType.PARAMETER)(RequestParam);

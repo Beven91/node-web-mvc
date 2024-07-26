@@ -8,9 +8,8 @@ import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 import Serialization from '../../../serialization/Serialization';
 
 export default class JsonMessageConverter extends AbstractHttpMessageConverter<Object> {
-
   constructor() {
-    super(MediaType.APPLICATION_JSON, new MediaType('application', '*+json'))
+    super(MediaType.APPLICATION_JSON, new MediaType('application', '*+json'));
   }
 
   supports(clazz: Function): boolean {

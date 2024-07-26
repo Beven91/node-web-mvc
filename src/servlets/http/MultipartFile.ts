@@ -4,21 +4,21 @@
  */
 import path from 'path';
 import fs from 'fs';
-import MediaType from "./MediaType";
+import MediaType from './MediaType';
 import IllegalArgumentException from '../../errors/IllegalArgumentException';
 
-const normalizePath = (source: string)=> source.replace(/\\/g,'/');
+const normalizePath = (source: string)=> source.replace(/\\/g, '/');
 
 export default class MultipartFile {
   /**
    * 当前文件存放的临时位置
    */
-  private tempFile: string
+  private tempFile: string;
 
   /**
    * 当前文件大小
    */
-  public readonly size: number
+  public readonly size: number;
 
   /**
    * 判断当前文件内容是否为空
@@ -30,14 +30,14 @@ export default class MultipartFile {
   /**
    * 文件名称
    */
-  public name: string
+  public name: string;
 
   /**
    * 当前内容类型
    */
-  public mediaType: MediaType
+  public mediaType: MediaType;
 
-  private readonly dir: string
+  private readonly dir: string;
 
   constructor(name: string, tempFile: string, mediaType: MediaType, size: number, dir: string) {
     this.mediaType = mediaType;
@@ -73,7 +73,7 @@ export default class MultipartFile {
     if (fs.existsSync(dir)) {
       return;
     }
-    fs.mkdirSync(dir, { recursive: true })
+    fs.mkdirSync(dir, { recursive: true });
   }
 
   /**

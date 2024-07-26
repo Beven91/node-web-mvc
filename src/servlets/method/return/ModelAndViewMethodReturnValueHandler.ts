@@ -1,11 +1,10 @@
-import MethodParameter from "../MethodParameter";
-import ServletContext from "../../http/ServletContext";
-import HandlerMethodReturnValueHandler from "./HandlerMethodReturnValueHandler";
-import ModelAndView from "../../models/ModelAndView";
-import ModelAndViewContainer from "../../models/ModelAndViewContainer";
+import MethodParameter from '../MethodParameter';
+import ServletContext from '../../http/ServletContext';
+import HandlerMethodReturnValueHandler from './HandlerMethodReturnValueHandler';
+import ModelAndView from '../../models/ModelAndView';
+import ModelAndViewContainer from '../../models/ModelAndViewContainer';
 
 export default class ModelAndViewMethodReturnValueHandler implements HandlerMethodReturnValueHandler {
-
   supportsReturnType(returnType: MethodParameter): boolean {
     return returnType.isParamAssignableOf(ModelAndView);
   }

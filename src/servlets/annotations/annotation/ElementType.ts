@@ -3,8 +3,8 @@
  * @description 注解类范围枚举
  */
 
-import AnnotationElementTypeError from "../../../errors/AnnotationElementTypeError";
-import Javascript from "../../../interface/Javascript";
+import AnnotationElementTypeError from '../../../errors/AnnotationElementTypeError';
+import Javascript from '../../../interface/Javascript';
 
 enum ElementType {
   /**
@@ -18,7 +18,7 @@ enum ElementType {
   METHOD = 'METHOD',
 
   /**
-   * 标识注解可以使用在函数参数 
+   * 标识注解可以使用在函数参数
    */
   PARAMETER = 'PARAMETER',
 
@@ -41,7 +41,7 @@ export function reflectAnnotationType(options: Array<any>): ElementType | 'UNKNO
     return 'UNKNOW';
   }
   const length = options.length;
-  const [target, name, descriptor] = options;
+  const [ target, name, descriptor ] = options;
   const clazz = length == 1 ? target : target?.constructor;
   const isClass = Javascript.isClass(clazz);
   if (!isClass) {
@@ -51,7 +51,7 @@ export function reflectAnnotationType(options: Array<any>): ElementType | 'UNKNO
   if (length === 1) {
     return ElementType.TYPE;
   } else if (length === 3 && (descriptor === undefined || isPropertyDescritpor(descriptor))) {
-    return ElementType.PROPERTY
+    return ElementType.PROPERTY;
   } else if (length === 3) {
     const isNumber = typeof descriptor === 'number';
     return isNumber ? ElementType.PARAMETER : ElementType.METHOD;

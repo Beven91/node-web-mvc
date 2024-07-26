@@ -3,17 +3,16 @@
  * 序列化工具
  */
 
-import { ClazzType } from "../interface/declare";
-import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
-import JsonFormat from "./JsonFormat";
-import JsonSerialize from "./JsonSerialize";
-import TypeConverter, { TypedArray } from "./TypeConverter";
-import DateConverter from "./date/DateConverter";
+import { ClazzType } from '../interface/declare';
+import RuntimeAnnotation from '../servlets/annotations/annotation/RuntimeAnnotation';
+import JsonFormat from './JsonFormat';
+import JsonSerialize from './JsonSerialize';
+import TypeConverter, { TypedArray } from './TypeConverter';
+import DateConverter from './date/DateConverter';
 
 const converter = new TypeConverter();
 
 export default class Serialization {
-
   /**
    * 针对传入的json字符串反序列化为指定类型对象
    */
@@ -25,11 +24,11 @@ export default class Serialization {
   /**
    * 针对传入的data进行序列化
    * @param data 需要序列化的数据
-   * @returns 
+   * @returns
    */
   serialize(data: any) {
     const scope = this;
-    return JSON.stringify(data, function (key, value) {
+    return JSON.stringify(data, function(key, value) {
       return scope.enhancedStringify(key, value, this);
     }, 2);
   }
@@ -38,7 +37,7 @@ export default class Serialization {
     const data = {} as Record<string, any>;
     map.forEach((element, k) => {
       data[k] = element;
-    })
+    });
     return data;
   }
 
@@ -46,7 +45,7 @@ export default class Serialization {
     const data = [] as any[];
     set.forEach((element) => {
       data.push(element);
-    })
+    });
     return data;
   }
 
@@ -54,7 +53,7 @@ export default class Serialization {
     const data = [] as any[];
     array.forEach((element) => {
       data.push(element);
-    })
+    });
     return data;
   }
 

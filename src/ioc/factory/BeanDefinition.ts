@@ -12,25 +12,24 @@ export interface BeanTypeClazz {
 }
 
 export default class BeanDefinition {
-
-  private beanType: ClazzType
+  private beanType: ClazzType;
 
   /**
    * 对应的函数
    */
-  public readonly method: Function
+  public readonly method: Function;
 
-  public readonly methodClazz: ClazzType
+  public readonly methodClazz: ClazzType;
 
   /**
    * 当前bean作用域类型
    */
-  public readonly scope: ScopeType
+  public readonly scope: ScopeType;
 
   /**
    * 当前类所在的文件
    */
-  public readonly path: string
+  public readonly path: string;
 
   /**
   * 对应的类
@@ -40,7 +39,7 @@ export default class BeanDefinition {
   }
 
   static toBeanName(name: string | Function) {
-    if(typeof name === 'string' || name == null || name === undefined) {
+    if (typeof name === 'string' || name == null || name === undefined) {
       return name as string;
     }
     const beanName = String(name?.name);
@@ -64,7 +63,7 @@ export default class BeanDefinition {
   /**
    * 如果是函数创建bean，由于typescript在函数没有显示指定返回类型时，无法获取返回值类型
    * 为了补全clazz 在创建实例后会根据实例类设置clazz类型
-   * @param clazz 
+   * @param clazz
    */
   fallbackBeanType(clazz: ClazzType) {
     if (!this.beanType) {

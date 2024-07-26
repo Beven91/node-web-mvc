@@ -1,10 +1,9 @@
-import { Bean, Configuration, Controller, DefaultPointcutAdvisor, FunctionExpressionPointcut, RuntimeAnnotation } from "../../src";
-import LogMethodInterceptor from "./globalization/LogMethodInterceptor";
+import { Bean, Configuration, Controller, DefaultPointcutAdvisor, FunctionExpressionPointcut, RuntimeAnnotation } from '../../src';
+import LogMethodInterceptor from './globalization/LogMethodInterceptor';
 
 
 @Configuration
 export default class AdvisorConfiguration {
-
   @Bean
   logMethodInterceptor() {
     const functionPointcut = new FunctionExpressionPointcut();
@@ -12,11 +11,10 @@ export default class AdvisorConfiguration {
 
     functionPointcut.setExpression((clazz) => {
       return !!RuntimeAnnotation.getAnnotation(Controller, clazz) && clazz.name !== 'SwaggerController';
-    })
+    });
     advisor.setPointcut(functionPointcut);
     advisor.setAdvice(new LogMethodInterceptor());
 
     return advisor;
   }
-
 }

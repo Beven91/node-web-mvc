@@ -8,7 +8,6 @@ import MediaType from '../MediaType';
 import AbstractBodyReader from './AbstractBodyReader';
 
 export default class UrlencodedBodyReader extends AbstractBodyReader {
-
   constructor() {
     super(MediaType.APPLICATION_FORM_URLENCODED);
   }

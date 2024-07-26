@@ -10,11 +10,10 @@ import ResponseEntity from './ResponseEntity';
 import Resource from '../resources/Resource';
 
 export default class ResponseFile extends ResponseEntity<Resource> {
-
-  private readonly file: string
+  private readonly file: string;
 
   constructor(file: string, attachment?: boolean) {
-    super(HttpStatus.OK)
+    super(HttpStatus.OK);
     file = path.isAbsolute(file) ? file : path.resolve(file);
     this.file = file;
     if (!fs.existsSync(file) || !fs.lstatSync(file).isFile()) {
@@ -24,7 +23,7 @@ export default class ResponseFile extends ResponseEntity<Resource> {
       this.setContentType(new MediaType('application/octet-stream'));
     }
     if (attachment) {
-      this.setHeader("Content-Disposition", "attachment;filename=" + encodeURI(path.basename(this.file)));
+      this.setHeader('Content-Disposition', 'attachment;filename=' + encodeURI(path.basename(this.file)));
     }
   }
 }

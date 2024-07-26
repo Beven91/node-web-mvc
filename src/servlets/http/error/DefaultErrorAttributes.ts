@@ -1,9 +1,8 @@
-import type ServletContext from "../../http/ServletContext";
-import ErrorAttributes from "./ErrorAttributes";
+import type ServletContext from '../../http/ServletContext';
+import ErrorAttributes from './ErrorAttributes';
 
 
 export default class DefaultErrorAttributes extends ErrorAttributes {
-
   getErrorAttributes(servletContext: ServletContext): Record<string, any> {
     const status = servletContext.response.status;
 
@@ -11,7 +10,7 @@ export default class DefaultErrorAttributes extends ErrorAttributes {
       code: status.code,
       message: status.message,
       timestamp: Date.now(),
-      path: servletContext.request.path
-    }
+      path: servletContext.request.path,
+    };
   }
-} 
+}

@@ -1,13 +1,12 @@
-import HttpServletRequest from "../http/HttpServletRequest";
-import PathMatcher from "../util/PathMatcher";
-import CorsConfiguration from "./CorsConfiguration";
-import CorsConfigurationSource from "./CorsConfigurationSource";
+import HttpServletRequest from '../http/HttpServletRequest';
+import PathMatcher from '../util/PathMatcher';
+import CorsConfiguration from './CorsConfiguration';
+import CorsConfigurationSource from './CorsConfigurationSource';
 
 export default class UrlBasedCorsConfigurationSource extends CorsConfigurationSource {
+  private pathMatcher: PathMatcher;
 
-  private pathMatcher: PathMatcher
-
-  private corsConfigurations: Map<string, CorsConfiguration>
+  private corsConfigurations: Map<string, CorsConfiguration>;
 
   getCorsConfiguration(request: HttpServletRequest): CorsConfiguration {
     if (this.corsConfigurations?.size < 1) {

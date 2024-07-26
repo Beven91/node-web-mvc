@@ -1,11 +1,10 @@
-import Resource from "./Resource";
-import ByteArrayInputStream from "./ByteArrayInputStream";
+import Resource from './Resource';
+import ByteArrayInputStream from './ByteArrayInputStream';
 
 export default class ByteArrayResource extends Resource {
-
   private readonly byteArray: Buffer;
 
-  public readonly description: string
+  public readonly description: string;
 
   constructor(buffer: Buffer, description?: string) {
     super(null);

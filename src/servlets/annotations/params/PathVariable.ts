@@ -8,7 +8,6 @@ import ParamAnnotation from './ParamAnnotation';
 import ElementType from '../annotation/ElementType';
 
 class PathVariable extends ParamAnnotation {
-
   constructor() {
     super('path');
   }
@@ -16,9 +15,9 @@ class PathVariable extends ParamAnnotation {
 
 /**
  * 从请求path中提取指定名称的参数值
- * 
+ *
  *  action(@PathVariable id)
- * 
- *  action(@PathVariable({ required: true }) id) 
+ *
+ *  action(@PathVariable({ required: true }) id)
  */
 export default Target(ElementType.PARAMETER)(PathVariable);

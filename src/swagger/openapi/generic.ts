@@ -4,21 +4,21 @@ export default class GenericType {
   /**
    * 泛型类名
    */
-  public readonly name: string
+  public readonly name: string;
 
-  public readonly isArray: boolean
+  public readonly isArray: boolean;
 
   /**
    * 泛型参数列表
    */
-  public parameters: string[]
+  public parameters: string[];
 
-  public childName: string
+  public childName: string;
 
   /**
    * 判断是否为泛型模板
-   * @param type 例如: ?  A<?>  A<0,1> 
-   * @returns 
+   * @param type 例如: ?  A<?>  A<0,1>
+   * @returns
    */
   public static isGeneric(type: string) {
     type = String(type);
@@ -30,7 +30,7 @@ export default class GenericType {
    * @param express 例如: A<B,C>
    */
   constructor(express: string) {
-    const [name, ...segments] = express.split('<');
+    const [ name, ...segments ] = express.split('<');
     const suffix = segments.join('<').replace(/>$/, '');
     this.name = name;
     this.parameters = suffix.split(',').filter(Boolean);
@@ -57,7 +57,7 @@ export default class GenericType {
 
   toString() {
     if (this.parameters.length > 0) {
-      return `${this.name}<${this.parameters.join(',')}>`
+      return `${this.name}<${this.parameters.join(',')}>`;
     }
     return this.name;
   }

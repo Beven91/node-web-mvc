@@ -1,12 +1,12 @@
-import MethodParameter from "../MethodParameter"
-import ServletContext from "../../http/ServletContext"
-import ModelAndViewContainer from "../../models/ModelAndViewContainer"
+import MethodParameter from '../MethodParameter';
+import ServletContext from '../../http/ServletContext';
+import ModelAndViewContainer from '../../models/ModelAndViewContainer';
 
 export default interface HandlerMethodReturnValueHandler {
 
   /**
    * 是否支持处理当前返回值
-   * @param returnType 
+   * @param returnType
    */
   supportsReturnType(returnType: MethodParameter): boolean
 

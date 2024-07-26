@@ -1,5 +1,5 @@
 import path from 'path';
-import { CorsRegistry, HandlerInterceptorRegistry, ResourceHandlerRegistry, ViewResolverRegistry, WebMvcConfigurationSupport } from "../src";
+import { CorsRegistry, HandlerInterceptorRegistry, ResourceHandlerRegistry, ViewResolverRegistry, WebMvcConfigurationSupport, Configuration } from '../src';
 import AdminInterceptor from './webapp/interceptor/AdminInterceptor';
 import EncodeInterceptor from './webapp/interceptor/EncodeInterceptor';
 import EjsViewResolver from './webapp/resolvers/EjsViewResolver';
@@ -8,19 +8,19 @@ import UserIdArgumentResolver from './webapp/resolvers/UserIdArgumentResolver';
 import PathMatchConfigurer from '../src/servlets/config/PathMatchConfigurer';
 import MyUrlPathHelper from './webapp/globalization/MyUrlPathHelper';
 
+@Configuration
 export default class WebAppConfigurer extends WebMvcConfigurationSupport {
-
-  mode = 'node'
+  mode = 'node';
 
   hot = {
     cwd: path.resolve('./test'),
-  }
+  };
 
   resource = {
     gzipped: true,
-  }
+  };
 
-  cwd = path.resolve('./test/webapp')
+  cwd = path.resolve('./test/webapp');
 
   addCorsMappings(registry: CorsRegistry): void {
     // registry
@@ -36,7 +36,7 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
   }
 
   configureViewResolvers(registry: ViewResolverRegistry) {
-    registry.viewResolver(new EjsViewResolver('test/webapp/WEB-INF/', '.ejs'))
+    registry.viewResolver(new EjsViewResolver('test/webapp/WEB-INF/', '.ejs'));
   }
 
   addArgumentResolvers(resolvers) {

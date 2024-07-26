@@ -1,7 +1,7 @@
-import Javascript from "../../interface/Javascript";
-import { ClazzType } from "../../interface/declare";
-import MultipartFile from "../../servlets/http/MultipartFile";
-import { ApiModelPropertyInfo, SchemeRef, GenericTypeSchemeRefExt } from "./declare";
+import Javascript from '../../interface/Javascript';
+import { ClazzType } from '../../interface/declare';
+import MultipartFile from '../../servlets/http/MultipartFile';
+import { ApiModelPropertyInfo, SchemeRef, GenericTypeSchemeRefExt } from './declare';
 
 const alias: Record<string, any> = {
   'undefined': { type: 'string' },
@@ -14,7 +14,7 @@ const alias: Record<string, any> = {
   'function': { type: 'function' },
   'MultipartFile': { type: 'file' },
   'MultipartFile[]': { type: 'array', items: { type: 'file' } },
-}
+};
 
 const mappings = [
   { clazz: String, data: { type: 'string' } },
@@ -40,10 +40,9 @@ const mappings = [
   { clazz: Buffer, data: { type: 'binary' } },
   { clazz: Function, data: { type: 'object' } },
   { clazz: Promise, data: { type: 'object' } },
-]
+];
 
 export default class TypeMappings {
-
   public readonly referenceTypes: GenericTypeSchemeRefExt[] = [];
 
   makeRef(name: string, dataType?: ClazzType) {
@@ -51,13 +50,13 @@ export default class TypeMappings {
   }
 
   makeMetaRef(name: string, dataType?: ClazzType) {
-    const idName = name; //.replace(/<|>|\[|\]/g, '');
+    const idName = name; // .replace(/<|>|\[|\]/g, '');
     const type = { '$ref': `#/components/schemas/${idName}` };
     const genericType = {
       refType: type,
       template: name,
       name: idName,
-      clazzType: dataType
+      clazzType: dataType,
     };
     this.referenceTypes.push(genericType);
     return genericType;
@@ -83,8 +82,8 @@ export default class TypeMappings {
     if (clazz.isType(Array) && itemType) {
       return {
         type: 'array',
-        items: this.make(itemType)
-      }
+        items: this.make(itemType),
+      };
     } else if (type === Object) {
       return { type: 'object' };
     } else if (basicType) {
@@ -94,7 +93,7 @@ export default class TypeMappings {
     } else if (type?.name && clazz.isType(Object)) {
       return this.makeRef(type.name, type);
     } else {
-      return { type: 'string' }
+      return { type: 'string' };
     }
   }
 }

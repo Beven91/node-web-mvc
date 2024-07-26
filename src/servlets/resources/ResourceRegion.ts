@@ -2,20 +2,19 @@
  * @module ResourceRegion
  */
 
-import HttpRange from "../http/HttpRange";
-import HttpServletRequest from "../http/HttpServletRequest";
-import Resource from "./Resource";
+import HttpRange from '../http/HttpRange';
+import HttpServletRequest from '../http/HttpServletRequest';
+import Resource from './Resource';
 
 export default class ResourceRegion {
-
   // 所属资源文件
-  readonly resource: Resource
+  readonly resource: Resource;
 
   // 开始位置
-  readonly position: number
+  readonly position: number;
 
   // 截取的内容长度
-  readonly count: number
+  readonly count: number;
 
   // 结束位置
   get end() {
@@ -39,6 +38,6 @@ export default class ResourceRegion {
       const end = range.end === -1 ? resource.contentLength - 1 : range.end;
       const count = end - start + 1;
       return new ResourceRegion(resource, range.start, count);
-    })
+    });
   }
 }

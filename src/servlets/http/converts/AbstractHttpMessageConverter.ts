@@ -1,18 +1,17 @@
-/***
+/** *
  * @module AbstractHttpMessageConverter
  */
 
-import { ClazzType, JsDataType } from "../../../interface/declare";
-import MediaType from "../MediaType";
-import ServletContext from "../ServletContext";
-import HttpMessageConverter from "./HttpMessageConverter";
+import { ClazzType, JsDataType } from '../../../interface/declare';
+import MediaType from '../MediaType';
+import ServletContext from '../ServletContext';
+import HttpMessageConverter from './HttpMessageConverter';
 
 export default abstract class AbstractHttpMessageConverter<T> implements HttpMessageConverter<T> {
-
-  private supportedMediaTypes: Array<MediaType>
+  private supportedMediaTypes: Array<MediaType>;
 
   constructor(...mediaTypes: Array<MediaType>) {
-    this.supportedMediaTypes = new Array<MediaType>();
+    this.supportedMediaTypes = [];
     this.supportedMediaTypes.push(...mediaTypes);
   }
 
@@ -43,9 +42,9 @@ export default abstract class AbstractHttpMessageConverter<T> implements HttpMes
     await this.writeInternal(data, servletContext);
   }
 
-  abstract supports(clazz: Function): boolean
+  abstract supports(clazz: Function): boolean;
 
-  abstract readInternal(servletContext: ServletContext, dataType: Function): Promise<T>
+  abstract readInternal(servletContext: ServletContext, dataType: Function): Promise<T>;
 
-  abstract writeInternal(data: T, servletContext: ServletContext): Promise<void>
+  abstract writeInternal(data: T, servletContext: ServletContext): Promise<void>;
 }

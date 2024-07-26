@@ -8,7 +8,6 @@ import HandlerAdapter from '../method/HandlerAdapter';
 import HttpServletRequest from './HttpServletRequest';
 
 export default class HttpRequestHandlerAdapter extends HandlerAdapter {
-  
   supports(handler: object) {
     return typeof (handler as HttpRequestHandler)?.handleRequest === 'function';
   }

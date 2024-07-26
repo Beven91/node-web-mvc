@@ -1,21 +1,21 @@
-import HttpHeaders from "../http/HttpHeaders";
-import HttpMethod from "../http/HttpMethod";
-import type HttpServletRequest from "../http/HttpServletRequest";
-import { isEmpty } from "./ApiUtils";
+import HttpHeaders from '../http/HttpHeaders';
+import HttpMethod from '../http/HttpMethod';
+import type HttpServletRequest from '../http/HttpServletRequest';
+import { isEmpty } from './ApiUtils';
 
 const isEqual = (value1: any, value2: any) => {
   if (value1 === undefined || value1 === null || value2 === undefined || value2 === null) {
     return false;
   }
   return value1 === value2;
-}
+};
 
 export default {
 
   /**
    * 判断当前请求是否为跨域请求
-   * @param request 
-   * @returns 
+   * @param request
+   * @returns
    */
   isCrossRequest(request: HttpServletRequest) {
     const origin = request.getHeaderValue(HttpHeaders.ORIGIN)?.[0];
@@ -30,7 +30,7 @@ export default {
       isEqual(request.host, uRL.hostname) &&
       // 端口相等
       isEqual(request.port, uRL.port)
-    )
+    );
     return !isSameOrigin;
   },
 
@@ -44,4 +44,4 @@ export default {
       !!request.getHeader(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)
     );
   },
-}
+};

@@ -1,4 +1,4 @@
-import Locale from "../../locale/Locale";
+import Locale from '../../locale/Locale';
 import path from 'path';
 import fs from 'fs';
 
@@ -28,7 +28,6 @@ export interface DateTimeLocale {
 const cache = new Map<string, DateTimeLocale>();
 
 export default class DateTimeTextProvider {
-
   static register(locale: string, info: DateTimeLocale) {
     const key = locale.toString();
     if (!cache.get(key)) {
@@ -42,14 +41,14 @@ export default class DateTimeTextProvider {
       const id = path.join(__dirname, 'locale', key + '.json');
       if (fs.existsSync(id)) {
         const content = fs.readFileSync(id).toString('utf-8');
-        this.register(key, JSON.parse(content))
+        this.register(key, JSON.parse(content));
       }
     }
     return cache.get(key);
   }
 
   static getLocaleInfo(locale: Locale) {
-    return this.getAndRegister(locale) || this.getAndRegister(Locale.ENGLISH)
+    return this.getAndRegister(locale) || this.getAndRegister(Locale.ENGLISH);
   }
 
   static getMonth(raw: number, locale: Locale, full: boolean) {
@@ -106,12 +105,12 @@ export default class DateTimeTextProvider {
   }
 
   static computeWeek(offset: number, days: number) {
-    return Math.floor((7 + offset + days - 1) / 7)
+    return Math.floor((7 + offset + days - 1) / 7);
   }
 
   static dayOffYear(date: Date) {
     const yearStart = new Date(date.getFullYear() - 1, 11, 31);
-    return (date.getTime() - yearStart.getTime()) / dayMillseconds
+    return (date.getTime() - yearStart.getTime()) / dayMillseconds;
   }
 
   static getWeekOfMonth(date: Date, locale: Locale) {

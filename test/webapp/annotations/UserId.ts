@@ -1,9 +1,7 @@
 import { ElementType, Target } from '../../../src/index';
 
 class UserId {
-
-  required?: boolean = true
-
+  required?: boolean = true;
 }
 
 // 公布注解

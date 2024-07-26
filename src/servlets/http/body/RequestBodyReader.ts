@@ -1,22 +1,22 @@
-import EntityTooLargeError from "../../../errors/EntityTooLargeError";
-import type { Multipart } from "../../config/WebAppConfigurerOptions";
-import type ServletContext from "../ServletContext";
-import AbstractBodyReader from "./AbstractBodyReader";
-import MultipartBodyReader from "./MultipartBodyReader";
-import UrlencodedBodyReader from "./UrlencodedBodyReader";
+import EntityTooLargeError from '../../../errors/EntityTooLargeError';
+import MultipartConfig from '../../config/MultipartConfig';
+import type ServletContext from '../ServletContext';
+import AbstractBodyReader from './AbstractBodyReader';
+import { IRequestBodyReader } from './IRequestBodyReader';
+import MultipartBodyReader from './MultipartBodyReader';
+import UrlencodedBodyReader from './UrlencodedBodyReader';
 
-export default class RequestBodyReader {
+export default class RequestBodyReader implements IRequestBodyReader {
+  private config: MultipartConfig;
 
-  private config: Multipart
+  private readonly readers: AbstractBodyReader[];
 
-  private readonly readers: AbstractBodyReader[]
-
-  constructor(config: Multipart) {
+  constructor(config: MultipartConfig) {
     this.config = config;
     this.readers = [
       new MultipartBodyReader(config),
       new UrlencodedBodyReader(),
-    ]
+    ];
   }
 
   read(servletContext: ServletContext): Promise<Record<string, any>> {

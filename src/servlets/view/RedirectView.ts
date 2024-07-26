@@ -3,12 +3,11 @@
  * @description 重定向视图
  */
 
-import View from './View'
-import HttpServletRequest from "../http/HttpServletRequest";
-import HttpServletResponse from "../http/HttpServletResponse";
+import View from './View';
+import HttpServletRequest from '../http/HttpServletRequest';
+import HttpServletResponse from '../http/HttpServletResponse';
 
 export default class RedirectView extends View {
-
   render(model, request: HttpServletRequest, response: HttpServletResponse) {
     const url = this.url;
     const isAbs = /^(http|https):/.test(url);

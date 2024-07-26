@@ -12,9 +12,8 @@ import HttpHeaders from '../HttpHeaders';
 import GzipResource from '../../resources/GzipResource';
 
 export default class ResourceHttpMessageConverter extends AbstractHttpMessageConverter<Resource> {
-
   constructor() {
-    super(MediaType.ALL)
+    super(MediaType.ALL);
   }
 
   supports(clazz: Function): boolean {

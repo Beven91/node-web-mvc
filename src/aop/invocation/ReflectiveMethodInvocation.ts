@@ -1,25 +1,24 @@
-import Method from "../../interface/Method";
-import Advice from "../advice/Advice";
-import MethodInterceptor from "../advice/MethodInterceptor";
-import JoinPoint from "./JoinPoint";
-import MethodInvocationProceedingJoinPoint from "./MethodInvocationProceedingJoinPoint";
-import ProxyMethodInvocation from "./ProxyMethodInvocation";
+import Method from '../../interface/Method';
+import Advice from '../advice/Advice';
+import MethodInterceptor from '../advice/MethodInterceptor';
+import JoinPoint from './JoinPoint';
+import MethodInvocationProceedingJoinPoint from './MethodInvocationProceedingJoinPoint';
+import ProxyMethodInvocation from './ProxyMethodInvocation';
 
 export default class ReflectiveMethodInvocation implements ProxyMethodInvocation {
+  private readonly proxy: object;
 
-  private readonly proxy: object
+  private readonly target: object;
 
-  private readonly target: object
+  private readonly method: Method;
 
-  private readonly method: Method
+  private args: any[];
 
-  private args: any[]
+  private readonly interceptors: Advice[];
 
-  private readonly interceptors: Advice[]
+  private currentIndex: number;
 
-  private currentIndex: number
-
-  private joinPoint: JoinPoint
+  private joinPoint: JoinPoint;
 
   constructor(proxy: object, target: object, method: Method, args: any[], interceptorOradvices: Advice[]) {
     this.proxy = proxy;
@@ -28,7 +27,7 @@ export default class ReflectiveMethodInvocation implements ProxyMethodInvocation
     this.args = args;
     this.currentIndex = -1;
     this.interceptors = interceptorOradvices;
-    this.joinPoint = new MethodInvocationProceedingJoinPoint(this, this.proxy)
+    this.joinPoint = new MethodInvocationProceedingJoinPoint(this, this.proxy);
   }
 
   getProxy(): object {
@@ -69,7 +68,7 @@ export default class ReflectiveMethodInvocation implements ProxyMethodInvocation
   }
 
   private invokeJoinpoint() {
-    return this.getMethod().handler.apply(this.target, this.args)
+    return this.getMethod().handler.apply(this.target, this.args);
   }
 
   getThis() {

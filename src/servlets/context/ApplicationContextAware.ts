@@ -1,8 +1,6 @@
-import Aware from "../../ioc/factory/Aware";
-import AbstractApplicationContext from "./AbstractApplicationContext";
+import Aware from '../../ioc/factory/Aware';
+import type AbstractApplicationContext from './AbstractApplicationContext';
 
 export default abstract class ApplicationContextAware extends Aware {
-
-  abstract setApplication(context: AbstractApplicationContext): void
-
+  abstract setApplication(context: AbstractApplicationContext): void;
 }

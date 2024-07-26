@@ -1,5 +1,5 @@
 
-export type MergeDecorator = ClassDecorator | ParameterDecorator | MethodDecorator | PropertyDecorator
+export type MergeDecorator = ClassDecorator | ParameterDecorator | MethodDecorator | PropertyDecorator;
 
 export const mergeAnnotationSymbol = Symbol('MergeAnnotations');
 
@@ -10,5 +10,5 @@ export const mergeAnnotationSymbol = Symbol('MergeAnnotations');
 export default function Merge(...decorators: MergeDecorator[]) {
   return function MergeAnnotation(target: Function) {
     target[mergeAnnotationSymbol] = decorators;
-  }
+  };
 }

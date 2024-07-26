@@ -39,24 +39,23 @@ import CorsConfiguration from '../cors/CorsConfiguration';
 import CorsRegistry from '../cors/CorsRegistry';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
+  private messageConverters: MessageConverter;
 
-  private messageConverters: MessageConverter
+  private argumentResolvers: ArgumentsResolvers;
 
-  private argumentResolvers: ArgumentsResolvers
+  private returnvalueHandlers: HandlerMethodReturnValueHandler[];
 
-  private returnvalueHandlers: HandlerMethodReturnValueHandler[]
+  private contentNegotiationManager: ContentNegotiationManager;
 
-  private contentNegotiationManager: ContentNegotiationManager
+  private pathMatchConfigurer: PathMatchConfigurer;
 
-  private pathMatchConfigurer: PathMatchConfigurer
+  private viewResolvers: ViewResolverRegistry;
 
-  private viewResolvers: ViewResolverRegistry
+  private beanFactory: BeanFactory;
 
-  public beanFactory: BeanFactory
+  private resourceConfig: ResourceConfig;
 
-  private resourceConfig: ResourceConfig
-
-  private corsConfigurations: Map<string, CorsConfiguration>
+  private corsConfigurations: Map<string, CorsConfiguration>;
 
   /**
    * 获取当前网站的基础路由目录
@@ -67,14 +66,18 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   public get workprogressPaths(): Array<string> {
     if (!this.cwd) {
-      return []
+      return [];
     }
     const cwd = this.cwd;
-    return cwd instanceof Array ? cwd : [cwd];
+    return cwd instanceof Array ? cwd : [ cwd ];
   }
 
   constructor(a?: WebAppConfigurerOptions) {
     super(a);
+  }
+
+  public getBeanFactory() {
+    return this.applicationContext.getBeanFactory();
   }
 
   private getMessageConverters() {
@@ -98,7 +101,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
       // SourceHttpMessageConverter
       new JsonMessageConverter(),
       // new DefaultMessageConverter(),
-    )
+    );
   }
 
   private getPathMatchConfigurer() {
@@ -126,7 +129,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
         new HttpEntityMethodProcessor(messageConverters, contentNegotiationManager),
         new ModelAttributeMethodProcessor(),
         new RequestResponseBodyMethodProcessor(messageConverters, contentNegotiationManager),
-        new ModelAttributeMethodProcessor(false)
+        new ModelAttributeMethodProcessor(false),
       ];
       this.addReturnValueHandlers?.(this.returnvalueHandlers);
     }
@@ -135,7 +138,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   private getViewResolvers() {
     if (!this.viewResolvers) {
-      this.viewResolvers = new ViewResolverRegistry(this.beanFactory);
+      this.viewResolvers = new ViewResolverRegistry(this.getBeanFactory());
       this.configureViewResolvers?.(this.viewResolvers);
     }
     return this.viewResolvers;
@@ -147,8 +150,8 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
         gzipped: this.resource?.gzipped == true,
         mimeTypes: String(this.resource?.mimeTypes || DEFAULT_RESOURCE_MIME_TYPES).split(',').map((str) => {
           return new MediaType(str);
-        })
-      }
+        }),
+      };
     }
     return this.resourceConfig;
   }
@@ -166,7 +169,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     const pathConfig = this.getPathMatchConfigurer();
     handlerMapping.setPathMatcher(pathConfig.getPathMatcherOrDefault());
     handlerMapping.setUrlPathHelper(pathConfig.getUrlPathHelperOrDefault());
-    handlerMapping.setCorsConfigurations(this.getCorsConfigurations())
+    handlerMapping.setCorsConfigurations(this.getCorsConfigurations());
   }
 
   @Bean
@@ -221,7 +224,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     this.configureHandlerExceptionResolvers?.(exceptionResolvers);
     if (exceptionResolvers.length < 1) {
       // 注册默认异常处理器
-      exceptionResolvers.push(new ExceptionHandlerExceptionResolver(returnValueHandlers, this.beanFactory));
+      exceptionResolvers.push(new ExceptionHandlerExceptionResolver(returnValueHandlers, this.getBeanFactory()));
       exceptionResolvers.push(new ResponseStatusExceptionResolver());
       exceptionResolvers.push(new DefaultHandlerExceptionResolver());
     }
@@ -234,7 +237,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   @Bean
   requestMappingHandlerAdapter() {
     const handlerAdapter = new RequestMappingHandlerAdapter();
-    handlerAdapter.setReturnvalueHandlers(this.getReturnValueHandlers())
+    handlerAdapter.setReturnvalueHandlers(this.getReturnValueHandlers());
     handlerAdapter.setArgumentResolver(this.getArgumentResolvers());
     return handlerAdapter;
   }

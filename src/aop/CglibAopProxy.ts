@@ -1,30 +1,29 @@
-import Method from "../interface/Method";
-import { BeanFactory } from "../ioc/factory/BeanFactory";
-import OrderedHelper from "../ioc/factory/OrderedHelper";
-import RuntimeAnnotation from "../servlets/annotations/annotation/RuntimeAnnotation";
-import { NewableMethodAdviceInterceptor } from "./advice/AbstractMethodAdviceInterceptor";
-import Advice from "./advice/Advice";
-import MethodAfterReturningAdviceInterceptor from "./advice/MethodAfterReturningAdviceInterceptor";
-import MethodAfterThrowingAdviceInterceptor from "./advice/MethodAfterThrowingAdviceInterceptor";
-import MethodAfterAdviceInterceptor from "./advice/MethodAfterAdviceInterceptor";
-import MethodBeforeAdviceInterceptor from "./advice/MethodBeforeAdviceInterceptor";
-import DefaultPointcutAdvisor from "./advisor/DefaultPointcutAdvisor";
-import PointcutAdvisor from "./advisor/PointcutAdvisor";
-import After from "./annotations/After";
-import AfterReturning from "./annotations/AfterReturning";
-import AfterThrowing from "./annotations/AfterThrowing";
-import Aspect from "./annotations/Aspect";
-import Before from "./annotations/Before";
-import ReflectiveMethodInvocation from "./invocation/ReflectiveMethodInvocation";
-import FunctionExpressionPointcut from "./pointcut/FunctionExpressionPointcut";
-import Pointcut from "./pointcut/Pointcut";
+import Method from '../interface/Method';
+import { BeanFactory } from '../ioc/factory/BeanFactory';
+import OrderedHelper from '../ioc/factory/OrderedHelper';
+import RuntimeAnnotation from '../servlets/annotations/annotation/RuntimeAnnotation';
+import { NewableMethodAdviceInterceptor } from './advice/AbstractMethodAdviceInterceptor';
+import Advice from './advice/Advice';
+import MethodAfterReturningAdviceInterceptor from './advice/MethodAfterReturningAdviceInterceptor';
+import MethodAfterThrowingAdviceInterceptor from './advice/MethodAfterThrowingAdviceInterceptor';
+import MethodAfterAdviceInterceptor from './advice/MethodAfterAdviceInterceptor';
+import MethodBeforeAdviceInterceptor from './advice/MethodBeforeAdviceInterceptor';
+import DefaultPointcutAdvisor from './advisor/DefaultPointcutAdvisor';
+import PointcutAdvisor from './advisor/PointcutAdvisor';
+import After from './annotations/After';
+import AfterReturning from './annotations/AfterReturning';
+import AfterThrowing from './annotations/AfterThrowing';
+import Aspect from './annotations/Aspect';
+import Before from './annotations/Before';
+import ReflectiveMethodInvocation from './invocation/ReflectiveMethodInvocation';
+import FunctionExpressionPointcut from './pointcut/FunctionExpressionPointcut';
+import Pointcut from './pointcut/Pointcut';
 import hot from 'nodejs-hmr';
 
 export default class CglibAopProxy {
+  private advisors: PointcutAdvisor[];
 
-  private advisors: PointcutAdvisor[]
-
-  private beanFactory: BeanFactory
+  private beanFactory: BeanFactory;
 
   constructor(beanFactory: BeanFactory) {
     this.beanFactory = beanFactory;
@@ -68,7 +67,7 @@ export default class CglibAopProxy {
       advisor.setPointcut(functionPointcut);
       advisor.setAdvice(new Interceptor(handler));
       this.addAdvisor(advisor);
-    })
+    });
   }
 
   private tryRegistryAllAdvisors() {
@@ -95,7 +94,7 @@ export default class CglibAopProxy {
     this.advisors.push(advisor);
   }
 
-  intercept(proxy: object, target: object, method: Method, args: any[]) {
+  intercept(proxy: object, target: object, method: Method, args: object[]) {
     const chain = this.createChain(method);
     return new ReflectiveMethodInvocation(proxy, target, method, args, chain).proceed();
   }
@@ -109,5 +108,5 @@ function registerHotUpdate(registerAllAdvisorts: CglibAopProxy['registerAllAdvis
     .allDone(() => {
       // 热更新后这里需要重新注册
       registerAllAdvisorts();
-    })
+    });
 }

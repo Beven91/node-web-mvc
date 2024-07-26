@@ -6,11 +6,10 @@ import HandlerInterceptor from './HandlerInterceptor';
 import InterceptorRegistration from './InterceptorRegistration';
 
 export default class HandlerInteceptorRegistry {
-
-  private readonly registrations: Array<InterceptorRegistration>
+  private readonly registrations: Array<InterceptorRegistration>;
 
   constructor() {
-    this.registrations = new Array<InterceptorRegistration>();
+    this.registrations = [];
   }
 
   /**
@@ -19,7 +18,7 @@ export default class HandlerInteceptorRegistry {
   getInterceptors(): Array<HandlerInterceptor> {
     return this.registrations
       .sort((o1, o2) => o1.getOrder() - o2.getOrder())
-      .map((registration) => registration.getInterceptor())
+      .map((registration) => registration.getInterceptor());
   }
 
   /**
@@ -27,7 +26,7 @@ export default class HandlerInteceptorRegistry {
    */
   addInterceptor(interceptor: HandlerInterceptor) {
     const registration = new InterceptorRegistration(interceptor);
-    this.registrations.push(registration)
+    this.registrations.push(registration);
     return registration;
   }
 }

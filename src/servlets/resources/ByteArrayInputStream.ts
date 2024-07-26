@@ -1,11 +1,10 @@
-import { ReadableOptions } from "stream";
+import { ReadableOptions } from 'stream';
 import fs from 'fs';
 
 export default class ByteArrayInputStream extends fs.ReadStream {
+  private readonly bytesArray: Buffer;
 
-  private readonly bytesArray: Buffer
-
-  private pos: number
+  private pos: number;
 
   constructor(bytesArray: Buffer, options?: ReadableOptions) {
     super(options);

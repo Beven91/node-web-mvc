@@ -1,9 +1,8 @@
-import AbstractPointcutAdvisor from "./AbstractPointcutAdvisor";
-import Advice from "../advice/Advice";
-import Pointcut from "../pointcut/Pointcut";
+import AbstractPointcutAdvisor from './AbstractPointcutAdvisor';
+import Advice from '../advice/Advice';
+import Pointcut from '../pointcut/Pointcut';
 
 export default class DefaultPointcutAdvisor extends AbstractPointcutAdvisor {
-
   private advice: Advice;
 
   private pointcut: Pointcut = Pointcut.TRUE;

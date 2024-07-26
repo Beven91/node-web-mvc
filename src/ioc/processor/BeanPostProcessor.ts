@@ -1,5 +1,4 @@
 export default abstract class BeanPostProcessor {
-
   /**
    * bean实例化后，初始化处理前执行
    * @param bean bean实例对象

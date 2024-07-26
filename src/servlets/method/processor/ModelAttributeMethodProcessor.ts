@@ -1,13 +1,12 @@
-import ServletContext from "../../http/ServletContext";
-import MethodParameter from "../MethodParameter";
-import HandlerMethodArgumentResolver from "../argument/HandlerMethodArgumentResolver";
-import HandlerMethodReturnValueHandler from "../return/HandlerMethodReturnValueHandler";
-import ModelAttribute from "../../annotations/ModelAttribute";
-import { getVariableName, isSimpleValueType } from "../../util/ApiUtils";
-import ModelAndViewContainer from "../../models/ModelAndViewContainer";
+import ServletContext from '../../http/ServletContext';
+import MethodParameter from '../MethodParameter';
+import HandlerMethodArgumentResolver from '../argument/HandlerMethodArgumentResolver';
+import HandlerMethodReturnValueHandler from '../return/HandlerMethodReturnValueHandler';
+import ModelAttribute from '../../annotations/ModelAttribute';
+import { getVariableName, isSimpleValueType } from '../../util/ApiUtils';
+import ModelAndViewContainer from '../../models/ModelAndViewContainer';
 
 export default class ModelAttributeMethodProcessor implements HandlerMethodArgumentResolver, HandlerMethodReturnValueHandler {
-
   private isAnnotationRequired = true;
 
   constructor(isAnnotationRequired = true) {

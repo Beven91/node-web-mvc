@@ -8,7 +8,6 @@ import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 import Javascript from '../../../interface/Javascript';
 
 export default class StringHttpMessageConverter extends AbstractHttpMessageConverter<String> {
-
   constructor() {
     super(MediaType.TEXT_PLAIN, MediaType.ALL);
   }

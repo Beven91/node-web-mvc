@@ -9,4 +9,5 @@ export default interface JoinPoint {
 
   getSignature(): string
 
+// eslint-disable-next-line semi
 }

@@ -1,6 +1,6 @@
-import type HttpServletRequest from "../http/HttpServletRequest";
-import type HttpServletResponse from "../http/HttpServletResponse";
-import CorsConfiguration from "./CorsConfiguration";
+import type HttpServletRequest from '../http/HttpServletRequest';
+import type HttpServletResponse from '../http/HttpServletResponse';
+import CorsConfiguration from './CorsConfiguration';
 
 export default interface CorsProcessor {
 

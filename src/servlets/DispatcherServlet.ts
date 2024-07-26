@@ -22,17 +22,16 @@ import ViewResolverRegistry from './view/ViewResolverRegistry';
 import ViewRender from './view/ViewRender';
 
 export default class DispatcherServlet {
-
   // 所有映射处理器
-  private handlerMappings: Array<HandlerMapping>
+  private handlerMappings: Array<HandlerMapping>;
 
-  private handlerAdapters: Array<HandlerAdapter>
+  private handlerAdapters: Array<HandlerAdapter>;
 
-  private exceptionResolver: HandlerExceptionResolverComposite
+  private exceptionResolver: HandlerExceptionResolverComposite;
 
-  private readonly appContext: AbstractApplicationContext
+  private readonly appContext: AbstractApplicationContext;
 
-  private viewResolverRegistry: ViewResolverRegistry
+  private viewResolverRegistry: ViewResolverRegistry;
 
   private fallbackErrorHandler: InternalErrorHandler;
 
@@ -42,7 +41,7 @@ export default class DispatcherServlet {
   }
 
   getHandler(servletContext: ServletContext): HandlerExecutionChain {
-    for (let handlerMapping of this.handlerMappings) {
+    for (const handlerMapping of this.handlerMappings) {
       const executionChain = handlerMapping.getHandler(servletContext);
       if (executionChain) {
         return executionChain;
@@ -79,12 +78,12 @@ export default class DispatcherServlet {
   }
 
   private initViewResolvers() {
-    this.viewResolverRegistry = this.appContext.getBeanFactory().getBeansOfType(ViewResolverRegistry)[0]
+    this.viewResolverRegistry = this.appContext.getBeanFactory().getBeansOfType(ViewResolverRegistry)[0];
   }
 
   /**
    * 根据当前处理的handler获取对应的处理适配器
-   * @param handler 
+   * @param handler
    */
   getHandlerAdapter(handler): HandlerAdapter {
     return this.handlerAdapters.find((adapter) => adapter.supports(handler));
@@ -104,7 +103,7 @@ export default class DispatcherServlet {
 
   async doDispatch(servletContext: ServletContext): Promise<void> {
     let handler = null;
-    const runtime = { error: null, mv: null } as { mv: ModelAndView, error: Error }
+    const runtime = { error: null, mv: null } as { mv: ModelAndView, error: Error };
     const mappedHandler = this.getHandler(servletContext);
     const request = servletContext.request;
     const response = servletContext.response;
@@ -172,7 +171,7 @@ export default class DispatcherServlet {
       mv = await this.handleException(error, servletContext, handler);
     }
     if (mv) {
-      await new ViewRender(this.viewResolverRegistry).render(mv,servletContext);
+      await new ViewRender(this.viewResolverRegistry).render(mv, servletContext);
     }
   }
 }

@@ -1,18 +1,12 @@
-import Component from "../../ioc/annotations/Component";
-import BeanDefinition from "../../ioc/factory/BeanDefinition";
-import { BeanFactory } from "../../ioc/factory/BeanFactory";
-import CglibAopProxyPostProcesor from "../../ioc/processor/CglibAopProxyPostProcesor";
-import ApplicationContextAwareProcessor from "../../ioc/processor/ApplicationContextAwareProcessor";
-import AutowiredAnnotationBeanPostProcessor from "../../ioc/processor/AutowiredAnnotationBeanPostProcessor";
-import Scope from "../annotations/Scope";
-import ElementType from "../annotations/annotation/ElementType";
-import RuntimeAnnotation, { } from "../annotations/annotation/RuntimeAnnotation";
-import registerHotUpdate from "./hot-update";
-import ConfigurationBeanPostProcessor from "../../ioc/processor/ConfigurationBeanPostProcessor";
-
+import Component from '../../ioc/annotations/Component';
+import BeanDefinition from '../../ioc/factory/BeanDefinition';
+import { BeanFactory } from '../../ioc/factory/BeanFactory';
+import Scope from '../annotations/Scope';
+import ElementType from '../annotations/annotation/ElementType';
+import RuntimeAnnotation, { } from '../annotations/annotation/RuntimeAnnotation';
+import registerHotUpdate from './hot-update';
 export default abstract class AbstractApplicationContext {
-
-  abstract getBeanFactory(): BeanFactory
+  abstract getBeanFactory(): BeanFactory;
 
   constructor() {
     // 注册热更新
@@ -24,18 +18,10 @@ export default abstract class AbstractApplicationContext {
   }
 
   prepareBeanFactory() {
-   
+
   }
 
-  registerBeanPostProcessor() {
-    const factory = this.getBeanFactory();
-    factory.addBeanPostProcessor(
-      new AutowiredAnnotationBeanPostProcessor(factory),
-      new ApplicationContextAwareProcessor(this),
-      new ConfigurationBeanPostProcessor(factory),
-      new CglibAopProxyPostProcesor(factory),
-    )
-  }
+  abstract registerBeanPostProcessor(): void;
 
   /**
    * 根据注解注册Bean定义
@@ -49,7 +35,7 @@ export default abstract class AbstractApplicationContext {
     const definition = new BeanDefinition(clazz, null, scope);
     const beanFactory = this.getBeanFactory();
     const clazzBeanName = BeanDefinition.toBeanName(definition.clazz);
-    if (name !== clazzBeanName) {
+    if (name && name !== clazzBeanName) {
       // 注册自定义名称
       beanFactory.registerBeanDefinition(name, definition);
     }

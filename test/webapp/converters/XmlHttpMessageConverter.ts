@@ -1,14 +1,13 @@
 // import { MediaType, ServletContext, HttpMessageConverter } from 'node-web-mvc';
 
-import { HttpMessageConverter } from "../../../src";
-import { JsDataType } from "../../../src/interface/declare";
-import MediaType from "../../../src/servlets/http/MediaType";
-import ServletContext from "../../../src/servlets/http/ServletContext";
+import { HttpMessageConverter } from '../../../src';
+import { JsDataType } from '../../../src/interface/declare';
+import MediaType from '../../../src/servlets/http/MediaType';
+import ServletContext from '../../../src/servlets/http/ServletContext';
 import xml2js from 'xml2js';
 
 export default class XmlHttpMessageConverter implements HttpMessageConverter {
-
-  private mediaTypes = [MediaType.APPLICATION_XML]
+  private mediaTypes = [ MediaType.APPLICATION_XML ];
 
   getSupportedMediaTypes(): MediaType[] {
     return this.mediaTypes;
@@ -19,7 +18,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    * @param mediaType 当前内容类型 例如: application/xml
    */
   canRead(dataType: JsDataType, mediaType: MediaType): boolean {
-    return !!this.mediaTypes.find((m) => m.isCompatibleWith(mediaType))
+    return !!this.mediaTypes.find((m) => m.isCompatibleWith(mediaType));
   }
 
   /**
@@ -27,7 +26,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
    * @param mediaType 当前内容类型 例如: application/xml
    */
   canWrite(dataType: JsDataType, mediaType: MediaType): boolean {
-    return !!this.mediaTypes.find((m) => m.isCompatibleWith(mediaType))
+    return !!this.mediaTypes.find((m) => m.isCompatibleWith(mediaType));
   }
 
   // getSupportedMediaTypes(): Array<string>
@@ -42,7 +41,7 @@ export default class XmlHttpMessageConverter implements HttpMessageConverter {
       xml2js.parseString(buffer.toString('utf8'), (err, data) => {
         err ? reject(err) : resolve(data);
       });
-    })
+    });
   }
 
   /**

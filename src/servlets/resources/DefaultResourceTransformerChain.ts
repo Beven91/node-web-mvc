@@ -2,19 +2,18 @@
  * @module ResourceTransformerChain
  */
 
-import Resource from "./Resource";
-import HttpServletRequest from "../http/HttpServletRequest";
-import ResourceTransformer from "./ResourceTransformer";
-import ResourceResolverChain from "./ResourceResolverChain";
-import ResourceTransformerChain from "./ResourceTransformerChain";
+import Resource from './Resource';
+import HttpServletRequest from '../http/HttpServletRequest';
+import ResourceTransformer from './ResourceTransformer';
+import ResourceResolverChain from './ResourceResolverChain';
+import ResourceTransformerChain from './ResourceTransformerChain';
 
 export default class DefaultResourceTransformerChain implements ResourceTransformerChain {
+  private resolveCahin: ResourceResolverChain;
 
-  private resolveCahin: ResourceResolverChain
+  private tramformer: ResourceTransformer;
 
-  private tramformer: ResourceTransformer
-
-  private nextChain: ResourceTransformerChain
+  private nextChain: ResourceTransformerChain;
 
   private get invokeable() {
     return this.tramformer != null && this.nextChain != null;

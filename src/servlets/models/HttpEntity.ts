@@ -2,16 +2,15 @@
  * @module ResponseEntity
  */
 
-import CacheControl from "../http/CacheControl";
-import HttpHeaders from "../http/HttpHeaders";
-import MediaType from "../http/MediaType";
-import { RequestHeaders } from "../../interface/declare";
+import CacheControl from '../http/CacheControl';
+import HttpHeaders from '../http/HttpHeaders';
+import MediaType from '../http/MediaType';
+import { RequestHeaders } from '../../interface/declare';
 
 export default class HttpEntity<T = any, H = RequestHeaders> {
+  public headers: H;
 
-  public headers: H
-
-  public body: T
+  public body: T;
 
   constructor(data: T, headers: H) {
     this.body = data;
@@ -20,7 +19,7 @@ export default class HttpEntity<T = any, H = RequestHeaders> {
 
   /**
    * 设置返回内容
-   * @param data 
+   * @param data
    */
   setBody(data: T) {
     this.body = data;
@@ -29,7 +28,7 @@ export default class HttpEntity<T = any, H = RequestHeaders> {
 
   /**
    * 这是头部信息对象
-   * @param headers 
+   * @param headers
    */
   setHeaders(headers) {
     this.headers = headers;
@@ -38,8 +37,8 @@ export default class HttpEntity<T = any, H = RequestHeaders> {
 
   /**
    * 设置单个头部信息
-   * @param key 
-   * @param values 
+   * @param key
+   * @param values
    */
   setHeader(key: string, ...values: Array<string>) {
     this.headers[key] = values.join(',');
@@ -48,8 +47,8 @@ export default class HttpEntity<T = any, H = RequestHeaders> {
 
   /**
    * 设置头部信息 allows
-   * @param HttpMethod 
-   * @param allowedMethods 
+   * @param HttpMethod
+   * @param allowedMethods
    */
   setAllow(allowedMethods: Array<string>) {
     this.headers[HttpHeaders.ALLOW] = allowedMethods.join(',');
@@ -94,7 +93,7 @@ export default class HttpEntity<T = any, H = RequestHeaders> {
    * 配置 Vary头部信息
    * ```js
    *  .varBy('UserAgent','Cookie')
-   * 
+   *
    * ```
    */
   setVaryBy(requestHeaders: Array<string>) {

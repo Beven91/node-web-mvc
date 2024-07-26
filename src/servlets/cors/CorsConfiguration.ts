@@ -1,32 +1,31 @@
-import IllegalArgumentException from "../../errors/IllegalArgumentException"
-import { equalsIgnoreCase, isEmpty } from "../util/ApiUtils"
+import IllegalArgumentException from '../../errors/IllegalArgumentException';
+import { equalsIgnoreCase, isEmpty } from '../util/ApiUtils';
 
 export class BaseCorsOptions {
-  origins: string[]
+  origins: string[];
 
-  originPatterns: RegExp[]
+  originPatterns: RegExp[];
 
   // 跨域允许传递的请求头
-  allowedHeaders: string[]
+  allowedHeaders: string[];
 
   // 跨域允许返回的返回头
-  exposedHeaders: string[]
+  exposedHeaders: string[];
 
   // 跨域允许的请求方式
-  methods: string[]
+  methods: string[];
 
   // 跨域允许的认证模式
-  allowCredentials: boolean
+  allowCredentials: boolean;
 
-  allowPrivateNetwork: boolean
+  allowPrivateNetwork: boolean;
 
-  maxAge: number
+  maxAge: number;
 }
 
 
 export default class CorsConfiguration extends BaseCorsOptions {
-
-  static ALL = '*'
+  static ALL = '*';
 
   constructor(options?: Partial<BaseCorsOptions>) {
     super();
@@ -49,24 +48,22 @@ export default class CorsConfiguration extends BaseCorsOptions {
   validateAllowCredentials() {
     if (this.allowCredentials == true &&
       this.origins != null && this.origins.indexOf(CorsConfiguration.ALL) > -1) {
-
       throw new IllegalArgumentException(
-        "When allowCredentials is true, allowedOrigins cannot contain the special value \"*\" " +
-        "since that cannot be set on the \"Access-Control-Allow-Origin\" response header. " +
-        "To allow credentials to a set of origins, list them explicitly " +
-        "or consider using \"allowedOriginPatterns\" instead.");
+        'When allowCredentials is true, allowedOrigins cannot contain the special value "*" ' +
+        'since that cannot be set on the "Access-Control-Allow-Origin" response header. ' +
+        'To allow credentials to a set of origins, list them explicitly ' +
+        'or consider using "allowedOriginPatterns" instead.');
     }
   }
 
   validateAllowPrivateNetwork() {
     if (this.allowPrivateNetwork == true &&
       this.origins != null && this.origins.indexOf(CorsConfiguration.ALL) > -1) {
-
       throw new IllegalArgumentException(
-        "When allowPrivateNetwork is true, allowedOrigins cannot contain the special value \"*\" " +
-        "as it is not recommended from a security perspective. " +
-        "To allow private network access to a set of origins, list them explicitly " +
-        "or consider using \"allowedOriginPatterns\" instead.");
+        'When allowPrivateNetwork is true, allowedOrigins cannot contain the special value "*" ' +
+        'as it is not recommended from a security perspective. ' +
+        'To allow private network access to a set of origins, list them explicitly ' +
+        'or consider using "allowedOriginPatterns" instead.');
     }
   }
 
@@ -157,7 +154,7 @@ export default class CorsConfiguration extends BaseCorsOptions {
       return null;
     }
     if (this.methods?.length < 1) {
-      return [requestMethod];
+      return [ requestMethod ];
     }
     const matched = this.methods.find((m) => equalsIgnoreCase(m, requestMethod));
     if (matched) {
@@ -180,8 +177,8 @@ export default class CorsConfiguration extends BaseCorsOptions {
       return [].concat(requestHeaders);
     }
     const headers = requestHeaders.filter((m) => {
-      return !!allowHeaders.find((a) => equalsIgnoreCase(m, a))
-    })
+      return !!allowHeaders.find((a) => equalsIgnoreCase(m, a));
+    });
 
     return headers.length < 1 ? null : headers;
   }
@@ -189,12 +186,12 @@ export default class CorsConfiguration extends BaseCorsOptions {
   applyPermitDefaultValues() {
     const ALL = CorsConfiguration.ALL;
     if (this.origins == null) {
-      this.origins = [ALL];
+      this.origins = [ ALL ];
     }
     if (this.allowedHeaders == null) {
       this.allowedHeaders = [
-        ALL
-      ]
+        ALL,
+      ];
     }
     if (this.maxAge == null) {
       this.maxAge = 1800;

@@ -14,27 +14,13 @@ import Bytes from '../util/Bytes';
 import { HotOptions } from 'nodejs-hmr';
 import type MediaType from '../http/MediaType';
 import CorsRegistry from '../cors/CorsRegistry';
+import MultipartConfig from './MultipartConfig';
+import ApplicationContextAware from '../context/ApplicationContextAware';
+import AbstractApplicationContext from '../context/AbstractApplicationContext';
 
-declare type RunMode = 'node' | 'express' | 'koa' | string
+declare type HttpType = 'http' | 'https' | 'http2';
 
-declare type HttpType = 'http' | 'https' | 'http2'
-
-export declare interface Multipart {
-  /**
-   * 上传单个文件的最大限制
-   */
-  maxFileSize: string | number,
-  /**
-   * 单个请求的最大限制
-   */
-  maxRequestSize: string | number
-  /**
-  * 上传资源文件存储目录
-  */
-  mediaRoot?: string
-}
-
-export const DEFAULT_RESOURCE_MIME_TYPES = 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain'
+export const DEFAULT_RESOURCE_MIME_TYPES = 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain';
 
 export declare interface ResourceOptions {
   /**
@@ -52,59 +38,56 @@ export interface ResourceConfig extends Omit<ResourceOptions, 'mimeTypes'> {
   mimeTypes: MediaType[]
 }
 
-export default class WebAppConfigurerOptions {
-  public http?: HttpType
+export default class WebAppConfigurerOptions extends ApplicationContextAware {
+  public http?: HttpType;
 
   /**
    * 使用node原生http服务时的配置参数
    */
-  public serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions
+  public serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions;
 
   /**
    * 获取启动目录
    */
-  public readonly cwd: string | Array<string>
-
-  /**
-   * 获取当前服务中间件模式
-   */
-  public readonly mode?: RunMode
+  public readonly cwd: string | Array<string>;
 
   /**
    * 静态资源配置
    */
-  public readonly resource?: ResourceOptions
+  public readonly resource?: ResourceOptions;
 
   /**
    * 获取当前网站启动端口号
    */
-  public readonly port?: number
+  public readonly port?: number;
 
   /**
    * 是否开启swagger文档
    */
-  public readonly swagger?: boolean
+  public readonly swagger?: boolean;
 
   /**
    * 热更新配置
    */
-  public readonly hot?: HotOptions
+  public readonly hot?: HotOptions;
 
   /**
    * 获取当前网站的基础路由目录
    */
-  public readonly base?: string
+  public readonly base?: string;
 
   /**
    * 当前配置的body内容大小
-   * @param options 
+   * @param options
    */
-  public readonly multipart?: Multipart
+  public readonly multipart?: MultipartConfig;
+
+  protected applicationContext: AbstractApplicationContext;
 
   /**
    *  应用监听端口，且已启动时触发
    */
-  onLaunch?: () => void
+  onLaunch?: () => void;
 
   // 注册拦截器
   addInterceptors?(registry: HandlerInterceptorRegistry) { }
@@ -139,10 +122,14 @@ export default class WebAppConfigurerOptions {
   // 全局配置跨域
   addCorsMappings?(registry: CorsRegistry) { }
 
+  setApplication(context: AbstractApplicationContext): void {
+    this.applicationContext = context;
+  }
+
   constructor(a: WebAppConfigurerOptions) {
+    super();
     const options = a || {} as WebAppConfigurerOptions;
     this.hot = options.hot;
-    this.mode = options.mode || 'node';
     this.port = options.port || 8080;
     this.base = options.base || '/';
     this.onLaunch = options.onLaunch;
@@ -150,7 +137,7 @@ export default class WebAppConfigurerOptions {
     this.serverOptions = options.serverOptions;
     this.resource = options.resource;
     this.swagger = 'swagger' in options ? options.swagger : true;
-    this.cwd = options.cwd instanceof Array ? options.cwd : [options.cwd]
+    this.cwd = options.cwd instanceof Array ? options.cwd : [ options.cwd ];
     this.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = new Bytes(this.multipart.maxFileSize, '500kb').bytes;
     this.multipart.maxRequestSize = new Bytes(this.multipart.maxRequestSize, '500kb').bytes;

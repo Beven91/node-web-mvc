@@ -3,10 +3,9 @@
  * @description 断言工具集
  */
 
-import Javascript from "../../interface/Javascript";
+import Javascript from '../../interface/Javascript';
 
 export default class Assert {
-
   /**
    * 断言:value必须为指定类型
    * @param value 值
@@ -59,9 +58,9 @@ export default class Assert {
 
   /**
    * 断言:需要包含指定字符串
-   * @param value 
-   * @param include 
-   * @param message 
+   * @param value
+   * @param include
+   * @param message
    */
   static doesContain(value: string, include: string, message?: string) {
     value = (value || '').toString();
@@ -72,9 +71,9 @@ export default class Assert {
 
   /**
    * 断言: 不能包含指定字符串
-   * @param value 
-   * @param include 
-   * @param message 
+   * @param value
+   * @param include
+   * @param message
    */
   static doesNotContain(value: string, include: string, message?: string) {
     value = (value || '').toString();
@@ -85,8 +84,8 @@ export default class Assert {
 
   /**
    * 断言: 数组项中不能存在空项(null,undefined)
-   * @param value 
-   * @param message 
+   * @param value
+   * @param message
    */
   static noNullElements(value: Array<any>, message?: string) {
     value = value || [];
@@ -98,8 +97,8 @@ export default class Assert {
 
   /**
    * 断言:value 必须为type的实例
-   * @param value 
-   * @param type 
+   * @param value
+   * @param type
    */
   static isInstanceOf(value: any, type: any, message?: string) {
     if (!(value instanceof type)) {

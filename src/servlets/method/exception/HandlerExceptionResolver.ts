@@ -1,6 +1,6 @@
-import ServletContext from "../../http/ServletContext";
-import ModelAndView from "../../models/ModelAndView";
-import HandlerMethod from "../HandlerMethod";
+import ServletContext from '../../http/ServletContext';
+import ModelAndView from '../../models/ModelAndView';
+import HandlerMethod from '../HandlerMethod';
 
 export default interface HandlerExceptionResolver {
   /**

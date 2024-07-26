@@ -13,20 +13,19 @@ const NO_VALUE = {};
 const SUPPORTED_METHODS = new Set([
   HttpMethod.POST,
   HttpMethod.PUT,
-  HttpMethod.PATCH
-])
+  HttpMethod.PATCH,
+]);
 
 export default class MessageConverter {
-
-  private readonly registerConverters: Array<HttpMessageConverter<any>>
+  private readonly registerConverters: Array<HttpMessageConverter<any>>;
 
   constructor() {
-    this.registerConverters = []
+    this.registerConverters = [];
   }
 
   /**
    * 注册一个消息转换器
-   * @param servletContext 
+   * @param servletContext
    */
   addMessageConverters(...converter: HttpMessageConverter<any>[]) {
     this.registerConverters.push(...converter);
@@ -66,7 +65,7 @@ export default class MessageConverter {
         const dataType = body?.constructor;
         const converter = this.registerConverters.find((converter) => converter.canWrite(dataType, mediaType));
         return resolve(converter.write(data, servletContext));
-      })
-    })
+      });
+    });
   }
 }

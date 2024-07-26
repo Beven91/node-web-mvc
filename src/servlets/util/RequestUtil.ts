@@ -3,10 +3,9 @@
  * @description 请求工具
  */
 
-import HttpServletRequest from "../http/HttpServletRequest";
+import HttpServletRequest from '../http/HttpServletRequest';
 
 export default class RequestUtil {
-
   static getHeader(request: HttpServletRequest, name: string) {
     const v = request.getHeader(name);
     if (v instanceof Array) {
@@ -28,9 +27,9 @@ export default class RequestUtil {
     if (!etag) {
       return etag;
     }
-    if ((etag.startsWith("\"") || etag.startsWith("W/\"")) && etag.endsWith("\"")) {
+    if ((etag.startsWith('"') || etag.startsWith('W/"')) && etag.endsWith('"')) {
       return etag;
     }
-    return "\"" + etag + "\"";
+    return '"' + etag + '"';
   }
 }

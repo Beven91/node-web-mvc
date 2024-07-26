@@ -1,20 +1,19 @@
-import { BeanFactory } from "../../../ioc/factory/BeanFactory";
-import ControllerAdvice from "../../annotations/ControllerAdvice";
-import ExceptionHandler from "../../annotations/ExceptionHandler";
-import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
-import ServletContext from "../../http/ServletContext";
-import ModelAndView from "../../models/ModelAndView";
-import ModelAndViewContainer from "../../models/ModelAndViewContainer";
-import HandlerMethod from "../HandlerMethod";
-import ServletInvocableHandlerMethod from "../ServletInvocableHandlerMethod";
-import HandlerMethodReturnValueHandler from "../return/HandlerMethodReturnValueHandler";
-import HandlerExceptionResolver from "./HandlerExceptionResolver";
+import { BeanFactory } from '../../../ioc/factory/BeanFactory';
+import ControllerAdvice from '../../annotations/ControllerAdvice';
+import ExceptionHandler from '../../annotations/ExceptionHandler';
+import RuntimeAnnotation from '../../annotations/annotation/RuntimeAnnotation';
+import ServletContext from '../../http/ServletContext';
+import ModelAndView from '../../models/ModelAndView';
+import ModelAndViewContainer from '../../models/ModelAndViewContainer';
+import HandlerMethod from '../HandlerMethod';
+import ServletInvocableHandlerMethod from '../ServletInvocableHandlerMethod';
+import HandlerMethodReturnValueHandler from '../return/HandlerMethodReturnValueHandler';
+import HandlerExceptionResolver from './HandlerExceptionResolver';
 
 export default class ExceptionHandlerExceptionResolver implements HandlerExceptionResolver {
+  private readonly beanFactory: BeanFactory;
 
-  private readonly beanFactory: BeanFactory
-
-  private readonly returnValueHandlers: HandlerMethodReturnValueHandler[]
+  private readonly returnValueHandlers: HandlerMethodReturnValueHandler[];
 
   constructor(returnValueHandlers: HandlerMethodReturnValueHandler[], beanFactory: BeanFactory) {
     this.returnValueHandlers = returnValueHandlers;
@@ -34,7 +33,7 @@ export default class ExceptionHandlerExceptionResolver implements HandlerExcepti
         const exceptionHandlerMethod = new ServletInvocableHandlerMethod(handlerMethod);
         exceptionHandlerMethod.setReturnValueHandlers(this.returnValueHandlers);
         // 自定义异常处理
-        await exceptionHandlerMethod.invoke(servletContext, mavContainer, [error]);
+        await exceptionHandlerMethod.invoke(servletContext, mavContainer, [ error ]);
 
         if (mavContainer.requestHandled) {
           // 如果请求已处理

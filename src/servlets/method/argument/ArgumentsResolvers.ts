@@ -3,7 +3,7 @@
  * @description 参数解析器
  */
 import ServletContext from '../../http/ServletContext';
-import MethodParameter from "../MethodParameter";
+import MethodParameter from '../MethodParameter';
 import RequestResponseBodyMethodProcessor from '../processor/RequestResponseBodyMethodProcessor';
 import HandlerMethodArgumentResolver from './HandlerMethodArgumentResolver';
 import RequestParamMapMethodArgumentResolver from './RequestParamMapMethodArgumentResolver';
@@ -29,12 +29,11 @@ import TypeConverter from '../../../serialization/TypeConverter';
 const converter = new TypeConverter();
 
 export default class ArgumentsResolvers {
+  private readonly registerResolvers: HandlerMethodArgumentResolver[];
 
-  private readonly registerResolvers: HandlerMethodArgumentResolver[]
+  private readonly fallbackResolvers: HandlerMethodArgumentResolver[];
 
-  private readonly fallbackResolvers: HandlerMethodArgumentResolver[]
-
-  private readonly messageConverter: MessageConverter
+  private readonly messageConverter: MessageConverter;
 
   constructor(messageConverter: MessageConverter, contentNegotialManager: ContentNegotiationManager) {
     this.messageConverter = messageConverter;
@@ -49,13 +48,13 @@ export default class ArgumentsResolvers {
       new ServletContextMethodArgumentResolver(),
     ];
     this.fallbackResolvers = [
-      new RequestParamMapMethodArgumentResolver(true)
-    ]
+      new RequestParamMapMethodArgumentResolver(true),
+    ];
   }
 
   /**
    * 注册一个参数解析器
-   * @param resolver 解析器 
+   * @param resolver 解析器
    */
   addArgumentResolvers(resolver: HandlerMethodArgumentResolver) {
     this.registerResolvers.push(resolver);
@@ -78,7 +77,7 @@ export default class ArgumentsResolvers {
         const hasNotValue = finalValue === null || finalValue === undefined;
         if (hasNotValue && anno?.required) {
           // 如果参数必要，且没有值则抛出异常
-          const message = `Required ${anno.paramAt} '${parameter.paramName}' is not present ==> ${handler.beanTypeName}.${handler.methodName}`
+          const message = `Required ${anno.paramAt} '${parameter.paramName}' is not present ==> ${handler.beanTypeName}.${handler.methodName}`;
           throw new ArgumentResolvError(message, parameter.paramName);
         } else if (hasNotValue && !anno?.required) {
           // 如果参数不必要，且没有值，则忽略
@@ -86,12 +85,12 @@ export default class ArgumentsResolvers {
           continue;
         }
         if (finalValue instanceof MultipartFile && Javascript.createTyper(parameter.parameterType).isType(Array)) {
-          finalValue = [finalValue];
+          finalValue = [ finalValue ];
         }
         // 设置参数值
         args[i] = converter.convert(finalValue, parameter.parameterType, null);
         // 验证数据
-        await (new DataValidator()).validate(args[i],parameter);
+        await (new DataValidator()).validate(args[i], parameter);
       }
       return args;
     } catch (ex) {
@@ -112,9 +111,9 @@ export default class ArgumentsResolvers {
    */
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
     const registerResolvers = [].concat(this.registerResolvers, this.fallbackResolvers);
-    let resolver = registerResolvers.find((resolver) => resolver.supportsParameter(parameter, servletContext));
+    const resolver = registerResolvers.find((resolver) => resolver.supportsParameter(parameter, servletContext));
     if (resolver === null) {
-      throw new IllegalArgumentException("Unsupported parameter type [" + Object.prototype.toString.call(parameter.parameterType) + "]. supportsParameter should be called first.")
+      throw new IllegalArgumentException('Unsupported parameter type [' + Object.prototype.toString.call(parameter.parameterType) + ']. supportsParameter should be called first.');
     }
     return resolver.resolveArgument(parameter, servletContext);
   }

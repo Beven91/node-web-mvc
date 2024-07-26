@@ -1,19 +1,17 @@
-import { MethodInvocation } from "../invocation/MethodInvocation";
-import MethodInterceptor from "./MethodInterceptor";
+import { MethodInvocation } from '../invocation/MethodInvocation';
+import MethodInterceptor from './MethodInterceptor';
 
 export interface NewableMethodAdviceInterceptor {
-  new(handler: Function): AbstractMethodAdviceInterceptor<any>
+  new(handler: Function): AbstractMethodAdviceInterceptor
 }
 
-export default abstract class AbstractMethodAdviceInterceptor<T extends Function> extends MethodInterceptor {
-
-  protected handler: T
+export default abstract class AbstractMethodAdviceInterceptor<T extends Function = Function> extends MethodInterceptor {
+  protected handler: T;
 
   constructor(handler: T) {
     super();
     this.handler = handler;
   }
 
-  abstract invoke(invocation: MethodInvocation): any
-
+  abstract invoke(invocation: MethodInvocation): object
 }

@@ -1,5 +1,5 @@
-import Locale from "../../locale/Locale";
-import DateTimeTextProvider from "./DateTimeTextProvider";
+import Locale from '../../locale/Locale';
+import DateTimeTextProvider from './DateTimeTextProvider';
 
 export const padZero = (num: number, count: number) => {
   let v = num.toString();
@@ -7,13 +7,13 @@ export const padZero = (num: number, count: number) => {
     v = '0' + v;
   }
   return v;
-}
+};
 
 export const checkLimit = (exp: string, max: number) => {
   if (exp.length > max) {
     throw new Error(`Too many pattern letters: ${exp[0]}`);
   }
-}
+};
 
 // 最小单位格式化器
 export default {
@@ -60,7 +60,7 @@ export default {
   },
   // 毫秒 S SS SSS 根据配置返回对应的毫秒位数
   'S': (date: Date, exp: string, locale: Locale) => {
-    return date.getMilliseconds().toString().slice(0, exp.length)
+    return date.getMilliseconds().toString().slice(0, exp.length);
   },
   // 季度
   'q': (date: Date) => Math.floor((date.getMonth() + 3) / 3).toString(),
@@ -75,21 +75,21 @@ export default {
   // 星期
   'E': (date: Date, exp: string, locale: Locale) => {
     checkLimit(exp, 4);
-    return DateTimeTextProvider.getWeek(date.getDay(), locale, exp.length === 4)
+    return DateTimeTextProvider.getWeek(date.getDay(), locale, exp.length === 4);
   },
   // 上午下午
   'a': (date: Date, exp: string, locale: Locale) => {
     checkLimit(exp, 5);
-    return DateTimeTextProvider.getPAM(date.getHours(), locale)
+    return DateTimeTextProvider.getPAM(date.getHours(), locale);
   },
   // 时区偏移量
   'Z': (date: Date, exp: string, locale: Locale) => {
     checkLimit(exp, 5);
     let offsetMinutes = date.getTimezoneOffset();
-    let sign = offsetMinutes < 0 ? '+' : '-';
+    const sign = offsetMinutes < 0 ? '+' : '-';
     offsetMinutes = Math.abs(offsetMinutes);
-    let hours = Math.floor(offsetMinutes / 60);
-    let minutes = offsetMinutes % 60;
+    const hours = Math.floor(offsetMinutes / 60);
+    const minutes = offsetMinutes % 60;
     return `${sign}${String(hours).padStart(2, '0')}${String(minutes).padStart(2, '0')}`;
   },
-}
+};

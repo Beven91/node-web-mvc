@@ -1,23 +1,22 @@
-import UnexpectedTypeException from "../../errors/UnexpectedTypeException";
-import { TypedArray } from "../../serialization/TypeConverter";
-import Target from "../../servlets/annotations/Target";
-import ElementType from "../../servlets/annotations/annotation/ElementType";
-import ValidationContext from "../ValidationContext";
-import Constraints from "./Constraints";
+import UnexpectedTypeException from '../../errors/UnexpectedTypeException';
+import { TypedArray } from '../../serialization/TypeConverter';
+import Target from '../../servlets/annotations/Target';
+import ElementType from '../../servlets/annotations/annotation/ElementType';
+import ValidationContext from '../ValidationContext';
+import Constraints from './Constraints';
 
 class Size extends Constraints {
-
-  message? = '{validation.constraints.Size.message}'
+  message? = '{validation.constraints.Size.message}';
 
   /**
    * 当前元素必须大于等于 min
    */
-  min? = 0
+  min? = 0;
 
   /**
    * 当前元素必须小于等于 max
    */
-  max? = Number.MAX_VALUE
+  max? = Number.MAX_VALUE;
 
   private getSize(value: any, context: ValidationContext) {
     const typer = context.currentTyper;
@@ -44,19 +43,18 @@ class Size extends Constraints {
     const size = this.getSize(value, context);
     return size >= this.min && size <= this.max;
   }
-
 }
 
 /**
  * 验证配置元素的区间范围
- * 
+ *
  * 支持的类型:
  * - `String`
- * - `Array` 
+ * - `Array`
  * - `Map`
  * - `Set`
  * - `TypedArray`
- * 
+ *
  * `null` 或者 `undefined` 则忽略验证
  */
-export default Target([ElementType.PROPERTY, ElementType.PARAMETER])(Size);
+export default Target([ ElementType.PROPERTY, ElementType.PARAMETER ])(Size);

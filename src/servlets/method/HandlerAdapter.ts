@@ -1,5 +1,5 @@
 /**
- * @module HandlerAdapter 
+ * @module HandlerAdapter
  * @description action操作适配器接口
  */
 import HttpServletRequest from '../http/HttpServletRequest';

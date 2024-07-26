@@ -1,12 +1,11 @@
-import MethodParameter from "../MethodParameter";
-import ServletContext from "../../http/ServletContext";
-import HandlerMethodReturnValueHandler from "./HandlerMethodReturnValueHandler";
-import UnsupportReturnValueHandlerError from "../../../errors/UnsupportReturnValueHandlerError";
-import ModelAndViewContainer from "../../models/ModelAndViewContainer";
+import MethodParameter from '../MethodParameter';
+import ServletContext from '../../http/ServletContext';
+import HandlerMethodReturnValueHandler from './HandlerMethodReturnValueHandler';
+import UnsupportReturnValueHandlerError from '../../../errors/UnsupportReturnValueHandlerError';
+import ModelAndViewContainer from '../../models/ModelAndViewContainer';
 
 export default class HandlerMethodReturnValueHandlerComposite {
-
-  private readonly returnvalueHandlers: HandlerMethodReturnValueHandler[]
+  private readonly returnvalueHandlers: HandlerMethodReturnValueHandler[];
 
   constructor(handlers: HandlerMethodReturnValueHandler[]) {
     this.returnvalueHandlers = handlers || [];

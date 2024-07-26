@@ -11,5 +11,5 @@ export default {
       return instance;
     }
     return instance[instanceSymbol] || instance;
-  }
-}
+  },
+};

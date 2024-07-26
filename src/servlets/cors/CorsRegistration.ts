@@ -1,10 +1,9 @@
-import CorsConfiguration from "./CorsConfiguration"
+import CorsConfiguration from './CorsConfiguration';
 
 export default class CorsRegistration {
+  private readonly pathPattern: string;
 
-  private readonly pathPattern: string
-
-  private readonly config: CorsConfiguration
+  private readonly config: CorsConfiguration;
 
   constructor(pathPattern: string) {
     this.pathPattern = pathPattern;

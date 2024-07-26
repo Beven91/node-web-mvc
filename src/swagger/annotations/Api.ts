@@ -10,22 +10,22 @@ class Api {
   /**
    * 接口类描述 默认为class名
    */
-  value?: string
+  value?: string;
 
   /**
    * 接口描述
    */
-  description?: string
+  description?: string;
 
   /**
    * 外部文档信息
    */
-  externalDocs?: ExternalDocs
+  externalDocs?: ExternalDocs;
 
   /**
    * 接口标签 如果没有定义tags 则默认使用 value
    */
-  tags?: Array<ApiTag>
+  tags?: Array<ApiTag>;
 }
 
 /**

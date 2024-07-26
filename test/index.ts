@@ -1,4 +1,10 @@
-import { Registry } from '../src';
-import WebAppConfigurer from './WebAppConfigurer';
+import { SpringApplication, SpringBootApplication } from '../src';
 
-Registry.launch(new WebAppConfigurer());
+@SpringBootApplication({
+  scanBasePackages: './test',
+})
+export default class DemoApplication {
+  static main() {
+    SpringApplication.run(DemoApplication);
+  }
+}

@@ -8,7 +8,6 @@ import AbstractHttpMessageConverter from './AbstractHttpMessageConverter';
 import Javascript from '../../../interface/Javascript';
 
 export default class ByteArrayHttpMessageConverter extends AbstractHttpMessageConverter<Buffer> {
-
   constructor() {
     super(MediaType.APPLICATION_OCTET_STREAM, MediaType.ALL);
   }
@@ -23,6 +22,6 @@ export default class ByteArrayHttpMessageConverter extends AbstractHttpMessageCo
 
   async writeInternal(buffer: Buffer, servletContext: ServletContext) {
     const response = servletContext.response;
-    await response.fullResponse(buffer,MediaType.APPLICATION_OCTET_STREAM);
+    await response.fullResponse(buffer, MediaType.APPLICATION_OCTET_STREAM);
   }
 }

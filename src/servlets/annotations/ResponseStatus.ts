@@ -4,21 +4,20 @@
  * @description 标注指定action的返回状态与信息
  */
 
-import Target from "./Target";
-import ElementType from "./annotation/ElementType";
-import RuntimeAnnotation from "./annotation/RuntimeAnnotation";
+import Target from './Target';
+import ElementType from './annotation/ElementType';
+import RuntimeAnnotation from './annotation/RuntimeAnnotation';
 
 class ResponseStatus {
-
   /**
   * 返回状态编码
   */
-  code: number
+  code: number;
 
   /**
    * 返回状态消息
    */
-  reason: string
+  reason: string;
 
   constructor(meta: RuntimeAnnotation, options: ResponseStatus) {
     options = options || {} as ResponseStatus;

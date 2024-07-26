@@ -1,4 +1,5 @@
-import { MethodInvocation } from "./MethodInvocation";
+/* eslint-disable semi */
+import { MethodInvocation } from './MethodInvocation';
 
 export default interface ProxyMethodInvocation extends MethodInvocation {
 

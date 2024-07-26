@@ -1,19 +1,18 @@
-import ResourceResolver from "./ResourceResolver";
-import ResourceTransformer from "./ResourceTransformer";
+import ResourceResolver from './ResourceResolver';
+import ResourceTransformer from './ResourceTransformer';
 
 /**
  * @module ResourceChainRegistration
  */
 
 export default class ResourceChainRegistration {
-
   readonly resolvers: Array<ResourceResolver>;
 
-  readonly transformers: Array<ResourceTransformer>
+  readonly transformers: Array<ResourceTransformer>;
 
   constructor(cacheResources, cache) {
-    this.resolvers = new Array<ResourceResolver>();
-    this.transformers = new Array<ResourceTransformer>();
+    this.resolvers = [];
+    this.transformers = [];
   }
 
   addResolver(resolver: ResourceResolver) {

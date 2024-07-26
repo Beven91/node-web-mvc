@@ -7,7 +7,6 @@ import ParamAnnotation from './ParamAnnotation';
 import ElementType from '../annotation/ElementType';
 
 class RequestBody extends ParamAnnotation {
-
   constructor() {
     super('body');
   }
@@ -15,9 +14,9 @@ class RequestBody extends ParamAnnotation {
 
 /**
  * 将body提取成指定参数
- * 
+ *
  *  action(@RequestBody user)
- * 
+ *
  *  action(@RequestBody({ required:true }) user)
  */
 export default Target(ElementType.PARAMETER)(RequestBody);

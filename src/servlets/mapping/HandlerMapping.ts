@@ -8,11 +8,13 @@ import ServletContext from '../http/ServletContext';
 
 export const PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE = 'HandlerMapping.producibleMediaTypes';
 
+export const HANDLE_MAPPING_PATH = '@@HANDLE_MAPPING_PATH@@';
+
 export default interface HandlerMapping {
 
   /**
    * 根据当前请求上下文对象获取 处理器执行链
-   * @param context 
+   * @param context
    */
   getHandler(context: ServletContext): HandlerExecutionChain
 

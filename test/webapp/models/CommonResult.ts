@@ -3,28 +3,27 @@
  * @description 接口统一返回结果
  */
 
-import { ApiModel, ApiModelProperty } from "../../../src";
+import { ApiModel, ApiModelProperty } from '../../../src';
 
 @ApiModel({ description: '返回结果' })
 export default class CommonResult<T> {
-
   /**
-   * 返回的：业务编码 
+   * 返回的：业务编码
    */
-  @ApiModelProperty({ value:'编码' })
-  public code: number
+  @ApiModelProperty({ value: '编码' })
+  public code: number;
 
   /**
    * 返回的消息
    */
-  @ApiModelProperty({ value:'消息' })
-  public message: string
+  @ApiModelProperty({ value: '消息' })
+  public message: string;
 
   /**
    * 返回的数据
    */
   @ApiModelProperty({ value: '数据', dataType: '?' })
-  public data: T
+  public data: T;
 
   /**
    * 构造一个统一返回结果实例

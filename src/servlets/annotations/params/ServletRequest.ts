@@ -14,6 +14,6 @@ class ServletRequest {
  * 从servlet上下文中提取request
  *
  * action(@ServletRequest request)
- * 
+ *
  */
 export default Target(ElementType.PARAMETER)(ServletRequest);

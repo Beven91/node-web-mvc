@@ -13,17 +13,16 @@ import { MyGroup } from '../models/UserInfo';
 @RestController
 @CorsOrigin({
   allowCredentials: true,
-  methods: ['DELETE'],
-  origins: ['http://local.test.shantaijk.cn:8082']
+  methods: [ 'DELETE' ],
+  origins: [ 'http://local.test.shantaijk.cn:8082' ],
 })
-@RequestMapping({ value: '/home', method: ['GET', 'POST'] })
+@RequestMapping({ value: '/home', method: [ 'GET', 'POST' ] })
 export default class HomeController {
-
   @Autowired
   private orderService: OrderService;
 
   @Autowired
-  private oService: OrderService
+  private oService: OrderService;
 
   @ApiOperation({ value: 'RequestParam get参数' })
   @GetMapping('/requestParamsGet')
@@ -52,54 +51,34 @@ export default class HomeController {
   }
 
   @ApiImplicitParams([
-    { name: 'data', example: JSON.stringify({ name: '张三', age: 18, enabled: false }, null, 2) }
+    { name: 'data', example: JSON.stringify({ name: '张三', age: 18, enabled: false }, null, 2) },
   ])
   @ApiOperation({ value: 'RequestParam接收Map' })
   @GetMapping('/map')
   mapGet(@RequestParam data: Map<string, any>) {
-    const values: string[] = [
-      `Type: ${Object.prototype.toString.call(data)}`
-    ];
-    data.forEach((value, key) => {
-      values.push(`${key}:${value}`)
-    })
-    return values.join('\n');
+    return data;
   }
 
   @ApiImplicitParams([
-    { name: 'data', example: JSON.stringify({ name: '张三', age: 18, enabled: false }, null, 2) }
+    { name: 'data', example: JSON.stringify({ name: '张三', age: 18, enabled: false }, null, 2) },
   ])
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
   mapPost(@RequestBody data: Map<string, any>) {
-    const values: string[] = [
-      `Type: ${Object.prototype.toString.call(data)}`
-    ];
-    data.forEach((value, key) => {
-      values.push(`${key}:${value}`)
-    })
-    return values.join('\n');
+    return data;
   }
 
   @ApiOperation({ value: 'Set数据接收' })
   @PostMapping('/set')
   set(@RequestParam data: Set<any>) {
-    const values: string[] = [
-      `Type: ${Object.prototype.toString.call(data)}`
-    ];
-    data.forEach((v) => values.push(v));
-    return values.join(',\n');
+   return data;
   }
 
   @ApiOperation({ value: '@RequestParam 接收Array数据接收' })
   @PostMapping('/array')
   array(@RequestParam array: Array<string>) {
     // TODO: 如何补偿泛型运行时的类型参数
-    const values: string[] = [
-      `Type: ${Object.prototype.toString.call(array)}`,
-      ...array
-    ];
-    return values.join(',\n');
+    return array;
   }
 
   @ApiOperation({ value: 'Date,Boolean,数据接收' })
@@ -115,7 +94,7 @@ export default class HomeController {
   //   { description: '编号', paramType: 'query', name: 'id', required: true }
   // ])
   requestParamWithMultipartFile(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
-    file.transferTo('a.jpg')
+    file.transferTo('a.jpg');
     return 'home/index...' + id + ',file.name=' + file.name;
   }
 
@@ -139,7 +118,7 @@ export default class HomeController {
 
   @ApiOperation({ value: '@RequestBody 测试' })
   @ApiImplicitParams([
-    { description: '类型', name: 'user', example: demoData }
+    { description: '类型', name: 'user', example: demoData },
   ])
   @PostMapping({ value: '/body', produces: 'application/json' })
   body(@RequestBody @Validated(MyGroup) user: UserInfo): UserInfo {
@@ -165,7 +144,7 @@ export default class HomeController {
 
   @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo[]>' })
   @ApiImplicitParams([
-    { description: '类型', name: 'user', example: demoData }
+    { description: '类型', name: 'user', example: demoData },
   ])
   @PostMapping('/return2')
   returnData2(@RequestBody @Valid user: UserInfo) {
@@ -178,19 +157,19 @@ export default class HomeController {
 
   }
 
-  @ApiOperation({ value: '自定义返回', returnType: ['hello'] })
+  @ApiOperation({ value: '自定义返回', returnType: [ 'hello' ] })
   @GetMapping('/demo')
   demo() {
-    return JSON.stringify(['aaa']);
+    return JSON.stringify([ 'aaa' ]);
   }
 
-  @ApiOperation({ value: '测试ResponseHttpEntity返回', returnType: ['hello'] })
+  @ApiOperation({ value: '测试ResponseHttpEntity返回', returnType: [ 'hello' ] })
   @GetMapping('/httpEntity')
   httpEntity(httpEntity: RequestEntity) {
     const entity = new ResponseEntity(HttpStatus.OK);
     entity.setHeader(HttpHeaders.LAST_MODIFIED, new Date().toUTCString());
-    entity.setHeader('demo', '123424234')
-    entity.setBody({ id: 100086 })
+    entity.setHeader('demo', '123424234');
+    entity.setBody({ id: 100086 });
     return entity;
   }
 }

@@ -3,27 +3,26 @@
  * @description 数据视图类,返回此结果，最终会使用指定模板来返回html内容
  */
 
-import HttpStatus from "../http/HttpStatus";
-import View from "../view/View";
+import HttpStatus from '../http/HttpStatus';
+import View from '../view/View';
 
 export default class ModelAndView {
-
   /**
    * 视图名称
    */
-  public view: string | View
+  public view: string | View;
 
   /**
    * 视图使用的模型数据
    */
-  public model: any
+  public model: any;
 
-  public status: HttpStatus
+  public status: HttpStatus;
 
   /**
    * 用来标识当前数据视图是否已清空
    */
-  private cleared: boolean
+  private cleared: boolean;
 
   /**
    * 判断当前模型数据是否为空

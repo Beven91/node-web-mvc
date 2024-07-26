@@ -3,18 +3,17 @@
  * @module PathMatchConfigurer
  * @description 路径匹配配置,可配置servlet路径解析，以及资源url解析
  */
-import PathMatcher from "../util/PathMatcher"
-import UrlPathHelper from "../util/UrlPathHelper"
+import PathMatcher from '../util/PathMatcher';
+import UrlPathHelper from '../util/UrlPathHelper';
 
 export default class PathMatchConfigurer {
+  private urlPathHelper: UrlPathHelper;
 
-  private urlPathHelper: UrlPathHelper
+  private pathMatcher: PathMatcher;
 
-  private pathMatcher: PathMatcher
+  private defaultUrlPathHelper: UrlPathHelper;
 
-  private defaultUrlPathHelper: UrlPathHelper
-
-  private defaultPathMatcher: PathMatcher
+  private defaultPathMatcher: PathMatcher;
 
   setUrlPathHelper(helper: UrlPathHelper) {
     this.urlPathHelper = helper;

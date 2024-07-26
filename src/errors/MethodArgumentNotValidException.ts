@@ -1,19 +1,18 @@
 /**
  * @module MethodArgumentNotValidException
  */
-import Tracer from "../servlets/annotations/annotation/Tracer";
-import MethodParameter from "../servlets/method/MethodParameter";
-import Exception from "./Exception";
+import Tracer from '../servlets/annotations/annotation/Tracer';
+import MethodParameter from '../servlets/method/MethodParameter';
+import Exception from './Exception';
 
 export default class MethodArgumentNotValidException extends Exception {
-
-  parameter: MethodParameter
+  parameter: MethodParameter;
 
   bindingResult: {
     objectName: string
     fieldName: string
     message: string
-  }
+  };
 
   constructor(parameter: MethodParameter, message: string, paths: string) {
     super(message);

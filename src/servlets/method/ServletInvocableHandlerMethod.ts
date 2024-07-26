@@ -1,18 +1,17 @@
-import HttpStatus from "../http/HttpStatus";
-import ServletContext from "../http/ServletContext";
-import ModelAndViewContainer from "../models/ModelAndViewContainer";
-import HandlerMethod from "./HandlerMethod";
-import MethodParameter from "./MethodParameter";
-import HandlerMethodReturnValueHandler from "./return/HandlerMethodReturnValueHandler";
-import HandlerMethodReturnValueHandlerComposite from "./return/HandlerMethodReturnValueHandlerComposite";
+import HttpStatus from '../http/HttpStatus';
+import ServletContext from '../http/ServletContext';
+import ModelAndViewContainer from '../models/ModelAndViewContainer';
+import HandlerMethod from './HandlerMethod';
+import MethodParameter from './MethodParameter';
+import HandlerMethodReturnValueHandler from './return/HandlerMethodReturnValueHandler';
+import HandlerMethodReturnValueHandlerComposite from './return/HandlerMethodReturnValueHandlerComposite';
 
 const NOOP = {};
 
 export default class ServletInvocableHandlerMethod {
+  private returnvalueHandlers: HandlerMethodReturnValueHandler[];
 
-  private returnvalueHandlers: HandlerMethodReturnValueHandler[]
-
-  private readonly handlerMethod: HandlerMethod
+  private readonly handlerMethod: HandlerMethod;
 
   constructor(handlerMethod: HandlerMethod) {
     this.handlerMethod = handlerMethod;

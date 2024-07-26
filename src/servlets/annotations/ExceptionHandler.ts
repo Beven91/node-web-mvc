@@ -2,8 +2,8 @@
  * @module ExceptionHandler
  * @description 异常处理注解
  */
-import Target from "./Target";
-import ElementType from "./annotation/ElementType";
+import Target from './Target';
+import ElementType from './annotation/ElementType';
 
 class ExceptionHandler {
 

@@ -9,27 +9,27 @@ class ApiModelProperty {
   /**
    * 属性简短描述
    */
-  value: string
+  value: string;
 
   /**
    * 属性的示例值
    */
-  example?: string | number | Date | boolean | Object
+  example?: string | number | Date | boolean | Object;
 
   /**
    * 是否为必须值
    */
-  required?: boolean
+  required?: boolean;
 
   /**
    * 数据类型
    */
-  dataType?: string
+  dataType?: string;
 
   /**
    * 枚举
    */
-  enum?: any
+  enum?: any;
 }
 
 /**

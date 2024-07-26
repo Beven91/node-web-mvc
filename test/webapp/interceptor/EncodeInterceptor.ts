@@ -1,7 +1,6 @@
 import { HandlerInterceptor, HttpServletRequest } from '../../../src/index';
 
 export default class EncodeInterceptor extends HandlerInterceptor {
-
   preHandle(request: HttpServletRequest) {
     console.log('EncodeInterceptor.preHandle called.');
     return true;

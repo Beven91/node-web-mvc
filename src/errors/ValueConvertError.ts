@@ -2,7 +2,7 @@
  * @module ValueConvertError
  */
 
-import Exception from "./Exception";
+import Exception from './Exception';
 
 export default class ValueConvertError extends Exception {
   constructor(value, ctor, message?: string) {

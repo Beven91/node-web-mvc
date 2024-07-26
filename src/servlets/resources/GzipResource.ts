@@ -7,8 +7,7 @@ import HttpResource from './HttpResource';
 import Resource from './Resource';
 
 export default class GzipResource extends HttpResource {
-
-  private readonly resource: Resource
+  private readonly resource: Resource;
 
   constructor(resource: Resource) {
     super(resource.url);
@@ -27,7 +26,7 @@ export default class GzipResource extends HttpResource {
 
   getResponseHeaders() {
     return {
-      [HttpHeaders.CONTENT_ENCODING]: 'gzip'
-    }
+      [HttpHeaders.CONTENT_ENCODING]: 'gzip',
+    };
   }
 }

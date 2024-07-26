@@ -1,14 +1,13 @@
-import HttpHeaders from "../http/HttpHeaders";
-import HttpServletResponse from "../http/HttpServletResponse";
-import CorsUtils from "../util/CorsUtils";
-import CorsConfiguration from "./CorsConfiguration";
-import CorsProcessor from "./CorsProcessor";
-import HttpStatus from "../http/HttpStatus";
-import HttpServletRequest from "../http/HttpServletRequest";
+import HttpHeaders from '../http/HttpHeaders';
+import HttpServletResponse from '../http/HttpServletResponse';
+import CorsUtils from '../util/CorsUtils';
+import CorsConfiguration from './CorsConfiguration';
+import CorsProcessor from './CorsProcessor';
+import HttpStatus from '../http/HttpStatus';
+import HttpServletRequest from '../http/HttpServletRequest';
 
 
 export default class DefaultCorsProcessor implements CorsProcessor {
-
   private tryAddVaryHeaders(response: HttpServletResponse) {
     response.addHeader(HttpHeaders.VARY, HttpHeaders.ORIGIN, true);
     response.addHeader(HttpHeaders.VARY, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD, true);
@@ -26,7 +25,7 @@ export default class DefaultCorsProcessor implements CorsProcessor {
     // 是否已处理
     const isHandled = !!response.getHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN);
     // 不是跨域请求
-    const isCrossRequest = CorsUtils.isCrossRequest(request)
+    const isCrossRequest = CorsUtils.isCrossRequest(request);
     if (!isCrossRequest || isHandled) {
       // 如果不是跨域请求，或者已经处理
       return true;
@@ -63,7 +62,6 @@ export default class DefaultCorsProcessor implements CorsProcessor {
 
   checkHeaders(config: CorsConfiguration, requestHeaders: string[]) {
     return config.checkHeaders(requestHeaders);
-
   }
 
   async handleInternal(request: HttpServletRequest, response: HttpServletResponse, config: CorsConfiguration, isPreFlightRequest: boolean) {

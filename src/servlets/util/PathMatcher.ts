@@ -2,7 +2,7 @@
  * @module PathMatcher
  * @descriptionn 路径匹配器
  */
-import PathPattern from "./PathPattern";
+import PathPattern from './PathPattern';
 
 export interface MatchResult {
   params: object
@@ -38,6 +38,6 @@ export default class PathMatcher {
   static preBuildPattern(patterns: string[]) {
     patterns?.forEach?.((pattern) => {
       PathPattern.create(pattern);
-    })
+    });
   }
 }

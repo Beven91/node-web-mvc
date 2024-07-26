@@ -1,31 +1,31 @@
-import { ClazzType } from "../../interface/declare";
-import RuntimeAnnotation from "../../servlets/annotations/annotation/RuntimeAnnotation";
-import ValidationContext from "../ValidationContext";
-import Validator from "../Validator";
-import { ValidateGroupType } from "./Validated";
+import { ClazzType } from '../../interface/declare';
+import RuntimeAnnotation from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import type ValidationContext from '../ValidationContext';
+import Validator from '../Validator';
+import IConstraints from './IConstraints';
+import { ValidateGroupType } from './Validated';
 
 const constraintsSymbol = Symbol('constraints');
 
 function EMPTY_GROUP() { }
 
-export default abstract class Constraints implements Validator {
+export default abstract class Constraints implements Validator, IConstraints {
+  static EMPTY_GROUP = EMPTY_GROUP;
 
-  static EMPTY_GROUP = EMPTY_GROUP
+  __exclude_keys__: 'isValid' | 'getSize';
 
-  __exclude_keys__: 'isValid' | 'getSize'
-
-  groups?: ValidateGroupType | ValidateGroupType[] = EMPTY_GROUP
+  groups?: ValidateGroupType | ValidateGroupType[] = EMPTY_GROUP;
 
   /**
    * 自定义验证失败时的提示消息
    */
-  message?: string
+  message?: string;
 
   /**
    * 校验值
-   * @param value 
+   * @param value
    */
-  abstract isValid(value: any, context: ValidationContext): Promise<boolean> | boolean
+  abstract isValid(value: any, context: ValidationContext): Promise<boolean> | boolean;
 
 
   constructor(info: RuntimeAnnotation) {

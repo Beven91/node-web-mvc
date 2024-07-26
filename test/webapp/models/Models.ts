@@ -1,49 +1,48 @@
-import { ApiModel, ModelAttribute } from "../../../src"
+import { ApiModel, ModelAttribute } from '../../../src';
 
 class Geometry {
   @ModelAttribute
-  type: string
+  type: string;
 
   @ModelAttribute
-  coordinates: number[][][]
+  coordinates: number[][][];
 }
 
 class FeatureProperty {
   @ModelAttribute
-  MAPBLKLOT: string
+  MAPBLKLOT: string;
   @ModelAttribute
-  BLKLOT: string
+  BLKLOT: string;
   @ModelAttribute
-  BLOCK_NUM: string
+  BLOCK_NUM: string;
   @ModelAttribute
-  LOT_NUM: string
+  LOT_NUM: string;
   @ModelAttribute
-  FROM_ST: string
+  FROM_ST: string;
   @ModelAttribute
-  STREET: string
-  
+  STREET: string;
 }
 
 
 class Feature {
   @ModelAttribute
-  type: string
+  type: string;
 
   @ModelAttribute
-  properties: FeatureProperty
+  properties: FeatureProperty;
 
   @ModelAttribute
-  geometry: Geometry
+  geometry: Geometry;
 }
 
 
 @ApiModel
 class City {
   @ModelAttribute
-  type: string
+  type: string;
 
   @ModelAttribute({ itemType: Feature })
-  features: Feature[]
+  features: Feature[];
 }
 
-export default City
+export default City;

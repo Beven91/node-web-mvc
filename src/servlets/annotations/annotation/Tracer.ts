@@ -2,11 +2,10 @@
 import path from 'path';
 import process from 'process';
 
-const tracerSymbol = Symbol('tracer')
+const tracerSymbol = Symbol('tracer');
 
 
 export default class Tracer {
-
   public readonly id: string;
 
   constructor(error: Error) {
@@ -29,8 +28,8 @@ export default class Tracer {
         configurable: true,
         get() {
           return tracer;
-        }
-      })
+        },
+      });
     }
   }
 
@@ -52,7 +51,7 @@ export default class Tracer {
       return suffix;
     }
     const id = this.getTracer(clazz)?.id;
-    return this.getClassPath(id || clazz.name, suffix).replace(/\//g, '.').replace(/^\./,'');
+    return this.getClassPath(id || clazz.name, suffix).replace(/\//g, '.').replace(/^\./, '');
   }
 
   static isDependency(clazz: Function, file) {

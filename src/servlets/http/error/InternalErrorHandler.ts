@@ -1,21 +1,20 @@
-import Javascript from "../../../interface/Javascript";
-import Component from "../../../ioc/annotations/Component";
-import { BeanFactory } from "../../../ioc/factory/BeanFactory";
-import Serialization from "../../../serialization/Serialization";
-import RuntimeAnnotation from "../../annotations/annotation/RuntimeAnnotation";
-import ServletContext from "../../http/ServletContext";
-import ModelAndView from "../../models/ModelAndView";
-import ViewRender from "../../view/ViewRender";
-import ViewResolverRegistry from "../../view/ViewResolverRegistry";
-import MediaType from "../MediaType";
-import DefaultErrorAttributes from "./DefaultErrorAttributes";
-import ErrorAttributes from "./ErrorAttributes";
+import Javascript from '../../../interface/Javascript';
+import Component from '../../../ioc/annotations/Component';
+import { BeanFactory } from '../../../ioc/factory/BeanFactory';
+import Serialization from '../../../serialization/Serialization';
+import RuntimeAnnotation from '../../annotations/annotation/RuntimeAnnotation';
+import ServletContext from '../../http/ServletContext';
+import ModelAndView from '../../models/ModelAndView';
+import ViewRender from '../../view/ViewRender';
+import ViewResolverRegistry from '../../view/ViewResolverRegistry';
+import MediaType from '../MediaType';
+import DefaultErrorAttributes from './DefaultErrorAttributes';
+import ErrorAttributes from './ErrorAttributes';
 
 export default class InternalErrorHandler {
+  private readonly errorAttributes: ErrorAttributes;
 
-  private readonly errorAttributes: ErrorAttributes
-
-  private readonly registry: ViewResolverRegistry
+  private readonly registry: ViewResolverRegistry;
 
   constructor(beanFactory: BeanFactory, registry: ViewResolverRegistry) {
     this.registry = registry;
@@ -33,8 +32,8 @@ export default class InternalErrorHandler {
       // 如果不需要处理异常
       return;
     }
-    const accept = servletContext.request.getHeaderValue('accept').join(',')
-    const acceptHtml = accept.toLowerCase().indexOf("text/html") > -1;
+    const accept = servletContext.request.getHeaderValue('accept').join(',');
+    const acceptHtml = accept.toLowerCase().indexOf('text/html') > -1;
     return acceptHtml ? this.handleErrorHtml(servletContext) : this.handleError(servletContext);
   }
 
@@ -47,7 +46,7 @@ export default class InternalErrorHandler {
 
   handleErrorHtml(servletContext: ServletContext) {
     const data = this.errorAttributes.getErrorAttributes(servletContext);
-    const mv = new ModelAndView("error", data);
+    const mv = new ModelAndView('error', data);
     const render = new ViewRender(this.registry);
     return render.render(mv, servletContext);
   }

@@ -3,10 +3,9 @@
  */
 
 export default class MetaProperty {
-
-  // 子项类型，例如当注解对象是Array 
-  itemType?: any
+  // 子项类型，例如当注解对象是Array
+  itemType?: any;
 
   // 字段描述
-  desc?: string
+  desc?: string;
 }

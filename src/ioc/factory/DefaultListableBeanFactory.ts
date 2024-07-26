@@ -2,15 +2,15 @@
  * @module DefaultListableBeanFactory
  * @description Ioc 容器
  */
-import BeanDefinition from "./BeanDefinition";
-import AbstractBeanFactory from "./AbstractBeanFactory";
-import BeanDefinitionOverrideException from "../../errors/BeanDefinitionOverrideException";
-import RuntimeAnnotation, { } from "../../servlets/annotations/annotation/RuntimeAnnotation";
-import Bean from "../annotations/Bean";
-import Scope from "../../servlets/annotations/Scope";
-import Qualifier from "../annotations/Qualifier";
-import InvalidBeanDefinitionException from "../../errors/InvalidBeanDefinitionException";
-import { ClazzType } from "../../interface/declare";
+import BeanDefinition from './BeanDefinition';
+import AbstractBeanFactory from './AbstractBeanFactory';
+import BeanDefinitionOverrideException from '../../errors/BeanDefinitionOverrideException';
+import RuntimeAnnotation, { } from '../../servlets/annotations/annotation/RuntimeAnnotation';
+import Bean from '../annotations/Bean';
+import Scope from '../../servlets/annotations/Scope';
+import Qualifier from '../annotations/Qualifier';
+import InvalidBeanDefinitionException from '../../errors/InvalidBeanDefinitionException';
+import { ClazzType } from '../../interface/declare';
 
 export const methodBeanNameSymbol = Symbol('methodBeanNameSymbol');
 
@@ -38,7 +38,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
 
   /**
    * 注册一个bean定义
-   * @param beanName bean名称 
+   * @param beanName bean名称
    * @param beanDefinition bean定义
    */
   registerBeanDefinition(beanName: string, beanDefinition: BeanDefinition) {
@@ -46,7 +46,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
       throw new InvalidBeanDefinitionException(beanDefinition);
     }
     const overrideDefinition = this.beanDefinitions.get(beanName);
-    if (overrideDefinition && this.isBeanDefinitionOverridable(beanName)) {
+    if (overrideDefinition && !this.isBeanDefinitionOverridable(beanName)) {
       throw new BeanDefinitionOverrideException(beanName, beanDefinition, overrideDefinition);
     }
     this.registerComponentBeanAnnotations(beanDefinition.clazz || beanDefinition.methodClazz);
@@ -56,7 +56,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
 
   /**
    * 注册组件的Bean注解定义
-   * @param clazz 
+   * @param clazz
    */
   private registerComponentBeanAnnotations(clazz: ClazzType) {
     if (this.registerdBeanType.has(clazz)) {
@@ -85,7 +85,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
 
   /**
    * 移除一个bean定义
-   * @param beanName 
+   * @param beanName
    */
   removeBeanDefinition(beanName: string) {
     if (this.containsBeanDefinition(beanName)) {
@@ -98,7 +98,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
 
   /**
    * 获取所有已注册的bean定义key
-   * @returns 
+   * @returns
    */
   getBeanDefinitionNames() {
     return this.beanDefinitions.keys();

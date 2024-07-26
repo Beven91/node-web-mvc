@@ -1,4 +1,4 @@
-import { ClazzType } from "../../interface/declare"
+import { ClazzType } from '../../interface/declare';
 
 export interface ApiTag {
   name: string

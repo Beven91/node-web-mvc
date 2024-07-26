@@ -1,9 +1,8 @@
-import type HttpServletRequest from "../HttpServletRequest";
-import MediaType from "../MediaType";
+import type HttpServletRequest from '../HttpServletRequest';
+import MediaType from '../MediaType';
 
 export default abstract class AbstractBodyReader {
-
-  private readonly mediaType: MediaType
+  private readonly mediaType: MediaType;
 
   constructor(mediaType: MediaType) {
     this.mediaType = mediaType;

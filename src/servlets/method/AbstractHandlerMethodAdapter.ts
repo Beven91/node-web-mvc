@@ -8,7 +8,6 @@ import ServletContext from '../http/ServletContext';
 import ModelAndView from '../models/ModelAndView';
 
 export default abstract class AbstractHandlerMethodAdapter extends HandlerAdapter {
-
   /**
    * 用于判断当前适配器是否能处理对应的action操作
    * @param handler 当前处理的handler
@@ -45,7 +44,7 @@ export default abstract class AbstractHandlerMethodAdapter extends HandlerAdapte
    * @param request 当前请求信息
    * @param handler 当前HandlerMethod
    */
-  public getLastModified(request, handler) { 
+  public getLastModified(request, handler) {
     return -1;
   }
-}  
+}

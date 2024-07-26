@@ -8,12 +8,11 @@ import HttpServletRequest from '../http/HttpServletRequest';
 import HttpServletResponse from '../http/HttpServletResponse';
 
 export default class ResourceCacheControl {
+  private readonly request: HttpServletRequest;
 
-  private readonly request: HttpServletRequest
+  private readonly response: HttpServletResponse;
 
-  private readonly response: HttpServletResponse
-
-  private readonly cacheControl: CacheControl
+  private readonly cacheControl: CacheControl;
 
   constructor(request: HttpServletRequest, response: HttpServletResponse, cacheControl: CacheControl) {
     this.request = request;
@@ -36,11 +35,11 @@ export default class ResourceCacheControl {
 
       if (response.containsHeader(HttpHeaders.PRAGMA)) {
         // Reset HTTP 1.0 Pragma header if present
-        response.setHeader(HttpHeaders.PRAGMA, "");
+        response.setHeader(HttpHeaders.PRAGMA, '');
       }
       if (response.containsHeader(HttpHeaders.EXPIRES)) {
         // Reset HTTP 1.0 Expires header if present
-        response.setHeader(HttpHeaders.EXPIRES, "");
+        response.setHeader(HttpHeaders.EXPIRES, '');
       }
     }
   }

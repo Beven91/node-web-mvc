@@ -13,17 +13,16 @@ import type ServletContext from './ServletContext';
 const servletContextSymbol = Symbol('servletContext');
 
 export default class HttpServletResponse {
-
   private tempStatusCode;
 
   private tempStatusMessage;
 
-  startTime: number
+  startTime: number;
 
   /**
    * nodejs原生ServerResponse
    */
-  public readonly nativeResponse: ServerResponse
+  public readonly nativeResponse: ServerResponse;
 
   /**
  * 当前请求上下文
@@ -80,7 +79,7 @@ export default class HttpServletResponse {
 
   /**
    * 获取设置的返回头
-   * @param name 
+   * @param name
    */
   getHeader(name: string) {
     return this.nativeResponse.getHeader((name || '').toLowerCase());
@@ -88,17 +87,17 @@ export default class HttpServletResponse {
 
   public getHeaderValue(name: string) {
     const v = this.getHeader(name);
-    return v instanceof Array ? v : isEmpty(v) ? [] : [v];
+    return v instanceof Array ? v : isEmpty(v) ? [] : [ v ];
   }
 
   addHeader(name: string, value: HttpHeaderValue, checkExists = false) {
     const values = this.getHeaderValue(name);
-    const addValues = value instanceof Array ? value : [value];
+    const addValues = value instanceof Array ? value : [ value ];
     addValues.forEach((value) => {
       if (!(checkExists && values.indexOf(value as any) > -1)) {
         values.push(value);
       }
-    })
+    });
     this.setHeader(name, values as string[]);
   }
 
@@ -114,7 +113,7 @@ export default class HttpServletResponse {
 
   /**
    * 返回异常，结束请i去
-   * @param name 
+   * @param name
    */
   sendError(status: HttpStatus) {
     this.setStatus(status);
@@ -138,7 +137,7 @@ export default class HttpServletResponse {
 
   /**
    * 设置返回状态
-   * @param response 
+   * @param response
    */
   setStatus(status: number | HttpStatus, statusMessage?) {
     if (status instanceof HttpStatus || (status && typeof status === 'object')) {
@@ -161,7 +160,7 @@ export default class HttpServletResponse {
 
   /**
    * 以安全方式将要写入的内容创建成一个buffer对象
-   * @param data 
+   * @param data
    * @returns {Buffer}
    */
   createBuffer(data: any) {
@@ -173,7 +172,7 @@ export default class HttpServletResponse {
 
   /**
    * 写出内容到客户端
-   * @param response 
+   * @param response
    */
   write(chunk: string | Buffer, encoding?: BufferEncoding) {
     this.writeStatus();
@@ -183,7 +182,7 @@ export default class HttpServletResponse {
 
   /**
    * 结束请求
-   * @param response 
+   * @param response
    */
   end(content?: string | Buffer, encoding?: BufferEncoding) {
     const buffer = this.createBuffer(content);
@@ -209,10 +208,10 @@ export default class HttpServletResponse {
 
   /**
    * 执行http重定向
-   * @param response 
+   * @param response
    */
   sendRedirect(url, status = 302) {
-    this.nativeResponse.writeHead(status, { 'Location': url })
+    this.nativeResponse.writeHead(status, { 'Location': url });
   }
 
   getLastModifiedTime() {
@@ -222,12 +221,12 @@ export default class HttpServletResponse {
   }
 
   setServletContext(context: ServletContext) {
-    Object.defineProperty(this,servletContextSymbol, {
+    Object.defineProperty(this, servletContextSymbol, {
       value: context,
       writable: false,
       enumerable: false,
-      configurable: false
-    })
+      configurable: false,
+    });
   }
 
   constructor(response: ServerResponse) {

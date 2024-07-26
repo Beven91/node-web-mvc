@@ -1,20 +1,19 @@
-import DateTimeParseException from "../../errors/DateTimeParseException";
-import InvalidDateTimeFormatException from "../../errors/InvalidDateTimeFormatException";
-import Locale from "../../locale/Locale";
-import formatters from "./formatters";
-import parsers, { getNormalDay } from "./parsers";
+import DateTimeParseException from '../../errors/DateTimeParseException';
+import InvalidDateTimeFormatException from '../../errors/InvalidDateTimeFormatException';
+import Locale from '../../locale/Locale';
+import formatters from './formatters';
+import parsers, { getNormalDay } from './parsers';
 
 const patternRegexp = /(y+|M+|d+|h+|H+|m+|s+|S+|E+|L+|q|a|Z|w|W)/g;
 const alias = {
-  'L': 'M'
-}
+  'L': 'M',
+};
 type FormatterTypes = keyof typeof formatters;
 type ParserTypes = keyof typeof parsers;
 
 export default class DateConverter {
-
-  private readonly pattern: string
-  private readonly locale: Locale
+  private readonly pattern: string;
+  private readonly locale: Locale;
 
   constructor(pattern: string, locale?: Locale) {
     this.pattern = pattern;
@@ -31,20 +30,20 @@ export default class DateConverter {
     return {
       exp: exp || '',
       key,
-      handler: parsers[key as ParserTypes]
-    }
+      handler: parsers[key as ParserTypes],
+    };
   }
 
   /**
    * 根据指定格式将字符串解析成日期对象
    * @param raw 日期字符串
    * @param pattern 日期格式
-   * @returns 
+   * @returns
    */
   parse(raw: string): Date {
     if (!raw) return null;
     const record = {} as Record<ParserTypes, string>;
-    const expressions = this.pattern.replace(patternRegexp, (match: string) => `\n${match}\n`).split('\n').filter((m) => m !== '').map((m) => m.replace(/'/g, ''))
+    const expressions = this.pattern.replace(patternRegexp, (match: string) => `\n${match}\n`).split('\n').filter((m) => m !== '').map((m) => m.replace(/'/g, ''));
     let readValue = '';
     let expIndex = 0;
     let current = this.getExpression(expressions, expIndex);
@@ -69,7 +68,7 @@ export default class DateConverter {
     }
     const startYear = 1970;
     const year = parseInt(record.y || startYear.toString());
-    const month = (parseInt(record.M || '1') - 1)
+    const month = (parseInt(record.M || '1') - 1);
     const day = parseInt(record.d || '1');
     const hours = parseInt(record.h || record.H || '0');
     const minutes = parseInt(record.m || '0');
@@ -97,7 +96,7 @@ export default class DateConverter {
       date = new Date(date.getTime() + offsetDay * 24 * 60 * 60 * 1000);
     }
 
-    if(/Invalid/i.test(date.toString())) {
+    if (/Invalid/i.test(date.toString())) {
       throw new InvalidDateTimeFormatException(raw, this.pattern);
     }
     return date;
@@ -107,7 +106,7 @@ export default class DateConverter {
    * 将日期对象格式化成指定格式的字符串
    * @param date 日期对象
    * @param pattern 日期格式
-   * @returns 
+   * @returns
    */
   format(date: Date) {
     return this.pattern.replace(patternRegexp, (match) => {

@@ -1,5 +1,5 @@
-import { Invocation } from "./Invocation";
-import Method from "../../interface/Method";
+import { Invocation } from './Invocation';
+import Method from '../../interface/Method';
 
 export interface MethodInvocation extends Invocation {
 
