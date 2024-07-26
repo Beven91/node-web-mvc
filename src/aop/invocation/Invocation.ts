@@ -1,4 +1,4 @@
-import JoinPoint from './Joinpoint';
+import JoinPoint from './JoinPoint';
 import { AopJoinpoint } from './AopJoinpoint';
 
 export interface Invocation extends AopJoinpoint {
