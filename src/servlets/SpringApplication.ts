@@ -115,7 +115,8 @@ export default class SpringApplication {
     this.filterAdapter = new FilterHandlerAdapter(beanFactory);
     this.filterAdapter.addFilter(new FilterDispatcher(context));
     const hotOptions = bootConfig.getHotOptions();
-    if (hotOptions) {
+    const isProduction = process.env.NODE_ENV === 'production';
+    if (!isProduction && hotOptions) {
       // 启动热更新
       hot.run(hotOptions);
     }
