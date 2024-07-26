@@ -2,7 +2,7 @@ import JoinPoint from '../invocation/JoinPoint';
 import { MethodInvocation } from '../invocation/MethodInvocation';
 import AbstractMethodAdviceInterceptor from './AbstractMethodAdviceInterceptor';
 
-export type MethodErrorHandler = (joinpoint: JoinPoint, ex: any) => void
+export type MethodErrorHandler = (joinpoint: JoinPoint, ex: any) => void;
 
 export default class MethodAfterThrowingAdviceInterceptor extends AbstractMethodAdviceInterceptor<MethodErrorHandler> {
   private invokeAsyncSupport(invocation: MethodInvocation, v: Promise<any>) {
