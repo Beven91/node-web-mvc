@@ -30,6 +30,11 @@ class SpringBootApplication {
   scanBasePackages: string | string[];
 
   /**
+   * 是否关闭默认的启动日志
+   */
+  launchLogOff?: boolean;
+
+  /**
    * 热更新配置
    * @param meta
    */

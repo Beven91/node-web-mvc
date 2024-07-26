@@ -67,6 +67,7 @@ import { SpringApplication, SpringBootApplication } from 'node-web-mvc';
 export default class DemoApplication {
   static main() {
     SpringApplication.run(DemoApplication);
+   // 启动后执行逻辑
   }
 }
 ```

@@ -38,6 +38,7 @@ export default class CorsRegistration {
 
   allowOriginPatterns(...patterns: RegExp[]) {
     this.config.originPatterns = patterns || [];
+    return this;
   }
 
   allowPrivateNetwork(allowPrivateNetwork: boolean) {

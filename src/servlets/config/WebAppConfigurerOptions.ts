@@ -73,11 +73,6 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
 
   protected applicationContext: AbstractApplicationContext;
 
-  /**
-   *  应用监听端口，且已启动时触发
-   */
-  onLaunch?: () => void;
-
   // 注册拦截器
   addInterceptors?(registry: HandlerInterceptorRegistry) { }
 
@@ -120,7 +115,6 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
     const options = a || {} as WebAppConfigurerOptions;
     this.port = options.port || 8080;
     this.base = options.base || '/';
-    this.onLaunch = options.onLaunch;
     this.http = options.http;
     this.serverOptions = options.serverOptions;
     this.resource = options.resource;

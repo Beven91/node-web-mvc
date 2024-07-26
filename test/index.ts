@@ -5,7 +5,7 @@ import { SpringApplication, SpringBootApplication } from '../src';
   scanBasePackages: './test',
 })
 export default class DemoApplication {
-  static main() {
-    SpringApplication.run(DemoApplication);
+  static async main() {
+    await SpringApplication.run(DemoApplication);
   }
 }

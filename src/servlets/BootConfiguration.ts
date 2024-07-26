@@ -50,4 +50,8 @@ export default class BootConfiguration {
     const fileOrDirs = this.bootConfigs.reduce((v, item) => v.concat(item.excludeScan), []).filter(Boolean);
     return this.resolvePaths(fileOrDirs);
   }
+
+  getLaunchLogOff() {
+    return this.bootConfigs[0]?.launchLogOff;
+  }
 }

@@ -30,6 +30,8 @@ export default class SpringApplication {
 
   private filterAdapter: FilterHandlerAdapter;
 
+  private bootConfig: BootConfiguration;
+
   private readonly primarySources: ClazzType[];
 
   constructor(...primarySources: ClazzType[]) {
@@ -98,7 +100,7 @@ export default class SpringApplication {
   }
 
   private initializeApplication() {
-    const bootConfig = new BootConfiguration(this.primarySources);
+    const bootConfig = this.bootConfig = new BootConfiguration(this.primarySources);
     // 装载所有模块
     this.readyWorkprogress(bootConfig.getScanBasePackages(), bootConfig.getExcludeScan());
     // 创建应用上下文
@@ -141,6 +143,22 @@ export default class SpringApplication {
       .catch((ex: Error) => this.onError(HttpStatus.INTERNAL_SERVER_ERROR, response, ex));
   }
 
+  private onLaunch() {
+    if (this.bootConfig.getLaunchLogOff()) {
+      // 如果关闭默认日志
+      return;
+    }
+    const port = this.configurer.port;
+    console.log(`
+      -----------------------------------------------------------
+      ====> Start Node-Mvc Server
+      ====> Enviroment: development
+      ====> Listening: port ${port}
+      ====> Url: http://localhost:${port}/swagger-ui/index.html
+      -----------------------------------------------------------
+    `.split('\n').map((m) => m.trim()).join('\n'));
+  }
+
   /**
    * 启动服务
    */
@@ -155,6 +173,7 @@ export default class SpringApplication {
       // 默认使用node服务链接
       (new NodeNativeConnector()).connect(handleRequest, configurer);
     }
+    this.onLaunch();
     return this.context;
   }
 }

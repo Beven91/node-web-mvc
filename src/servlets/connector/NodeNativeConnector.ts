@@ -22,7 +22,7 @@ export default class NodeNativeConnector implements HandlerConnector {
   }
 
   connect(handler: ServletHandler, config: WebMvcConfigurationSupport) {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       const port = config.port;
       const server = this.createServer(config, (req, res) => {
         Object.defineProperty(req, 'path', { value: req.url });
@@ -40,19 +40,8 @@ export default class NodeNativeConnector implements HandlerConnector {
       });
       server.listen(port, () => {
         resolve();
-        if (config?.onLaunch) {
-          // configurer.onLaunch();
-        } else {
-          console.log(`
-        -------------------------------------
-        ====> Start node-mvc
-        ====> Enviroment: development
-        ====> Listening: port ${port}
-        ====> Url: http://localhost:${port}/swagger-ui/index.html
-        -------------------------------------
-      `);
-        }
       });
+      server.on('error', reject);
     });
   }
 }
