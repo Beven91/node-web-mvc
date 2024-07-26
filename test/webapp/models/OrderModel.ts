@@ -6,7 +6,7 @@ class BaseOrder {
   address: string;
 }
 
-enum OrderType {
+export enum OrderType {
   MALL = 'M',
   STMP = 'S'
 }

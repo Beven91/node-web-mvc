@@ -122,15 +122,21 @@ export default class Schemas {
       console.warn('OpenApi: Cannot found ref:' + type2.name);
       return;
     }
-    Object.keys(baseModel.properties).map((name: string) => {
-      const item = baseModel.properties[name] as ApiModelPropertyInfo;
+    Object.keys(baseModel.properties).map((key: string) => {
+      console.log('name', name);
+      const item = baseModel.properties[key] as ApiModelPropertyInfo;
       if (GenericType.isGeneric(item.type)) {
         const pGenericType = type2.fillTo(item.type);
-        const info = this.typemappings.makeMetaRef(pGenericType.toString());
-        properties[name] = info.refType;
+        const template = pGenericType.isArray ? pGenericType.childName : pGenericType.toString();
+        const info = this.typemappings.makeMetaRef(template);
+        if (pGenericType.isArray) {
+          properties[key] = { type: 'array', items: { ...info.refType } };
+        } else {
+          properties[key] = { ...info.refType };
+        }
         this.buildApiGenericModel(schemas, info);
       } else {
-        properties[name] = item;
+        properties[key] = item;
       }
     });
     schemas[name] = {

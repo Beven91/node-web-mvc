@@ -8,6 +8,10 @@ import RequestEntity from '../../../src/servlets/models/RequestEntity';
 import City from '../models/Models';
 import { demoData } from './data';
 import { MyGroup } from '../models/UserInfo';
+import GeneralResult from '../models/GeneralResult';
+import CommonResult from '../models/CommonResult';
+import Keneral from '../models/Keneral';
+import OrderModel, { OrderType } from '../models/OrderModel';
 
 @Api({ description: '首页' })
 @RestController
@@ -140,6 +144,7 @@ export default class HomeController {
   @ApiOperation({ value: '数据返回', returnType: 'GeneralResult<List<UserInfo>>' })
   @GetMapping('/return')
   returnData() {
+    return new GeneralResult(0, { models: [ demoData ] });
   }
 
   @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo[]>' })
@@ -148,13 +153,20 @@ export default class HomeController {
   ])
   @PostMapping('/return2')
   returnData2(@RequestBody @Valid user: UserInfo) {
-
+    return user;
   }
 
   @ApiOperation({ value: '数据返回：属性泛型2', returnType: 'CommonResult<Keneral[]>' })
   @GetMapping('/return3')
   returnData3() {
-
+    const k = new Keneral();
+    k.userId = 10086;
+    k.order = new OrderModel();
+    k.sex = '男';
+    k.userName ='不知道的人';
+    k.order.orderId = 10022;
+    k.order.orderType = OrderType.STMP;
+    return new CommonResult(0, [ k ]);
   }
 
   @ApiOperation({ value: '自定义返回', returnType: [ 'hello' ] })
