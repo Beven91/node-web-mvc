@@ -1,3 +1,4 @@
+import { HotOptions } from 'nodejs-hmr';
 import { ClazzType } from '../interface/declare';
 import ElementType from './annotations/annotation/ElementType';
 import RuntimeAnnotation from './annotations/annotation/RuntimeAnnotation';
@@ -19,9 +20,20 @@ class SpringBootApplication {
   excludeName?: string[];
 
   /**
+   * 要排除的扫描文件
+   */
+  excludeScan?: string | string[];
+
+  /**
    * 扫描模块目录， 默认为当前启动目录
    */
   scanBasePackages: string | string[];
+
+  /**
+   * 热更新配置
+   * @param meta
+   */
+  hot?: HotOptions | HotOptions['cwd'];
 
   constructor(meta: RuntimeAnnotation) {
     const clazz = meta.ctor as any as WithMainClass;

@@ -114,12 +114,14 @@ export default class OpenApiModel {
     return {
       info: {
         'contact': {
-          email: pkg.author || contributor.email || '',
+          email: contributor.email || pkg.author || '',
         },
-        'license': {
-          'name': 'Apache 2.0',
-          'url': 'http://www.apache.org/licenses/LICENSE-2.0.html',
-        },
+        'license': pkg.licenses?.map?.((k)=>{
+          return {
+            name: k.type,
+            url: k.url,
+          };
+        }),
         'title': pkg.name,
         'version': pkg.version,
         'description': pkg.description || '',

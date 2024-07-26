@@ -15,12 +15,11 @@ import { ClazzType } from '../interface/declare';
 import AbstractApplicationContext from './context/AbstractApplicationContext';
 import RuntimeAnnotation from './annotations/annotation/RuntimeAnnotation';
 import Configuration from '../ioc/annotations/Configuration';
-import SpringBootApplication from './SpringBootApplication';
 import { ConnectHandler } from './connector/HandlerConnector';
 import NodeNativeConnector from './connector/NodeNativeConnector';
 import RequestBodyReader from './http/body/RequestBodyReader';
 import ApplicationDispatcher from './http/ApplicationDispatcher';
-import path from 'path';
+import BootConfiguration from './BootConfiguration';
 
 export type ServletHandler = (request: IncomingMessage, response: ServerResponse, next: (error?: any) => any) => any;
 
@@ -61,21 +60,14 @@ export default class SpringApplication {
   /**
    * 加载所有模块
    */
-  readyWorkprogress(cwd: string[]) {
-    if (cwd?.length < 1) {
-      cwd = [ process.cwd() ];
-    } else {
-      cwd = cwd.map((m) => {
-        return path.isAbsolute(m) ? m : path.resolve(m);
-      });
-    }
+  readyWorkprogress(cwd: string[], exclude?: string[]) {
     // 存储cacheKeys
     const cache = {};
     Object.keys(require.cache).forEach((k) => cache[k.replace(/\\/g, '/').toLowerCase()] = true);
     // 加载controller等
     cwd
       .filter(Boolean)
-      .forEach((dir) => new ModuleLoader(dir, cache));
+      .forEach((dir) => new ModuleLoader(dir, cache, exclude));
   }
 
   /**
@@ -105,20 +97,10 @@ export default class SpringApplication {
     }
   }
 
-  private getBootConfig() {
-    const bootConfigs = [] as InstanceType<typeof SpringBootApplication>[];
-    for (const primarySource of this.primarySources) {
-      const configAnno = RuntimeAnnotation.getClassAnnotation(primarySource, SpringBootApplication);
-      bootConfigs.push(configAnno.nativeAnnotation);
-    }
-    return bootConfigs;
-  }
-
   private initializeApplication() {
-    const bootConfigs = this.getBootConfig();
-    const workprogressPaths = bootConfigs.reduce((v, item) => v.concat(item.scanBasePackages), []).filter(Boolean);
+    const bootConfig = new BootConfiguration(this.primarySources);
     // 装载所有模块
-    this.readyWorkprogress(workprogressPaths);
+    this.readyWorkprogress(bootConfig.getScanBasePackages(), bootConfig.getExcludeScan());
     // 创建应用上下文
     const context = this.context = new GenericApplicationContext();
     const beanFactory = context.getBeanFactory();
@@ -130,14 +112,14 @@ export default class SpringApplication {
     // 应用上下文刷新
     context.refresh();
     // 构建过滤器处理适配器
-    this.filterAdapter = new FilterHandlerAdapter(context.getBeanFactory());
+    this.filterAdapter = new FilterHandlerAdapter(beanFactory);
     this.filterAdapter.addFilter(new FilterDispatcher(context));
-    const configurer = beanFactory.getBeansOfType(WebMvcConfigurationSupport)[0];
-    if (configurer.hot) {
+    const hotOptions = bootConfig.getHotOptions();
+    if (hotOptions) {
       // 启动热更新
-      hot.run(configurer.hot);
+      hot.run(hotOptions);
     }
-    this.configurer = configurer;
+    this.configurer = beanFactory.getBeansOfType(WebMvcConfigurationSupport)[0];
   }
 
   private handleRequest(nativeRequest: IncomingMessage, nativeResponse: ServerResponse, next: (error?: any) => any) {

@@ -64,14 +64,6 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     return this.base || '/';
   }
 
-  public get workprogressPaths(): Array<string> {
-    if (!this.cwd) {
-      return [];
-    }
-    const cwd = this.cwd;
-    return cwd instanceof Array ? cwd : [ cwd ];
-  }
-
   constructor(a?: WebAppConfigurerOptions) {
     super(a);
   }

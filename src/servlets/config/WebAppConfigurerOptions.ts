@@ -11,7 +11,6 @@ import MessageConverter from '../http/converts/MessageConverter';
 import ArgumentsResolvers from '../method/argument/ArgumentsResolvers';
 import ViewResolverRegistry from '../view/ViewResolverRegistry';
 import Bytes from '../util/Bytes';
-import { HotOptions } from 'nodejs-hmr';
 import type MediaType from '../http/MediaType';
 import CorsRegistry from '../cors/CorsRegistry';
 import MultipartConfig from './MultipartConfig';
@@ -47,11 +46,6 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
   public serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions;
 
   /**
-   * 获取启动目录
-   */
-  public readonly cwd: string | Array<string>;
-
-  /**
    * 静态资源配置
    */
   public readonly resource?: ResourceOptions;
@@ -65,11 +59,6 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
    * 是否开启swagger文档
    */
   public readonly swagger?: boolean;
-
-  /**
-   * 热更新配置
-   */
-  public readonly hot?: HotOptions;
 
   /**
    * 获取当前网站的基础路由目录
@@ -129,7 +118,6 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
   constructor(a: WebAppConfigurerOptions) {
     super();
     const options = a || {} as WebAppConfigurerOptions;
-    this.hot = options.hot;
     this.port = options.port || 8080;
     this.base = options.base || '/';
     this.onLaunch = options.onLaunch;
@@ -137,7 +125,6 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
     this.serverOptions = options.serverOptions;
     this.resource = options.resource;
     this.swagger = 'swagger' in options ? options.swagger : true;
-    this.cwd = options.cwd instanceof Array ? options.cwd : [ options.cwd ];
     this.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = new Bytes(this.multipart.maxFileSize, '500kb').bytes;
     this.multipart.maxRequestSize = new Bytes(this.multipart.maxRequestSize, '500kb').bytes;

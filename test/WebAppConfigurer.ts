@@ -10,17 +10,9 @@ import MyUrlPathHelper from './webapp/globalization/MyUrlPathHelper';
 
 @Configuration
 export default class WebAppConfigurer extends WebMvcConfigurationSupport {
-  mode = 'node';
-
-  hot = {
-    cwd: path.resolve('./test'),
-  };
-
   resource = {
     gzipped: true,
   };
-
-  cwd = path.resolve('./test/webapp');
 
   addCorsMappings(registry: CorsRegistry): void {
     // registry

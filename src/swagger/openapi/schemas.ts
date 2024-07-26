@@ -123,7 +123,6 @@ export default class Schemas {
       return;
     }
     Object.keys(baseModel.properties).map((key: string) => {
-      console.log('name', name);
       const item = baseModel.properties[key] as ApiModelPropertyInfo;
       if (GenericType.isGeneric(item.type)) {
         const pGenericType = type2.fillTo(item.type);

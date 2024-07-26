@@ -26,17 +26,6 @@ yarn add node-web-mvc reflect-metadata
 
 ## 启动
 
-`node-web-mvc` 默认支持三种启动模式
-
-- node  通过`http`模块来启动服务
-
-- express 通过`express`的中间件来附加服务
-
-- koa 通过`koa`的中间件类附加服务
-
-- 如果要接入到其他类型框架，可参考[`如何定制一个上下文`](#如何定制一个上下文)
-
-
 ### tsconfig
 
 ```json
@@ -62,85 +51,34 @@ yarn add node-web-mvc reflect-metadata
   ]
 }
 ```
+### spring风格
 
-
-### node 模式
-
-`Registry.launch`启动时，配置结构可参考: [`WebAppConfigurerOptions`](#WebAppConfigurerOptions)
+> index.ts
 
 ```js
-import { Registry } from 'node-web-mvc';
+import { SpringApplication, SpringBootApplication } from 'node-web-mvc';
 
-// 启动Mvc  
-Registry.launch({
-  // 启动模式： 可选类型: node | express | koa
-  mode: 'node',
-  // 服务端口
-  port: 9800,
-  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
-  hot: {
-    // 配置热更新监听的目录
-    cwd: path.resolve('./'),
-  },
-  //resource:{
-    //// 是否开启gzip压缩
-    //gzipped: true/false
-    ////开启gzip的媒体类型字符串
-    //mimeTypes: 'text/css'
-  //}
-  // 配置controller存放目录，用于进行controller自动载入与注册使用
-  // 支持字符串或者字符串数组
-  cwd: [
-    path.resolve('./global'),
-    path.resolve('./controllers'),
-  ],
-});
+@SpringBootApplication({
+  
+})
+export default class DemoApplication {
+  static main() {
+    SpringApplication.run(DemoApplication);
+  }
+}
 ```
 
-### express 模式
+> WebAppConfigurer.ts
 
-```js
-const express = require('express');
-const app = express();
+```ts
+import { WebMvcConfigurationSupport } from 'node-web-mvc';
 
-app.use('/api', Registry.launch({
-  // 启动模式： 可选类型: node | express | koa
-  mode: 'node',
-  // 服务端口
-  port: 9800,
-  // 指定路由基础路径
-  base: '/api',
-  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
-  hot: {
-    // 配置热更新监听的目录
-    cwd: path.resolve('./'),
-  },
-  // 配置controller存放目录，用于进行controller自动载入与注册使用
-  cwd: path.resolve('./controllers'),
-}));
-```
+@Configuration
+export default class WebAppConfigurer extends WebMvcConfigurationSupport {
+  
+  // 这里可以扩展配置
 
-### koa 模式
-
-```js
-const Koa = require('koa');
-const app = new Koa();
-
-app.use('/api', Registry.launch({
-  // 启动模式： 可选类型: node | express | koa
-  mode: 'node',
-  // 服务端口
-  port: 9800,
-  // 指定路由基础路径
-  base: '/api',
-  // 热更新配置：改动接口代码无需重启，直接更新，推荐当前配置，仅在开发环境下使用
-  hot: {
-    // 配置热更新监听的目录
-    cwd: path.resolve('./'),
-  },
-  // 配置controller存放目录，用于进行controller自动载入与注册使用
-  cwd: path.resolve('./controllers'),
-}));
+}
 ```
 
 ## Controller 控制器
@@ -1102,97 +1040,91 @@ Registry.launch({
 
 ## 类型定义
 
-### WebAppConfigurerOptions
+### WebMvcConfigurationSupport
 
 ```js
-class WebAppConfigurerOptions {
-  // 端口
-  port?: number
-  // 当前类型
-  mode: RunMode
-  // 是否开启swagger文档
-  swagger?: boolean
-  // 静态资源配置
-  resource?: ResourceOptions
-  // 基础路径
-  base?: string
-  // 配置请求内容大小
-  multipart?: Multipart
-  // 存放控制器的根目录
-  cwd: string | Array<string>
-  // 热更新配置
-  hot?: HotOptions
+export default class WebMvcConfigurationSupport {
+  public http?: HttpType;
+
+  /**
+   * 使用node原生http服务时的配置参数
+   */
+  public serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions;
+
+  /**
+   * 获取启动目录
+   */
+  public readonly cwd: string | Array<string>;
+
+  /**
+   * 静态资源配置
+   */
+  public readonly resource?: ResourceOptions;
+
+  /**
+   * 获取当前网站启动端口号
+   */
+  public readonly port?: number;
+
+  /**
+   * 是否开启swagger文档
+   */
+  public readonly swagger?: boolean;
+
+  /**
+   * 热更新配置
+   */
+  public readonly hot?: HotOptions;
+
+  /**
+   * 获取当前网站的基础路由目录
+   */
+  public readonly base?: string;
+
+  /**
+   * 当前配置的body内容大小
+   * @param options
+   */
+  public readonly multipart?: MultipartConfig;
+
+  protected applicationContext: AbstractApplicationContext;
+
+  /**
+   *  应用监听端口，且已启动时触发
+   */
+  onLaunch?: () => void;
+
   // 注册拦截器
-  addInterceptors?: (registry: HandlerInterceptorRegistry) => void
-  // 添加http消息转换器
-  addMessageConverters?: (converters: MessageConverter) => void
-  // 添加参数解析器
-  addArgumentResolvers?: (resolvers: ArgumentsResolvers) => void
+  addInterceptors?(registry: HandlerInterceptorRegistry) { }
+
   // 添加视图解析器
-  addViewResolvers?: (registry: ViewResolverRegistry) => void
+  configureViewResolvers?(registry: ViewResolverRegistry) { }
+
+  // 添加返回值处理器
+  addReturnValueHandlers?(handlers: HandlerMethodReturnValueHandler[]) { }
+
+  // 配置消息转换器
+  configureMessageConverters?(converters: MessageConverter) { }
+
+  // 添加http消息转换器
+  extendMessageConverters?(converters: MessageConverter) { }
+
+  // 添加参数解析器
+  addArgumentResolvers?(resolvers: ArgumentsResolvers) { }
+
   // 添加静态资源处理器
-  addResourceHandlers?: (registry: ResourceHandlerRegistry) => void
-  // 配置路径匹配
-  configurePathMatch?: (configurer: PathMatchConfigurer) => void
-  // 应用监听端口，且已启动
-  onLaunch?: () => any
-}
-```
+  addResourceHandlers?(registry: ResourceHandlerRegistry) { }
 
-### ParamAnnotation
+  // 提供扩展配置路径匹配相关
+  configurePathMatch?(configurer: PathMatchConfigurer) { }
 
-```js
-class ParamAnnotation {
-  /**
-   * 需要提取的参数名称,默认为：注解目标形参参数名
-   */
-  public value?: string
+  // 配置异常解析器 可用于取代默认的解析器
+  configureHandlerExceptionResolvers?(resolvers: HandlerExceptionResolver[]) { }
 
-  /**
-   * 参数是否必填
-   */
-  public required?: boolean
+  // 扩展异常处理器
+  extendHandlerExceptionResolvers?(resolvers: HandlerExceptionResolver[]) { }
 
-  /**
-   * 默认值
-   */
-  public defaultValue?: any
-}
-
-```
-
-### RequestMapping
-
-```js
-class RequestMapping {
- /**
-   * 当前路由路径值
-   */
-  value: string | string[]
-
-  /**
-   * 当前路由能处理的Http请求类型
-   */
-  method?: string | string[]
-
-  /**
-   * 当前路由设置的返回内容类型
-   */
-  produces?: string
-
-  /**
-   * 当前路由能接受的内容类型
-   */
-  consumes?: string[]
-
-  /**
-   * 当前路由需要的请求头信息
-   */
-  headers?: Map<string, string>
-
-  /**
-   * 当前路由需要的请求参数
-   */
-  params?: Map<string, any>
+  // 全局配置跨域
+  addCorsMappings?(registry: CorsRegistry) { }
 }
 ```
