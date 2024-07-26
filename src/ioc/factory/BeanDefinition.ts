@@ -5,7 +5,7 @@
 import { ClazzType } from '../../interface/declare';
 import Tracer from '../../servlets/annotations/annotation/Tracer';
 
-export type ScopeType = 'prototype' | 'singleton' | 'request'
+export type ScopeType = 'prototype' | 'singleton' | 'request';
 
 export interface BeanTypeClazz {
   new(): any

@@ -50,7 +50,16 @@ export default abstract class AbstractApplicationContext {
   registerAllComponentBeans(fallback = false) {
     const beanFactory = this.getBeanFactory();
     const annotations = RuntimeAnnotation.getAnnotations(Component);
+    // 这里需要排除作用在同一个类上的多个component，防止重复注册
+    const map = new Map<Function, true>();
+    const singleAnnotations = [] as RuntimeAnnotation<typeof Component>[];
     annotations.forEach((annotation) => {
+      if (annotation.elementType == ElementType.TYPE && !map.has(annotation.ctor)) {
+        map.set(annotation.ctor, true);
+        singleAnnotations.push(annotation);
+      }
+    });
+    singleAnnotations.forEach((annotation) => {
       const beanName = BeanDefinition.toBeanName(annotation.ctor);
       switch (annotation.elementType) {
         case ElementType.TYPE:
