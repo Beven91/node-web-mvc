@@ -3,6 +3,7 @@
  * @description 用于构建当前环境的openapi.json
  */
 import path from 'path';
+import fs from 'fs';
 import { ApiImplicitParamOptions, ApiTag, ApiOperationResponseBody, ApiOperationParameter, SchemeRef, ApiModelPropertyInfo } from './declare';
 import { ApiPaths, ApiOperationPaths } from './declare';
 import Schemas from './schemas';
@@ -11,7 +12,6 @@ import RuntimeAnnotation, { } from '../../servlets/annotations/annotation/Runtim
 import ApiImplicitParams from '../annotations/ApiImplicitParams';
 import ParamAnnotation from '../../servlets/annotations/params/ParamAnnotation';
 import ApiOperation from '../annotations/ApiOperation';
-import ResourceHandlerRegistry from '../../servlets/resources/ResourceHandlerRegistry';
 import Controller from '../../servlets/annotations/Controller';
 import Api from '../annotations/Api';
 import ElementType from '../../servlets/annotations/annotation/ElementType';
@@ -25,25 +25,6 @@ import HttpEntity from '../../servlets/models/HttpEntity';
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
 export default class OpenApiModel {
-  /**
-   * 初始化swagger文档配置
-   */
-  static initializeResource(registry: ResourceHandlerRegistry, enable: boolean) {
-    if (!enable) return;
-    // 如果使用swagger
-    const swaggerLocation = path.join(__dirname, '../../../swagger-ui/');
-    registry
-      .addResourceHandler('/swagger-ui/**')
-      .addResourceLocations(swaggerLocation)
-      .setCacheControl({ maxAge: 0 });
-  }
-
-  static initializeApi(enable: boolean) {
-    if (!enable) return;
-    // 加载swagger-controller
-    require('../controllers/SwaggerController');
-  }
-
   /**
    * 驼峰命名转换成 - 符号链接
    */
@@ -64,7 +45,7 @@ export default class OpenApiModel {
    */
   toClamp(name: string) {
     const segments = name.split('-');
-    return segments.map((m, i)=>{
+    return segments.map((m, i) => {
       if (i === 0) {
         return m[0].toLowerCase() + m.slice(1);
       }
@@ -82,6 +63,10 @@ export default class OpenApiModel {
     } ]);
   }
 
+  readPkg(id: string) {
+    return JSON.parse(fs.readFileSync(id).toString('utf-8'));
+  }
+
   /**
    * 获取完整的swaager openapi.json
    */
@@ -91,7 +76,7 @@ export default class OpenApiModel {
     delete require.cache[id];
     // TODO: 如果要支持mjs场景这里需要考虑如何改造
     // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pkg = require(id);
+    const pkg = this.readPkg(id);
     const tags: ApiTag[] = [];
     const paths: ApiPaths = {};
     const contributor = (pkg.contributors || [])[0] || {};
@@ -116,7 +101,7 @@ export default class OpenApiModel {
         'contact': {
           email: contributor.email || pkg.author || '',
         },
-        'license': pkg.licenses?.map?.((k)=>{
+        'license': pkg.licenses?.map?.((k) => {
           return {
             name: k.type,
             url: k.url,

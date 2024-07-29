@@ -2,7 +2,6 @@
  * @module WebAppConfigurer
  * @description 服务全局配置
  */
-import OpenApi from '../../swagger/openapi';
 import HandlerInterceptorRegistry from '../interceptor/HandlerInterceptorRegistry';
 import MessageConverter from '../http/converts/MessageConverter';
 import ArgumentsResolvers from '../method/argument/ArgumentsResolvers';
@@ -37,6 +36,7 @@ import MediaType from '../http/MediaType';
 import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
 import CorsConfiguration from '../cors/CorsConfiguration';
 import CorsRegistry from '../cors/CorsRegistry';
+import OpenApiResolver from '../../swagger/resolver/OpenApiResolver';
 
 export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions {
   private messageConverters: MessageConverter;
@@ -185,8 +185,6 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
     const interceptorRegistry = new HandlerInterceptorRegistry();
     this.addInterceptors?.(interceptorRegistry);
     this.configurePathMatch?.(pathConfig);
-    // swagger 处理
-    OpenApi.initializeApi(this.swagger);
     handlerMapping.setOrder(0);
     handlerMapping.setInterceptors(interceptorRegistry.getInterceptors());
     this.initHandlerMapping(handlerMapping);
@@ -195,13 +193,12 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   @Bean
   resourceHandlerMapping() {
-    const pathConfig = this.getPathMatchConfigurer();
     const registry = new ResourceHandlerRegistry();
     const resourceConfig = this.getResourceConfig();
     const handlerMapping = new BeanNameUrlHandlerMapping(registry, resourceConfig);
     handlerMapping.setOrder(100);
     // swagger 处理
-    OpenApi.initializeResource(registry, this.swagger);
+    OpenApiResolver.initializeResource(registry, this.swagger);
     // 注册额外的资源配置
     this.addResourceHandlers?.(registry);
     this.initHandlerMapping(handlerMapping);
