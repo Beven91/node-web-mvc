@@ -1,6 +1,5 @@
 import { ControllerAdvice, ExceptionHandler, ResponseBody, RestController } from '../../../src/index';
 
-@RestController
 @ControllerAdvice
 export default class GlobalException {
   @ResponseBody

@@ -1,12 +1,41 @@
-import { HotOptions } from 'nodejs-hmr';
+import http from 'http';
+import https from 'https';
+import http2 from 'http2';
+import hot, { HotOptions, NodeHotModule } from 'nodejs-hmr';
 import { ClazzType } from '../interface/declare';
 import ElementType from './annotations/annotation/ElementType';
 import RuntimeAnnotation from './annotations/annotation/RuntimeAnnotation';
 import Target from './annotations/Target';
+import Tracer from './annotations/annotation/Tracer';
+
+interface BaseServerOptions {
+  /**
+   * 设置当前服务的端口
+   */
+  port: number
+  /**
+  * 设置当前服务的基础路由目录 默认为 /
+  */
+  base?: string;
+}
+
+interface HttpServerOptions extends http.ServerOptions, BaseServerOptions {
+  httpType?: 'http'
+}
+
+interface HttpsServerOptions extends https.ServerOptions, BaseServerOptions {
+  httpType: 'https'
+}
+
+interface Http2ServerOptions extends http2.ServerOptions, BaseServerOptions {
+  httpType: 'http2'
+}
 
 interface WithMainClass {
   main(): void
 }
+
+export type NodeServerOptions = HttpServerOptions | HttpsServerOptions | Http2ServerOptions;
 
 class SpringBootApplication {
   /**
@@ -35,13 +64,25 @@ class SpringBootApplication {
   launchLogOff?: boolean;
 
   /**
+   * 是否开启swagger文档
+   */
+  swagger?: boolean;
+
+  /**
    * 热更新配置
    * @param meta
    */
   hot?: HotOptions | HotOptions['cwd'];
 
+  /**
+   * http服务配置
+   */
+  server?: NodeServerOptions;
+
+
   constructor(meta: RuntimeAnnotation) {
     const clazz = meta.ctor as any as WithMainClass;
+    registerHotUpdate(meta.ctor);
     if (typeof clazz.main === 'function') {
       setTimeout(() => {
         clazz.main();
@@ -51,3 +92,14 @@ class SpringBootApplication {
 }
 
 export default Target([ ElementType.TYPE ])(SpringBootApplication);
+
+function registerHotUpdate(clazz: Function) {
+  if (typeof require == 'function') {
+    const tracer = Tracer.getTracer(clazz);
+    const mod = (require.cache[tracer.id] || (require.main.filename == tracer.id ? require.main : null)) as NodeHotModule;
+    if (mod && !mod.hot) {
+      // 设定启动注解标记的类所在的文件 默认不进行热更新
+      hot.create(mod).accept(() => { });
+    }
+  }
+}

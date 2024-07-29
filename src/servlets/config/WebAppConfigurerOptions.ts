@@ -1,6 +1,3 @@
-import http from 'http';
-import https from 'https';
-import http2 from 'http2';
 import path from 'path';
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import PathMatchConfigurer from './PathMatchConfigurer';
@@ -16,8 +13,6 @@ import CorsRegistry from '../cors/CorsRegistry';
 import MultipartConfig from './MultipartConfig';
 import ApplicationContextAware from '../context/ApplicationContextAware';
 import AbstractApplicationContext from '../context/AbstractApplicationContext';
-
-declare type HttpType = 'http' | 'https' | 'http2';
 
 export const DEFAULT_RESOURCE_MIME_TYPES = 'application/javascript,text/css,application/json,application/xml,text/html,text/xml,text/plain';
 
@@ -38,32 +33,10 @@ export interface ResourceConfig extends Omit<ResourceOptions, 'mimeTypes'> {
 }
 
 export default class WebAppConfigurerOptions extends ApplicationContextAware {
-  public http?: HttpType;
-
-  /**
-   * 使用node原生http服务时的配置参数
-   */
-  public serverOptions?: https.ServerOptions | http.ServerOptions | http2.ServerOptions;
-
   /**
    * 静态资源配置
    */
   public readonly resource?: ResourceOptions;
-
-  /**
-   * 获取当前网站启动端口号
-   */
-  public readonly port?: number;
-
-  /**
-   * 是否开启swagger文档
-   */
-  public readonly swagger?: boolean;
-
-  /**
-   * 获取当前网站的基础路由目录
-   */
-  public readonly base?: string;
 
   /**
    * 当前配置的body内容大小
@@ -71,6 +44,10 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
    */
   public readonly multipart?: MultipartConfig;
 
+
+  /**
+   * 默认为ioc容器设置的application context
+   */
   protected applicationContext: AbstractApplicationContext;
 
   // 注册拦截器
@@ -106,6 +83,10 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
   // 全局配置跨域
   addCorsMappings?(registry: CorsRegistry) { }
 
+  /**
+   * 设置的application context
+   * @param context
+   */
   setApplication(context: AbstractApplicationContext): void {
     this.applicationContext = context;
   }
@@ -113,12 +94,7 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
   constructor(a: WebAppConfigurerOptions) {
     super();
     const options = a || {} as WebAppConfigurerOptions;
-    this.port = options.port || 8080;
-    this.base = options.base || '/';
-    this.http = options.http;
-    this.serverOptions = options.serverOptions;
     this.resource = options.resource;
-    this.swagger = 'swagger' in options ? options.swagger : true;
     this.multipart = options.multipart || { maxFileSize: '', maxRequestSize: '' };
     this.multipart.maxFileSize = new Bytes(this.multipart.maxFileSize, '500kb').bytes;
     this.multipart.maxRequestSize = new Bytes(this.multipart.maxRequestSize, '500kb').bytes;

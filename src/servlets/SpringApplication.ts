@@ -1,4 +1,4 @@
-import hot from 'nodejs-hmr';
+import hot, { } from 'nodejs-hmr';
 import WebMvcConfigurationSupport from './config/WebMvcConfigurationSupport';
 import ModuleLoader from './util/ModuleLoader';
 import GenericApplicationContext from './context/GenericApplicationContext';
@@ -20,6 +20,7 @@ import NodeNativeConnector from './connector/NodeNativeConnector';
 import RequestBodyReader from './http/body/RequestBodyReader';
 import ApplicationDispatcher from './http/ApplicationDispatcher';
 import BootConfiguration from './BootConfiguration';
+import Tracer from './annotations/annotation/Tracer';
 
 export type ServletHandler = (request: IncomingMessage, response: ServerResponse, next: (error?: any) => any) => any;
 
@@ -31,6 +32,8 @@ export default class SpringApplication {
   private filterAdapter: FilterHandlerAdapter;
 
   private bootConfig: BootConfiguration;
+
+  private hotUpdater: any;
 
   private readonly primarySources: ClazzType[];
 
@@ -99,12 +102,34 @@ export default class SpringApplication {
     }
   }
 
-  private initializeApplication() {
+  private initBootConfigs() {
     const bootConfig = this.bootConfig = new BootConfiguration(this.primarySources);
+    const hotOptions = bootConfig.getHotOptions();
+    this.hotUpdater?.close?.();
+    if (hotOptions) {
+      // 启动热更新
+      this.hotUpdater = hot.run(hotOptions);
+    }
+    if (bootConfig.getLaunchLogOff() !== false) {
+      const port = bootConfig.getPort();
+      console.log(`
+        -----------------------------------------------------------
+        ====> Start Node-Mvc Server
+        ====> Enviroment: development
+        ====> Listening: port ${port}
+        ====> Hot Module Update: ${this.hotUpdater ? 'eanbled' : 'disabled'}
+        ====> Url: http://localhost:${port}/
+        ====> Swagger: ${bootConfig.getEanbleSwagger() ? `http://localhost:${port}/swagger-ui/index.html` : 'disabled'}
+        -----------------------------------------------------------
+      `.split('\n').map((m) => m.trim()).join('\n'));
+    }
     // 装载所有模块
     this.readyWorkprogress(bootConfig.getScanBasePackages(), bootConfig.getExcludeScan());
+  }
+
+  private initializeApplication() {
     // 创建应用上下文
-    const context = this.context = new GenericApplicationContext();
+    const context = this.context = new GenericApplicationContext(this.bootConfig);
     const beanFactory = context.getBeanFactory();
     if (beanFactory instanceof DefaultListableBeanFactory) {
       beanFactory.setAllowBeanDefinitionOverridable(false);
@@ -116,24 +141,20 @@ export default class SpringApplication {
     // 构建过滤器处理适配器
     this.filterAdapter = new FilterHandlerAdapter(beanFactory);
     this.filterAdapter.addFilter(new FilterDispatcher(context));
-    const hotOptions = bootConfig.getHotOptions();
-    const isProduction = process.env.NODE_ENV === 'production';
-    if (!isProduction && hotOptions) {
-      // 启动热更新
-      hot.run(hotOptions);
-    }
     this.configurer = beanFactory.getBeansOfType(WebMvcConfigurationSupport)[0];
   }
 
   private handleRequest(nativeRequest: IncomingMessage, nativeResponse: ServerResponse, next: (error?: any) => any) {
+    const serverOptions = this.bootConfig.getServerOptions();
+    const base = serverOptions.base || '/';
     const configurer = this.configurer;
-    if (nativeRequest.url.indexOf(configurer.base) !== 0) {
+    if (nativeRequest.url.indexOf(base) !== 0) {
       return next();
     }
     const filterAdapter = this.filterAdapter;
     const reader = new RequestBodyReader(configurer.multipart);
     const createDispatcher = (path: string) => new ApplicationDispatcher(filterAdapter, path);
-    const request = new HttpServletRequest(nativeRequest, configurer.contextPath, createDispatcher, reader);
+    const request = new HttpServletRequest(nativeRequest, base, createDispatcher, reader);
     const response = new HttpServletResponse(nativeResponse);
     filterAdapter
       .doFilter(request, response)
@@ -143,37 +164,21 @@ export default class SpringApplication {
       .catch((ex: Error) => this.onError(HttpStatus.INTERNAL_SERVER_ERROR, response, ex));
   }
 
-  private onLaunch() {
-    if (this.bootConfig.getLaunchLogOff()) {
-      // 如果关闭默认日志
-      return;
-    }
-    const port = this.configurer.port;
-    console.log(`
-      -----------------------------------------------------------
-      ====> Start Node-Mvc Server
-      ====> Enviroment: development
-      ====> Listening: port ${port}
-      ====> Url: http://localhost:${port}/swagger-ui/index.html
-      -----------------------------------------------------------
-    `.split('\n').map((m) => m.trim()).join('\n'));
-  }
-
   /**
    * 启动服务
    */
   run(connect?: ConnectHandler) {
+    this.initBootConfigs();
     this.initializeApplication();
-    // 如果自定义请求连接器，可用于接入到koa或者express之类的框架
-    const configurer = this.configurer;
+    const serverOptions = this.bootConfig.getServerOptions();
     const handleRequest = this.handleRequest.bind(this);
     if (connect) {
-      connect(handleRequest, configurer);
+      // 自定义服务链接
+      connect(handleRequest, serverOptions);
     } else {
       // 默认使用node服务链接
-      (new NodeNativeConnector()).connect(handleRequest, configurer);
+      (new NodeNativeConnector()).connect(handleRequest, serverOptions);
     }
-    this.onLaunch();
     return this.context;
   }
 }
@@ -183,11 +188,9 @@ function registerHotUpdate(app: SpringApplication, refreshLifecycle: SpringAppli
     .create(module)
     .clean()
     .postend((m) => {
-      const Configurer = m.exports?.default;
-      if (Javascript.createTyper(Configurer).isType(WebMvcConfigurationSupport)) {
+      const tracer = Tracer.getTracer(app.configurer.constructor);
+      if (tracer?.id === m.filename) {
         app.context?.getBeanFactory()?.destory?.();
-        const config = new Configurer();
-        delete config.hot;
         // 如果是配置文件更新，则需要重新初始化(并非重启服务，而是刷新掉上下文)
         refreshLifecycle();
       }

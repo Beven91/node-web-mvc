@@ -1,10 +1,15 @@
 import { HotOptions } from 'nodejs-hmr';
 import RuntimeAnnotation from './annotations/annotation/RuntimeAnnotation';
-import SpringBootApplication from './SpringBootApplication';
+import SpringBootApplication, { NodeServerOptions } from './SpringBootApplication';
 import path from 'path';
+
+const isProduction = process.env.NODE_ENV === 'production';
 
 export default class BootConfiguration {
   private readonly bootConfigs: InstanceType<typeof SpringBootApplication>[];
+
+  private serverOptions: NodeServerOptions;
+
   constructor(primarySources: Function[]) {
     this.bootConfigs = [];
     if (!primarySources) return;
@@ -32,6 +37,10 @@ export default class BootConfiguration {
   }
 
   getHotOptions(): HotOptions {
+    if (isProduction) {
+      // 生产模式无论如何禁止热更新
+      return null;
+    }
     const config = this.bootConfigs.find((m) => !!m.hot);
     if (!config?.hot) {
       return null;
@@ -46,12 +55,35 @@ export default class BootConfiguration {
     };
   }
 
-  getExcludeScan() {
+  getServerOptions(): NodeServerOptions {
+    if (!this.serverOptions) {
+      let config: NodeServerOptions = {} as NodeServerOptions;
+      this.bootConfigs.forEach((m) => {
+        config = {
+          ...config,
+          ...m.server,
+        };
+      });
+      this.serverOptions = config;
+    }
+    this.serverOptions.port = this.serverOptions.port || 8080;
+    return this.serverOptions;
+  }
+
+  getExcludeScan(): string[] {
     const fileOrDirs = this.bootConfigs.reduce((v, item) => v.concat(item.excludeScan), []).filter(Boolean);
     return this.resolvePaths(fileOrDirs);
   }
 
-  getLaunchLogOff() {
+  getLaunchLogOff(): boolean {
     return this.bootConfigs[0]?.launchLogOff;
+  }
+
+  getPort(): number {
+    return this.getServerOptions().port;
+  }
+
+  getEanbleSwagger(): boolean {
+    return this.bootConfigs[0]?.swagger === true;
   }
 }

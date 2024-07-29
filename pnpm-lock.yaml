@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   nodejs-hmr:
-    specifier: ^1.3.2
-    version: 1.3.2
+    specifier: ^1.3.4
+    version: 1.3.4
   reflect-metadata:
     specifier: ^0.1.13
     version: 0.1.13
@@ -3203,8 +3203,8 @@ packages:
     resolution: {integrity: sha512-y10wOWt8yZpqXmOgRo77WaHEmhYQYGNA6y421PKsKYWEK8aW+cqAphborZDhqfyKrbZEN92CN1X2KbafY2s7Yw==}
     dev: true
 
-  /nodejs-hmr@1.3.2:
-    resolution: {integrity: sha512-gYzfVBqMS0n7CSeTctK48pCxhjQ1/yOInlCweitW5DIGOyhIU88UHop7pc68Q3Hy4gSheVaFYBckHgyrqETieA==}
+  /nodejs-hmr@1.3.4:
+    resolution: {integrity: sha512-RpezC5RBBcl9XucpN7JurarSipiTWo7fC53m1avzAzimggAKjKxt9IoPgHb+JMbs9tgCFPIIeEB8lTXVhQ4tSg==}
     dev: false
 
   /normalize-path@3.0.0:

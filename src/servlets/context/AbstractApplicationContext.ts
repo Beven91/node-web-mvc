@@ -1,6 +1,7 @@
 import Component from '../../ioc/annotations/Component';
 import BeanDefinition from '../../ioc/factory/BeanDefinition';
 import { BeanFactory } from '../../ioc/factory/BeanFactory';
+import BootConfiguration from '../BootConfiguration';
 import Scope from '../annotations/Scope';
 import ElementType from '../annotations/annotation/ElementType';
 import RuntimeAnnotation, { } from '../annotations/annotation/RuntimeAnnotation';
@@ -22,6 +23,8 @@ export default abstract class AbstractApplicationContext {
   }
 
   abstract registerBeanPostProcessor(): void;
+
+  abstract getBootConfig(): BootConfiguration;
 
   /**
    * 根据注解注册Bean定义

@@ -57,13 +57,6 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   private corsConfigurations: Map<string, CorsConfiguration>;
 
-  /**
-   * 获取当前网站的基础路由目录
-   */
-  public get contextPath() {
-    return this.base || '/';
-  }
-
   constructor(a?: WebAppConfigurerOptions) {
     super(a);
   }
@@ -193,12 +186,13 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
 
   @Bean
   resourceHandlerMapping() {
+    const context = this.applicationContext;
     const registry = new ResourceHandlerRegistry();
     const resourceConfig = this.getResourceConfig();
     const handlerMapping = new BeanNameUrlHandlerMapping(registry, resourceConfig);
     handlerMapping.setOrder(100);
     // swagger 处理
-    OpenApiResolver.initializeResource(registry, this.swagger);
+    OpenApiResolver.initializeResource(registry, context.getBootConfig().getEanbleSwagger());
     // 注册额外的资源配置
     this.addResourceHandlers?.(registry);
     this.initHandlerMapping(handlerMapping);

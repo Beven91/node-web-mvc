@@ -5,21 +5,29 @@ import CglibAopProxyPostProcesor from '../../ioc/processor/CglibAopProxyPostProc
 import ApplicationContextAwareProcessor from '../../ioc/processor/ApplicationContextAwareProcessor';
 import AutowiredAnnotationBeanPostProcessor from '../../ioc/processor/AutowiredAnnotationBeanPostProcessor';
 import ConfigurationBeanPostProcessor from '../../ioc/processor/ConfigurationBeanPostProcessor';
+import BootConfiguration from '../BootConfiguration';
 
 
 export default class GenericApplicationContext extends AbstractApplicationContext {
   private readonly beanFactory: BeanFactory;
 
-  constructor() {
+  private readonly bootConfig: BootConfiguration;
+
+  constructor(bootConfig: BootConfiguration) {
     super();
+    this.bootConfig = bootConfig;
     this.beanFactory = new DefaultListableBeanFactory();
+  }
+
+  getBootConfig(): BootConfiguration {
+      return this.bootConfig;
   }
 
   registerBeanPostProcessor(): void {
     const factory = this.getBeanFactory();
     factory.addBeanPostProcessor(
-      new AutowiredAnnotationBeanPostProcessor(factory),
       new ApplicationContextAwareProcessor(this),
+      new AutowiredAnnotationBeanPostProcessor(factory),
       new ConfigurationBeanPostProcessor(factory),
       new CglibAopProxyPostProcesor(factory),
     );

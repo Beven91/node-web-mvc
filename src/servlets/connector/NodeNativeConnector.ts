@@ -5,25 +5,23 @@
 import http from 'http';
 import https from 'https';
 import http2 from 'http2';
-import type WebMvcConfigurationSupport from '../config/WebMvcConfigurationSupport';
 import HandlerConnector, { ServletHandler } from './HandlerConnector';
+import { NodeServerOptions } from '../SpringBootApplication';
 
 export default class NodeNativeConnector implements HandlerConnector {
-  private createServer(configurer: WebMvcConfigurationSupport, handler: any) {
-    const options = configurer.serverOptions || {};
-    switch (configurer.http) {
+  private createServer(config: NodeServerOptions, handler: any) {
+    switch (config.httpType) {
       case 'https':
-        return https.createServer(options as https.ServerOptions, handler);
+        return https.createServer(config as https.ServerOptions, handler);
       case 'http2':
-        return http2.createServer(options as http2.ServerOptions, handler);
+        return http2.createServer(config as http2.ServerOptions, handler);
       default:
-        return http.createServer(options as http.ServerOptions, handler);
+        return http.createServer(config as http.ServerOptions, handler);
     }
   }
 
-  connect(handler: ServletHandler, config: WebMvcConfigurationSupport) {
+  connect(handler: ServletHandler, config: NodeServerOptions) {
     return new Promise<void>((resolve, reject) => {
-      const port = config.port;
       const server = this.createServer(config, (req, res) => {
         Object.defineProperty(req, 'path', { value: req.url });
         handler(req, res, (err) => {
@@ -38,7 +36,7 @@ export default class NodeNativeConnector implements HandlerConnector {
       server.on('clientError', (err, socket) => {
         socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
       });
-      server.listen(port, () => {
+      server.listen(config.port, () => {
         resolve();
       });
       server.on('error', reject);
