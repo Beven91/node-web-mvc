@@ -63,6 +63,8 @@ import { SpringApplication, SpringBootApplication } from 'node-web-mvc';
   hot: './test',
   // 启动时需要加载的模块目录， 在不配置时默认为 process.cwd()
   scanBasePackages: './test',
+  // 配置服务端口相关
+  // server: { port: 8080  }
 })
 export default class DemoApplication {
   static main() {
@@ -80,9 +82,6 @@ import { WebMvcConfigurationSupport } from 'node-web-mvc';
 @Configuration
 export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 
-  // 启动端口
-  port = 8080
-  
   // 这里可以扩展配置...
 
 }
