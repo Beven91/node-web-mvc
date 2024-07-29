@@ -29,7 +29,7 @@ export default class AnnotationIndexer {
   methods: Map<Function, MethodIndexer>;
 
   static createIndexerIfNeed(ctor: Function) {
-    if (!ctor[annotationsSymbol]) {
+    if (!this.getIndexer(ctor)) {
       const indexer = new AnnotationIndexer();
       Javascript.defineHiddenProperty(ctor, annotationsSymbol, indexer);
       indexer.owner = ctor;
@@ -38,9 +38,10 @@ export default class AnnotationIndexer {
   }
 
   static getIndexer(ctor: Function) {
-    if (!ctor) {
+    if (!ctor || !ctor.hasOwnProperty(annotationsSymbol)) {
       return null;
     }
+    // 这里为了防止从原型链上找annotationsSymbol 所以采用hasOwnProperty
     return ctor[annotationsSymbol] as AnnotationIndexer;
   }
 
