@@ -1,4 +1,4 @@
-import Resource from './Resource';
+import Resource, { InputStream } from './Resource';
 import ByteArrayInputStream from './ByteArrayInputStream';
 
 export default class ByteArrayResource extends Resource {
@@ -18,6 +18,10 @@ export default class ByteArrayResource extends Resource {
 
   get contentLength(): number {
     return this.byteArray.length;
+  }
+
+  getInputRangeStream(start: number, end: number): InputStream {
+    return new ByteArrayInputStream(this.byteArray.slice(start, end));
   }
 
   getInputStream() {

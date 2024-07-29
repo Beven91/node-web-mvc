@@ -1,8 +1,8 @@
-import { ReadableOptions } from 'stream';
+import { Readable, ReadableOptions } from 'stream';
 import fs from 'fs';
 
-export default class ByteArrayInputStream extends fs.ReadStream {
-  private readonly bytesArray: Buffer;
+export default class ByteArrayInputStream extends Readable {
+  private bytesArray: Buffer;
 
   private pos: number;
 
@@ -10,6 +10,10 @@ export default class ByteArrayInputStream extends fs.ReadStream {
     super(options);
     this.bytesArray = bytesArray;
     this.pos = 0;
+  }
+
+  close() {
+    this.bytesArray = null;
   }
 
   _read(size?: number) {
