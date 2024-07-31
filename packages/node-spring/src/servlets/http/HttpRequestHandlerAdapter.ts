@@ -2,7 +2,7 @@
  * @module ResourceHandlerAdapter
  * @description 用于处理 resource
  */
-import ServletContext from '../http/ServletContext';
+import ServletContext from './ServletContext';
 import HttpRequestHandler from './HttpRequestHandler';
 import HandlerAdapter from '../method/HandlerAdapter';
 import HttpServletRequest from './HttpServletRequest';

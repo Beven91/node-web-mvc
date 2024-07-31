@@ -1,0 +1,17 @@
+{
+  "name": "nodespring-starter",
+  "version": "1.0.0",
+  "peerDependencies": {
+    "typescript": ">= 4"
+  },
+  "bin": {
+    "mvc-start": "bin/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Beven91/node-mvc.git"
+  },
+  "dependencies": {
+    "ts-node": "^10.1.0"
+  }
+}

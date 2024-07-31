@@ -15,12 +15,8 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators":true,
     "downlevelIteration":true,
-    "outDir": "./dist/",
-    "rootDir": "./src"
   },
   "exclude": [
-    "test",
-    "dist",
-    "node_modules",
+    "node_modules"
   ]
 }

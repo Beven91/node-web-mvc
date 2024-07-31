@@ -8,7 +8,7 @@ import ResourceHandlerRegistration from '../resources/ResourceHandlerRegistratio
 import ResourceHandlerRegistry from '../resources/ResourceHandlerRegistry';
 import ResourceHttpRequestHandler from '../resources/ResourceHttpRequestHandler';
 import type { ResourceConfig } from '../config/WebAppConfigurerOptions';
-import AbstractHandlerMapping from '../mapping/AbstractHandlerMapping';
+import AbstractHandlerMapping from './AbstractHandlerMapping';
 import ServletContext from '../http/ServletContext';
 
 export default class BeanNameUrlHandlerMapping extends AbstractHandlerMapping {

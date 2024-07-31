@@ -3,7 +3,7 @@ import path from 'path';
 import { Api, ApiOperation, GetMapping, RequestMapping, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders, Valid, ServletRequest, Validated } from '../../../src/index';
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
-import { UserInfo } from '../models/';
+import { UserInfo } from '../models';
 import RequestEntity from '../../../src/servlets/models/RequestEntity';
 import City from '../models/Models';
 import { demoData } from './data';

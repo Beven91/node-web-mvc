@@ -6,7 +6,7 @@ import hot from 'nodejs-hmr';
 import AbstractHandlerMethodMapping from './AbstractHandlerMethodMapping';
 import RequestMappingInfo, { ensureArray } from './RequestMappingInfo';
 import HttpServletRequest from '../http/HttpServletRequest';
-import MappingRegistration from '../mapping/registry/MappingRegistration';
+import MappingRegistration from './registry/MappingRegistration';
 import HandlerMethod from '../method/HandlerMethod';
 import RequestMapping, { RequestMappingExt } from '../annotations/mapping/RequestMapping';
 import RuntimeAnnotation, { } from '../annotations/annotation/RuntimeAnnotation';

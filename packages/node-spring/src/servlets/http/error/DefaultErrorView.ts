@@ -1,6 +1,6 @@
 import Component from '../../../ioc/annotations/Component';
-import type HttpServletRequest from '../../http/HttpServletRequest';
-import type HttpServletResponse from '../../http/HttpServletResponse';
+import type HttpServletRequest from '../HttpServletRequest';
+import type HttpServletResponse from '../HttpServletResponse';
 import View from '../../view/View';
 import MediaType from '../MediaType';
 
