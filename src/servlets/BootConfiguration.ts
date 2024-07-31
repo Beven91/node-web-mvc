@@ -6,18 +6,18 @@ import path from 'path';
 const isProduction = process.env.NODE_ENV === 'production';
 
 export default class BootConfiguration {
-  private readonly bootConfigs: InstanceType<typeof SpringBootApplication>[];
+  private readonly annoConfigs: InstanceType<typeof SpringBootApplication>[];
 
   private serverOptions: NodeServerOptions;
 
   constructor(primarySources: Function[]) {
-    this.bootConfigs = [];
+    this.annoConfigs = [];
     if (!primarySources) return;
     for (const primarySource of primarySources) {
       const configAnno = RuntimeAnnotation.getClassAnnotation(primarySource, SpringBootApplication);
-      this.bootConfigs.push(configAnno.nativeAnnotation);
+      this.annoConfigs.push(configAnno.nativeAnnotation);
     }
-    this.bootConfigs;
+    this.annoConfigs;
   }
 
   private resolvePaths(dirs: string | string[]) {
@@ -28,7 +28,7 @@ export default class BootConfiguration {
   }
 
   getScanBasePackages(): string[] {
-    const scanBasePackages = this.bootConfigs.reduce((v, item) => v.concat(item.scanBasePackages), []).filter(Boolean);
+    const scanBasePackages = this.annoConfigs.reduce((v, item) => v.concat(item.scanBasePackages), []).filter(Boolean);
     if (scanBasePackages.length < 1) {
       return [ process.cwd() ];
     } else {
@@ -41,7 +41,7 @@ export default class BootConfiguration {
       // 生产模式无论如何禁止热更新
       return null;
     }
-    const config = this.bootConfigs.find((m) => !!m.hot);
+    const config = this.annoConfigs.find((m) => !!m.hot);
     if (!config?.hot) {
       return null;
     }
@@ -58,7 +58,7 @@ export default class BootConfiguration {
   getServerOptions(): NodeServerOptions {
     if (!this.serverOptions) {
       let config: NodeServerOptions = {} as NodeServerOptions;
-      this.bootConfigs.forEach((m) => {
+      this.annoConfigs.forEach((m) => {
         config = {
           ...config,
           ...m.server,
@@ -71,12 +71,12 @@ export default class BootConfiguration {
   }
 
   getExcludeScan(): string[] {
-    const fileOrDirs = this.bootConfigs.reduce((v, item) => v.concat(item.excludeScan), []).filter(Boolean);
+    const fileOrDirs = this.annoConfigs.reduce((v, item) => v.concat(item.excludeScan), []).filter(Boolean);
     return this.resolvePaths(fileOrDirs);
   }
 
   getLaunchLogOff(): boolean {
-    return this.bootConfigs[0]?.launchLogOff;
+    return this.annoConfigs[0]?.launchLogOff;
   }
 
   getPort(): number {
@@ -84,6 +84,6 @@ export default class BootConfiguration {
   }
 
   getEanbleSwagger(): boolean {
-    return this.bootConfigs[0]?.swagger === true;
+    return this.annoConfigs[0]?.swagger === true;
   }
 }

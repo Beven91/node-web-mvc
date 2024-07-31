@@ -40,7 +40,7 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
     const { request } = servletContext;
     const name = anno?.value || parameter.paramName;
     const query = request.query;
-    // TODO :需要识别泛型 MultipartFile[]
+    // TODO: high 需要识别泛型 MultipartFile[]
     if (parameter.isParamAssignableOf(MultipartFile)) {
       return this.resolveMultipartFile(name, servletContext);
     } else if (parameter.isParamAssignableOf(Map)) {

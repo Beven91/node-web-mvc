@@ -65,7 +65,7 @@ export default class HttpEntityMethodProcessor extends AbstractMessageConverterM
     if (parameter.parameterType === HttpEntity) {
       return new HttpEntity(null, request.headers);
     }
-    // TODO: 由于目前ts默认编译场景下不支持泛型参数提取，所以这里type默认为Object类型
+    // TODO: high 由于目前ts默认编译场景下不支持泛型参数提取，所以这里type默认为Object类型
     const type = Object;
     let data = null;
     if (request.hasBody) {

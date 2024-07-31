@@ -74,7 +74,7 @@ export default class OpenApiModel {
     const operationIds = {} as object;
     const id = require.resolve(path.resolve('package.json'));
     delete require.cache[id];
-    // TODO: 如果要支持mjs场景这里需要考虑如何改造
+    // TODO: low 如果要支持mjs场景这里需要考虑如何改造
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const pkg = this.readPkg(id);
     const tags: ApiTag[] = [];
