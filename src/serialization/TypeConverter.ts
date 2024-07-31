@@ -109,6 +109,9 @@ export default class TypeConverter {
   }
 
   toClass(data: object, dataType: ClazzType, itemType?: any) {
+    if (dataType === Object && (typeof data !== 'object' || !data)) {
+      return data;
+    }
     const instance = this.createInstance(dataType);
     const keys = Object.keys(data);
     for (const key of keys) {
