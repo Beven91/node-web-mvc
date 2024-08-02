@@ -11,7 +11,7 @@
 
 ```shell
 
-npm install node-web-mvc reflect-metadata
+npm install node-web-mvc reflect-metadata node-spring-starter
 
 ```
 
@@ -19,7 +19,7 @@ npm install node-web-mvc reflect-metadata
 
 ```shell
 
-yarn add node-web-mvc reflect-metadata
+yarn add node-web-mvc reflect-metadata node-spring-starter
 
 ```
 

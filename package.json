@@ -1,7 +1,7 @@
 {
   "private": true,
   "name": "node-web-mvc",
-  "version": "3.2.4",
+  "version": "1.0.0",
   "description": "node spring mvc",
   "workspaces":[
     "packages/*"
@@ -10,12 +10,9 @@
     "test": "test"
   },
   "scripts": {
-    "cli":"ts-node ./src/cli/index.ts",
-    "demo":"ts-node ./src/serialization/date/DateConverter.ts",
-    "start": "ts-node ./test/index.ts",
-    "build": "rimraf dist && tsc",
-    "prepublishOnly": "npm run build",
-    "test": "jest"
+    "demo": "ts-node ./src/cli/src/demo/index.ts",
+    "watch": "cd src/node-web-mvc && npm run watch",
+    "start": "cd src/example && npm start"
   },
   "devDependencies": {
     "jest":"^29.7.0",

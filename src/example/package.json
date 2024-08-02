@@ -1,0 +1,13 @@
+{
+  "name": "node-spring-example",
+  "version": "1.0.0",
+  "scripts": {
+    "start":"node-web-starter dev ./src/main/index.ts",
+    "build":"node-web-starter build"
+  },
+  "dependencies": {
+    "node-web-starter": "workspace:*",
+    "node-web-mvc": "workspace:*",
+    "xml2js": "^0.4.23"
+  }
+}

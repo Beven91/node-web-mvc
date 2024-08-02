@@ -1,0 +1,28 @@
+{
+  "name": "node-web-starter",
+  "version": "1.0.0",
+  "peerDependencies": {
+    "typescript": ">= 4"
+  },
+  "bin": {
+    "node-web-starter": "bin/index.js"
+  },
+  "scripts": {
+    "build": "rimraf dist && tsc",
+    "prepublishOnly": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Beven91/node-mvc.git"
+  },
+  "dependencies": {
+    "ts-node": "^10.1.0",
+    "commander":"12.1.0"
+  },
+  "devDependencies": {
+    "rimraf": "6.0.1"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
+}

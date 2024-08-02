@@ -1,9 +1,0 @@
-{
-  "name":"node-spring-example",
-  "version": "1.0.0",
-  "dependencies":  {
-    "nodespring-starter": "^1.0.0",
-    "node-web-mvc": "3.x",
-    "xml2js": "^0.4.23"
-  }
-}
