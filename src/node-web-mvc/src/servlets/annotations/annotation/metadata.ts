@@ -1,15 +1,19 @@
 
 import 'reflect-metadata';
 import Tracer from './Tracer';
-import MetaRuntimeType from '../MetaRuntimeType';
+import MetaRuntimeType, { MetaRuntimeTypeInfo } from '../MetaRuntimeType';
 
 const decorate = Reflect.decorate;
 
-(Reflect as any).RuntimeType = function(paramterType: string, ...parameters) {
-  return MetaRuntimeType({
-    value: paramterType,
-    parameters: parameters,
+(Reflect as any).RuntimeType = function(name: string, info: MetaRuntimeTypeInfo) {
+  if (info) {
+    info.fullName = name;
+  }
+  const handler = MetaRuntimeType({
+    value: name,
+    type: info,
   });
+  return handler;
 };
 
 Reflect.decorate = function(decorators: any[], target: any, propertyKey?: string | symbol, attributes?: PropertyDescriptor | null) {

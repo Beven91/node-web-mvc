@@ -8,6 +8,7 @@
     "node-web-starter": "bin/index.js"
   },
   "scripts": {
+    "watch": "tsc --watch",
     "build": "rimraf dist && tsc",
     "prepublishOnly": "npm run build"
   },

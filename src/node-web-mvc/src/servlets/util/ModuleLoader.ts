@@ -56,7 +56,7 @@ export default class ModuleLoader {
       if (fs.lstatSync(id).isFile() && !allowExtensions[ext]) {
         return;
       }
-      if (this.isExclude(id)) {
+      if (this.isExclude(id) || id.indexOf('.d.ts') > 0) {
         console.log('ModuleLoader exclude:', id);
         // 如果需要排除
         return;

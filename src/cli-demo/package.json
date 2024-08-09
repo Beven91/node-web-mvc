@@ -1,0 +1,10 @@
+{
+  "name": "cli-demo",
+  "version": "1.0.0",
+  "scripts": {
+    "build":"node-web-starter build"
+  },
+  "dependencies": {
+    "node-web-starter": "workspace:*"
+  }
+}

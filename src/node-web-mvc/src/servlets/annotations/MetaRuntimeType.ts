@@ -3,55 +3,33 @@
 import Target from './Target';
 import ElementType from './annotation/ElementType';
 
-const createType = (name: string, type: object, fullName?: string):MetaRuntimeTypeInfo => {
-  return {
-    fullName: fullName,
-    type: typeof type == 'function' ? type : null,
-    name: name,
-    isArray: name.slice(-2) == '[]',
-    parameters: null,
-  };
-};
-
 export interface MetaRuntimeTypeInfo {
+  // 运行时类型 为null则表示无运行时类型
   type: Function
+  // 类型名称
   name: string
-  isArray: boolean
+  // 是否为数组类型
+  array: boolean
   fullName: string
-  parameters: MetaRuntimeTypeInfo[]
+  // 当前是否为泛型参数
+  tp?: boolean
+  // 如果当前类型是泛型类型，则会存在
+  args: MetaRuntimeTypeInfo[]
 }
 
-type ParameterRuntimeType = object | object[] | { array: object };
-
 class MetaRuntimeType {
+  /**
+   * 完整类型名
+   */
   value?: string;
 
-  __exclude_keys__ = 'getRuntimeTypeInfo';
-
   /**
-   * 类型对应的实际对象
-   * 例如:
-   * Promise<A> 则: [Promise,A]
-   * Promise<A[]> 则 [Promise, {array: A}]
-   * Map<string,A> 则 [Map, [string, A]]
-   * 如果A 在运行没有实际类型则
-   * Promise<A> 则: [Promise,'A']
-   * Promise<A[]> 则 [Promise, 'A[]']
-   * Map<string,A> 则 [Map, [string, 'A']]
+   * 完整类型名的具体信息
    */
-  parameters?: ParameterRuntimeType[];
+  type: MetaRuntimeTypeInfo;
 
-  getRuntimeTypeInfo(): MetaRuntimeTypeInfo {
-    if (!this.value) return null;
-    const segments = this.value.split('<').map((m) => m.trim().replace(/>/g, ''));
-    const parameters = this.parameters || [];
-    const name = segments.shift();
-    const type = parameters.shift();
-    const mainType = createType(name, type, this.value);
-    mainType.parameters = segments.map((name, i) => {
-      return createType(name, parameters[i]);
-    });
-    return mainType;
+  constructor() {
+    const a = 10;
   }
 }
 

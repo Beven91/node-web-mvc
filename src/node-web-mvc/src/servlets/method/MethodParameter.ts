@@ -90,14 +90,14 @@ export default class MethodParameter {
   }
 
   public getParameterGenericTypeOf(i:number) {
-    return this.runtimeType?.parameters?.[i]?.type;
+    return this.runtimeType?.args?.[i]?.type;
   }
 
   public isMultipartAccept() {
     return (
       this.isParamAssignableOf(MultipartFile) ||
       this.runtimeType?.type instanceof MultipartFile ||
-      this.runtimeType?.isArray && this.isExtParamAssignableOf(0, MultipartFile)
+      this.runtimeType?.array && this.isExtParamAssignableOf(0, MultipartFile)
     );
   }
 
@@ -113,6 +113,6 @@ export default class MethodParameter {
     this.paramName = paramName;
     this.paramIndex = paramIndex;
     this.parameterType = parameterType;
-    this.runtimeType = RuntimeAnnotation.getMethodParamAnnotation(beanType, method, paramName, MetaRuntimeType)?.nativeAnnotation?.getRuntimeTypeInfo?.();
+    this.runtimeType = RuntimeAnnotation.getMethodParamAnnotation(beanType, method, paramName, MetaRuntimeType)?.nativeAnnotation?.type;
   }
 }

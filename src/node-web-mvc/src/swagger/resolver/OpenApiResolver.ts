@@ -6,6 +6,7 @@ import ResourceResolver from '../../servlets/resources/ResourceResolver';
 import ResourceResolverChain from '../../servlets/resources/ResourceResolverChain';
 import OpenApiModel from '../openapi';
 import ByteArrayResource from '../../servlets/resources/ByteArrayResource';
+import MediaType from '../../servlets/http/MediaType';
 
 export default class OpenApiResolver implements ResourceResolver {
   /**
@@ -28,7 +29,9 @@ export default class OpenApiResolver implements ResourceResolver {
   async resolveResource(request: HttpServletRequest, requestPath: string, locations: Resource[], next: ResourceResolverChain): Promise<Resource> {
     const builder = new OpenApiModel();
     const meta = builder.build(request.contextPath);
-    const resource = new ByteArrayResource(Buffer.from(JSON.stringify(meta, null, 2)));
+    const mediaType = MediaType.APPLICATION_JSON;
+    const buffer = Buffer.from(JSON.stringify(meta, null, 2));
+    const resource = new ByteArrayResource(buffer, mediaType);
     return resource;
   }
 

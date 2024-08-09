@@ -14,10 +14,29 @@
       "sourceMaps": true,
       "runtimeArgs": [
         "-r",
-        "ts-node/register"
+        "../cli/dist/register"
+      ],
+      "cwd": "${workspaceFolder}/src/example",
+      "args": [
+        "${workspaceFolder}/src/example/src/main/index.ts"
+      ],
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "调试CLI",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "cwd": "${workspaceFolder}/src/cli-demo",
+      "sourceMaps": true,
+      "runtimeArgs": [
+        "-r",
+        "ts-node/register",
       ],
       "args": [
-        "${workspaceFolder}/test/index.ts"
+        "${workspaceFolder}/src/cli/src/index.ts",
+        "build"
       ],
     },
   ]

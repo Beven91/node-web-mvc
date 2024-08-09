@@ -4,13 +4,14 @@
   "version": "1.0.0",
   "description": "node spring mvc",
   "workspaces":[
-    "packages/*"
+    "src/*"
   ],
   "directories": {
     "test": "test"
   },
   "scripts": {
-    "demo": "ts-node ./src/cli/src/demo/index.ts",
+    "demo": "ts-node ./src/cli/src/test/index.ts",
+    "watch-cli": "cd src/cli && npm run watch",
     "watch": "cd src/node-web-mvc && npm run watch",
     "start": "cd src/example && npm start"
   },

@@ -56,7 +56,7 @@ export function getTypeNodeName(typeNode: ts.TypeNode) {
 function getAliasQualifiedName(typeName: ts.EntityName, checker: ts.TypeChecker): string | undefined {
   if (ts.isIdentifier(typeName)) {
     const symbol = checker.getSymbolAtLocation(typeName);
-    if (symbol && symbol.declarations.length > 0) {
+    if (symbol && symbol.declarations?.length > 0) {
       const declaration = symbol.declarations[0];
       if (ts.isTypeAliasDeclaration(declaration)) {
         if (ts.isTypeReferenceNode(declaration.type)) {
@@ -71,16 +71,22 @@ function getAliasQualifiedName(typeName: ts.EntityName, checker: ts.TypeChecker)
   return typeName.getText();
 }
 
-function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, typeIdentifier: ts.EntityName, meta: ReturnType<typeof getDeclareType>, gContext: GenerateContext) {
+function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, typeIdentifier: ts.EntityName, meta: ReturnType<typeof getDeclareType>, gContext: GenerateContext, isArray: boolean) {
   const properties: ts.ObjectLiteralElementLike[] = [];
   const aliasName = getAliasQualifiedName(typeIdentifier, gContext.typeChecker);
   const name = aliasName || getTypeNodeName(typeNode);
   properties.push(ts.factory.createPropertyAssignment('name', ts.factory.createStringLiteral(name)));
   if (meta?.isRuntime) {
-    properties.push(ts.factory.createPropertyAssignment('type', ts.factory.createIdentifier(name)));
+    properties.push(ts.factory.createPropertyAssignment('type', typeIdentifier as ts.Identifier));
   }
   if (meta?.isParameter) {
+    if (ts.isTypeReferenceNode(typeNode) && ts.isIdentifier(typeNode.typeName)) {
+      ts.factory.updateTypeReferenceNode(typeNode, ts.factory.createIdentifier('?'), undefined);
+    }
     properties.push(ts.factory.createPropertyAssignment('tp', ts.factory.createTrue()));
+  }
+  if (isArray) {
+    properties.push(ts.factory.createPropertyAssignment('array', ts.factory.createTrue()));
   }
   const args = typeNode.typeArguments?.map?.((m) => createTypeDefinition(m, gContext)).filter(Boolean);
   if (args?.length > 0) {
@@ -90,17 +96,19 @@ function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, ty
   return ts.factory.createObjectLiteralExpression(properties);
 }
 
-function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext): ts.Expression {
+function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, isArray?: boolean): ts.Expression {
   if (ts.isTypeReferenceNode(typeNode)) {
+    // 类型引用
     const meta = getDeclareType(typeNode.typeName, gContext.typeChecker);
-    return createTypeDefinitionByIdentifier(typeNode, typeNode.typeName, meta, gContext);
+    return createTypeDefinitionByIdentifier(typeNode, typeNode.typeName, meta, gContext, isArray);
   } else if (ts.isTypeQueryNode(typeNode)) {
     const meta = {
       isParameter: false,
       isRuntime: true,
     };
-    return createTypeDefinitionByIdentifier(typeNode, typeNode.exprName, meta, gContext);
+    return createTypeDefinitionByIdentifier(typeNode, typeNode.exprName, meta, gContext, isArray);
   } else if (ts.isUnionTypeNode(typeNode)) {
+    // 联合类型
     return ts.factory.createObjectLiteralExpression([
       ts.factory.createPropertyAssignment(
         'types',
@@ -109,6 +117,9 @@ function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext):
         )
       ),
     ]);
+  } else if (ts.isArrayTypeNode(typeNode)) {
+    // 数组类型
+    return createTypeDefinition(typeNode.elementType, gContext, true);
   }
   return null;
 }

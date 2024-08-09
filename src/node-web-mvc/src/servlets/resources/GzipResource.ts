@@ -14,6 +14,10 @@ export default class GzipResource extends HttpResource {
     this.resource = resource;
   }
 
+  get mediaType() {
+    return this.resource.mediaType;
+  }
+
   getInputStream() {
     const stream = this.resource.getInputStream();
     return stream.pipe(zlib.createGzip());

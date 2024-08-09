@@ -3,8 +3,9 @@ import path from 'path';
 import { createTransformers } from './transformers';
 
 export function tsc() {
+  const dir = './';
   // 查找 `tsconfig.json` 的路径
-  const configPath = ts.findConfigFile('./', ts.sys.fileExists, 'tsconfig.json');
+  const configPath = ts.findConfigFile(dir, ts.sys.fileExists, 'tsconfig.json');
 
   if (!configPath) {
     throw new Error('Could not find a valid \'tsconfig.json\'.');
