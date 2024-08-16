@@ -30,7 +30,7 @@ function myDecorator(decorators: any[], target: any, propertyKey?: string | symb
 
 export function getRuntimeType(name: string, target: any, key: string | symbol, idx?: number) {
   const id = 'design:runtimetype';
-  const propertyKey = idx >= 0 ? getParameterKey(id, idx) : key;
+  const propertyKey = idx >= 0 ? getParameterKey(id, idx) : id;
   const runtimeType = Reflect.getMetadata(propertyKey, target, key) as MetaRuntimeTypeInfo;
   const metaType = Reflect.getMetadata(name, target, key);
   let runtimeTypeInfo: MetaRuntimeTypeInfo = null;
