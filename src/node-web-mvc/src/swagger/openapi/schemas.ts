@@ -28,7 +28,7 @@ export default class Schemas {
     const schemas: Record<string, ApiModelInfo> = {};
     const models = RuntimeAnnotation.getAnnotations(ApiModel);
     for (const model of models) {
-      this.buildApiModel(model.ctor, model.nativeAnnotation, schemas);
+      this.buildApiModel(model.ctor.name, model.ctor, model.nativeAnnotation, schemas);
     }
     // 处理引用类型
     this.buildApiModelRefrerences(schemas);
@@ -36,8 +36,7 @@ export default class Schemas {
     return schemas;
   }
 
-  private buildApiModel(clazzType: ClazzType, anno: InstanceType<typeof ApiModel>, schemas: Record<string, ApiModelInfo>, fillRuntimeType = false) {
-    const modelName = clazzType.name;
+  private buildApiModel(modelName: string, clazzType: ClazzType, anno: InstanceType<typeof ApiModel>, schemas: Record<string, ApiModelInfo>, fillRuntimeType = false) {
     // 构建属性
     const properties = this.buildApiModelProperties(clazzType, fillRuntimeType);
     return schemas[modelName] = {
@@ -92,7 +91,7 @@ export default class Schemas {
       return;
     }
     const anno = { value: runtimeType.fullName, description: '' };
-    const model = this.buildApiModel(runtimeType.clazz, anno, schemas, true);
+    const model = this.buildApiModel(name, runtimeType.clazz, anno, schemas, true);
     const properties = {};
     // if (!baseModel && !genericTypeRef.clazzType) {
     //   // 如果没有baseModel，无法生成，跳过
@@ -107,7 +106,7 @@ export default class Schemas {
         const fillType = runtimeType.args.find((m) => m.at == itemRuntimeType.name);
         const newFillType:MetaRuntimeTypeInfo = {
           ...fillType,
-          fullName: fillType.name,
+          fullName: fillType?.name,
         };
         properties[key] = fillType ? this.typemappings.make(newFillType) : item;
       } else if (itemRuntimeType.args?.length > 0) {
