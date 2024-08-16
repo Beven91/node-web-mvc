@@ -1,0 +1,13 @@
+{
+  "name":"create-node-web-mvc",
+  "version": "1.2.0",
+  "bin": {
+    "create-node-web-mvc":"./src/index.js"
+  },
+  "dependencies": {
+    "prompts":"2.4.2"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org"
+  }
+}

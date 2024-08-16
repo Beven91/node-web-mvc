@@ -23,8 +23,31 @@ yarn add node-web-mvc reflect-metadata
 
 ```
 
+## 创建应用
 
-## 启动
+```npm
+npm create node-web-mvc
+```
+
+
+## 手工创建应用
+
+### package.json
+
+```json
+{
+  "name": "<proejctName>",
+  "version": "1.0.0",
+  "scripts": {
+    "start":"node-web-mvc-starter dev ./index.ts",
+    "build":"node-web-mvc-starter build"
+  },
+  "dependencies": {
+    "node-web-mvc-starter": "^1.0.0",
+    "node-web-mvc": "^3.2.6"
+  }
+}
+```
 
 ### tsconfig
 
@@ -96,10 +119,13 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
 > 例如:
 
 ```js
+import { RestController, RequestMapping, GetMapping  } from 'node-web-mvc';
+
+@RestController
 @RequestMapping('/home')
 class HomeController { 
 
-  @RequestMapping({ value:'/index',method:'GET' })
+  @GetMapping({ value:'/index',method:'GET' })
   index(){
     return 'Hi i am home index';
   }

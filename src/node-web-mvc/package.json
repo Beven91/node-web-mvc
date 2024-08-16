@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "3.2.5",
+  "version": "3.2.8",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "directories": {
@@ -23,6 +23,13 @@
     "mvc",
     "spring",
     "node"
+  ],
+  "files":[
+    "dist",
+    "swagger-ui",
+    "mime.type",
+    "package.json",
+    "README.md"
   ],
   "author": "beven",
   "license": "MIT",

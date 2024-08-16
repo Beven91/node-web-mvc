@@ -1,11 +1,11 @@
 {
-  "name": "node-web-starter",
-  "version": "1.0.0",
+  "name": "node-web-mvc-starter",
+  "version": "1.0.3",
   "peerDependencies": {
     "typescript": ">= 4"
   },
   "bin": {
-    "node-web-starter": "bin/index.js"
+    "node-web-mvc-starter": "bin/index.js"
   },
   "scripts": {
     "watch": "tsc --watch",
@@ -16,9 +16,14 @@
     "type": "git",
     "url": "git+https://github.com/Beven91/node-mvc.git"
   },
+  "files":[
+    "bin",
+    "dist",
+    "package.json",
+    "README.md"
+  ],
   "dependencies": {
-    "ts-node": "^10.1.0",
-    "commander":"12.1.0"
+    "ts-node": "^10.1.0"
   },
   "devDependencies": {
     "rimraf": "6.0.1"

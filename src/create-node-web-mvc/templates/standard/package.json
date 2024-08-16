@@ -1,0 +1,16 @@
+{
+  "name": "demo",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node-web-mvc-starter dev ./index.ts",
+    "build": "node-web-mvc-starter build"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "node-web-mvc-starter": "^1.0.3"
+  },
+  "dependencies": {
+    "node-web-mvc": "^3.2.8",
+    "reflect-metadata": "^0.1.13"
+  }
+}

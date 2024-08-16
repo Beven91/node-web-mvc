@@ -7,18 +7,15 @@
     "module": "CommonJS",
     "target": "ES2017",
     "noImplicitAny": false,
-    "removeComments": false,
+    "removeComments": true,
     "esModuleInterop":true,
     "preserveConstEnums": true,
-    "sourceMap": false,
-    "declaration": true,
-    "skipLibCheck": true,
+    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators":true,
     "downlevelIteration":true,
   },
   "exclude": [
     "node_modules",
-    "src/create-node-web-mvc"
   ]
 }
