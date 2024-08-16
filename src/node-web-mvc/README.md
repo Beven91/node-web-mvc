@@ -26,7 +26,7 @@ yarn add node-web-mvc reflect-metadata
 ## 创建应用
 
 ```npm
-npm create node-web-mvc
+npm create node-web-mvc@latest
 ```
 
 
