@@ -7,12 +7,13 @@ import SerializationCreateInstanceError from '../errors/SerializationCreateInsta
 import ValueConvertError from '../errors/ValueConvertError';
 import Javascript from '../interface/Javascript';
 import { ClazzType } from '../interface/declare';
-import MetaProperty from '../servlets/annotations/annotation/MetaProperty';
 import RuntimeAnnotation from '../servlets/annotations/annotation/RuntimeAnnotation';
 import { toBigInt, toBoolean, toDate, toNumber, toString } from './BasicTypeConverter';
 import DateConverter from './date/DateConverter';
 import JsonDeserialize from './JsonDeserialize';
 import JsonFormat from './JsonFormat';
+import { MetaRuntimeTypeInfo } from '../servlets/annotations/annotation/type';
+import ConvertPropertyTypeError from '../errors/ConvertPropertyTypeError';
 
 export const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;
 
@@ -28,7 +29,7 @@ export default class TypeConverter {
     }
   }
 
-  convert(value: object, type: any, itemType?: any) {
+  convert(value: object, type: ClazzType, runtimeType?: MetaRuntimeTypeInfo) {
     if (value === null || value === undefined) {
       return null;
     } else if (!type) {
@@ -47,33 +48,35 @@ export default class TypeConverter {
     } else if (clazzType.isType(Date)) {
       return toDate(value, type);
     } else if (clazzType.isType(Array)) {
-      return this.toArray(value, type, itemType);
-    } else if (clazzType.isType(Set)) {
-      return this.toSet(value, type, itemType);
-    } else if (clazzType.isType(Map)) {
-      return this.toMap(value, type, itemType);
+      return this.toArray(value, type, runtimeType);
+    } else if (clazzType.isType(Set) || clazzType.isType(WeakSet)) {
+      return this.toSet(value, type, runtimeType);
+    } else if (clazzType.isType(Map) || clazzType.isType(WeakMap)) {
+      return this.toMap(value, type, runtimeType);
     } else if (value instanceof type) {
       return value;
     } else if (clazzType.isType(TypedArray)) {
       return this.toTypedArray(value, type);
     } else {
-      return this.toClass(value, type, itemType);
+      return this.toClass(value, type, runtimeType);
     }
   }
 
-  toSet(value: object, type: ClazzType, itemType?: any) {
+  toSet(value: object, type: ClazzType, runtimeType?: MetaRuntimeTypeInfo) {
     const set = new type() as Set<any>;
     const items = value instanceof Array ? value : [ value ];
+    const itemType = runtimeType?.args?.[0]?.clazz;
     items.forEach((value) => {
       set.add(itemType ? this.convert(value, itemType) : value);
     });
     return set;
   }
 
-  toMap(data: any, type: ClazzType, itemType?: any) {
+  toMap(data: any, type: ClazzType, runtimeType?: MetaRuntimeTypeInfo) {
     if (typeof data !== 'object' || !data || data instanceof Array) {
       throw new ValueConvertError(data, Map);
     }
+    const itemType = runtimeType?.args?.[1]?.clazz;
     const map = new type() as Map<any, any>;
     Object.keys(data).forEach((key) => {
       const value = itemType ? this.convert(data[key], itemType) : data[key];
@@ -82,8 +85,9 @@ export default class TypeConverter {
     return map;
   }
 
-  toArray(value: object, type: ClazzType, itemType?: any) {
+  toArray(value: object, type: ClazzType, runtimeType?: MetaRuntimeTypeInfo) {
     const values = value instanceof Array ? value : [ value ];
+    const itemType = runtimeType?.args?.[0]?.clazz;
     const instance = this.createInstance(type);
     if (value == null) {
       return instance;
@@ -108,7 +112,8 @@ export default class TypeConverter {
     return Object.getOwnPropertyDescriptor(instance, key) || Object.getOwnPropertyDescriptor(instance.__proto__, key);
   }
 
-  toClass(data: object, dataType: ClazzType, itemType?: any) {
+  toClass(data: object, dataType: ClazzType, runtimeType?: MetaRuntimeTypeInfo) {
+    // TODO:  runtimeType补充
     if (dataType === Object && (typeof data !== 'object' || !data)) {
       return data;
     }
@@ -121,7 +126,11 @@ export default class TypeConverter {
         // 如果是只读属性
         continue;
       }
-      instance[key] = this.handlePropertyValue(dataType, key, value);
+      try {
+        instance[key] = this.handlePropertyValue(dataType, key, value);
+      } catch (ex) {
+        throw new ConvertPropertyTypeError(key, ex);
+      }
     }
     return instance;
   }
@@ -136,12 +145,12 @@ export default class TypeConverter {
       // 自定义反序列化
       return deserializer.deserialize(value, clazz, name);
     }
-    const clazzType = Javascript.createTyper(basicProperty.dataType);
-    if (clazzType.isType(Date)) {
-      return this.handleDateProperty(clazz, basicProperty.dataType, name, value);
+    const clazzType = basicProperty.dataType.clazz;
+    if (Javascript.createTyper(clazzType).isType(Date)) {
+      return this.handleDateProperty(clazz, clazzType, name, value);
     }
-    const metaProperty = RuntimeAnnotation.getPropertyAnnotation(clazz, name, MetaProperty);
-    return this.convert(value, basicProperty.dataType, metaProperty?.nativeAnnotation?.itemType);
+    const metaProperty = RuntimeAnnotation.getPropertyAnnotation(clazz, name, Object);
+    return this.convert(value, clazzType, metaProperty?.dataType);
   }
 
   private handleDateProperty(clazz: ClazzType, dataType: ClazzType, name: string, value: any) {

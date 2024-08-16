@@ -3,7 +3,7 @@
  * @description Razor视图
  */
 import ejs from 'ejs';
-import { View,HttpServletRequest,HttpServletResponse, MediaType  } from 'node-web-mvc';
+import { View, HttpServletRequest, HttpServletResponse, MediaType } from 'node-web-mvc';
 
 export default class EjsView extends View {
   /**

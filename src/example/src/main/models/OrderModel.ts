@@ -1,5 +1,4 @@
 import { Repository, ApiModel, ApiModelProperty, Autowired } from 'node-web-mvc';
-import Keneral from './Keneral';
 
 class BaseOrder {
   @ApiModelProperty({ value: '地址' })
@@ -19,9 +18,6 @@ export default class OrderModel extends BaseOrder {
     this.orderId = 10086;
     this.orderType = OrderType.STMP;
   }
-
-  @Autowired
-  private kk: Keneral;
 
   @ApiModelProperty({ value: '订单编号' })
   orderId: number;

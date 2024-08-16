@@ -55,7 +55,7 @@ export default class DataValidator {
       const constraint = anno.nativeAnnotation;
       context.current = anno;
       context.currentField = anno.name;
-      context.currentTyper = Javascript.createTyper(anno.dataType);
+      context.currentTyper = Javascript.createTyper(anno.dataType.clazz);
       const isValid = await constraint.isValid(value, context);
       const currentPaths = paths ? `${paths}.${anno.name}` : anno.name;
       if (!isValid) {
@@ -72,7 +72,7 @@ export default class DataValidator {
       const currentPaths = paths ? `${paths}.${anno.name}` : anno.name;
       if (anno) {
         // 如果配置了校验，则嵌套校验
-        await this.validateByAnnotation(value, groups, parameter, anno.dataType, currentPaths);
+        await this.validateByAnnotation(value, groups, parameter, anno.dataType.clazz, currentPaths);
       }
     }
   }

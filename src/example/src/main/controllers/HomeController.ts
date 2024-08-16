@@ -29,27 +29,27 @@ export default class HomeController {
 
   @ApiOperation({ value: 'RequestParam get参数' })
   @GetMapping('/requestParamsGet')
-  async requestParamsGet(@RequestParam name: string, @RequestParam id: number) {
+  async requestParamsGet(@RequestParam name: string, @RequestParam id: number) : Promise<string> {
     await new Promise((resolve) => setTimeout(resolve, 100));
     return `name:${name},id:${id},${this.oService.getOrderName()}`;
   }
 
   @ApiOperation({ value: 'RequestParam post参数' })
   @PostMapping('/requestParamsPost')
-  requestParamsPost(@RequestParam name: string, @RequestParam id: number) {
+  requestParamsPost(@RequestParam name: string, @RequestParam id: number): string {
     this.oService.sayHello();
     this.orderService.sayHello();
     return `name:${name},id:${id}`;
   }
 
   @PostMapping('/requestParamsNoAnnosWithGet')
-  requestParamsNoAnnosWithGet(name: string, id: number) {
+  requestParamsNoAnnosWithGet(name: string, id: number): string {
     return `name:${name},id:${id}`;
   }
 
 
   @PostMapping('/requestParamsNoAnnosWithPost')
-  requestParamsNoAnnosWithPost(name: string, id: number) {
+  requestParamsNoAnnosWithPost(name: string, id: number): string {
     return `name:${name},id:${id}`;
   }
 
@@ -58,7 +58,7 @@ export default class HomeController {
   ])
   @ApiOperation({ value: 'RequestParam接收Map' })
   @GetMapping('/map')
-  mapGet(@RequestParam data: Map<string, any>) {
+  mapGet(@RequestParam data: Map<string, any>): Map<string, any> {
     return data;
   }
 
@@ -67,55 +67,54 @@ export default class HomeController {
   ])
   @ApiOperation({ value: 'RequestBody接收Map' })
   @PostMapping('/map')
-  mapPost(@RequestBody data: Map<string, any>) {
+  mapPost(@RequestBody data: Map<string, any>): Map<string, any> {
     return data;
   }
 
   @ApiOperation({ value: 'Set数据接收' })
   @PostMapping('/set')
-  set(@RequestParam data: Set<any>) {
+  set(@RequestParam data: Set<any>): Set<any> {
    return data;
   }
 
   @ApiOperation({ value: '@RequestParam 接收Array数据接收' })
   @PostMapping('/array')
-  array(@RequestParam array: Array<string>) {
-    // TODO: 如何补偿泛型运行时的类型参数
+  array(@RequestParam array: Array<string>): Array<string> {
     return array;
   }
 
   @ApiOperation({ value: 'Date,Boolean,数据接收' })
   @PostMapping('/booleanDate')
-  booleanDate(@RequestParam date: Date, @RequestParam isShow: boolean) {
+  booleanDate(@RequestParam date: Date, @RequestParam isShow: boolean): string {
     // TODO: 关于Date converter
     return `date:${date.toLocaleString()},\nisShow:${isShow}`;
   }
 
-  @ApiOperation({ value: '使用@RequestParam 接收file参数', returnType: 'string' })
+  @ApiOperation({ value: '使用@RequestParam 接收file参数' })
   @PostMapping('/requestParamWithMultipartFile')
   // @ApiImplicitParams([
   //   { description: '编号', paramType: 'query', name: 'id', required: true }
   // ])
-  requestParamWithMultipartFile(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile) {
+  requestParamWithMultipartFile(@RequestParam({ required: true }) id: string, @RequestParam file: MultipartFile): string {
     file.transferTo('a.jpg');
     return 'home/index...' + id + ',file.name=' + file.name;
   }
 
   @ApiOperation({ value: '返回文件流' })
   @GetMapping('/stream')
-  stream() {
-    return new ResponseFile(path.resolve('test/resources/aa/a.txt'));
+  stream() : ResponseFile {
+    return new ResponseFile(path.resolve('src/resources/aa/a.txt'));
   }
 
   @ApiOperation({ value: '下载文件' })
   @GetMapping('/download')
-  download() {
-    return new ResponseFile(path.resolve('test/resources/aa/a.txt'), true);
+  download() : ResponseFile {
+    return new ResponseFile(path.resolve('src/resources/aa/a.txt'), true);
   }
 
   @ApiOperation({ value: '@RequestHeader头部' })
   @GetMapping('/header')
-  header(@RequestHeader({ value: 'accept' }) type: string) {
+  header(@RequestHeader({ value: 'accept' }) type: string): string {
     return 'home/index...' + type;
   }
 
@@ -130,13 +129,13 @@ export default class HomeController {
 
   @ApiOperation({ value: '@PathVariable 测试' })
   @GetMapping('/path/{id}')
-  path(@PathVariable id: number) {
+  path(@PathVariable id: number): string {
     return 'home/index...' + id + '===';
   }
 
   @ApiOperation({ value: '@UserId 测试' })
   @GetMapping('/userId')
-  userId(@UserId id) {
+  userId(@UserId id): string {
     return 'userId...' + id;
   }
 
@@ -146,18 +145,18 @@ export default class HomeController {
     return new GeneralResult(0, { models: [ demoData ] });
   }
 
-  @ApiOperation({ value: '数据返回：属性泛型', returnType: 'GeneralResult<UserInfo[]>' })
+  @ApiOperation({ value: '数据返回：属性泛型' })
   @ApiImplicitParams([
     { description: '类型', name: 'user', example: demoData },
   ])
   @PostMapping('/return2')
-  returnData2(@RequestBody @Valid user: UserInfo) {
+  returnData2(@RequestBody @Valid user: UserInfo): UserInfo {
     return user;
   }
 
-  @ApiOperation({ value: '数据返回：属性泛型2', returnType: 'CommonResult<Keneral[]>' })
+  @ApiOperation({ value: '数据返回：属性泛型2' })
   @GetMapping('/return3')
-  returnData3() {
+  returnData3(): CommonResult<Keneral> {
     const k = new Keneral();
     k.userId = 10086;
     k.order = new OrderModel();
@@ -168,15 +167,15 @@ export default class HomeController {
     return new CommonResult(0, [ k ]);
   }
 
-  @ApiOperation({ value: '自定义返回', returnType: [ 'hello' ] })
+  @ApiOperation({ value: '自定义返回' })
   @GetMapping('/demo')
-  demo() {
+  demo(): string {
     return JSON.stringify([ 'aaa' ]);
   }
 
-  @ApiOperation({ value: '测试ResponseHttpEntity返回', returnType: [ 'hello' ] })
+  @ApiOperation({ value: '测试ResponseHttpEntity返回' })
   @GetMapping('/httpEntity')
-  httpEntity(httpEntity: RequestEntity) {
+  httpEntity(httpEntity: RequestEntity): ResponseEntity {
     const entity = new ResponseEntity(HttpStatus.OK);
     entity.setHeader(HttpHeaders.LAST_MODIFIED, new Date().toUTCString());
     entity.setHeader('demo', '123424234');

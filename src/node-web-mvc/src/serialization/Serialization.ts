@@ -18,7 +18,7 @@ export default class Serialization {
    */
   deserialize(str: string, dataType: Function | ClazzType) {
     const data = JSON.parse(str);
-    return converter.convert(data, dataType);
+    return converter.convert(data, dataType as ClazzType);
   }
 
   /**

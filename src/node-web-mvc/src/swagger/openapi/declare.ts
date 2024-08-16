@@ -1,4 +1,4 @@
-import { ClazzType } from '../../interface/declare';
+import { MetaRuntimeTypeInfo } from '../../servlets/annotations/annotation/type';
 
 export interface ApiTag {
   name: string
@@ -87,8 +87,7 @@ export interface SchemeRef {
 export interface GenericTypeSchemeRefExt {
   refType: SchemeRef
   name: string
-  template: string
-  clazzType: ClazzType
+  runtimeType: MetaRuntimeTypeInfo
 }
 
 export interface ApiModelInfo {
@@ -109,7 +108,9 @@ export interface ApiModelPropertyInfo {
   enum?: string[]
   example?: any
   description?: string
-  additionalProperties?: {
+  // 运行时类型，在输出到swagger会被移除
+  runtimeType?: MetaRuntimeTypeInfo
+  additionalProperties?: boolean | {
     [x: string]: ApiModelPropertyInfo
   }
 }

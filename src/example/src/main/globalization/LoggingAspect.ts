@@ -6,21 +6,21 @@ import HomeController from '../controllers/HomeController';
 export default class LoggingAspect {
   @Before((clazz, method) => clazz == HomeController)
   loggingBefore(joinPint: JoinPoint) {
-    console.log('===> AOP Aspect: loggingBefore ', joinPint.getSignature(), '<<Arguments>>====>', joinPint.getArgs());
-  }
-
-  @After((clazz, method) => clazz == HomeController)
-  loggingAfter(joinPint: JoinPoint) {
-    console.log('===> AOP Aspect: loggingAfter ', joinPint.getSignature());
+    console.log('===> 1. AOP Aspect: loggingBefore ', joinPint.getSignature(), '<<Arguments>>====>', joinPint.getArgs());
   }
 
   @AfterReturning((clazz, method) => clazz == HomeController)
   loggingAfterReturning(joinPint: JoinPoint, value: object) {
-    console.log('===> AOP Aspect: logginAfterReturning ', joinPint.getSignature(), '<<Return Value>>===> ', value);
+    console.log('===> 2. AOP Aspect: logginAfterReturning ', joinPint.getSignature(), '<<Return Value>>===> ', value);
+  }
+
+  @After((clazz, method) => clazz == HomeController)
+  loggingAfter(joinPint: JoinPoint) {
+    console.log('===> 3. AOP Aspect: loggingAfter ', joinPint.getSignature());
   }
 
   @AfterThrowing((clazz, method) => clazz == HomeController)
   loggingAfterThrowing(joinPint: JoinPoint) {
-    console.log('===> AOP Aspect: loggingAfterThrowing ', joinPint.getSignature());
+    console.log('===> 4. AOP Aspect: loggingAfterThrowing ', joinPint.getSignature());
   }
 }

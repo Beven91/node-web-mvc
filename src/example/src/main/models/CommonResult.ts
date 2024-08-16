@@ -22,7 +22,7 @@ export default class CommonResult<T> {
   /**
    * 返回的数据
    */
-  @ApiModelProperty({ value: '数据', dataType: '?' })
+  @ApiModelProperty({ value: '数据' })
   public data: T;
 
   /**

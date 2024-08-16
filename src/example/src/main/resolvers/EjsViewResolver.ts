@@ -9,7 +9,8 @@ import EjsView from './EjsView';
 
 export default class EjsViewResolver extends UrlBasedViewResolver {
   internalResolve(viewName: string, model: any, request: HttpServletRequest): View {
-    const file = path.resolve(viewName);
+    console.log('viewName====>', viewName);
+    const file = path.join(viewName);
     if (fs.existsSync(file)) {
       return new EjsView(viewName);
     }

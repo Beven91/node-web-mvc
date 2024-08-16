@@ -2,7 +2,7 @@
  * @module AbstractHttpMessageConverter
  */
 
-import { ClazzType, JsDataType } from '../../../interface/declare';
+import { JsDataType } from '../../../interface/declare';
 import MediaType from '../MediaType';
 import ServletContext from '../ServletContext';
 import HttpMessageConverter from './HttpMessageConverter';

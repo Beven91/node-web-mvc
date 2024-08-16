@@ -6,9 +6,8 @@
 
 import Target from './Target';
 import ElementType from './annotation/ElementType';
-import MetaProperty from './annotation/MetaProperty';
 
-class ModelAttribute extends MetaProperty {
+class ModelAttribute {
   value?: string;
 
   binding? = true;

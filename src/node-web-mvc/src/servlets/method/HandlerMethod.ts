@@ -94,6 +94,7 @@ export default class HandlerMethod {
 
   // 初始化参数
   private initMethodParameters(): Array<MethodParameter> {
+    // TODO: 确保有底层注解
     const methodAnno = RuntimeAnnotation.getMethodAnnotations(this.beanType, this.methodName)[0];
     const parameterNames = methodAnno?.parameters || Javascript.resolveParameters(this.method);
     return parameterNames.map((paramName, i) => {

@@ -1,3 +1,5 @@
+import { buildRuntimeType } from '../annotations/annotation/metadata';
+import { MetaRuntimeTypeInfo } from '../annotations/annotation/type';
 import HttpStatus from '../http/HttpStatus';
 import ServletContext from '../http/ServletContext';
 import ModelAndViewContainer from '../models/ModelAndViewContainer';
@@ -46,7 +48,8 @@ export default class ServletInvocableHandlerMethod {
     if (handlerMethod.responseStatusReason) {
       return;
     }
-    const returnType = new MethodParameter(handlerMethod.beanType, handlerMethod.methodName, '', -1, returnValue?.constructor);
+    const runtimeType: MetaRuntimeTypeInfo = buildRuntimeType(returnValue?.constructor, null);
+    const returnType = new MethodParameter(handlerMethod.beanType, handlerMethod.methodName, '', -1, runtimeType);
     const returnHandlers = new HandlerMethodReturnValueHandlerComposite(this.returnvalueHandlers);
     await returnHandlers.handleReturnValue(returnValue, returnType, servletContext, mavContainer);
     mavContainer.requestHandled = response.headersSent;

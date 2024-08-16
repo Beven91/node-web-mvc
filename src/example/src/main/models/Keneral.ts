@@ -19,6 +19,6 @@ export default class Keneral {
   @ApiModelProperty({ value: '性别' })
   public sex: string;
 
-  @ApiModelProperty({ value: '订单', dataType: 'OrderModel' })
+  @ApiModelProperty({ value: '订单' })
   public order: OrderModel;
 }

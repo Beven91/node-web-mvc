@@ -1,5 +1,5 @@
 {
-  "name": "node-spring-example",
+  "name": "node-mvc-example",
   "version": "1.0.0",
   "scripts": {
     "start":"node-web-starter dev ./src/main/index.ts",

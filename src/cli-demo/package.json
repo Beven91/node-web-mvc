@@ -5,6 +5,7 @@
     "build":"node-web-starter build"
   },
   "dependencies": {
-    "node-web-starter": "workspace:*"
+    "node-web-starter": "workspace:*",
+    "reflect-metadata":"^0.2.2"
   }
 }

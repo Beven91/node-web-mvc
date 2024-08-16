@@ -25,6 +25,7 @@ import RequestPartArgumentResolver from './RequestPartArgumentResolver';
 import HttpEntityMethodProcessor from '../processor/HttpEntityMethodProcessor';
 import DataValidator from '../../../validation/DataValidator';
 import TypeConverter from '../../../serialization/TypeConverter';
+import { ClazzType } from '../../../interface/declare';
 
 const converter = new TypeConverter();
 
@@ -88,7 +89,7 @@ export default class ArgumentsResolvers {
           finalValue = [ finalValue ];
         }
         // 设置参数值
-        args[i] = converter.convert(finalValue, parameter.parameterType, null);
+        args[i] = converter.convert(finalValue, parameter.parameterType as ClazzType, parameter.runtimeType);
         // 验证数据
         await (new DataValidator()).validate(args[i], parameter);
       }

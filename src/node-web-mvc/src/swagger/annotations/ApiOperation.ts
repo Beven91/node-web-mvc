@@ -23,9 +23,6 @@ class ApiOperation {
    */
   httpMethod?: HttpMethodKeys;
 
-  // 返回数据类型
-  returnType?: any;
-
   // 所属标签
   tags?: string[];
 

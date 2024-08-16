@@ -21,7 +21,7 @@ import ServletResponse from '../../servlets/annotations/params/ServletResponse';
 import ServletRequest from '../../servlets/annotations/params/ServletRequest';
 import Javascript from '../../interface/Javascript';
 import HttpEntity from '../../servlets/models/HttpEntity';
-import MetaRuntimeType from '../../servlets/annotations/MetaRuntimeType';
+import { buildRuntimeType } from '../../servlets/annotations/annotation/metadata';
 
 const emptyOf = (v, defaultValue) => (v === null || v === undefined || v === '') ? defaultValue : v;
 
@@ -137,7 +137,6 @@ export default class OpenApiModel {
    */
   private buildOperation(paths: ApiPaths, action: RuntimeAnnotation<typeof RequestMapping>, tags: ApiTag[], definition: Schemas, operationIds: object) {
     const apiOperation = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation)?.nativeAnnotation;
-    const returnTypeAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, MetaRuntimeType)?.nativeAnnotation;
     const mapping = RequestMapping.getMappingInfo(action.ctor, action.methodName);
     if (!mapping) {
       return;
@@ -148,7 +147,7 @@ export default class OpenApiModel {
       operationId = this.toClamp(`${utags[0]}-${operationId}`);
     }
     operationIds[action.methodName] = true;
-    const returnType = returnTypeAnno?.value || apiOperation?.returnType || action.returnType;
+    const returnType = action.returnType;
     const code = apiOperation?.code || '200';
     const consumes = apiOperation?.consumes || mapping.consumes || [];
     const parameters = this.buildOperationParameters(action, definition);
@@ -189,19 +188,17 @@ export default class OpenApiModel {
    * @param operation
    */
   private buildOperationParameters(action: RuntimeAnnotation<typeof RequestMapping>, definition: Schemas) {
-    const operationAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiOperation);
     const apiImplicitAnno = RuntimeAnnotation.getMethodAnnotation(action.ctor, action.methodName, ApiImplicitParams);
     const parameters = apiImplicitAnno?.nativeAnnotation?.parameters || [];
     const parameterNames = action.parameters;
-    const paramTypes = action.paramTypes;
     const finalParameters = parameterNames.map((name, i) => {
       const parameter = (parameters.find((m) => m.name === name) || {}) as ApiImplicitParamOptions;
       const parameterAnno = RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ParamAnnotation);
       const isRequest = !!RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ServletRequest);
       const isResponse = !!RuntimeAnnotation.getMethodParamAnnotation(action.ctor, action.methodName, name, ServletResponse);
       const parameter2 = parameterAnno?.nativeAnnotation;
-      const dataType = emptyOf(parameter.dataType, parameterAnno?.dataType) || paramTypes[i] || operationAnno?.paramTypes?.[i];
-      if (isRequest || isResponse || Javascript.createTyper(dataType).isType(HttpEntity)) {
+      const dataType = action.paramTypes[i];
+      if (isRequest || isResponse || Javascript.createTyper(dataType.clazz).isType(HttpEntity)) {
         return;
       }
       const value = emptyOf(parameter.value, parameter2?.value) || emptyOf(parameter.name, parameter2?.value) || name;
@@ -220,7 +217,8 @@ export default class OpenApiModel {
       };
     }).filter(Boolean);
     return finalParameters.map((parameter) => {
-      const typeInfo = definition.typemappings.make(parameter.dataType || parameter.example?.constructor);
+      const info = parameter.example && buildRuntimeType(parameter.example?.constructor, null);
+      const typeInfo = definition.typemappings.make(parameter.dataType || info);
       return {
         name: parameter.name,
         required: parameter.required,
@@ -262,20 +260,21 @@ export default class OpenApiModel {
         };
       });
     }
-    if (body) {
+    if (consumes?.length > 0) {
+      consumes.forEach((m) => {
+        if (requestBody.content[m]) return;
+        requestBody.content[m] = {
+          schema: {
+            type: 'string',
+          },
+        };
+      });
+    } else if (body) {
       requestBody.content['application/json'] = {
         example: emptyOf(body.example, undefined),
         schema: body.schema as SchemeRef,
       };
     }
-    consumes.forEach((m) => {
-      if (requestBody.content[m]) return;
-      requestBody.content[m] = {
-        schema: {
-          type: 'string',
-        },
-      };
-    });
     if (Object.keys(requestBody.content).length < 1) {
       return undefined;
     }

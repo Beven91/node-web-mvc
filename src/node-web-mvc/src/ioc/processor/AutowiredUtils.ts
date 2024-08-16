@@ -4,5 +4,5 @@ import BeanDefinition from '../factory/BeanDefinition';
 
 export function getBeanTypeByAnnotation(anno:RuntimeAnnotation) {
   const qualifier = RuntimeAnnotation.getAnnotationsByAnno(anno, Qualifier)[0];
-  return qualifier?.nativeAnnotation?.value || BeanDefinition.toBeanName(anno.dataType);
+  return qualifier?.nativeAnnotation?.value || BeanDefinition.toBeanName(anno.dataType.clazz);
 }

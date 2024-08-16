@@ -41,7 +41,7 @@ class City {
   @ModelAttribute
   type: string;
 
-  @ModelAttribute({ itemType: Feature })
+  // @ModelAttribute({ itemType: Feature })
   features: Feature[];
 }
 

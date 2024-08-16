@@ -105,6 +105,7 @@ export { default as MiddlewareInterceptor } from './servlets/interceptor/Middlew
 export { default as CacheControl } from './servlets/http/CacheControl';
 export { default as MappedInterceptor } from './servlets/interceptor/MappedInterceptor';
 export { default as AnnotationElementTypeError } from './errors/AnnotationElementTypeError';
+export { default as ConvertPropertyTypeError } from './errors/ConvertPropertyTypeError';
 export { default as ValueConvertError } from './errors/ValueConvertError';
 export { default as ArgumentResolvError } from './errors/ArgumentResolvError';
 export { default as BeanCreationException } from './errors/BeanCreationException';

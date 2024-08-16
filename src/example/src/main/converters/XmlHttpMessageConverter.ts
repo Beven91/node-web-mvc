@@ -4,7 +4,7 @@ import { HttpMessageConverter, JsDataType, MediaType, ServletContext } from 'nod
 import xml2js from 'xml2js';
 
 export default class XmlHttpMessageConverter implements HttpMessageConverter {
-  private mediaTypes = [MediaType.APPLICATION_XML];
+  private mediaTypes = [ MediaType.APPLICATION_XML ];
 
   getSupportedMediaTypes(): MediaType[] {
     return this.mediaTypes;

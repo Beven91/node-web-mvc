@@ -23,7 +23,7 @@ export default class GeneralResult<T> {
   /**
    * 返回的数据
    */
-  @ApiModelProperty({ value: '数据', dataType: 'Paged<?>' })
+  @ApiModelProperty({ value: '数据' })
   public data: Paged<T>;
 
   /**

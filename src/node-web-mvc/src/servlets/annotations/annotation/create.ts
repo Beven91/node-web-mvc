@@ -45,5 +45,6 @@ export default function create(elementTypes: ElementType | ElementType[], annota
   decorator.NativeAnnotation = annotationType;
   FunctionExtends.extendStatic(decorator, annotationType);
   Object.defineProperty(decorator, 'name', { value: annotationType.name });
+  (decorator as any).__proto__ = annotationType;
   return decorator;
 }

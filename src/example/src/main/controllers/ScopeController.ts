@@ -17,7 +17,7 @@ export default class ScopeController {
     return this.scopeData || { message: '没有设置值' };
   }
 
-  @ApiOperation({ value: '设置数据到控制器实例上', returnType: 'UserInfo' })
+  @ApiOperation({ value: '设置数据到控制器实例上' })
   @ApiImplicitParams([
     { name: 'user', description: '用户信息', required: true, dataType: UserInfo },
     { name: 'id', description: '用户id', required: true },

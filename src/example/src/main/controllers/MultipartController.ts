@@ -45,7 +45,7 @@ export default class MultipartController {
 
   @ApiOperation({ value: '上传文件', notes: '上传证书文件' })
   @ApiImplicitParams([
-    { name: 'files', description: '证书', required: true, dataType: 'MultipartFile[]' },
+    { name: 'files', description: '证书', required: true },
     { name: 'name', description: '用户id' },
   ])
   @PostMapping('/upload2')

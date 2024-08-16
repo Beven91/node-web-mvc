@@ -1,6 +1,8 @@
 import ts, { TransformationContext } from 'typescript';
 import { createRuntimeTypeArguments, GenerateContext, hasDecorator } from './helper';
 
+const metadata = '__metadata';
+
 const controllerDecorators = {
   'RestController': true,
   'Controller': true,
@@ -24,7 +26,7 @@ const generateFunctionRuntimeReturnType = (typeNode: ts.TypeNode, node: ts.Metho
       ...(node.modifiers || []),
       ts.factory.createDecorator(
         ts.factory.createCallExpression(
-          ts.factory.createIdentifier('Reflect.RuntimeType'),
+          ts.factory.createIdentifier(metadata),
           undefined,
           createRuntimeTypeArguments(typeNode, gContext)
         )
@@ -48,7 +50,7 @@ const generateParameterRuntimeType = (typeNode: ts.TypeNode, node: ts.ParameterD
       ...(node.modifiers || []),
       ts.factory.createDecorator(
         ts.factory.createCallExpression(
-          ts.factory.createIdentifier('Reflect.RuntimeType'),
+          ts.factory.createIdentifier(metadata),
           undefined,
           createRuntimeTypeArguments(typeNode, gContext)
         )
@@ -70,7 +72,7 @@ const generatePropertyRuntimeType = (typeNode: ts.TypeNode, node: ts.PropertyDec
       ...(node.modifiers || []),
       ts.factory.createDecorator(
         ts.factory.createCallExpression(
-          ts.factory.createIdentifier('Reflect.RuntimeType'),
+          ts.factory.createIdentifier(metadata),
           undefined,
           createRuntimeTypeArguments(typeNode, gContext)
         )

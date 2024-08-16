@@ -228,7 +228,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     const parameters = annotations.filter((m) => m.elementType == ElementType.PARAMETER && m.method == handler);
     const values = parameters.map((parameter) => {
       const x = parameter.nativeAnnotation as InstanceType<typeof Qualifier>;
-      return this.getBean(x.value || parameter.paramType);
+      return this.getBean(x.value || parameter.paramType.clazz);
     });
     // 这里获取原始的实例 为了保证在类内部调用函数不使用代理对象
     const originInstance = ProxyHelper.getProxyOriginInstance(instance);

@@ -1,11 +1,12 @@
 import Javascript from '../../interface/Javascript';
-import { ClazzType } from '../../interface/declare';
+import { MetaRuntimeTypeInfo } from '../../servlets/annotations/annotation/type';
 import MultipartFile from '../../servlets/http/MultipartFile';
+import HttpEntity from '../../servlets/models/HttpEntity';
 import { ApiModelPropertyInfo, SchemeRef, GenericTypeSchemeRefExt } from './declare';
 
 const alias: Record<string, any> = {
   'undefined': { type: 'string' },
-  'object': { type: 'object' },
+  'object': { type: 'object', additionalProperties: true },
   'boolean': { type: 'boolean' },
   'number': { type: 'integer' },
   'bigint': { type: 'number', format: 'biginteger' },
@@ -18,11 +19,11 @@ const alias: Record<string, any> = {
 
 const mappings = [
   { clazz: String, data: { type: 'string' } },
-  { clazz: Symbol, data: { type: 'string' } },
+  { clazz: Symbol, data: alias['symbol'] },
   { clazz: Date, data: { type: 'string', format: 'date-time' } },
-  { clazz: Boolean, data: { type: 'boolean' } },
-  { clazz: Number, data: { type: 'integer' } },
-  { clazz: BigInt, data: { type: 'number', format: 'biginteger' } },
+  { clazz: Boolean, data: alias['boolean'] },
+  { clazz: Number, data: alias['number'] },
+  { clazz: BigInt, data: alias['bigint'] },
   { clazz: Array, data: { type: 'array', items: { type: 'string' } } },
   { clazz: SharedArrayBuffer, data: { type: 'array', items: { type: 'binary' } } },
   { clazz: Int8Array, data: { type: 'array', items: { type: 'integer' } } },
@@ -32,68 +33,70 @@ const mappings = [
   { clazz: Uint32Array, data: { type: 'array', items: { type: 'integer' } } },
   { clazz: Uint8Array, data: { type: 'array', items: { type: 'integer' } } },
   { clazz: Uint8ClampedArray, data: { type: 'array', items: { type: 'integer' } } },
-  { clazz: Set, data: { type: 'array', items: { type: 'string' } } },
-  { clazz: WeakSet, data: { type: 'array', items: { type: 'string' } } },
-  { clazz: WeakMap, data: { type: 'object' } },
-  { clazz: Map, data: { type: 'object' } },
-  { clazz: MultipartFile, data: { type: 'file' } },
-  { clazz: Buffer, data: { type: 'binary' } },
-  { clazz: Function, data: { type: 'object' } },
-  { clazz: Promise, data: { type: 'object' } },
+  { clazz: MultipartFile, data: alias['MultipartFile'] },
+  { clazz: HttpEntity, data: { type: 'string', format: 'binary' } },
+  { clazz: Buffer, data: { type: 'string', format: 'binary' } },
+  { clazz: Function, data: alias['object'] },
+  { clazz: WeakMap, data: alias['object'] },
+  { clazz: Map, data: alias['object'] },
 ];
 
 export default class TypeMappings {
   public readonly referenceTypes: GenericTypeSchemeRefExt[] = [];
 
-  makeRef(name: string, dataType?: ClazzType) {
-    return this.makeMetaRef(name, dataType).refType;
+  makeRef(runtimeType: MetaRuntimeTypeInfo) {
+    return this.makeMetaRef(runtimeType).refType;
   }
 
-  makeMetaRef(name: string, dataType?: ClazzType) {
-    const idName = name; // .replace(/<|>|\[|\]/g, '');
+  makeMetaRef(runtimeType: MetaRuntimeTypeInfo) {
+    const idName = runtimeType.fullName || runtimeType.name; // .replace(/<|>|\[|\]/g, '');
     const type = { '$ref': `#/components/schemas/${idName}` };
     const genericType = {
       refType: type,
-      template: name,
+      runtimeType: runtimeType,
       name: idName,
-      clazzType: dataType,
     };
     this.referenceTypes.push(genericType);
     return genericType;
   }
 
 
-  makeRefType(typeName: string) {
-    if (!typeName) {
-      return null;
-    } else if (/</.test(typeName)) {
-      // 泛型处理
-      return this.makeRef(typeName);
-    } else if (alias[typeName]) {
-      return alias[typeName];
-    } else {
-      return this.makeRef(typeName);
-    }
-  }
-
-  make(type: any, itemType?: any): SchemeRef | ApiModelPropertyInfo {
-    const clazz = Javascript.createTyper(type);
-    const basicType = mappings.find((m) => clazz.isType(m.clazz))?.data;
-    if (clazz.isType(Array) && itemType) {
+  make(runtimeType: MetaRuntimeTypeInfo): SchemeRef | ApiModelPropertyInfo {
+    const typer = Javascript.createTyper(runtimeType.clazz);
+    const args = runtimeType.args || [];
+    if (runtimeType.tp) {
+      // 如果是泛型参数
+      return { type: 'object' };
+    } else if (!runtimeType.clazz) {
+      // 如果没有类型定义，只是字符串
+      return alias[runtimeType.name] || { type: 'object' };
+    } else if (runtimeType.enum) {
+      // 枚举类型
+      return {
+        type: 'string',
+        enum: Object.keys(runtimeType.clazz).filter((m: any) => isNaN(m)),
+      };
+    } else if (runtimeType.clazz == Object) {
+      return alias['object'];
+    } else if (typer.isType(Promise)) {
+      // 如果是Promise
+      return args.length > 0 ? this.make(args[0]) : { type: 'object' };
+    } else if (typer.isType(Set) || typer.isType(WeakSet) || typer.isType(Array)) {
+      // 如果是Set WeakSet
+      return { type: 'array', items: args.length > 0 ? this.make(args[0]) : { type: 'string' } };
+    } else if (runtimeType.array) {
+      const newRuntimeType = {
+        ...runtimeType,
+        array: false,
+      };
+      // 如果是数组
       return {
         type: 'array',
-        items: this.make(itemType),
+        items: this.make(newRuntimeType),
       };
-    } else if (type === Object) {
-      return { type: 'object' };
-    } else if (basicType) {
-      return basicType;
-    } else if (typeof type === 'string') {
-      return this.makeRefType(type);
-    } else if (type?.name && clazz.isType(Object)) {
-      return this.makeRef(type.name, type);
-    } else {
-      return { type: 'string' };
-    }
+    };
+    const basicType = mappings.find((m) => typer.isType(m.clazz))?.data;
+    // 如果存在基本类型定义则返回，否则创建引用类型
+    return basicType ? basicType : this.makeRef(runtimeType);
   }
 }

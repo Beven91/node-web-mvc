@@ -22,11 +22,6 @@ class ApiModelProperty {
   required?: boolean;
 
   /**
-   * 数据类型
-   */
-  dataType?: string;
-
-  /**
    * 枚举
    */
   enum?: any;

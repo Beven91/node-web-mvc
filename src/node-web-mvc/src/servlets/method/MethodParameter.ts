@@ -5,8 +5,7 @@
 
 import Javascript from '../../interface/Javascript';
 import RuntimeAnnotation from '../annotations/annotation/RuntimeAnnotation';
-import { IAnnotationClazz } from '../annotations/annotation/type';
-import MetaRuntimeType, { MetaRuntimeTypeInfo } from '../annotations/MetaRuntimeType';
+import { IAnnotationClazz, MetaRuntimeTypeInfo } from '../annotations/annotation/type';
 import MultipartFile from '../http/MultipartFile';
 
 export type RequestParamType = 'path' | 'query' | 'body' | 'header' | 'form' | 'part' | '';
@@ -35,7 +34,7 @@ export default class MethodParameter {
   /**
    * 参数类型
    */
-  public readonly parameterType: any;
+  public readonly parameterType: Function;
 
   /**
    * 补充的运行时类型
@@ -90,13 +89,13 @@ export default class MethodParameter {
   }
 
   public getParameterGenericTypeOf(i:number) {
-    return this.runtimeType?.args?.[i]?.type;
+    return this.runtimeType?.args?.[i]?.clazz;
   }
 
   public isMultipartAccept() {
     return (
       this.isParamAssignableOf(MultipartFile) ||
-      this.runtimeType?.type instanceof MultipartFile ||
+      this.runtimeType?.clazz instanceof MultipartFile ||
       this.runtimeType?.array && this.isExtParamAssignableOf(0, MultipartFile)
     );
   }
@@ -107,12 +106,12 @@ export default class MethodParameter {
    * @param paramType 参数类型
    * @param annotation 所属原始注解
    */
-  constructor(beanType: Function, method: string, paramName: string, paramIndex: number, parameterType: any) {
+  constructor(beanType: Function, method: string, paramName: string, paramIndex: number, parameterType: MetaRuntimeTypeInfo) {
     this.beanType = beanType;
     this.method = method;
     this.paramName = paramName;
     this.paramIndex = paramIndex;
-    this.parameterType = parameterType;
-    this.runtimeType = RuntimeAnnotation.getMethodParamAnnotation(beanType, method, paramName, MetaRuntimeType)?.nativeAnnotation?.type;
+    this.parameterType = parameterType.clazz;
+    this.runtimeType = parameterType;
   }
 }

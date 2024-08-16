@@ -9,9 +9,10 @@ import Tracer from './Tracer';
 import { mergeAnnotationSymbol } from '../Merge';
 import { ClazzType } from '../../../interface/declare';
 import AnnotationIndexer from './AnnotationIndexer';
-import { IAnnotationClazz, IAnnotationOrClazz } from './type';
+import { IAnnotationClazz, IAnnotationOrClazz, MetaRuntimeTypeInfo } from './type';
 import Alias from './Alias';
 import IRuntimeAnnotation from './IRuntimeAnnotation';
+import { getRuntimeType } from './metadata';
 
 // 所有运行时注解
 const runtimeAnnotations: Array<RuntimeAnnotation> = [];
@@ -97,34 +98,36 @@ export default class RuntimeAnnotation<A = any> implements IRuntimeAnnotation {
   /**
    * 如果当前注解为：函数注解，则能获取到返回结果类型
    */
-  get returnType() {
-    return Reflect.getMetadata('design:returntype', this.target, this.name);
+  get returnType(): MetaRuntimeTypeInfo {
+    return getRuntimeType('design:returntype', this.target, this.name);
   }
 
   /**
    * 如果当前为函数注解，则能获取到当前函数的参数类型
    */
   get paramTypes() {
-    return Reflect.getMetadata('design:paramtypes', this.target, this.name) || [];
+    const paramTypes = (Reflect.getMetadata('design:paramtypes', this.target, this.name) || []) as [];
+    return paramTypes.map((paramType, i)=>{
+      return getRuntimeType('design:paramtypes', this.target, this.name, i);
+    });
   }
 
   /**
    * 如果当前注解为参数注解，则能获取到当前参数的类型
    * @param ctor
    */
-  get paramType() {
-    const paramtypes = this.paramTypes;
-    return paramtypes[this.paramIndex];
+  get paramType(): MetaRuntimeTypeInfo {
+    return getRuntimeType('design:paramtypes', this.target, this.name, this.paramIndex);
   }
 
   /**
    * 当注解，作用在属性上时，的类型
    */
-  get dataType() {
+  get dataType(): MetaRuntimeTypeInfo {
     if (this.elementType == ElementType.PARAMETER) {
       return this.paramType;
     }
-    return Reflect.getMetadata('design:type', this.target, this.name);
+    return getRuntimeType('design:type', this.target, this.name);
   }
 
   /**
