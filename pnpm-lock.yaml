@@ -54,45 +54,11 @@ importers:
         specifier: ^5.3.3
         version: 5.5.4
 
-  src/cli:
-    dependencies:
-      ts-node:
-        specifier: ^10.1.0
-        version: 10.9.2(@types/node@14.18.63)(typescript@5.5.4)
-      typescript:
-        specifier: '>= 4'
-        version: 5.5.4
-    devDependencies:
-      rimraf:
-        specifier: 6.0.1
-        version: 6.0.1
-
-  src/cli-demo:
-    dependencies:
-      node-web-mvc-starter:
-        specifier: workspace:*
-        version: link:../cli
-      reflect-metadata:
-        specifier: ^0.2.2
-        version: 0.2.2
-
   src/create-node-web-mvc:
     dependencies:
       prompts:
         specifier: 2.4.2
         version: 2.4.2
-
-  src/example:
-    dependencies:
-      node-web-mvc:
-        specifier: workspace:*
-        version: link:../node-web-mvc
-      node-web-mvc-starter:
-        specifier: workspace:*
-        version: link:../cli
-      xml2js:
-        specifier: ^0.4.23
-        version: 0.4.23
 
   src/node-web-mvc:
     dependencies:
@@ -109,6 +75,40 @@ importers:
       rimraf:
         specifier: 6.0.1
         version: 6.0.1
+
+  src/node-web-mvc-example:
+    dependencies:
+      node-web-mvc:
+        specifier: workspace:*
+        version: link:../node-web-mvc
+      node-web-mvc-starter:
+        specifier: workspace:*
+        version: link:../node-web-mvc-starter
+      xml2js:
+        specifier: ^0.4.23
+        version: 0.4.23
+
+  src/node-web-mvc-starter:
+    dependencies:
+      ts-node:
+        specifier: ^10.1.0
+        version: 10.9.2(@types/node@14.18.63)(typescript@5.5.4)
+      typescript:
+        specifier: '>= 4'
+        version: 5.5.4
+    devDependencies:
+      rimraf:
+        specifier: 6.0.1
+        version: 6.0.1
+
+  src/node-web-mvc-starter-test:
+    dependencies:
+      node-web-mvc-starter:
+        specifier: workspace:*
+        version: link:../node-web-mvc-starter
+      reflect-metadata:
+        specifier: ^0.2.2
+        version: 0.2.2
 
 packages:
 

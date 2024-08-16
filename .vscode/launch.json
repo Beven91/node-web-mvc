@@ -14,28 +14,28 @@
       "sourceMaps": true,
       "runtimeArgs": [
         "-r",
-        "../cli/dist/register"
+        "../node-web-mvc-starter/dist/register"
       ],
-      "cwd": "${workspaceFolder}/src/example",
+      "cwd": "${workspaceFolder}/src/node-web-mvc-example",
       "args": [
-        "${workspaceFolder}/src/example/src/main/index.ts"
+        "${workspaceFolder}/src/node-web-mvc-example/src/main/index.ts"
       ],
     },
     {
       "type": "node",
       "request": "launch",
-      "name": "调试CLI",
+      "name": "调试starter",
       "skipFiles": [
         "<node_internals>/**"
       ],
-      "cwd": "${workspaceFolder}/src/cli-demo",
+      "cwd": "${workspaceFolder}/src/node-web-mvc-starter-test",
       "sourceMaps": true,
       "runtimeArgs": [
         "-r",
         "ts-node/register",
       ],
       "args": [
-        "${workspaceFolder}/src/cli/src/index.ts",
+        "${workspaceFolder}/src/node-web-mvc-starter/src/index.ts",
         "build"
       ],
     },

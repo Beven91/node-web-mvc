@@ -10,10 +10,9 @@
     "test": "test"
   },
   "scripts": {
-    "demo": "ts-node ./src/cli/src/test/index.ts",
-    "watch-cli": "cd src/cli && npm run watch",
+    "watch-st": "cd src/node-web-mvc-starter && npm run watch",
     "watch": "cd src/node-web-mvc && npm run watch",
-    "start": "cd src/example && npm start"
+    "start": "cd src/node-web-mvc-example && npm start"
   },
   "devDependencies": {
     "jest":"^29.7.0",
