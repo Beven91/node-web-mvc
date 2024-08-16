@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "3.2.9",
+  "version": "3.3.0",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "directories": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "watch": "tsc --watch",
-    "build": "rimraf dist && tsc",
+    "build": "rimraf dist && tsc --sourceMap false",
     "prepublishOnly": "npm run build",
     "test": "jest"
   },
