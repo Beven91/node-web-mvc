@@ -16,7 +16,6 @@ const host = ts.createSolutionBuilderHost({
 
 const defaultExclude = [ 'node_modules', 'dist' ];
 
-
 function copyResourceAndDirectories(dir: string, targetDir: string, exclude: string[]) {
   if (!fs.existsSync(targetDir)) {
     fs.mkdirSync(targetDir, { recursive: true });
@@ -29,6 +28,7 @@ function copyResourceAndDirectories(dir: string, targetDir: string, exclude: str
     '**/*.js',
     '**/*.jsx',
     'tsconfig.json',
+    targetDir,
     ...exclude,
   ]);
   for (const filePath of files) {
