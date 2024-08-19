@@ -1,7 +1,7 @@
 
 import { register } from 'ts-node';
 import path from 'path';
-import { createTransformers } from './transformers';
+import { createTransformers } from '../transformers';
 
 register({
   project: path.resolve(''),

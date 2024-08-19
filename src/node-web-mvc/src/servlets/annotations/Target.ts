@@ -14,7 +14,7 @@ type IsOptionKey<X, Y, A, B, C, ExcludeKeys> = (<T>() => T extends X ? 1 : 2) ex
 type GetOptionKeys<T, ExcludeKeys> = {
   [P in keyof T]: IsOptionKey<{ [Q in P]: T[P] }, { -readonly [Q in P]: T[P] }, P, T[P], never, ExcludeKeys>
 }[keyof T];
-export type CreateOptions<T extends abstract new (...args: []) => any> = Pick<InstanceType<T>, GetOptionKeys<InstanceType<T>, ExcludeKeys<InstanceType<T>, '__exclude_keys__'>>>;
+export type CreateOptions<T extends abstract new (...args: any[]) => any> = Pick<InstanceType<T>, GetOptionKeys<InstanceType<T>, ExcludeKeys<InstanceType<T>, '__exclude_keys__'>>>;
 
 // Class Decorator
 declare function ClassTargetDecorator<A>(target: Function): any;

@@ -13,8 +13,8 @@ export interface RuntimeTypeDefinition {
 }
 
 export type GenerateContext = {
-  transformContext: TransformationContext
-  typeChecker: ts.TypeChecker
+  transContext: TransformationContext
+  checker: ts.TypeChecker
 };
 
 // 判定是否包含指定注解
@@ -78,7 +78,7 @@ function getAliasQualifiedName(typeName: ts.EntityName, checker: ts.TypeChecker)
 
 function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, typeIdentifier: ts.EntityName, meta: ReturnType<typeof getDeclareType>, gContext: GenerateContext, isArray: boolean, isRoot: boolean, parameterName?: string) {
   const properties: ts.ObjectLiteralElementLike[] = [];
-  const aliasName = getAliasQualifiedName(typeIdentifier, gContext.typeChecker);
+  const aliasName = getAliasQualifiedName(typeIdentifier, gContext.checker);
   const name = aliasName || getTypeNodeName(typeNode);
   properties.push(ts.factory.createPropertyAssignment('name', ts.factory.createStringLiteral(name)));
   if (meta?.isRuntime) {
@@ -111,41 +111,44 @@ function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, ty
   return ts.factory.createObjectLiteralExpression(properties);
 }
 
-function createBasicType(name: string, identifier: string) {
+function createBasicType(name: string, identifier: string, parameterName: string) {
   const properties: ts.ObjectLiteralElementLike[] = [];
+  if (parameterName) {
+    properties.push(ts.factory.createPropertyAssignment('at', ts.factory.createStringLiteral(parameterName)));
+  }
   properties.push(ts.factory.createPropertyAssignment('name', ts.factory.createStringLiteral(name)));
   properties.push(ts.factory.createPropertyAssignment('clazz', ts.factory.createIdentifier(identifier)));
   return ts.factory.createObjectLiteralExpression(properties);
 }
 
-function createTokenType(tokenNode: ts.TypeNode) {
+function createTokenType(tokenNode: ts.TypeNode, parameterName?: string) {
   switch (tokenNode.kind) {
     case ts.SyntaxKind.StringKeyword:
-      return createBasicType('string', 'String');
+      return createBasicType('string', 'String', parameterName);
     case ts.SyntaxKind.NumberKeyword:
-      return createBasicType('number', 'Number');
+      return createBasicType('number', 'Number', parameterName);
     case ts.SyntaxKind.BooleanKeyword:
-      return createBasicType('boolean', 'Boolean');
+      return createBasicType('boolean', 'Boolean', parameterName);
     case ts.SyntaxKind.BigIntKeyword:
-      return createBasicType('bigint', 'BigInt');
+      return createBasicType('bigint', 'BigInt', parameterName);
     case ts.SyntaxKind.VoidKeyword:
       return null;
     default:
-      return createBasicType('object', 'Object');
+      return createBasicType('object', 'Object', parameterName);
   }
 }
 
 function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, isArray?: boolean, isRoot?: boolean, parameterName?: string): ts.Expression {
   if (ts.isTypeReferenceNode(typeNode)) {
     // 类型引用
-    const meta = getDeclareType(typeNode.typeName, gContext.typeChecker);
+    const meta = getDeclareType(typeNode.typeName, gContext.checker);
     return createTypeDefinitionByIdentifier(typeNode, typeNode.typeName, meta, gContext, isArray, isRoot, parameterName);
   } else if (ts.isTypeQueryNode(typeNode)) {
     const meta = {
       isParameter: false,
       isRuntime: true,
       typeParameters: [],
-      flags: gContext.typeChecker.getSymbolAtLocation(typeNode)?.flags || -1,
+      flags: gContext.checker.getSymbolAtLocation(typeNode)?.flags || -1,
     };
     return createTypeDefinitionByIdentifier(typeNode, typeNode.exprName, meta, gContext, isArray, isRoot, parameterName);
   } else if (ts.isUnionTypeNode(typeNode)) {
@@ -164,7 +167,7 @@ function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, 
     // 数组类型
     return createTypeDefinition(typeNode.elementType, gContext, true, true, parameterName);
   } else if (ts.isToken(typeNode)) {
-    return createTokenType(typeNode);
+    return createTokenType(typeNode, parameterName);
   }
   return null;
 }

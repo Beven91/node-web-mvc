@@ -94,8 +94,8 @@ export default function enhanceTypeTransformer(context: TransformationContext, p
         return ts.visitEachChild(node, visitController, context);
       }
       const gContext: GenerateContext = {
-        transformContext: context,
-        typeChecker: typeChecker,
+        transContext: context,
+        checker: typeChecker,
       };
       if (hasDecorator(node, controllerDecorators)) {
         // 如果是Controller
@@ -109,23 +109,33 @@ export default function enhanceTypeTransformer(context: TransformationContext, p
     // 遍历action
     const visitAction = (node: ts.Node, gContext: GenerateContext) => {
       if ((ts.isMethodDeclaration(node) && hasDecorator(node, actionDecorators))) {
+        const declaration = node as ts.MethodDeclaration;
         // 如果是action，则开始生成返回类型
         const typeName = node.type?.getText?.();
         if (typeName) {
           node = generateFunctionRuntimeReturnType(node.type, node, gContext);
         }
-        return ts.visitEachChild(node, (cNode) => visitParameter(cNode, gContext), context);
+        return ts.visitEachChild(node, (cNode) => visitMethodParameterAndReturn(cNode, gContext, declaration), context);
       }
       return node;
     };
 
     // 遍历Parameter
-    const visitParameter = (node: ts.Node, gContext: GenerateContext) => {
+    const visitMethodParameterAndReturn = (node: ts.Node, gContext: GenerateContext, methodNode: ts.MethodDeclaration) => {
       if (ts.isParameter(node)) {
         const typeName = node.type?.getText?.();
         if (typeName) {
           return generateParameterRuntimeType(node.type, node, gContext);
         }
+      }
+      return ts.visitEachChild(node, (cNode) => visitMethodReturn(cNode, gContext, methodNode), context);
+    };
+
+    const visitMethodReturn = (node:ts.Node, gContext: GenerateContext, methodNode: ts.MethodDeclaration)=> {
+      if (!methodNode.type && ts.isReturnStatement(node)) {
+        // 如果当前函数没有显示设定返回类型，这里可根据return做推测
+        const returnStatementType = gContext.checker.getTypeAtLocation(node);
+        const s = returnStatementType.symbol;
       }
       return node;
     };

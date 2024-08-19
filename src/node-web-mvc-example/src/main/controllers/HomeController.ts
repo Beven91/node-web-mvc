@@ -27,6 +27,11 @@ export default class HomeController {
   @Autowired
   private oService: OrderService;
 
+  @GetMapping('/ss')
+  getSss(): GeneralResult<string> {
+    return new GeneralResult<string>(0, 'asss');
+  }
+
   @ApiOperation({ value: 'RequestParam get参数' })
   @GetMapping('/requestParamsGet')
   async requestParamsGet(@RequestParam name: string, @RequestParam id: number) : Promise<string> {

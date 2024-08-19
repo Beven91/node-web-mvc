@@ -65,7 +65,11 @@ export default class OpenApiModel {
   }
 
   readPkg(id: string) {
-    return JSON.parse(fs.readFileSync(id).toString('utf-8'));
+    if (fs.existsSync(id)) {
+      return JSON.parse(fs.readFileSync(id).toString('utf-8'));
+    } else {
+      return {};
+    }
   }
 
   /**
@@ -108,8 +112,8 @@ export default class OpenApiModel {
             url: k.url,
           };
         }),
-        'title': pkg.name,
-        'version': pkg.version,
+        'title': pkg.name || '',
+        'version': pkg.version || '1.0.0',
         'description': pkg.description || '',
       },
       tags: tags.sort((a, b) => {
