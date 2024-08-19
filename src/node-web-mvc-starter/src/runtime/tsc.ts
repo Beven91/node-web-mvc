@@ -33,6 +33,9 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
     },
   };
 
+  configFile.config.compilerOptions.rootDir = configFile.config.compilerOptions.rootDir || '';
+  configFile.config.compilerOptions.outDir = configFile.config.compilerOptions.outDir || '';
+
   // 解析 `tsconfig.json` 的内容
   const parsedCommandLine = ts.parseJsonConfigFileContent(
     configFile.config,
