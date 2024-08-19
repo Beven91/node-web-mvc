@@ -41,7 +41,7 @@ export function getDeclareType(node: ts.EntityName, typeChecker: ts.TypeChecker)
   return {
     isParameter: isParameter,
     isRuntime: isValue || isClassOrFunction && isValue,
-    typeParameters: (type as any).typeArguments?.map?.((arg)=>{
+    typeParameters: (type as any).typeArguments?.map?.((arg) => {
       return arg.symbol.escapedName;
     }) || [],
     flags,
@@ -178,4 +178,26 @@ export function createRuntimeTypeArguments(typeNode: ts.TypeNode, gContext: Gene
     ts.factory.createStringLiteral('design:runtimetype'),
     type,
   ].filter(Boolean);
+}
+
+export function getModulePath(declaration: ts.Declaration) {
+  let current: ts.Node = declaration;
+  while (current) {
+    if (ts.isSourceFile(current)) {
+      return current.fileName;
+    }
+    current = current.parent;
+  }
+}
+
+export function isIdentifierOf(node: ts.Node, name: string, module: string, checker: ts.TypeChecker) {
+  if (ts.isIdentifier(node) && node.text == name) {
+    const symbol = checker.getTypeAtLocation(node)?.symbol;
+    if (!symbol || !symbol?.valueDeclaration) {
+      return false;
+    }
+    const filePath = getModulePath(symbol.valueDeclaration);
+    return (filePath.indexOf(module) > -1);
+  }
+  return false;
 }

@@ -7,6 +7,6 @@ register({
   project: path.resolve(''),
   transpileOnly: false,
   transformers: (program) => {
-    return createTransformers(program);
+    return createTransformers(program, false);
   },
 });

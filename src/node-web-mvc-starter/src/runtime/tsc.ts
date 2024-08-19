@@ -67,7 +67,7 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   });
 
   // 发出(生成)编译后的文件
-  const emitResult = program.emit(undefined, undefined, undefined, undefined, createTransformers(program));
+  const emitResult = program.emit(undefined, undefined, undefined, undefined, createTransformers(program, true));
 
   // 处理发出的文件和报告发出后的诊断信息
   const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);

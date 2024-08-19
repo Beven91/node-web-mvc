@@ -2,10 +2,11 @@
   "name": "cli-demo",
   "version": "1.0.0",
   "scripts": {
-    "build":"node-web-mvc-starter build -p ./src"
+    "build":"node-web-mvc-starter build"
   },
   "dependencies": {
     "node-web-mvc-starter": "workspace:*",
+    "node-web-mvc": "workspace:*",
     "reflect-metadata":"^0.2.2"
   }
 }

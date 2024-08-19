@@ -1,4 +1,5 @@
 // import { GeneralResult, UserInfo } from './Order';
+import { hot } from 'node-web-mvc';
 
 import { GeneralResult } from './Order';
 
@@ -17,3 +18,8 @@ class HomeController {
     return new GeneralResult<string>;
   }
 }
+
+hot.create(module)
+  .accept(() => {
+
+  });

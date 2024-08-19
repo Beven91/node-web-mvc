@@ -103,6 +103,9 @@ importers:
 
   src/node-web-mvc-starter-test:
     dependencies:
+      node-web-mvc:
+        specifier: workspace:*
+        version: link:../node-web-mvc
       node-web-mvc-starter:
         specifier: workspace:*
         version: link:../node-web-mvc-starter
