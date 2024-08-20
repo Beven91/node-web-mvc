@@ -68,6 +68,7 @@ npm create node-web-mvc@latest
     "emitDecoratorMetadata": true,
     "experimentalDecorators":true,
     "downlevelIteration":true,
+    "outDir": "./dist/"
   },
   "exclude": [
     "node_modules",
