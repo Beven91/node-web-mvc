@@ -7,6 +7,7 @@ export interface RuntimeOptions {
   dir: string
   entry: string
   project: string
+  pm2: string
   compilerOptions: ts.CompilerOptions
 }
 
@@ -55,6 +56,35 @@ function buildPkg(options: RuntimeOptions, outDir: string) {
   fs.writeFileSync(dest, JSON.stringify(pkg, null, 2));
 }
 
+function buildPM2(options: RuntimeOptions, rootDir: string, outDir: string) {
+  if (!options.pm2) {
+    return;
+  }
+  const id = path.join(options.dir, options.pm2);
+  if (!fs.lstatSync(id).isFile()) {
+    throw new Error('-pm2 must be a file path');
+  }
+  const dest = path.join(outDir, 'pm2.json');
+  if (!fs.existsSync(id)) {
+    return;
+  }
+  const applyAppInfo = (app)=>{
+    const file = path.join(path.dirname(id), app.script + '.ts');
+    const name = path.relative(rootDir, file);
+    app.script = name.replace('.ts', '');
+    app.env = app.env || {};
+    app.env['RUN_ENV'] = process.env.npm_config_env || '';
+  };
+  const pm2Config = JSON.parse(fs.readFileSync(id, 'utf-8'));
+  const apps = pm2Config.apps;
+  if (apps) {
+    apps.forEach(applyAppInfo);
+  } else {
+    applyAppInfo(pm2Config);
+  }
+  fs.writeFileSync(dest, JSON.stringify(pm2Config, null, 2));
+}
+
 export default function build(options: RuntimeOptions) {
   // 1. 执行tsc构建应用
   const info = tsc(options.compilerOptions, options.project);
@@ -70,4 +100,6 @@ export default function build(options: RuntimeOptions) {
   copyResourceAndDirectories(rootDir, outDir, exclude);
   // 3. 在目标目录构建package.json
   buildPkg(options, outDir);
+  // 4. 尝试构建pm2
+  buildPM2(options, rootDir, outDir);
 }

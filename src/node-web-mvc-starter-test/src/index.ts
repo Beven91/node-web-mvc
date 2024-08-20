@@ -18,8 +18,3 @@ class HomeController {
     return new GeneralResult<string>;
   }
 }
-
-hot.create(module)
-  .accept(() => {
-
-  });

@@ -2,7 +2,7 @@
   "name": "cli-demo",
   "version": "1.0.0",
   "scripts": {
-    "build":"node-web-mvc-starter build"
+    "build":"node-web-mvc-starter build -pm2 pm2.json"
   },
   "dependencies": {
     "node-web-mvc-starter": "workspace:*",

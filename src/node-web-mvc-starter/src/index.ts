@@ -27,6 +27,7 @@ const prepareOptions = (): RuntimeOptions => {
   return {
     entry: entry,
     dir: process.cwd(),
+    pm2: baseOptions.pm2,
     project: baseOptions.p,
     compilerOptions: args,
   };

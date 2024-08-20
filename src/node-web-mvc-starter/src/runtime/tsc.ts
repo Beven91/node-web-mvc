@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import path from 'path';
+import fs from 'fs';
 import { createTransformers } from '../transformers';
 
 export interface ConfigOptions {
@@ -7,6 +8,22 @@ export interface ConfigOptions {
   extends: string,
   exclude: string[],
   compileOnSave: boolean
+}
+
+function removeDist(dest: string) {
+  if (!fs.existsSync(dest)) {
+    return;
+  }
+  const files = fs.readdirSync(dest);
+  files.forEach((f) => {
+    const id = path.join(dest, f);
+    if (fs.lstatSync(id).isDirectory()) {
+      removeDist(id);
+      return;
+    }
+    fs.unlinkSync(id);
+  });
+  fs.rmdirSync(dest);
 }
 
 export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = './') {
@@ -48,6 +65,9 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
     process.exit(1);
   }
 
+  const rootDir = path.join(path.dirname(configPath), configFile.config.compilerOptions.rootDir);
+  const outDir = path.join(path.dirname(configPath), configFile.config.compilerOptions.outDir);
+  removeDist(outDir);
   // console.log(parsedCommandLine.options);
 
   // 创建程序对象
@@ -85,8 +105,8 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   // 处理完成后的操作
   return {
     emitResult,
-    rootDir: path.join(path.dirname(configPath), configFile.config.compilerOptions.rootDir),
-    outDir: path.join(path.dirname(configPath), configFile.config.compilerOptions.outDir),
+    rootDir,
+    outDir,
     config: configFile.config as ConfigOptions,
   };
 }
