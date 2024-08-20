@@ -110,7 +110,7 @@ export default class SpringApplication {
       // 启动热更新
       this.hotUpdater = hot.run(hotOptions);
     }
-    if (bootConfig.getLaunchLogOff() !== false) {
+    if (bootConfig.getLaunchLogOff() !== true) {
       const port = bootConfig.getPort();
       console.log(`
         -----------------------------------------------------------
