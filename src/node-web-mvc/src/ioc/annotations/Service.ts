@@ -8,7 +8,6 @@ import ElementType from '../../servlets/annotations/annotation/ElementType';
 import Component from './Component';
 
 class Service extends Component {
-  value?: string;
 }
 
 export default Target(ElementType.TYPE)(Service);
