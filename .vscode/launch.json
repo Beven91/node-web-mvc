@@ -32,7 +32,7 @@
       "sourceMaps": true,
       "runtimeArgs": [
         "-r",
-        "ts-node/register",
+        "../register",
       ],
       "args": [
         "${workspaceFolder}/src/node-web-mvc-starter/src/index.ts",

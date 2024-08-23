@@ -91,7 +91,7 @@ export default function build(options: RuntimeOptions) {
   const outDir = info.outDir;
   const rootDir = info.rootDir;
 
-  const exclude = info.config.exclude?.length < 1 ? defaultExclude : info.config.exclude;
+  const exclude = info.config.exclude || defaultExclude;
   if (info.emitResult.emitSkipped) {
     // 如果构建失败 则直接结束
     process.exit(1);

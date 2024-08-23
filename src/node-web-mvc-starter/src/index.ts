@@ -15,7 +15,7 @@ const prepareOptions = (): RuntimeOptions => {
       key = arg.slice(2);
       key2 = '';
       args[key] = true;
-    } if (arg.startsWith('-')) {
+    } else if (arg.startsWith('-')) {
       key2 = arg.slice(1);
       key = '';
     } else if (key) {

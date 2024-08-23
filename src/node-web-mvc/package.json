@@ -8,7 +8,8 @@
   },
   "scripts": {
     "watch": "tsc --watch",
-    "build": "rimraf dist && tsc --sourceMap false",
+    "build:cjs": "rimraf dist && tsc --sourceMap false",
+    "build": "npm run build:cjs",
     "prepublishOnly": "npm run build",
     "test": "jest"
   },

@@ -1,5 +1,6 @@
 import ts from 'typescript';
 import enhanceTypeTransformer from './enhanceTypeTransformer';
+import enhanceTypeAfterTranformer from './enhanceTypeAfterTranformer';
 
 export function createTransformers(program: ts.Program, isProd: boolean) {
   const prodTransfermers: ts.CustomTransformers = {
@@ -16,6 +17,7 @@ export function createTransformers(program: ts.Program, isProd: boolean) {
     ],
     // 编译后转换器
     after: [
+      (context) => enhanceTypeAfterTranformer(context, program),
       ...(isProd ? prodTransfermers.after : []),
     ],
   };

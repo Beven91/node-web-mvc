@@ -1,4 +1,8 @@
-export default class Order<T = any> {
+export class Order<T = any> {
+
+}
+
+export default class KK {
 
 }
 

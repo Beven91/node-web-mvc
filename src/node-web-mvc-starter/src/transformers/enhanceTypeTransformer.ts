@@ -1,5 +1,5 @@
 import ts, { TransformationContext } from 'typescript';
-import { createRuntimeTypeArguments, GenerateContext, hasDecorator } from './helper';
+import { createRuntimeTypeArguments, ExtTransformationContext, GenerateContext, hasDecorator } from './helper';
 
 const metadata = '__metadata';
 
@@ -85,18 +85,19 @@ const generatePropertyRuntimeType = (typeNode: ts.TypeNode, node: ts.PropertyDec
   );
 };
 
-export default function enhanceTypeTransformer(context: TransformationContext, program: ts.Program) {
+export default function enhanceTypeTransformer(context: ExtTransformationContext, program: ts.Program) {
   const typeChecker = program.getTypeChecker();
   return (rootNode: ts.SourceFile) => {
+    const gContext: GenerateContext = {
+      transContext: context,
+      checker: typeChecker,
+      moduleImports: {},
+    };
     // 遍历controller
     const visitController = (node: ts.Node) => {
       if (!ts.isClassDeclaration(node)) {
         return ts.visitEachChild(node, visitController, context);
       }
-      const gContext: GenerateContext = {
-        transContext: context,
-        checker: typeChecker,
-      };
       if (hasDecorator(node, controllerDecorators)) {
         // 如果是Controller
         return ts.visitEachChild(node, (cNode) => visitAction(cNode, gContext), context);
@@ -128,17 +129,9 @@ export default function enhanceTypeTransformer(context: TransformationContext, p
           return generateParameterRuntimeType(node.type, node, gContext);
         }
       }
-      return ts.visitEachChild(node, (cNode) => visitMethodReturn(cNode, gContext, methodNode), context);
-    };
-
-    const visitMethodReturn = (node:ts.Node, gContext: GenerateContext, methodNode: ts.MethodDeclaration)=> {
-      if (!methodNode.type && ts.isReturnStatement(node)) {
-        // 如果当前函数没有显示设定返回类型，这里可根据return做推测
-        const returnStatementType = gContext.checker.getTypeAtLocation(node);
-        const s = returnStatementType.symbol;
-      }
       return node;
     };
+
 
     // 遍历类属性
     const visitProperties = (node: ts.Node, gContext: GenerateContext) => {
@@ -150,6 +143,8 @@ export default function enhanceTypeTransformer(context: TransformationContext, p
       }
       return node;
     };
+
+    context.runtimeTypeModuleImports = gContext.moduleImports;
 
     return ts.visitNode(rootNode, visitController) as ts.SourceFile;
   };

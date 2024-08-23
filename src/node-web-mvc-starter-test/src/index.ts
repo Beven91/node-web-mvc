@@ -1,20 +1,35 @@
-// import { GeneralResult, UserInfo } from './Order';
-import { hot } from 'node-web-mvc';
+/**
+ * @module STSSOContext
+ * @description 用于初始化当前sso登录用户权限的信息
+ */
+import Order, { GeneralResult, UserInfo } from './Order';
+import Demo from './demo';
 
-import { GeneralResult } from './Order';
+interface HttpServletRequest {
+  getHeader: (name: string) => string
+}
 
-function RestController(target: object) {
+class My<T> {
 
 }
 
-function GetMapping(target: object, pr: any) {
+function mydecorator(target:any) {
 
 }
 
-@RestController
-class HomeController {
-  @GetMapping
-  say(name: Array<string>) {
-    return new GeneralResult<string>;
+@mydecorator
+export default class STSSOContext {
+  // 当前请求对象
+  private request: My<GeneralResult<UserInfo>>;
+
+  private demo: Demo;
+
+  static TOKEN_NAME = 'x_gyroscope';
+
+
+  getUserToken() {
+    console.log(Order);
+    // console.log(GeneralResult);
+    // console.log(HttpServletRequest);
   }
 }

@@ -1,8 +1,8 @@
 {
   "name": "node-web-mvc-starter",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "peerDependencies": {
-    "typescript": ">= 4"
+    "typescript": "^5.3.3"
   },
   "bin": {
     "node-web-mvc-starter": "bin/index.js"

@@ -5,8 +5,8 @@ import { createTransformers } from '../transformers';
 import ts from 'typescript';
 
 export function registerTs(project: string) {
-   // 查找 `tsconfig.json` 的路径
-   const configPath = ts.findConfigFile(project, ts.sys.fileExists, 'tsconfig.json');
+  // 查找 `tsconfig.json` 的路径
+  const configPath = ts.findConfigFile(project, ts.sys.fileExists, 'tsconfig.json');
   register({
     project: configPath,
     transpileOnly: false,

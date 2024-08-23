@@ -1,7 +1,29 @@
+import path from 'path';
 import ts, { TransformationContext } from 'typescript';
 
 interface WithModifiersNode {
   modifiers?: ts.NodeArray<ts.ModifierLike>
+}
+
+interface ModuleImportSpecifer {
+  identifier: ts.Identifier,
+  name: string
+}
+
+interface DeclareTypeInfo {
+  flags: number
+  isParameter: boolean,
+  isRuntime: boolean,
+  typeParameters: string[]
+}
+
+
+export interface ModuleImport {
+  name: string;
+  request: string
+  allKeys: Record<string, boolean>
+  default: ModuleImportSpecifer,
+  identifiers: ModuleImportSpecifer[]
 }
 
 export interface RuntimeTypeDefinition {
@@ -15,7 +37,14 @@ export interface RuntimeTypeDefinition {
 export type GenerateContext = {
   transContext: TransformationContext
   checker: ts.TypeChecker
+  moduleImports: {
+    [x: string]: ModuleImport
+  }
 };
+
+export interface ExtTransformationContext extends TransformationContext {
+  runtimeTypeModuleImports?: GenerateContext['moduleImports']
+}
 
 // 判定是否包含指定注解
 export const hasDecorator = (node: WithModifiersNode, decorators: Record<string, boolean>) => {
@@ -30,7 +59,73 @@ export const hasDecorator = (node: WithModifiersNode, decorators: Record<string,
   });
 };
 
-export function getDeclareType(node: ts.EntityName, typeChecker: ts.TypeChecker) {
+export function findParent<T extends ts.Node>(node: ts.Node, match: (current: ts.Node) => boolean): T {
+  let current = node;
+  while (current) {
+    if (match(current)) {
+      return current as T;
+    }
+    current = current.parent;
+  }
+}
+
+export function getModuleRequest(node: ts.Expression) {
+  return node.getText().replace(/^['"]|['"]$/g, '');
+}
+
+function makeImportIdentifier(symbol: ts.Symbol, gContext: GenerateContext) {
+  const node = symbol.declarations.find((m) => ts.isImportSpecifier(m) || ts.isImportClause(m));
+  const moduleImports = gContext.moduleImports;
+  const importDeclaration = node ? findParent<ts.ImportDeclaration>(node, (m) => ts.isImportDeclaration(m)) : null;
+  if (!importDeclaration) {
+    return;
+  }
+  const importName = (node as ts.NamedDeclaration).name.getText();
+  const request = getModuleRequest(importDeclaration.moduleSpecifier);
+  const isDefault = ts.isImportClause(node);
+  const moduleName = path.basename(request).replace(/[^a-zA-Z0-9]/g, '_') + '_1';
+
+  if (!moduleImports[request]) {
+    moduleImports[request] = {
+      request: request,
+      name: moduleName,
+      default: null,
+      allKeys: {},
+      identifiers: [],
+    };
+  }
+
+  const identifierName = importName;
+  const opts = gContext.transContext.getCompilerOptions();
+  switch (opts.module) {
+    case ts.ModuleKind.CommonJS:
+    case ts.ModuleKind.NodeNext:
+    case ts.ModuleKind.UMD:
+    case ts.ModuleKind.AMD:
+    case ts.ModuleKind.Node16:
+      // identifierName = isDefault ? `${moduleName}.default` : `${moduleName}.${importName}`;
+      break;
+    default:
+      // identifierName = `${importName}_0`;
+  }
+
+  const moduleImport = moduleImports[request];
+  const identifier = ts.factory.createIdentifier(identifierName);
+  const item: ModuleImportSpecifer = { name: importName, identifier };
+  if (isDefault) {
+    moduleImport.default = item;
+  } else {
+    moduleImport.identifiers.push(item);
+  }
+  moduleImport.allKeys[importName] = true;
+  return {
+    identifier: identifier,
+    request,
+  };
+}
+
+export function getDeclareType(node: ts.EntityName, gContext: GenerateContext): DeclareTypeInfo {
+  const typeChecker = gContext.checker;
   const symbol = typeChecker.getSymbolAtLocation(node);
   if (!symbol) return null;
   const type = typeChecker.getDeclaredTypeOfSymbol(symbol);
@@ -38,6 +133,7 @@ export function getDeclareType(node: ts.EntityName, typeChecker: ts.TypeChecker)
   const isClassOrFunction = (flags & ts.SymbolFlags.Class) !== 0 || (flags & ts.SymbolFlags.Function) !== 0;
   const isValue = (flags & ts.SymbolFlags.Value) !== 0;
   const isParameter = (type.flags & ts.TypeFlags.TypeParameter) !== 0;
+  makeImportIdentifier(symbol, gContext);
   return {
     isParameter: isParameter,
     isRuntime: isValue || isClassOrFunction && isValue,
@@ -141,10 +237,10 @@ function createTokenType(tokenNode: ts.TypeNode, parameterName?: string) {
 function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, isArray?: boolean, isRoot?: boolean, parameterName?: string): ts.Expression {
   if (ts.isTypeReferenceNode(typeNode)) {
     // 类型引用
-    const meta = getDeclareType(typeNode.typeName, gContext.checker);
+    const meta = getDeclareType(typeNode.typeName, gContext);
     return createTypeDefinitionByIdentifier(typeNode, typeNode.typeName, meta, gContext, isArray, isRoot, parameterName);
   } else if (ts.isTypeQueryNode(typeNode)) {
-    const meta = {
+    const meta: DeclareTypeInfo = {
       isParameter: false,
       isRuntime: true,
       typeParameters: [],
@@ -158,10 +254,7 @@ function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, 
     // 联合类型
     return ts.factory.createObjectLiteralExpression([
       ts.factory.createPropertyAssignment('fullName', ts.factory.createStringLiteral(typeNode.getText())),
-      ts.factory.createPropertyAssignment(
-        'types',
-        types
-      ),
+      ts.factory.createPropertyAssignment('types', types),
     ]);
   } else if (ts.isArrayTypeNode(typeNode)) {
     // 数组类型
