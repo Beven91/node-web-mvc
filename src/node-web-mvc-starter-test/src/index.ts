@@ -32,7 +32,7 @@ export default class STSSOContext {
 
   private demo: Demo;
 
-  private demo2: typeof Demo2
+  private demo2: typeof Demo
 
   // private orderType: typeof OrderType;
 

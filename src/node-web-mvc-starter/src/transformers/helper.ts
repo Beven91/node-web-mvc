@@ -54,6 +54,9 @@ export function getModuleRequest(node: ts.Expression) {
 }
 
 function makeImportIdentifier(symbol: ts.Symbol, gContext: GenerateContext) {
+  if (!symbol.declarations) {
+    return;
+  }
   const node = symbol.declarations.find((m) => ts.isImportSpecifier(m) || ts.isImportClause(m));
   const moduleImports = gContext.moduleImports;
   const importDeclaration = node ? findParent<ts.ImportDeclaration>(node, (m) => ts.isImportDeclaration(m)) : null;

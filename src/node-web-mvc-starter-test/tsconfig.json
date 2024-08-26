@@ -3,8 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "rootDir": "./src/",
-    "module":"AMD",
-    "allowJs": true
+    "module": "CommonJS",
+    "allowJs": true,
+    "diagnostics": true
   },
   "exclude": [
     "dist",

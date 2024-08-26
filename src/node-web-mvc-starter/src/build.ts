@@ -1,4 +1,4 @@
-import { tsc } from './runtime/tsc';
+import { logging, tsc } from './runtime/tsc';
 import fs from 'fs';
 import path from 'path';
 import ts from 'typescript';
@@ -41,6 +41,7 @@ function copyResourceAndDirectories(dir: string, targetDir: string, exclude: str
     }
     const stat = fs.statSync(filePath);
     if (stat.isFile()) {
+      logging(`Copy Resource: ${file}`);
       fs.copyFileSync(filePath, targetFilePath);
     }
   }
@@ -53,6 +54,7 @@ function buildPkg(options: RuntimeOptions, outDir: string) {
   delete pkg.devDependencies;
   delete pkg.scripts;
   delete pkg.bin;
+  console.log('Build package.json')
   fs.writeFileSync(dest, JSON.stringify(pkg, null, 2));
 }
 
@@ -82,17 +84,19 @@ function buildPM2(options: RuntimeOptions, rootDir: string, outDir: string) {
   } else {
     applyAppInfo(pm2Config);
   }
+  console.log('Build pm2 config')
   fs.writeFileSync(dest, JSON.stringify(pm2Config, null, 2));
 }
 
 export default function build(options: RuntimeOptions) {
+  logging('Start building application...')
   // 1. 执行tsc构建应用
   const info = tsc(options.compilerOptions, options.project);
   const outDir = info.outDir;
   const rootDir = info.rootDir;
 
   const exclude = info.config.exclude || defaultExclude;
-  if (info.emitResult.emitSkipped) {
+  if (info.hasError) {
     // 如果构建失败 则直接结束
     process.exit(1);
   }
@@ -102,4 +106,5 @@ export default function build(options: RuntimeOptions) {
   buildPkg(options, outDir);
   // 4. 尝试构建pm2
   buildPM2(options, rootDir, outDir);
+  logging('Build application successfully!');
 }

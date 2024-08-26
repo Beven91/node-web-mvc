@@ -1,7 +1,8 @@
-import ts from 'typescript';
-import path from 'path';
+import ts, { } from 'typescript';
+import path, { } from 'path';
 import fs from 'fs';
 import { createTransformers } from '../transformers';
+import Colors from './color';
 
 export interface ConfigOptions {
   compilerOptions: ts.CompilerOptions
@@ -26,6 +27,19 @@ function removeDist(dest: string) {
   fs.rmdirSync(dest);
 }
 
+export function logging(message: string) {
+  console.log(`${message}`);
+}
+
+export function logError(errorCode: number, errorMessage: string, file: string, line: number, character: number) {
+  const fileName = Colors.lightBlue(file);
+  const code = Colors.gray(`TS${errorCode}:`);
+  const type = Colors.red('error');
+  const row = line >= 0 ? Colors.yellow((line + 1).toString()) : ''
+  const col = character >= 0 ? Colors.yellow((character + 1).toString()) : '';
+  console.error(`${fileName}:${row}:${col} - ${type} ${code} ${errorMessage}`);
+}
+
 export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = './') {
   // 查找 `tsconfig.json` 的路径
   const configPath = ts.findConfigFile(project, ts.sys.fileExists, 'tsconfig.json');
@@ -34,8 +48,11 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
     throw new Error('Could not find a valid \'tsconfig.json\'.');
   }
 
+  console.log(`Finded tsconfig: ${path.join(project, configPath)}`)
+
   // 读取 `tsconfig.json`
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+
 
   if (configFile.error) {
     const errorMessage = ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n');
@@ -57,10 +74,13 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   const parsedCommandLine = ts.parseJsonConfigFileContent(
     configFile.config,
     ts.sys,
-    path.dirname(configPath)
+    path.dirname(configPath),
   );
 
   if (parsedCommandLine.errors?.length > 0) {
+    parsedCommandLine.errors.map((m) => {
+      logError(m.code, m.messageText.toString(), m.file?.fileName || configPath, m.start, m.length);
+    })
     console.error(parsedCommandLine.errors.map((m) => m.messageText).join('\n'));
     process.exit(1);
   }
@@ -73,37 +93,22 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   // 创建程序对象
   const program = ts.createProgram(parsedCommandLine.fileNames, parsedCommandLine.options);
 
-  // 获取并报告诊断信息
-  const diagnostics = ts.getPreEmitDiagnostics(program);
-
-  diagnostics.forEach(diagnostic => {
-    if (diagnostic.file) {
-      const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-      const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-      console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-    } else {
-      console.log(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
-    }
-  });
-
   // 发出(生成)编译后的文件
   const emitResult = program.emit(undefined, undefined, undefined, undefined, createTransformers(program, true));
 
   // 处理发出的文件和报告发出后的诊断信息
   const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
-  allDiagnostics.forEach(diagnostic => {
-    if (diagnostic.file) {
-      const { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-      const message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-      console.log(`${diagnostic.file.fileName} (${line + 1},${character + 1}): ${message}`);
-    } else {
-      console.log(ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'));
-    }
-  });
+  if(allDiagnostics.length > 0) {
+    const out = ts.formatDiagnosticsWithColorAndContext(allDiagnostics, ts.createCompilerHost(parsedCommandLine.options))
+    console.log('Build failed!')
+    console.log(out)
+  }
+
 
   // 处理完成后的操作
   return {
+    hasError: allDiagnostics.length > 0,
     emitResult,
     rootDir,
     outDir,
