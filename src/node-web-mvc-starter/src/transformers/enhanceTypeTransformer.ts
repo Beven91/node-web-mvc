@@ -23,6 +23,7 @@ const actionDecorators = {
 
 export default function enhanceTypeTransformer(context: ExtTransformationContext, program: ts.Program) {
   const typeChecker = program.getTypeChecker();
+  const replacedModules: Record<string, number> = {};
   return (rootNode: ts.SourceFile) => {
     const gContext: GenerateContext = createContext(context, program);
 
@@ -89,7 +90,6 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
         // 如果不需要替换，则直接返回原始node
         return node;
       }
-      console.log('replace', moduleImport.request);
       switch (opts.module) {
         case ts.ModuleKind.CommonJS:
         case ts.ModuleKind.UMD:
@@ -97,10 +97,14 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
         case ts.ModuleKind.None:
         case (ts.ModuleKind as any).NodeNext:
         case (ts.ModuleKind as any).Node16:
+          if (!replacedModules[request]) {
+            replacedModules[request] = 0;
+          }
           // TODO xx_1 命名能否完全保证和原始import生成后的命名保持一致?
           // 由于ts编译时会优化导出，为了保证运行时类型引用的标识符必须导出，
-          // 所以这里统一替换成 const xx_1 = require('xx')
-          return createRequireStatement(moduleImport.name, moduleImport.request);
+          // 所以这里统一替换成 const xx_序号 = require('xx')
+          const cjsName = `${moduleImport.name}_${++replacedModules[request]}`
+          return createRequireStatement(cjsName, moduleImport.request);
         default:
           // ES模块规范
           return replaceToRuntimeImportDeclaration(node, typeChecker);

@@ -12,7 +12,6 @@ export type V4WithDecoratorNode = {
   modifiers: readonly ts.Modifier[] | undefined;
 }
 
-
 function createImportDeclaration(node: ts.ImportDeclaration, name: ts.Identifier, namedBindings: ts.ImportSpecifier[]) {
   const originCreateImportDeclaration = ts.factory.createImportDeclaration.bind(ts.factory) as any;
   const v4Node = node as any as V4WithDecoratorNode;

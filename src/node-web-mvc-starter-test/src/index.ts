@@ -3,8 +3,11 @@
  * @description 用于初始化当前sso登录用户权限的信息
  */
 import 'reflect-metadata';
-import Order, { GeneralResult as GeneralResult2, UserInfo, OrderType } from './Order';
+import Order, { GeneralResult as GeneralResult2, UserInfo } from './Order';
+import { GeneralResult, OrderType } from './Order';
 import Demo from './demo';
+
+const Demo2 = require('./demo')
 
 interface HttpServletRequest {
   getHeader: (name: string) => string
@@ -25,7 +28,11 @@ export default class STSSOContext {
 
   private request2: My<GeneralResult2<Order>>;
 
+  private data: My<GeneralResult<OrderType>>
+
   private demo: Demo;
+
+  private demo2: typeof Demo2
 
   // private orderType: typeof OrderType;
 

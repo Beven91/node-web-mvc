@@ -3,8 +3,6 @@ import path from 'path';
 import fs from 'fs';
 import { createTransformers } from '../transformers';
 
-console.log('ts-version', ts.version);
-
 export interface ConfigOptions {
   compilerOptions: ts.CompilerOptions
   extends: string,

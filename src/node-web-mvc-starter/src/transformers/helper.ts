@@ -61,7 +61,7 @@ function makeImportIdentifier(symbol: ts.Symbol, gContext: GenerateContext) {
     return;
   }
   const request = getModuleRequest(importDeclaration.moduleSpecifier);
-  const moduleName = path.basename(request).replace(/[^a-zA-Z0-9]/g, '_') + '_1';
+  const moduleName = path.basename(request).replace(/[^a-zA-Z0-9]/g, '_');
 
   if (!moduleImports[request]) {
     moduleImports[request] = {
