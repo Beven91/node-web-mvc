@@ -11,7 +11,10 @@ export class UserInfo {
 
 }
 
-export const OrderType = 0;
+export enum OrderType {
+  M = 1,
+  O = 2
+}
 
 export class GeneralResult<T> {
   public data: Paged<T>;

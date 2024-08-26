@@ -27,12 +27,13 @@ export default class STSSOContext {
 
   private demo: Demo;
 
-  private orderType: typeof OrderType;
+  // private orderType: typeof OrderType;
 
   static TOKEN_NAME = 'x_gyroscope';
 
 
   getUserToken() {
+    // console.log(Order);
     // console.log(GeneralResult);
     // console.log(HttpServletRequest);
   }

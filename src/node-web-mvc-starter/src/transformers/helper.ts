@@ -1,8 +1,10 @@
 import path from 'path';
 import ts, { TransformationContext } from 'typescript';
+import { GenerateContext } from './context';
+import compact from './handlers/compact';
 
 interface WithModifiersNode {
-  modifiers?: ts.NodeArray<ts.ModifierLike>
+  modifiers?: ts.NodeArray<ts.Node>
 }
 
 interface DeclareTypeInfo {
@@ -10,12 +12,6 @@ interface DeclareTypeInfo {
   isParameter: boolean,
   isRuntime: boolean,
   typeParameters: string[]
-}
-
-
-export interface ModuleImport {
-  name: string;
-  request: string
 }
 
 export interface RuntimeTypeDefinition {
@@ -26,13 +22,6 @@ export interface RuntimeTypeDefinition {
   typeArguments?: RuntimeTypeDefinition[]
 }
 
-export type GenerateContext = {
-  transContext: TransformationContext
-  checker: ts.TypeChecker
-  moduleImports: {
-    [x: string]: ModuleImport
-  }
-};
 
 export interface ExtTransformationContext extends TransformationContext {
 }
@@ -239,38 +228,28 @@ export function createRuntimeTypeArguments(typeNode: ts.TypeNode, gContext: Gene
   ].filter(Boolean);
 }
 
-export function replaceToRuntimeImportDeclaration(node:ts.ImportDeclaration, checker: ts.TypeChecker) {
-  const namedBindings:ts.ImportSpecifier[] = [];
+export function replaceToRuntimeImportDeclaration(node: ts.ImportDeclaration, checker: ts.TypeChecker) {
+  const namedBindings: ts.ImportSpecifier[] = [];
   let name: ts.Identifier = undefined;
   if (node.importClause) {
-    node.importClause.namedBindings?.forEachChild((child: ts.ImportSpecifier)=> {
-      const info =checker.getTypeAtLocation(child);
+    node.importClause.namedBindings?.forEachChild((child: ts.ImportSpecifier) => {
+      const info = checker.getTypeAtLocation(child);
       const type = info.symbol ? checker.getDeclaredTypeOfSymbol(info.symbol) : null;
       if (isRuntimeType(type)) {
-        namedBindings.push(ts.factory.createImportSpecifier(false, child.propertyName, child.name));
+        namedBindings.push(
+          compact.createImportSpecifier(child.propertyName, child.name)
+        );
       }
     });
   }
   if (node.importClause?.name) {
-    const info =checker.getTypeAtLocation(node.importClause.name);
+    const info = checker.getTypeAtLocation(node.importClause.name);
     const type = info.symbol ? checker.getDeclaredTypeOfSymbol(info.symbol) : null;
     if (isRuntimeType(type)) {
       name = node.importClause.name;
     }
   }
-  return ts.factory.createImportDeclaration(
-    node.modifiers,
-    ts.factory.updateImportClause(
-      node.importClause,
-      node.importClause.isTypeOnly,
-      name,
-      ts.factory.createNamedImports(
-        namedBindings
-      )
-    ),
-    node.moduleSpecifier,
-    undefined
-  );
+  return compact.createImportDeclaration(node, name, namedBindings)
 }
 
 export function createRequireStatement(moduleName: string, request: string) {
@@ -285,7 +264,7 @@ export function createRequireStatement(moduleName: string, request: string) {
           ts.factory.createCallExpression(
             ts.factory.createIdentifier('require'),
             undefined,
-            [ ts.factory.createStringLiteral(request) ]
+            [ts.factory.createStringLiteral(request)]
           )
         ),
       ],

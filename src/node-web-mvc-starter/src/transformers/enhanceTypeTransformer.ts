@@ -1,7 +1,10 @@
 import ts, { } from 'typescript';
-import { replaceToRuntimeImportDeclaration, createRequireStatement, createRuntimeTypeArguments, ExtTransformationContext, GenerateContext, getModuleRequest, hasDecorator } from './helper';
+import { replaceToRuntimeImportDeclaration, createRequireStatement, ExtTransformationContext, getModuleRequest, hasDecorator } from './helper';
+import generateFunctionRuntimeReturnType from './handlers/generateFunctionRuntimeReturnType';
+import generateParameterRuntimeType from './handlers/generateParameterRuntimeType';
+import generatePropertyRuntimeType from './handlers/generatePropertyRuntimeType';
+import { createContext, GenerateContext } from './context';
 
-const metadata = '__metadata';
 
 const controllerDecorators = {
   'RestController': true,
@@ -18,83 +21,10 @@ const actionDecorators = {
 };
 
 
-// 生成函数返回值注解
-const generateFunctionRuntimeReturnType = (typeNode: ts.TypeNode, node: ts.MethodDeclaration, gContext: GenerateContext) => {
-  return ts.factory.updateMethodDeclaration(
-    node,
-    [
-      ...(node.modifiers || []),
-      ts.factory.createDecorator(
-        ts.factory.createCallExpression(
-          ts.factory.createIdentifier(metadata),
-          undefined,
-          createRuntimeTypeArguments(typeNode, gContext)
-        )
-      ),
-    ],
-    node.asteriskToken,
-    node.name,
-    node.questionToken,
-    node.typeParameters,
-    node.parameters,
-    node.type,
-    node.body
-  );
-};
-
-// 生成函数参数类型运行时类型注解
-const generateParameterRuntimeType = (typeNode: ts.TypeNode, node: ts.ParameterDeclaration, gContext: GenerateContext) => {
-  return ts.factory.updateParameterDeclaration(
-    node,
-    [
-      ...(node.modifiers || []),
-      ts.factory.createDecorator(
-        ts.factory.createCallExpression(
-          ts.factory.createIdentifier(metadata),
-          undefined,
-          createRuntimeTypeArguments(typeNode, gContext)
-        )
-      ),
-    ],
-    node.dotDotDotToken,
-    node.name,
-    node.questionToken,
-    node.type,
-    node.initializer
-  );
-};
-
-// 生成属性类型运行时类型注解
-const generatePropertyRuntimeType = (typeNode: ts.TypeNode, node: ts.PropertyDeclaration, gContext: GenerateContext) => {
-  const context = gContext.transContext;
-  return ts.factory.updatePropertyDeclaration(
-    node,
-    [
-      ...(node.modifiers || []),
-      ts.factory.createDecorator(
-        ts.factory.createCallExpression(
-          ts.factory.createIdentifier(metadata),
-          undefined,
-          createRuntimeTypeArguments(typeNode, gContext)
-        )
-      ),
-    ],
-    node.name,
-    node.questionToken,
-    node.type,
-    node.initializer
-  );
-};
-
-
 export default function enhanceTypeTransformer(context: ExtTransformationContext, program: ts.Program) {
   const typeChecker = program.getTypeChecker();
   return (rootNode: ts.SourceFile) => {
-    const gContext: GenerateContext = {
-      transContext: context,
-      checker: typeChecker,
-      moduleImports: {},
-    };
+    const gContext: GenerateContext = createContext(context, program);
 
     // 遍历controller
     const visitController = (node: ts.Node) => {
@@ -162,11 +92,11 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
       console.log('replace', moduleImport.request);
       switch (opts.module) {
         case ts.ModuleKind.CommonJS:
-        case ts.ModuleKind.NodeNext:
         case ts.ModuleKind.UMD:
         case ts.ModuleKind.AMD:
-        case ts.ModuleKind.Node16:
         case ts.ModuleKind.None:
+        case (ts.ModuleKind as any).NodeNext:
+        case (ts.ModuleKind as any).Node16:
           // TODO xx_1 命名能否完全保证和原始import生成后的命名保持一致?
           // 由于ts编译时会优化导出，为了保证运行时类型引用的标识符必须导出，
           // 所以这里统一替换成 const xx_1 = require('xx')

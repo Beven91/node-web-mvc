@@ -2,7 +2,7 @@
   "name": "node-web-mvc-starter",
   "version": "1.1.5",
   "peerDependencies": {
-    "typescript": "^5.3.3"
+    "typescript": "*"
   },
   "bin": {
     "node-web-mvc-starter": "bin/index.js"

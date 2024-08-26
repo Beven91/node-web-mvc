@@ -42,7 +42,7 @@
     "nodejs-hmr": "^1.3.5"
   },
   "peerDependencies": {
-    "typescript": ">= 4",
+    "typescript": "*",
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
