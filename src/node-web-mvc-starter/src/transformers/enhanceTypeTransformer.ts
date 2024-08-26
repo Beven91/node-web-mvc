@@ -1,5 +1,5 @@
-import ts, { TransformationContext } from 'typescript';
-import { createRuntimeTypeArguments, ExtTransformationContext, GenerateContext, hasDecorator } from './helper';
+import ts, { } from 'typescript';
+import { replaceToRuntimeImportDeclaration, createRequireStatement, createRuntimeTypeArguments, ExtTransformationContext, GenerateContext, getModuleRequest, hasDecorator } from './helper';
 
 const metadata = '__metadata';
 
@@ -66,6 +66,7 @@ const generateParameterRuntimeType = (typeNode: ts.TypeNode, node: ts.ParameterD
 
 // 生成属性类型运行时类型注解
 const generatePropertyRuntimeType = (typeNode: ts.TypeNode, node: ts.PropertyDeclaration, gContext: GenerateContext) => {
+  const context = gContext.transContext;
   return ts.factory.updatePropertyDeclaration(
     node,
     [
@@ -85,6 +86,7 @@ const generatePropertyRuntimeType = (typeNode: ts.TypeNode, node: ts.PropertyDec
   );
 };
 
+
 export default function enhanceTypeTransformer(context: ExtTransformationContext, program: ts.Program) {
   const typeChecker = program.getTypeChecker();
   return (rootNode: ts.SourceFile) => {
@@ -93,6 +95,7 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
       checker: typeChecker,
       moduleImports: {},
     };
+
     // 遍历controller
     const visitController = (node: ts.Node) => {
       if (!ts.isClassDeclaration(node)) {
@@ -144,8 +147,38 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
       return node;
     };
 
-    context.runtimeTypeModuleImports = gContext.moduleImports;
+    const replaceDeclaration = (node: ts.Node) => {
+      if (!ts.isImportDeclaration(node)) {
+        return ts.visitEachChild(node, replaceDeclaration, context);
+      }
+      const opts = gContext.transContext.getCompilerOptions();
+      const moduleImports = gContext.moduleImports;
+      const request = getModuleRequest(node.moduleSpecifier);
+      const moduleImport = moduleImports[request];
+      if (!moduleImport) {
+        // 如果不需要替换，则直接返回原始node
+        return node;
+      }
+      console.log('replace', moduleImport.request);
+      switch (opts.module) {
+        case ts.ModuleKind.CommonJS:
+        case ts.ModuleKind.NodeNext:
+        case ts.ModuleKind.UMD:
+        case ts.ModuleKind.AMD:
+        case ts.ModuleKind.Node16:
+        case ts.ModuleKind.None:
+          // TODO xx_1 命名能否完全保证和原始import生成后的命名保持一致?
+          // 由于ts编译时会优化导出，为了保证运行时类型引用的标识符必须导出，
+          // 所以这里统一替换成 const xx_1 = require('xx')
+          return createRequireStatement(moduleImport.name, moduleImport.request);
+        default:
+          // ES模块规范
+          return replaceToRuntimeImportDeclaration(node, typeChecker);
+      }
+    };
 
-    return ts.visitNode(rootNode, visitController) as ts.SourceFile;
+    const newRoot = ts.visitNode(rootNode, visitController) as ts.SourceFile;
+
+    return ts.visitNode(newRoot, replaceDeclaration) as ts.SourceFile;
   };
 }

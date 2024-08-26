@@ -1,8 +1,4 @@
-export class Order<T = any> {
-
-}
-
-export default class KK {
+export default class Order {
 
 }
 
@@ -14,6 +10,8 @@ class Paged<D> {
 export class UserInfo {
 
 }
+
+export const OrderType = 0;
 
 export class GeneralResult<T> {
   public data: Paged<T>;
@@ -33,7 +31,7 @@ export class GeneralResult<T> {
 }
 
 
-export function doSomething() : GeneralResult<UserInfo> {
+export function doSomething(): GeneralResult<UserInfo> {
   const a = 10;
   const c = a * 100;
   return null;

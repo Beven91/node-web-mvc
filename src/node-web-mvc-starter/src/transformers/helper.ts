@@ -5,11 +5,6 @@ interface WithModifiersNode {
   modifiers?: ts.NodeArray<ts.ModifierLike>
 }
 
-interface ModuleImportSpecifer {
-  identifier: ts.Identifier,
-  name: string
-}
-
 interface DeclareTypeInfo {
   flags: number
   isParameter: boolean,
@@ -21,9 +16,6 @@ interface DeclareTypeInfo {
 export interface ModuleImport {
   name: string;
   request: string
-  allKeys: Record<string, boolean>
-  default: ModuleImportSpecifer,
-  identifiers: ModuleImportSpecifer[]
 }
 
 export interface RuntimeTypeDefinition {
@@ -43,7 +35,6 @@ export type GenerateContext = {
 };
 
 export interface ExtTransformationContext extends TransformationContext {
-  runtimeTypeModuleImports?: GenerateContext['moduleImports']
 }
 
 // 判定是否包含指定注解
@@ -70,7 +61,7 @@ export function findParent<T extends ts.Node>(node: ts.Node, match: (current: ts
 }
 
 export function getModuleRequest(node: ts.Expression) {
-  return node.getText().replace(/^['"]|['"]$/g, '');
+  return (node as any).text.replace(/^['"]|['"]$/g, '');
 }
 
 function makeImportIdentifier(symbol: ts.Symbol, gContext: GenerateContext) {
@@ -80,48 +71,25 @@ function makeImportIdentifier(symbol: ts.Symbol, gContext: GenerateContext) {
   if (!importDeclaration) {
     return;
   }
-  const importName = (node as ts.NamedDeclaration).name.getText();
   const request = getModuleRequest(importDeclaration.moduleSpecifier);
-  const isDefault = ts.isImportClause(node);
   const moduleName = path.basename(request).replace(/[^a-zA-Z0-9]/g, '_') + '_1';
 
   if (!moduleImports[request]) {
     moduleImports[request] = {
       request: request,
       name: moduleName,
-      default: null,
-      allKeys: {},
-      identifiers: [],
     };
   }
+}
 
-  const identifierName = importName;
-  const opts = gContext.transContext.getCompilerOptions();
-  switch (opts.module) {
-    case ts.ModuleKind.CommonJS:
-    case ts.ModuleKind.NodeNext:
-    case ts.ModuleKind.UMD:
-    case ts.ModuleKind.AMD:
-    case ts.ModuleKind.Node16:
-      // identifierName = isDefault ? `${moduleName}.default` : `${moduleName}.${importName}`;
-      break;
-    default:
-      // identifierName = `${importName}_0`;
+function isRuntimeType(type: ts.Type) {
+  if (!type?.symbol) {
+    return false;
   }
-
-  const moduleImport = moduleImports[request];
-  const identifier = ts.factory.createIdentifier(identifierName);
-  const item: ModuleImportSpecifer = { name: importName, identifier };
-  if (isDefault) {
-    moduleImport.default = item;
-  } else {
-    moduleImport.identifiers.push(item);
-  }
-  moduleImport.allKeys[importName] = true;
-  return {
-    identifier: identifier,
-    request,
-  };
+  const flags = type.symbol.flags;
+  const isClassOrFunction = (flags & ts.SymbolFlags.Class) !== 0 || (flags & ts.SymbolFlags.Function) !== 0;
+  const isValue = (flags & ts.SymbolFlags.Value) !== 0;
+  return isValue || isClassOrFunction && isValue;
 }
 
 export function getDeclareType(node: ts.EntityName, gContext: GenerateContext): DeclareTypeInfo {
@@ -129,18 +97,16 @@ export function getDeclareType(node: ts.EntityName, gContext: GenerateContext): 
   const symbol = typeChecker.getSymbolAtLocation(node);
   if (!symbol) return null;
   const type = typeChecker.getDeclaredTypeOfSymbol(symbol);
-  const flags = type.symbol ? type.symbol.flags : symbol.flags;
-  const isClassOrFunction = (flags & ts.SymbolFlags.Class) !== 0 || (flags & ts.SymbolFlags.Function) !== 0;
-  const isValue = (flags & ts.SymbolFlags.Value) !== 0;
   const isParameter = (type.flags & ts.TypeFlags.TypeParameter) !== 0;
+  const flags = type.symbol?.flags;
   makeImportIdentifier(symbol, gContext);
   return {
     isParameter: isParameter,
-    isRuntime: isValue || isClassOrFunction && isValue,
+    isRuntime: isRuntimeType(type),
     typeParameters: (type as any).typeArguments?.map?.((arg) => {
       return arg.symbol.escapedName;
     }) || [],
-    flags,
+    flags: flags,
   };
 }
 
@@ -180,7 +146,7 @@ function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, ty
   if (meta?.isRuntime) {
     properties.push(ts.factory.createPropertyAssignment('clazz', typeIdentifier as ts.Identifier));
   }
-  if (meta.flags & ts.SymbolFlags.Enum) {
+  if (meta.flags > 0 && meta.flags & ts.SymbolFlags.Enum) {
     properties.push(ts.factory.createPropertyAssignment('enum', ts.factory.createTrue()));
   }
   if (meta?.isParameter) {
@@ -201,7 +167,7 @@ function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, ty
     properties.push(ts.factory.createPropertyAssignment('args', typeArguments));
   }
   if (isRoot) {
-    const fullName = typeNode.getText();
+    const fullName = ts.isTypeQueryNode(typeNode) ? typeNode.exprName.getText() : typeNode.getText();
     properties.push(ts.factory.createPropertyAssignment('fullName', ts.factory.createStringLiteral(fullName)));
   }
   return ts.factory.createObjectLiteralExpression(properties);
@@ -242,9 +208,9 @@ function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, 
   } else if (ts.isTypeQueryNode(typeNode)) {
     const meta: DeclareTypeInfo = {
       isParameter: false,
-      isRuntime: true,
+      isRuntime: false,
       typeParameters: [],
-      flags: gContext.checker.getSymbolAtLocation(typeNode)?.flags || -1,
+      flags: -1,
     };
     return createTypeDefinitionByIdentifier(typeNode, typeNode.exprName, meta, gContext, isArray, isRoot, parameterName);
   } else if (ts.isUnionTypeNode(typeNode)) {
@@ -273,24 +239,57 @@ export function createRuntimeTypeArguments(typeNode: ts.TypeNode, gContext: Gene
   ].filter(Boolean);
 }
 
-export function getModulePath(declaration: ts.Declaration) {
-  let current: ts.Node = declaration;
-  while (current) {
-    if (ts.isSourceFile(current)) {
-      return current.fileName;
-    }
-    current = current.parent;
+export function replaceToRuntimeImportDeclaration(node:ts.ImportDeclaration, checker: ts.TypeChecker) {
+  const namedBindings:ts.ImportSpecifier[] = [];
+  let name: ts.Identifier = undefined;
+  if (node.importClause) {
+    node.importClause.namedBindings?.forEachChild((child: ts.ImportSpecifier)=> {
+      const info =checker.getTypeAtLocation(child);
+      const type = info.symbol ? checker.getDeclaredTypeOfSymbol(info.symbol) : null;
+      if (isRuntimeType(type)) {
+        namedBindings.push(ts.factory.createImportSpecifier(false, child.propertyName, child.name));
+      }
+    });
   }
+  if (node.importClause?.name) {
+    const info =checker.getTypeAtLocation(node.importClause.name);
+    const type = info.symbol ? checker.getDeclaredTypeOfSymbol(info.symbol) : null;
+    if (isRuntimeType(type)) {
+      name = node.importClause.name;
+    }
+  }
+  return ts.factory.createImportDeclaration(
+    node.modifiers,
+    ts.factory.updateImportClause(
+      node.importClause,
+      node.importClause.isTypeOnly,
+      name,
+      ts.factory.createNamedImports(
+        namedBindings
+      )
+    ),
+    node.moduleSpecifier,
+    undefined
+  );
 }
 
-export function isIdentifierOf(node: ts.Node, name: string, module: string, checker: ts.TypeChecker) {
-  if (ts.isIdentifier(node) && node.text == name) {
-    const symbol = checker.getTypeAtLocation(node)?.symbol;
-    if (!symbol || !symbol?.valueDeclaration) {
-      return false;
-    }
-    const filePath = getModulePath(symbol.valueDeclaration);
-    return (filePath.indexOf(module) > -1);
-  }
-  return false;
+export function createRequireStatement(moduleName: string, request: string) {
+  return ts.factory.createVariableStatement(
+    undefined,
+    ts.factory.createVariableDeclarationList(
+      [
+        ts.factory.createVariableDeclaration(
+          moduleName,
+          undefined,
+          undefined,
+          ts.factory.createCallExpression(
+            ts.factory.createIdentifier('require'),
+            undefined,
+            [ ts.factory.createStringLiteral(request) ]
+          )
+        ),
+      ],
+      ts.NodeFlags.Const
+    )
+  );
 }
