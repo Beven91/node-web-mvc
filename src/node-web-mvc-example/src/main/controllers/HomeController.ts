@@ -140,7 +140,7 @@ export default class HomeController {
 
   @ApiOperation({ value: '@UserId 测试' })
   @GetMapping('/userId')
-  userId(@UserId id): string {
+  userId(@UserId id: string): string {
     return 'userId...' + id;
   }
 
