@@ -103,7 +103,7 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
           // TODO xx_1 命名能否完全保证和原始import生成后的命名保持一致?
           // 由于ts编译时会优化导出，为了保证运行时类型引用的标识符必须导出，
           // 所以这里统一替换成 const xx_序号 = require('xx')
-          const cjsName = `${moduleImport.name}_${++replacedModules[request]}`
+          const cjsName = `${moduleImport.name}_${++replacedModules[request]}`;
           return createRequireStatement(cjsName, moduleImport.request);
         default:
           // ES模块规范

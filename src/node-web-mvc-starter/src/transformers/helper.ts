@@ -252,7 +252,7 @@ export function replaceToRuntimeImportDeclaration(node: ts.ImportDeclaration, ch
       name = node.importClause.name;
     }
   }
-  return compact.createImportDeclaration(node, name, namedBindings)
+  return compact.createImportDeclaration(node, name, namedBindings);
 }
 
 export function createRequireStatement(moduleName: string, request: string) {
@@ -267,7 +267,7 @@ export function createRequireStatement(moduleName: string, request: string) {
           ts.factory.createCallExpression(
             ts.factory.createIdentifier('require'),
             undefined,
-            [ts.factory.createStringLiteral(request)]
+            [ ts.factory.createStringLiteral(request) ]
           )
         ),
       ],

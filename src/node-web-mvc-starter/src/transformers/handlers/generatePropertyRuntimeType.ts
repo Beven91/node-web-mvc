@@ -1,7 +1,7 @@
-import ts, { Decorator, ExclamationToken, Expression, Modifier, PropertyDeclaration, PropertyName, QuestionToken, TypeNode } from "typescript";
-import { GenerateContext } from "../context";
-import { createRuntimeTypeArguments } from "../helper";
-import { ModifierLike, V4WithDecoratorNode } from "./compact";
+import ts, { Decorator, ExclamationToken, Expression, Modifier, PropertyDeclaration, PropertyName, QuestionToken, TypeNode } from 'typescript';
+import { GenerateContext } from '../context';
+import { createRuntimeTypeArguments } from '../helper';
+import { ModifierLike, V4WithDecoratorNode } from './compact';
 
 type v4UpdatePropertyDeclaration = (node: PropertyDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined) => PropertyDeclaration;
 type v5UpdatePropertyDeclaration = (node: PropertyDeclaration, modifiers: readonly ModifierLike[] | undefined, name: string | PropertyName, questionOrExclamationToken: QuestionToken | ExclamationToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined)=> PropertyDeclaration;

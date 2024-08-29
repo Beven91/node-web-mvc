@@ -1,7 +1,7 @@
-import ts, { BindingName, Decorator, DotDotDotToken, Expression, Modifier, ParameterDeclaration, QuestionToken, TypeNode } from "typescript";
-import { GenerateContext } from "../context";
-import { createRuntimeTypeArguments } from "../helper";
-import { ModifierLike, V4WithDecoratorNode } from "./compact";
+import ts, { BindingName, Decorator, DotDotDotToken, Expression, Modifier, ParameterDeclaration, QuestionToken, TypeNode } from 'typescript';
+import { GenerateContext } from '../context';
+import { createRuntimeTypeArguments } from '../helper';
+import { ModifierLike, V4WithDecoratorNode } from './compact';
 
 type v4UpdateParameterDeclaration = (node: ParameterDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined) => ParameterDeclaration;
 type v5UpdateParameterDeclaration = (node: ParameterDeclaration, modifiers: readonly ModifierLike[] | undefined, dotDotDotToken: DotDotDotToken | undefined, name: string | BindingName, questionToken: QuestionToken | undefined, type: TypeNode | undefined, initializer: Expression | undefined) => ParameterDeclaration;
@@ -32,7 +32,7 @@ export default function generateParameterRuntimeType(typeNode: ts.TypeNode, node
         node.questionToken,
         node.type,
         node.initializer
-      )
+      );
     default:
       return v5UpdateParameterDeclaration(
         node,
@@ -51,6 +51,6 @@ export default function generateParameterRuntimeType(typeNode: ts.TypeNode, node
         node.questionToken,
         node.type,
         node.initializer
-      )
+      );
   }
 };

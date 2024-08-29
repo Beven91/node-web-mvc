@@ -1,4 +1,4 @@
-import ts, { TransformationContext } from "typescript";
+import ts, { TransformationContext } from 'typescript';
 
 export const mainVersion = Number(ts.version.split('.').shift());
 
@@ -17,7 +17,7 @@ export type GenerateContext = {
   }
 };
 
-export function createContext(context: TransformationContext,program: ts.Program): GenerateContext {
+export function createContext(context: TransformationContext, program: ts.Program): GenerateContext {
   return {
     mainVersion: mainVersion,
     metadataName: '__metadata',

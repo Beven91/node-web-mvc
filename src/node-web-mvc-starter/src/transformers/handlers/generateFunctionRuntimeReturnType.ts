@@ -1,7 +1,7 @@
-import ts, { AsteriskToken, Block, Decorator, MethodDeclaration, Modifier, ParameterDeclaration, PropertyName, QuestionToken, TypeNode, TypeParameterDeclaration } from "typescript";
-import { createRuntimeTypeArguments } from "../helper";
-import { GenerateContext } from "../context";
-import { ModifierLike, V4WithDecoratorNode } from "./compact";
+import ts, { AsteriskToken, Block, Decorator, MethodDeclaration, Modifier, ParameterDeclaration, PropertyName, QuestionToken, TypeNode, TypeParameterDeclaration } from 'typescript';
+import { createRuntimeTypeArguments } from '../helper';
+import { GenerateContext } from '../context';
+import { ModifierLike, V4WithDecoratorNode } from './compact';
 
 type v4UpdateMethodDeclaration = (node: MethodDeclaration, decorators: readonly Decorator[] | undefined, modifiers: readonly Modifier[] | undefined, asteriskToken: AsteriskToken | undefined, name: PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined)=>MethodDeclaration;
 type v5UpdateMethodDeclaration = (node: MethodDeclaration, modifiers: readonly ModifierLike[] | undefined, asteriskToken: AsteriskToken | undefined, name: PropertyName, questionToken: QuestionToken | undefined, typeParameters: readonly TypeParameterDeclaration[] | undefined, parameters: readonly ParameterDeclaration[], type: TypeNode | undefined, body: Block | undefined)=> MethodDeclaration;

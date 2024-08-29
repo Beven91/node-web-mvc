@@ -8,6 +8,7 @@ export interface RuntimeOptions {
   entry: string
   project: string
   pm2: string
+  command: string
   compilerOptions: ts.CompilerOptions
 }
 
@@ -16,6 +17,35 @@ const host = ts.createSolutionBuilderHost({
 });
 
 const defaultExclude = [ 'node_modules', 'dist' ];
+
+export function parseOptions(command: string, entry: string, argv: string[]): RuntimeOptions {
+  const baseOptions: Record<string, any> = {};
+  const args: RuntimeOptions['compilerOptions'] = {};
+  let key = '';
+  let key2 = '';
+  argv.forEach((arg: string) => {
+    if (arg.startsWith('--')) {
+      key = arg.slice(2);
+      key2 = '';
+      args[key] = true;
+    } else if (arg.startsWith('-')) {
+      key2 = arg.slice(1);
+      key = '';
+    } else if (key) {
+      args[key] = arg === 'false' ? false : arg === 'true' ? true : arg;
+    } else {
+      baseOptions[key2] = arg;
+    }
+  });
+  return {
+    command: command,
+    entry: entry,
+    dir: process.cwd(),
+    pm2: baseOptions.pm2,
+    project: baseOptions.p,
+    compilerOptions: args,
+  };
+};
 
 function copyResourceAndDirectories(dir: string, targetDir: string, exclude: string[]) {
   if (!fs.existsSync(targetDir)) {
@@ -54,7 +84,7 @@ function buildPkg(options: RuntimeOptions, outDir: string) {
   delete pkg.devDependencies;
   delete pkg.scripts;
   delete pkg.bin;
-  console.log('Build package.json')
+  console.log('Build package.json');
   fs.writeFileSync(dest, JSON.stringify(pkg, null, 2));
 }
 
@@ -70,7 +100,7 @@ function buildPM2(options: RuntimeOptions, rootDir: string, outDir: string) {
   if (!fs.existsSync(id)) {
     return;
   }
-  const applyAppInfo = (app)=>{
+  const applyAppInfo = (app) => {
     const file = path.join(path.dirname(id), app.script + '.ts');
     const name = path.relative(rootDir, file);
     app.script = name.replace('.ts', '');
@@ -84,12 +114,12 @@ function buildPM2(options: RuntimeOptions, rootDir: string, outDir: string) {
   } else {
     applyAppInfo(pm2Config);
   }
-  console.log('Build pm2 config')
+  console.log('Build pm2 config');
   fs.writeFileSync(dest, JSON.stringify(pm2Config, null, 2));
 }
 
 export default function build(options: RuntimeOptions) {
-  logging('Start building application...')
+  logging('Start building application...');
   // 1. 执行tsc构建应用
   const info = tsc(options.compilerOptions, options.project);
   const outDir = info.outDir;
