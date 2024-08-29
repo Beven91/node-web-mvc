@@ -62,7 +62,7 @@ export function reflectAnnotationType(options: Array<any>): ElementType | 'UNKNO
 export function checkAnnotation(types: ElementType[], options, name) {
   const elementType = reflectAnnotationType(options) as ElementType;
   if (types.length > 0 && types.indexOf(elementType) < 0) {
-    throw new AnnotationElementTypeError(name, types);
+    throw new AnnotationElementTypeError(name, types, elementType);
   }
   return elementType;
 }

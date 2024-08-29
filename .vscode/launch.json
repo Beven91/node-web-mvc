@@ -14,7 +14,7 @@
       "sourceMaps": true,
       "runtimeArgs": [
         "-r",
-        "../node-web-mvc-starter/dist/runtime/register"
+        "../node-web-mvc-starter/register"
       ],
       "cwd": "${workspaceFolder}/src/node-web-mvc-example",
       "args": [

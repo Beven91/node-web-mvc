@@ -3,9 +3,12 @@ import 'reflect-metadata';
 import Tracer from './Tracer';
 import { MetaRuntimeTypeInfo } from './type';
 import Javascript from '../../../interface/Javascript';
+import MetaProperty from '../MetaProperty';
 
 const decorate = Reflect.decorate;
 const metadata = Reflect.metadata;
+
+const RuntimeTypeKey = 'design:runtimetype';
 
 function getParameterKey(name: string, idx: number) {
   return `${name}@@@${idx}`;
@@ -13,6 +16,9 @@ function getParameterKey(name: string, idx: number) {
 
 function myMetadata(metadataKey: any, metadataValue: any) {
   return function decorator(target: any, property: string, idx?: number) {
+    if (metadataKey == RuntimeTypeKey && arguments.length > 2) {
+      MetaProperty(target, property, idx);
+    }
     // 支持参数元数据
     const newMetadataKey = idx >= 0 ? getParameterKey(metadataKey, idx) : metadataKey;
     return metadata.call(this, newMetadataKey, metadataValue)(target, property);
@@ -29,7 +35,7 @@ function myDecorator(decorators: any[], target: any, propertyKey?: string | symb
 };
 
 export function getRuntimeType(name: string, target: any, key: string | symbol, idx?: number) {
-  const id = 'design:runtimetype';
+  const id = RuntimeTypeKey;
   const propertyKey = idx >= 0 ? getParameterKey(id, idx) : id;
   const runtimeType = Reflect.getMetadata(propertyKey, target, key) as MetaRuntimeTypeInfo;
   const metaType = Reflect.getMetadata(name, target, key);

@@ -29,6 +29,10 @@ export default class TypeConverter {
     }
   }
 
+  private isInstanceof(v: any, type: ClazzType): boolean {
+    return (typeof v === 'object' && !!v && v instanceof type);
+  }
+
   convert(value: object, type: ClazzType, runtimeType?: MetaRuntimeTypeInfo) {
     if (value === null || value === undefined) {
       return null;
@@ -37,7 +41,9 @@ export default class TypeConverter {
       // throw new Error(`dataType not present`);
     }
     const clazzType = Javascript.createTyper(type);
-    if (clazzType.isType(BigInt)) {
+    if (runtimeType?.enum) {
+      return this.toEnum(value, type);
+    } else if (clazzType.isType(BigInt)) {
       return toBigInt(value);
     } else if (clazzType.isType(String)) {
       return toString(value, type);
@@ -53,13 +59,21 @@ export default class TypeConverter {
       return this.toSet(value, type, runtimeType);
     } else if (clazzType.isType(Map) || clazzType.isType(WeakMap)) {
       return this.toMap(value, type, runtimeType);
-    } else if (value instanceof type) {
+    } else if (this.isInstanceof(value, type)) {
       return value;
     } else if (clazzType.isType(TypedArray)) {
       return this.toTypedArray(value, type);
     } else {
       return this.toClass(value, type, runtimeType);
     }
+  }
+
+  toEnum(value: any, type: object) {
+    if (value in type) {
+      return value;
+    }
+
+    throw new Error(`${value} is not enum value`);
   }
 
   toSet(value: object, type: ClazzType, runtimeType?: MetaRuntimeTypeInfo) {

@@ -30,6 +30,11 @@ class A extends Super {
   parentName: string;
 }
 
+enum UserType {
+  BACKEND = 1,
+  C = 2
+}
+
 @ApiModel({ description: '用户信息。。' })
 export default class UserInfo extends A {
   static desc = 'hellos38';
@@ -109,4 +114,6 @@ export default class UserInfo extends A {
   @JsonSerialize({ using: ColorSerializer })
   @JsonDeserialize({ using: ColorDeserializer })
   public color: Color;
+
+  public userType: UserType;
 }

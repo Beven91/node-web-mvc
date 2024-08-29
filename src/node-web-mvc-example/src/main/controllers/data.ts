@@ -11,6 +11,7 @@ export const demoData = {
   'passDate': '2024年06月25 20:00:00',
   'submitDate': '2024-06-26 18:47:00',
   'internalData': null,
+  'userType': 1,
   'items': [
     1,
     2,
