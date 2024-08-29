@@ -70,6 +70,13 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   configFile.config.compilerOptions.rootDir = configFile.config.compilerOptions.rootDir || '';
   configFile.config.compilerOptions.outDir = configFile.config.compilerOptions.outDir || '';
 
+  const types = configFile.config.compilerOptions.types || [];
+
+  configFile.config.compilerOptions.types = types.map((name)=>{
+    const id = path.join(project, name);
+    return path.isAbsolute(id) ? id : './' + id;
+  });
+
   // 解析 `tsconfig.json` 的内容
   const parsedCommandLine = ts.parseJsonConfigFileContent(
     configFile.config,
