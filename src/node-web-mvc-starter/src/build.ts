@@ -101,9 +101,9 @@ function buildPM2(options: RuntimeOptions, rootDir: string, outDir: string) {
     return;
   }
   const applyAppInfo = (app) => {
-    const file = path.join(path.dirname(id), app.script + '.ts');
+    const file = path.join(path.dirname(id), app.script);
     const name = path.relative(rootDir, file);
-    app.script = name.replace('.ts', '');
+    app.script = './' + name.replace('.ts', '.js');
     app.env = app.env || {};
     app.env['RUN_ENV'] = process.env.npm_config_env || '';
   };
