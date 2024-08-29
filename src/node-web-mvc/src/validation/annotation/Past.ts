@@ -16,7 +16,6 @@ class Past extends Constraints {
       throw new UnexpectedTypeException(context);
     }
     const now = Date.now();
-    console.log('Past', content, now, content.getTime());
     return content.getTime() < now;
   }
 }

@@ -35,7 +35,7 @@ export function logError(errorCode: number, errorMessage: string, file: string, 
   const fileName = Colors.lightBlue(file);
   const code = Colors.gray(`TS${errorCode}:`);
   const type = Colors.red('error');
-  const row = line >= 0 ? Colors.yellow((line + 1).toString()) : ''
+  const row = line >= 0 ? Colors.yellow((line + 1).toString()) : '';
   const col = character >= 0 ? Colors.yellow((character + 1).toString()) : '';
   console.error(`${fileName}:${row}:${col} - ${type} ${code} ${errorMessage}`);
 }
@@ -48,7 +48,7 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
     throw new Error('Could not find a valid \'tsconfig.json\'.');
   }
 
-  console.log(`Finded tsconfig: ${path.join(project, configPath)}`)
+  console.log(`Finded tsconfig: ${configPath}`);
 
   // 读取 `tsconfig.json`
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -80,7 +80,7 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   if (parsedCommandLine.errors?.length > 0) {
     parsedCommandLine.errors.map((m) => {
       logError(m.code, m.messageText.toString(), m.file?.fileName || configPath, m.start, m.length);
-    })
+    });
     console.error(parsedCommandLine.errors.map((m) => m.messageText).join('\n'));
     process.exit(1);
   }
@@ -99,10 +99,10 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   // 处理发出的文件和报告发出后的诊断信息
   const allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
 
-  if(allDiagnostics.length > 0) {
-    const out = ts.formatDiagnosticsWithColorAndContext(allDiagnostics, ts.createCompilerHost(parsedCommandLine.options))
-    console.log('Build failed!')
-    console.log(out)
+  if (allDiagnostics.length > 0) {
+    const out = ts.formatDiagnosticsWithColorAndContext(allDiagnostics, ts.createCompilerHost(parsedCommandLine.options));
+    console.log('Build failed!');
+    console.log(out);
   }
 
 
