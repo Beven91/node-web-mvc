@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "3.3.7",
+  "version": "3.3.8",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "directories": {
@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/Beven91/node-mvc#readme",
   "dependencies": {
-    "nodejs-hmr": "^1.3.5"
+    "nodejs-hmr": "^1.3.6"
   },
   "peerDependencies": {
     "typescript": "*",
