@@ -39,7 +39,7 @@ export default class ModuleLoader {
       return false;
     }
     return exclude.some((e) => {
-      return id.indexOf(e) === 0;
+      return id.indexOf(e) > -1;
     });
   }
 
