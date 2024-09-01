@@ -44,12 +44,20 @@ export default class DefaultCorsProcessor implements CorsProcessor {
     return this.handleInternal(request, response, config, isPreFlightRequest);
   }
 
+  private getHeader(request: HttpServletRequest, name: string) {
+    const value = request.getHeader(name);
+    if (value instanceof Array) {
+      return value;
+    }
+    return value.toString().split(',');
+  }
+
   getMethodToUse(request: HttpServletRequest, isPrelightRequest: boolean) {
-    return isPrelightRequest ? request.getHeaderValue(HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)?.[0] : request.method;
+    return isPrelightRequest ? this.getHeader(request, HttpHeaders.ACCESS_CONTROL_REQUEST_METHOD)?.[0] : request.method;
   }
 
   getHeadersToUse(request: HttpServletRequest, isPrelightRequest: boolean) {
-    return isPrelightRequest ? request.getHeaderValue(HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS) : Object.keys(request.headers);
+    return isPrelightRequest ? this.getHeader(request, HttpHeaders.ACCESS_CONTROL_REQUEST_HEADERS) : Object.keys(request.headers);
   }
 
   checkOrigin(config: CorsConfiguration, requestOrigin: string) {
