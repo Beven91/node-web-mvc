@@ -49,7 +49,7 @@ export default class ModuleLoader {
    * @param cache 缓存配置
    */
   private load(dir: string, cache: object) {
-    const children = fs.readdirSync(dir);
+    const children = fs.lstatSync(dir).isDirectory() ? fs.readdirSync(dir) : [ dir ];
     children.forEach((name) => {
       const id = path.join(dir, name);
       const ext = path.extname(name);
