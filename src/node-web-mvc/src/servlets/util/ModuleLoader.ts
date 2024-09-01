@@ -51,7 +51,7 @@ export default class ModuleLoader {
   private load(dir: string, cache: object) {
     const children = fs.lstatSync(dir).isDirectory() ? fs.readdirSync(dir) : [ dir ];
     children.forEach((name) => {
-      const id = path.join(dir, name);
+      const id = path.isAbsolute(name) ? name: path.join(dir, name);
       const ext = path.extname(name);
       if (fs.lstatSync(id).isFile() && !allowExtensions[ext]) {
         return;
