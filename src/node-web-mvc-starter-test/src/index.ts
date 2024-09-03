@@ -7,11 +7,14 @@ import Order, { GeneralResult as GeneralResult2, UserInfo } from './Order';
 import { GeneralResult, OrderType } from './Order';
 import Demo from './demo';
 
-const Demo2 = require('./demo')
+// const Demo2 = require('./demo');
 
-interface HttpServletRequest {
-  getHeader: (name: string) => string
-}
+type KK = typeof Order;
+
+type NN = Order;
+
+type SS = NN;
+
 
 class My<T> {
 
@@ -28,11 +31,15 @@ export default class STSSOContext {
 
   private request2: My<GeneralResult2<Order>>;
 
-  private data: My<GeneralResult<OrderType>>
+  private request3: My<GeneralResult2<KK>>;
+
+  private request4: My<GeneralResult2<SS>>;
+
+  private data: My<GeneralResult<OrderType>>;
 
   private demo: Demo;
 
-  private demo2: typeof Demo
+  private demo2: typeof Demo;
 
   // private orderType: typeof OrderType;
 
@@ -40,7 +47,7 @@ export default class STSSOContext {
 
 
   getUserToken() {
-    // console.log(Order);
+    console.log(Order);
     // console.log(GeneralResult);
     // console.log(HttpServletRequest);
   }

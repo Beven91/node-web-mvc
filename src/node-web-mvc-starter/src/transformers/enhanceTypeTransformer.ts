@@ -30,7 +30,7 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
     // 遍历controller
     const visitController = (node: ts.Node) => {
       if (!ts.isClassDeclaration(node)) {
-        return ts.visitEachChild(node, visitController, context);
+        return node;
       }
       if (hasDecorator(node, controllerDecorators)) {
         // 如果是Controller
@@ -80,7 +80,7 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
 
     const replaceDeclaration = (node: ts.Node) => {
       if (!ts.isImportDeclaration(node)) {
-        return ts.visitEachChild(node, replaceDeclaration, context);
+        return node;
       }
       const opts = gContext.transContext.getCompilerOptions();
       const moduleImports = gContext.moduleImports;
@@ -111,8 +111,8 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
       }
     };
 
-    const newRoot = ts.visitNode(rootNode, visitController) as ts.SourceFile;
+    const newRoot = ts.visitEachChild(rootNode, visitController, context);
 
-    return ts.visitNode(newRoot, replaceDeclaration) as ts.SourceFile;
+    return ts.visitEachChild(newRoot, replaceDeclaration, context);
   };
 }
