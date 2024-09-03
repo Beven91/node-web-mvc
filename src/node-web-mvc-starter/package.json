@@ -1,5 +1,6 @@
 {
   "name": "node-web-mvc-starter",
+  "description": "node-web-mvc ts starter",
   "version": "1.2.4",
   "peerDependencies": {
     "typescript": "*"
