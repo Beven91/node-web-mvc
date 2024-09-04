@@ -68,7 +68,7 @@ export default class MultipartBodyReader extends AbstractBodyReader {
                     formValues[name] = v;
                   }
                   if (v instanceof MultipartFile) {
-                    // request.servletContext.addReleaseQueue(() => v.destory());
+                    request.servletContext.addReleaseQueue(() => v.destory());
                   }
                   // 读取结束，开始读取下一个subpart
                   subpart = new MultipartSubpart(startBoundary, this.multipart, subpart.tempRaw);

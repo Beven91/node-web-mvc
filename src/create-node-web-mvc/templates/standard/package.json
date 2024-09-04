@@ -7,10 +7,10 @@
   },
   "devDependencies": {
     "typescript": "^5.3.3",
-    "node-web-mvc-starter": "^1.1.6"
+    "node-web-mvc-starter": "^1.1.7"
   },
   "dependencies": {
-    "node-web-mvc": "^3.3.5",
+    "node-web-mvc": "^3.3.13",
     "reflect-metadata": "^0.1.13"
   }
 }
