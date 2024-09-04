@@ -29,6 +29,7 @@ export default class MultipartBodyReader extends AbstractBodyReader {
     return new Promise((resolve, reject) => {
       let subpart = new MultipartSubpart(startBoundary, this.multipart, []);
       const formValues = {} as Record<string, any>;
+      const promises: Promise<any>[] = [];
       nativeRequest.on('error', reject);
       nativeRequest.on('data', (chunk: Uint8Array) => {
         try {
@@ -54,7 +55,11 @@ export default class MultipartBodyReader extends AbstractBodyReader {
               case 'body':
                 {
                   const name = subpart.name;
-                  const v = subpart.finish(mediaType.charset);
+                  const result = subpart.finish(mediaType.charset);
+                  const v = result.content;
+                  if (result.promise) {
+                    promises.push(result.promise);
+                  }
                   if (formValues[name] instanceof Array) {
                     formValues[name].push(v);
                   } else if (formValues[name]) {
@@ -63,7 +68,7 @@ export default class MultipartBodyReader extends AbstractBodyReader {
                     formValues[name] = v;
                   }
                   if (v instanceof MultipartFile) {
-                    request.servletContext.addReleaseQueue(() => v.destory());
+                    // request.servletContext.addReleaseQueue(() => v.destory());
                   }
                   // 读取结束，开始读取下一个subpart
                   subpart = new MultipartSubpart(startBoundary, this.multipart, subpart.tempRaw);
@@ -76,7 +81,10 @@ export default class MultipartBodyReader extends AbstractBodyReader {
         }
       });
       nativeRequest.on('end', () => {
-        resolve(formValues);
+        Promise.all(promises).then(
+          () => resolve(formValues),
+          (error) => reject(error)
+        );
       });
     });
   }

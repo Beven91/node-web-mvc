@@ -91,14 +91,21 @@ export default class MultipartSubpart {
     }
   }
 
-  finish(encoding: BufferEncoding) {
+   finish(encoding: BufferEncoding) {
     if (this.writter) {
-      this.writter.end();
       const tempPath = this.writter.path.toString();
-      this.writter = null;
-      return new MultipartFile(this.filename, tempPath, this.mediaType, this.size, this.mediaRoot);
+      const promise = new Promise((resolve)=>{
+        this.writter.end(resolve);
+      });
+      return {
+        content: new MultipartFile(this.filename, tempPath, this.mediaType, this.size, this.mediaRoot),
+        promise: promise,
+      };
     } else {
-      return this.currentBuffer.toString(encoding);
+      return {
+        content: this.currentBuffer.toString(encoding),
+        promise: null,
+      };
     }
   }
 
