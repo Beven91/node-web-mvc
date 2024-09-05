@@ -121,7 +121,7 @@ function buildPM2(options: RuntimeOptions, rootDir: string, outDir: string) {
 export default function build(options: RuntimeOptions) {
   logging('Start building application...');
   // 1. 执行tsc构建应用
-  const info = tsc(options.compilerOptions, options.project);
+  const info = tsc(options.project, options.compilerOptions);
   const outDir = info.outDir;
   const rootDir = info.rootDir;
 

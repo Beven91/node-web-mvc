@@ -40,9 +40,9 @@ export function logError(errorCode: number, errorMessage: string, file: string, 
   console.error(`${fileName}:${row}:${col} - ${type} ${code} ${errorMessage}`);
 }
 
-export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = './') {
+export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['compilerOptions']) {
   // 查找 `tsconfig.json` 的路径
-  const configPath = ts.findConfigFile(project, ts.sys.fileExists, 'tsconfig.json');
+  const configPath = ts.findConfigFile(project || './', ts.sys.fileExists, 'tsconfig.json');
 
   if (!configPath) {
     throw new Error('Could not find a valid \'tsconfig.json\'.');
@@ -71,8 +71,7 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
   configFile.config.compilerOptions.outDir = configFile.config.compilerOptions.outDir || '';
 
   const types = configFile.config.compilerOptions.types || [];
-
-  configFile.config.compilerOptions.types = types.map((name)=>{
+  configFile.config.compilerOptions.types = types.map((name) => {
     const id = path.join(project, name);
     return path.isAbsolute(id) ? id : './' + id;
   });
@@ -92,10 +91,19 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
     process.exit(1);
   }
 
+
+  return {
+    configPath,
+    configFile,
+    parsedCommandLine,
+  };
+}
+
+export function tsc(project: string, extendOptions: ConfigOptions['compilerOptions']) {
+  const { configFile, configPath, parsedCommandLine } = resolveTSConfig(project, extendOptions);
   const rootDir = path.join(path.dirname(configPath), configFile.config.compilerOptions.rootDir);
   const outDir = path.join(path.dirname(configPath), configFile.config.compilerOptions.outDir);
   removeDist(outDir);
-  // console.log(parsedCommandLine.options);
 
   // 创建程序对象
   const program = ts.createProgram(parsedCommandLine.fileNames, parsedCommandLine.options);
@@ -111,7 +119,6 @@ export function tsc(extendOptions: ConfigOptions['compilerOptions'], project = '
     console.log('Build failed!');
     console.log(out);
   }
-
 
   // 处理完成后的操作
   return {
