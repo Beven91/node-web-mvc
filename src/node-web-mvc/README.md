@@ -53,10 +53,6 @@ npm create node-web-mvc@latest
 
 ```json
 {
-  "ts-node": {
-    "transpileOnly": true,
-    "typeCheck": true
-  },
   "compilerOptions": {
     "module": "CommonJS",
     "target": "ES2017",

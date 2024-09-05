@@ -63,8 +63,8 @@ importers:
   src/node-web-mvc:
     dependencies:
       nodejs-hmr:
-        specifier: ^1.3.5
-        version: 1.3.5
+        specifier: ^1.3.6
+        version: 1.3.6
       reflect-metadata:
         specifier: ^0.1.13
         version: 0.1.14
@@ -3272,8 +3272,8 @@ packages:
     resolution: {integrity: sha512-d9VeXT4SJ7ZeOqGX6R5EM022wpL+eWPooLI+5UpWn2jCT1aosUQEhQP214x33Wkwx3JQMvIm+tIoVOdodFS40g==}
     dev: true
 
-  /nodejs-hmr@1.3.5:
-    resolution: {integrity: sha512-gb8yzaqFEvUYFZXcdIUYUypfcxqsoL3EZnl0InScXJSi1VeLObvxkD1k2xmmLhZPSg0v/qSWP95wbRU3cmvvSg==}
+  /nodejs-hmr@1.3.6:
+    resolution: {integrity: sha512-5g5Jso0BGU1ix3TLrNkzSiPZyFQZ3wH/nqLVmfHAC6dm6F3BJYUMgxDUUwJSgIncPfY9qshU8fnYF6csa7Gy2g==}
     dev: false
 
   /normalize-path@3.0.0:

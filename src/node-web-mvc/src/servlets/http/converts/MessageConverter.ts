@@ -59,13 +59,10 @@ export default class MessageConverter {
   /**
    * 写出内容到response中
    */
-  write(body: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
-    return new Promise((resolve) => {
-      Promise.resolve(body).then((data) => {
-        const dataType = body?.constructor;
-        const converter = this.registerConverters.find((converter) => converter.canWrite(dataType, mediaType));
-        return resolve(converter.write(data, servletContext));
-      });
-    });
+  async write(body: any, mediaType: MediaType, servletContext: ServletContext): Promise<any> {
+    const data = await Promise.resolve(body);
+    const dataType = data?.constructor;
+    const converter = this.registerConverters.find((converter) => converter.canWrite(dataType, mediaType));
+    return converter.write(data, servletContext);
   }
 }
