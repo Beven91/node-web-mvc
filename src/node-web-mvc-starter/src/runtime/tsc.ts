@@ -1,4 +1,4 @@
-import ts, { } from 'typescript';
+import ts, { CompilerOptions } from 'typescript';
 import path, { } from 'path';
 import fs from 'fs';
 import { createTransformers } from '../transformers';
@@ -40,7 +40,7 @@ export function logError(errorCode: number, errorMessage: string, file: string, 
   console.error(`${fileName}:${row}:${col} - ${type} ${code} ${errorMessage}`);
 }
 
-export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['compilerOptions']) {
+export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['compilerOptions'], log = true) {
   // 查找 `tsconfig.json` 的路径
   const configPath = ts.findConfigFile(project || './', ts.sys.fileExists, 'tsconfig.json');
 
@@ -48,7 +48,9 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
     throw new Error('Could not find a valid \'tsconfig.json\'.');
   }
 
-  console.log(`Finded tsconfig: ${configPath}`);
+  if (log) {
+    console.log(`Finded tsconfig: ${configPath}`);
+  }
 
   // 读取 `tsconfig.json`
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -70,14 +72,18 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
     },
   };
 
-  configFile.config.compilerOptions.rootDir = configFile.config.compilerOptions.rootDir || '';
-  configFile.config.compilerOptions.outDir = configFile.config.compilerOptions.outDir || '';
+  const compilerOptions = configFile.config.compilerOptions as CompilerOptions;
 
-  const types = configFile.config.compilerOptions.types || [];
-  configFile.config.compilerOptions.types = types.map((name) => {
-    const id = path.join(path.dirname(configPath), name);
-    return path.isAbsolute(id) ? id : './' + id;
-  });
+  compilerOptions.rootDir = compilerOptions.rootDir || '';
+  compilerOptions.outDir = compilerOptions.outDir || '';
+
+  if (compilerOptions.types) {
+    compilerOptions.types = compilerOptions.types.map((name) => {
+      const id = path.join(path.dirname(configPath), name);
+      return path.isAbsolute(id) ? id : './' + id;
+    });
+  }
+
 
   // 解析 `tsconfig.json` 的内容
   const parsedCommandLine = ts.parseJsonConfigFileContent(
