@@ -6,10 +6,9 @@
     "removeComments": true,
     "esModuleInterop":true,
     "preserveConstEnums": true,
-    "sourceMap": true,
+    "skipLibCheck": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators":true,
-    "downlevelIteration":true,
     "outDir": "./dist/"
   },
   "exclude": [
