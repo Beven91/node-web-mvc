@@ -2,8 +2,8 @@
   "name": "cli-demo",
   "version": "1.0.0",
   "scripts": {
-    "s":"tsc",
-    "build":"node-web-mvc-starter build -pm2 pm2.json"
+    "build":"node-web-mvc-starter build -pm2 pm2.json",
+    "dev":"node-web-mvc-starter dev ./src/index.ts"
   },
   "dependencies": {
     "node-web-mvc-starter": "workspace:*",
