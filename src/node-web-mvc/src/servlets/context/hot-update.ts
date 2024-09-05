@@ -1,4 +1,4 @@
-import hot from 'nodejs-hmr';
+import hot from '../../hmr/src';
 import RuntimeAnnotation, { } from '../annotations/annotation/RuntimeAnnotation';
 import Component from '../../ioc/annotations/Component';
 import Tracer from '../annotations/annotation/Tracer';

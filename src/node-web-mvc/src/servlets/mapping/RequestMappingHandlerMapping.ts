@@ -2,7 +2,7 @@
  * @module RequestMappingHandlerMapping
  * @description controller请求方法映射处理器
  */
-import hot from 'nodejs-hmr';
+import hot from '../../hmr/src';
 import AbstractHandlerMethodMapping from './AbstractHandlerMethodMapping';
 import RequestMappingInfo, { ensureArray } from './RequestMappingInfo';
 import HttpServletRequest from '../http/HttpServletRequest';

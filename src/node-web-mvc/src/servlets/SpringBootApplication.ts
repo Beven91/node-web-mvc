@@ -1,7 +1,7 @@
 import http from 'http';
 import https from 'https';
 import http2 from 'http2';
-import hot, { HotOptions, NodeHotModule } from 'nodejs-hmr';
+import hot, { HotOptions, NodeHotModule } from '../hmr/src';
 import { ClazzType } from '../interface/declare';
 import ElementType from './annotations/annotation/ElementType';
 import RuntimeAnnotation from './annotations/annotation/RuntimeAnnotation';

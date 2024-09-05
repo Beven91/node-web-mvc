@@ -2,7 +2,7 @@
  * @module RuntimeAnnotation
  * @description 运行时注解类
  */
-import hot from 'nodejs-hmr';
+import hot from '../../../hmr/src';
 import ElementType, { checkAnnotation } from './ElementType';
 import Javascript from '../../../interface/Javascript';
 import Tracer from './Tracer';

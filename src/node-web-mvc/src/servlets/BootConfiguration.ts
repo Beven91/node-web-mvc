@@ -1,4 +1,4 @@
-import { HotOptions } from 'nodejs-hmr';
+import { HotOptions } from '../hmr/src';
 import RuntimeAnnotation from './annotations/annotation/RuntimeAnnotation';
 import SpringBootApplication, { NodeServerOptions } from './SpringBootApplication';
 import path from 'path';

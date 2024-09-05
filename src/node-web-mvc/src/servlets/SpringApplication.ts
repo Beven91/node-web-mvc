@@ -1,4 +1,4 @@
-import hot, { } from 'nodejs-hmr';
+import hot, { } from '../hmr/src';
 import WebMvcConfigurationSupport from './config/WebMvcConfigurationSupport';
 import ModuleLoader from './util/ModuleLoader';
 import GenericApplicationContext from './context/GenericApplicationContext';

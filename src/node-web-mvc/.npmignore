@@ -13,3 +13,6 @@ pnpm-lock.yaml
 .eslintignore
 src
 cli/
+src/hmr/dist
+src/hmr/package.json
+src/hmr/.npmignore

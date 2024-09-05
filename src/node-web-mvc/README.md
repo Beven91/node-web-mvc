@@ -60,10 +60,8 @@ npm create node-web-mvc@latest
     "removeComments": true,
     "esModuleInterop":true,
     "preserveConstEnums": true,
-    "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators":true,
-    "downlevelIteration":true,
     "outDir": "./dist/"
   },
   "exclude": [

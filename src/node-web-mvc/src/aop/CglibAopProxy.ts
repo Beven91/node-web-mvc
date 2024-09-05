@@ -18,7 +18,7 @@ import Before from './annotations/Before';
 import ReflectiveMethodInvocation from './invocation/ReflectiveMethodInvocation';
 import FunctionExpressionPointcut from './pointcut/FunctionExpressionPointcut';
 import Pointcut from './pointcut/Pointcut';
-import hot from 'nodejs-hmr';
+import hot from '../hmr/src';
 
 export default class CglibAopProxy {
   private advisors: PointcutAdvisor[];

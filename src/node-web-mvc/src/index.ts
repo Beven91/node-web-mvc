@@ -1,5 +1,6 @@
 import './servlets/annotations/annotation/metadata';
-import hot from 'nodejs-hmr';
+import hot from './hmr/src';
+export { default as hot } from './hmr/src';
 export { default as RequestMapping } from './servlets/annotations/mapping/RequestMapping';
 export { default as PostMapping } from './servlets/annotations/mapping/PostMapping';
 export { default as GetMapping } from './servlets/annotations/mapping/GetMapping';
@@ -61,7 +62,6 @@ export { default as RequestMemoryStream } from './servlets/http/RequestMemoryStr
 export { default as Target } from './servlets/annotations/Target';
 export { default as ServletContext } from './servlets/http/ServletContext';
 export { default as MethodParameter } from './servlets/method/MethodParameter';
-export { default as hot } from 'nodejs-hmr';
 export { default as ModelAndView } from './servlets/models/ModelAndView';
 export { default as ServletModel } from './servlets/models/ServletModel';
 export { default as Middlewares } from './servlets/models/Middlewares';

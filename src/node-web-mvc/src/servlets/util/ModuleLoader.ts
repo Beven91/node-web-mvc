@@ -4,7 +4,7 @@
  */
 import fs from 'fs';
 import path from 'path';
-import hot from 'nodejs-hmr';
+import hot from '../../hmr/src';
 
 const allowExtensions = {
   '.js': true,
