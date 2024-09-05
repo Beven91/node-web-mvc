@@ -2,7 +2,7 @@
 import path from 'path';
 import { createTransformers } from '../transformers';
 import { resolveTSConfig } from './tsc';
-import ts, { WatchOptions } from 'typescript';
+import ts, { } from 'typescript';
 
 export function registerTs(project: string) {
   (global as any).xx = performance.now();
@@ -10,6 +10,7 @@ export function registerTs(project: string) {
   const { parsedCommandLine, configPath } = resolveTSConfig(project);
   const compileOptions: ts.CompilerOptions = {
     ...parsedCommandLine.options,
+    inlineSourceMap: true,
     noEmit: true,
   };
   const host = ts.createWatchCompilerHost(configPath, compileOptions, ts.sys, undefined, undefined, ()=> {}, undefined, undefined);
@@ -17,19 +18,21 @@ export function registerTs(project: string) {
 
   function compile(module: NodeJS.Module, id: string) {
     const result = { source: '' };
-    const onWriteFile = (fileName, text) => {
-      if (fileName.indexOf('.js') > -1) {
+    const onWriteFile = (fileName: string, text: string) => {
+      if (fileName.endsWith('.js')) {
         result.source = text;
       }
     };
     const program = watcherProgram.getProgram().getProgram();
     const transformers = createTransformers(program, false);
+    // 开启输出
     program.getCompilerOptions().noEmit = false;
     const sourceFile = program.getSourceFile(id);
     // 进行ts编译
     program.emit(sourceFile, onWriteFile, undefined, undefined, transformers);
     // 标记模块已初始化
     installedModules.set(id, true);
+    // 关闭输出
     program.getCompilerOptions().noEmit = true;
     // 运行模块代码
     return (module as any)._compile(result.source, id);

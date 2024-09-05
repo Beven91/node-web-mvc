@@ -64,6 +64,9 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
     compilerOptions: {
       ...configFile.config.compilerOptions,
       ...extendOptions,
+      // 以下两项属性必须开启,运行时支持需要
+      experimentalDecorators: true,
+      emitDecoratorMetadata: true,
     },
   };
 
@@ -72,7 +75,7 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
 
   const types = configFile.config.compilerOptions.types || [];
   configFile.config.compilerOptions.types = types.map((name) => {
-    const id = path.join(project, name);
+    const id = path.join(path.dirname(configPath), name);
     return path.isAbsolute(id) ? id : './' + id;
   });
 
