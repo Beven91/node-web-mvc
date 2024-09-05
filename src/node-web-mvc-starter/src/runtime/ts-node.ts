@@ -6,15 +6,13 @@ import ts, { } from 'typescript';
 
 export function registerTs(project: string) {
   (global as any).xx = performance.now();
-  const installedModules: Map<String, boolean> = new Map();
+  const installedModules = new Map();
   const { parsedCommandLine, configPath } = resolveTSConfig(project);
   const compileOptions: ts.CompilerOptions = {
     ...parsedCommandLine.options,
     inlineSourceMap: true,
-    noEmit: true,
   };
-  const host = ts.createWatchCompilerHost(configPath, compileOptions, ts.sys, undefined, undefined, ()=> {}, undefined, undefined);
-  const watcherProgram = ts.createWatchProgram(host);
+  let program = ts.createProgram(parsedCommandLine.fileNames, compileOptions);
 
   function compile(module: NodeJS.Module, id: string) {
     const result = { source: '' };
@@ -23,17 +21,24 @@ export function registerTs(project: string) {
         result.source = text;
       }
     };
-    const program = watcherProgram.getProgram().getProgram();
-    const transformers = createTransformers(program, false);
-    // 开启输出
-    program.getCompilerOptions().noEmit = false;
-    const sourceFile = program.getSourceFile(id);
+    if (installedModules.has(id)) {
+      // 在热更新时，这里需要更新掉当前sourceFile
+      const oldProgram = program;
+      program = ts.createProgram(parsedCommandLine.fileNames, compileOptions, {
+        ...ts.createCompilerHost(compileOptions),
+        getSourceFile(name, v) {
+          if (name == id) {
+            return ts.createSourceFile(name, ts.sys.readFile(name), v);
+          }
+          return oldProgram.getSourceFile(name);
+        },
+      }, program);
+    }
     // 进行ts编译
+    const transformers = createTransformers(program, false);
+    const sourceFile = program.getSourceFile(id);
     program.emit(sourceFile, onWriteFile, undefined, undefined, transformers);
-    // 标记模块已初始化
     installedModules.set(id, true);
-    // 关闭输出
-    program.getCompilerOptions().noEmit = true;
     // 运行模块代码
     return (module as any)._compile(result.source, id);
   }
