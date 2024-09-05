@@ -5,7 +5,7 @@ import { resolveTSConfig } from './tsc';
 import ts, { } from 'typescript';
 
 export function registerTs(project: string) {
-  (global as any).xx = performance.now();
+  (global as any).NODE_MVC_STARTER_TIME = performance.now();
   const installedModules = new Map();
   const { parsedCommandLine, configPath } = resolveTSConfig(project, undefined, false);
   const compileOptions: ts.CompilerOptions = {

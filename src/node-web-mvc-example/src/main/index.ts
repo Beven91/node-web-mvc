@@ -11,6 +11,6 @@ import { SpringApplication, SpringBootApplication } from 'node-web-mvc';
 export default class DemoApplication {
   static async main() {
     await SpringApplication.run(DemoApplication);
-    console.log('costs:', performance.now() - (global as any).xx);
+    console.log('costs:', performance.now() - (global as any).NODE_MVC_STARTER_TIME);
   }
 }
