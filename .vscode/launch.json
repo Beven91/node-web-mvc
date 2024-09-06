@@ -7,7 +7,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "启动程序",
+      "name": "调试example",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -38,6 +38,6 @@
         "${workspaceFolder}/src/node-web-mvc-starter/src/index.ts",
         "build"
       ],
-    },
+    }
   ]
 }
