@@ -53,10 +53,10 @@ export default class ModuleLoader {
     children.forEach((name) => {
       const id = path.isAbsolute(name) ? name: path.join(dir, name);
       const ext = path.extname(name);
-      if (fs.lstatSync(id).isFile() && !allowExtensions[ext] || id.indexOf('/node_modules/') > -1) {
+      if (fs.lstatSync(id).isFile() && !allowExtensions[ext] || id.indexOf('/node_modules/') > -1 || id.indexOf('.d.ts') > 0) {
         return;
       }
-      if (this.isExclude(id) || id.indexOf('.d.ts') > 0) {
+      if (this.isExclude(id)) {
         console.log('ModuleLoader exclude:', id);
         // 如果需要排除
         return;

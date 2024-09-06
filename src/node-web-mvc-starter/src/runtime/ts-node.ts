@@ -1,61 +1,70 @@
 
 import path from 'path';
+import fs from 'fs';
 import { createTransformers } from '../transformers';
 import { resolveTSConfig } from './tsc';
 import ts, { } from 'typescript';
 
+const cacheDir = path.resolve('node_modules/.ncache/');
+
+function printEmitDiagnostics(program: ts.Program, emitResult: ts.EmitResult, formatHost: ts.CompilerHost, sourceFile?: ts.SourceFile) {
+  const allDiagnostics = ts.getPreEmitDiagnostics(program, sourceFile).concat(emitResult.diagnostics);
+  if (allDiagnostics?.length > 0) {
+    const out = ts.formatDiagnosticsWithColorAndContext(allDiagnostics, formatHost);
+    allDiagnostics.length = 0;
+    console.log(out);
+  }
+}
+
 export function registerTs(project: string) {
   (global as any).NODE_MVC_STARTER_TIME = performance.now();
   const installedModules = new Map();
-  const { parsedCommandLine, configPath } = resolveTSConfig(project, undefined, false);
-  const compileOptions: ts.CompilerOptions = {
-    ...parsedCommandLine.options,
+  const selfOptions: ts.CompilerOptions = {
     inlineSourceMap: true,
+    incremental: true,
+    tsBuildInfoFile: path.join(cacheDir, './tsBuildInfo.json'),
+    outDir: path.join(cacheDir, 'dist'),
   };
-  let program = ts.createProgram(parsedCommandLine.fileNames, compileOptions);
-  let allDiagnostics = ts.getPreEmitDiagnostics(program);
+  const { parsedCommandLine } = resolveTSConfig(project, selfOptions, false);
+  const host = ts.createIncrementalCompilerHost(parsedCommandLine.options);
+  let program = ts.createIncrementalProgram({
+    rootNames: parsedCommandLine.fileNames,
+    options: parsedCommandLine.options,
+    host,
+  });
+  const formatHost = ts.createCompilerHost(program.getCompilerOptions());
+  const compileOptions = program.getCompilerOptions();
 
-  function compile(module: NodeJS.Module, id: string) {
-    const result = { source: '' };
-    const onWriteFile = (fileName: string, text: string) => {
-      if (fileName.endsWith('.js')) {
-        result.source = text;
-      }
-    };
-    if (installedModules.has(id)) {
-      // 在热更新时，这里需要更新掉当前sourceFile
-      const oldProgram = program;
-      program = ts.createProgram(parsedCommandLine.fileNames, compileOptions, {
-        ...ts.createCompilerHost(compileOptions),
-        getSourceFile(name, v) {
-          if (name == id) {
-            return ts.createSourceFile(name, ts.sys.readFile(name), v);
-          }
-          return oldProgram.getSourceFile(name);
-        },
-      }, program);
-      allDiagnostics = ts.getPreEmitDiagnostics(program, program.getSourceFile(id));
-    }
-    // 进行ts编译
-    const transformers = createTransformers(program, false);
-    const sourceFile = program.getSourceFile(id);
-    const emitResult = program.emit(sourceFile, onWriteFile, undefined, undefined, transformers);
+  const emitResult = program.emit(undefined, undefined, undefined, undefined, createTransformers(program.getProgram(), false));
 
-    if (allDiagnostics?.length > 0 || emitResult.diagnostics.length > 0) {
-      const diagnostics = allDiagnostics.concat(emitResult.diagnostics);
-      const out = ts.formatDiagnosticsWithColorAndContext(diagnostics, ts.createCompilerHost(program.getCompilerOptions()));
-      allDiagnostics = null;
-      console.log(out);
-    }
+  // printEmitDiagnostics(program.getProgram(), emitResult, formatHost);
 
-    installedModules.set(id, true);
-    // 运行模块代码
-    return (module as any)._compile(result.source, id);
-  }
 
   // 注册ts扩展模块
   require.extensions['.ts'] = function(module, filename: string) {
-    compile(module, filename);
+    if (installedModules.get(filename)) {
+      const oldProgram = program;
+      // 如果是热更新
+      program = ts.createIncrementalProgram({
+        rootNames: parsedCommandLine.fileNames,
+        options: compileOptions,
+        host: {
+          ...host,
+          getSourceFile(name, v) {
+            if (name == filename) {
+              return host.getSourceFile(name, v);
+            }
+            return oldProgram.getSourceFile(name) || host.getSourceFile(name, v);
+          },
+        },
+      });
+      const emitResult = program.emit(undefined, undefined, undefined, undefined, createTransformers(program.getProgram(), false));
+      printEmitDiagnostics(program.getProgram(), emitResult, formatHost, program.getSourceFile(filename));
+    }
+    const name = path.relative(parsedCommandLine.options.rootDir, filename);
+    const id = path.join(parsedCommandLine.options.outDir, name.replace('.ts', '.js'));
+    const source = fs.readFileSync(id).toString('utf-8');
+    (module as any)._compile(source, filename);
   };
 }
 
