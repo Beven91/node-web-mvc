@@ -37,7 +37,7 @@ interface WithMainClass {
 
 export type NodeServerOptions = HttpServerOptions | HttpsServerOptions | Http2ServerOptions;
 
-class SpringBootApplication {
+export class SpringBootApplication {
   /**
    * 需要排除的自动配置类
    */
@@ -79,12 +79,24 @@ class SpringBootApplication {
    */
   server?: NodeServerOptions;
 
+  /**
+   * 是否为构建后的启动
+   */
+  isDist?: boolean;
+
+  protected onInitialize() {
+    if (this.isDist) {
+      this.hot = null;
+    }
+  }
+
 
   constructor(meta: RuntimeAnnotation) {
     const clazz = meta.ctor as any as WithMainClass;
     registerHotUpdate(meta.ctor);
     if (typeof clazz.main === 'function') {
       setTimeout(() => {
+        this.onInitialize();
         clazz.main();
       }, 10);
     }
