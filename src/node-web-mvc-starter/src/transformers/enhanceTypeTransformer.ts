@@ -1,10 +1,14 @@
+/**
+ * 用于保留运行时类型
+ * 1. 保留Controller公布的方法返回值类型，参数类型到运行时
+ * 2. 保留Class的所有属性的运行时类型
+ */
 import ts, { } from 'typescript';
 import { replaceToRuntimeImportDeclaration, createRequireStatement, ExtTransformationContext, getModuleRequest, hasDecorator } from './helper';
 import generateFunctionRuntimeReturnType from './handlers/generateFunctionRuntimeReturnType';
 import generateParameterRuntimeType from './handlers/generateParameterRuntimeType';
 import generatePropertyRuntimeType from './handlers/generatePropertyRuntimeType';
 import { createContext, GenerateContext } from './context';
-
 
 const controllerDecorators = {
   'RestController': true,
@@ -20,11 +24,10 @@ const actionDecorators = {
   'RequestMapping': true,
 };
 
-
 export default function enhanceTypeTransformer(context: ExtTransformationContext, program: ts.Program) {
   const typeChecker = program.getTypeChecker();
   const replacedModules: Record<string, number> = {};
-  return (rootNode: ts.SourceFile) => {
+  return (sourceFile: ts.SourceFile) => {
     const gContext: GenerateContext = createContext(context, program);
 
     // 遍历controller
@@ -111,7 +114,7 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
       }
     };
 
-    const newRoot = ts.visitEachChild(rootNode, visitController, context);
+    const newRoot = ts.visitEachChild(sourceFile, visitController, context);
 
     return ts.visitEachChild(newRoot, replaceDeclaration, context);
   };

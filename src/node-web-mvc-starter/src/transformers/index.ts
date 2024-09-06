@@ -1,9 +1,11 @@
 import ts from 'typescript';
 import enhanceTypeTransformer from './enhanceTypeTransformer';
+import enhanceProdTransformer from './enhanceProdTransformer';
 
 export function createTransformers(program: ts.Program, isProd: boolean) {
   const prodTransfermers: ts.CustomTransformers = {
     before: [
+      (context)=> enhanceProdTransformer(context, program),
     ],
     after: [],
   };

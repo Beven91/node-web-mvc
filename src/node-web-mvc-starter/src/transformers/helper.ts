@@ -27,17 +27,22 @@ export interface RuntimeTypeDefinition {
 export interface ExtTransformationContext extends TransformationContext {
 }
 
+export const isDecorator = (node: ts.Node, decorators: Record<string, boolean>) => {
+  if (!ts.isDecorator(node)) {
+    return false;
+  }
+  let name = '';
+  if (ts.isIdentifier(node.expression)) {
+    name = getNodeText(node.expression);
+  } else if (ts.isCallExpression(node.expression)) {
+    name = getNodeText(node.expression.expression);
+  }
+  return decorators[name];
+};
+
 // 判定是否包含指定注解
 export const hasDecorator = (node: WithModifiersNode, decorators: Record<string, boolean>) => {
-  return !!node.modifiers?.find?.((m) => {
-    if (ts.isDecorator(m)) {
-      let name = m.expression.getText();
-      if (ts.isCallExpression(m.expression)) {
-        name = m.expression.expression.getText();
-      }
-      return decorators[name];
-    }
-  });
+  return !!node.modifiers?.find?.((m) => isDecorator(m, decorators));
 };
 
 export function findParent<T extends ts.Node>(node: ts.Node, match: (current: ts.Node) => boolean): T {
@@ -263,3 +268,25 @@ export function createRequireStatement(moduleName: string, request: string) {
     )
   );
 }
+
+export const getNodeText = (node: ts.Node) => {
+  const k = node as any;
+  if (k.end < 0) {
+    return k.text;
+  }
+  return node.getText();
+};
+
+
+export const isIdentifierImportOf = (node: ts.Identifier, request: string, checker: ts.TypeChecker) => {
+  const symbol = checker.getSymbolAtLocation(node);
+  const declaration = symbol ? symbol.declarations?.[0] : null;
+  if (!declaration || !ts.isImportSpecifier(declaration)) {
+    return false;
+  }
+  const ownerImport = declaration.parent.parent.parent;
+  if (!ownerImport || !ts.isImportDeclaration(ownerImport)) {
+    return false;
+  }
+  return ownerImport.moduleSpecifier.getText().slice(1, -1) == request;
+};
