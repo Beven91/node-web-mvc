@@ -13,6 +13,7 @@ export function registerTs(project: string) {
     inlineSourceMap: true,
   };
   let program = ts.createProgram(parsedCommandLine.fileNames, compileOptions);
+  let allDiagnostics = ts.getPreEmitDiagnostics(program);
 
   function compile(module: NodeJS.Module, id: string) {
     const result = { source: '' };
@@ -33,19 +34,20 @@ export function registerTs(project: string) {
           return oldProgram.getSourceFile(name);
         },
       }, program);
+      allDiagnostics = ts.getPreEmitDiagnostics(program, program.getSourceFile(id));
     }
     // 进行ts编译
     const transformers = createTransformers(program, false);
     const sourceFile = program.getSourceFile(id);
     const emitResult = program.emit(sourceFile, onWriteFile, undefined, undefined, transformers);
 
-    // 处理发出的文件和报告发出后的诊断信息
-    const allDiagnostics = ts.getPreEmitDiagnostics(program, sourceFile).concat(emitResult.diagnostics);
-
-    if (allDiagnostics.length > 0) {
-      const out = ts.formatDiagnosticsWithColorAndContext(allDiagnostics, ts.createCompilerHost(parsedCommandLine.options));
+    if (allDiagnostics?.length > 0 || emitResult.diagnostics.length > 0) {
+      const diagnostics = allDiagnostics.concat(emitResult.diagnostics);
+      const out = ts.formatDiagnosticsWithColorAndContext(diagnostics, ts.createCompilerHost(program.getCompilerOptions()));
+      allDiagnostics = null;
       console.log(out);
     }
+
     installedModules.set(id, true);
     // 运行模块代码
     return (module as any)._compile(result.source, id);
