@@ -3,6 +3,7 @@
  * @description 用于初始化当前sso登录用户权限的信息
  */
 import 'reflect-metadata';
+import { SpringApplication, SpringBootApplication } from 'node-web-mvc';
 import Order, { GeneralResult as GeneralResult2, UserInfo } from './Order';
 import { GeneralResult, OrderType } from './Order';
 import Demo from './demo';
@@ -51,6 +52,14 @@ export default class STSSOContext {
     // console.log(GeneralResult);
     // console.log(HttpServletRequest);
   }
+}
+
+@SpringBootApplication({
+  hot: './src',
+  scanBasePackages: '',
+})
+class MyApplication {
+
 }
 
 

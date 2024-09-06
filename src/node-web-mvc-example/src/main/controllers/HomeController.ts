@@ -29,7 +29,7 @@ export default class HomeController {
 
   @GetMapping('/ss')
   getSss(): GeneralResult<string> {
-    return new GeneralResult<string>(0, 'asss');
+    return new GeneralResult<string>(0, 'asssaaaa');
   }
 
   @ApiOperation({ value: 'RequestParam get参数' })
