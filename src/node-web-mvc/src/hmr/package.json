@@ -1,6 +1,6 @@
 {
   "name": "nodejs-hmr",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "main": "./dist/index.js",
   "scripts": {
     "build": "rm -rf ./dist && tsc",
