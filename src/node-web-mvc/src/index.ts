@@ -237,4 +237,5 @@ export { default as JsonSerializer } from './serialization/JsonSerializer';
 export { default as DateConverter } from './serialization/date/DateConverter';
 export { default as DateTimeTextProvider } from './serialization/date/DateTimeTextProvider';
 
-hot.create(module);
+hot.create(module).accept(()=>{
+});

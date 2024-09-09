@@ -97,11 +97,16 @@ class HotReload {
     switch (mode) {
       case 'created':
         if (!require.cache[filename]) {
-          // console.log('created:', filename)
+          console.log('Hot created:', filename);
           require(filename);
           const m = require.cache[filename] as NodeHotModule;
+          // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
+          const index = module.children.indexOf(m);
+          index > -1 ? module.children.splice(index, 1) : undefined;
           this.invokeHook('created', m);
           this.invokeHook('postend', m, m);
+        } else {
+          this.handleReload(filename);
         }
         break;
       default:
