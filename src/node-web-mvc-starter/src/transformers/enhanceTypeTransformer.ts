@@ -28,7 +28,6 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
   const typeChecker = program.getTypeChecker();
   const replacedModules: Record<string, number> = {};
   return (sourceFile: ts.SourceFile) => {
-    console.log('=========>');
     const gContext: GenerateContext = createContext(context, program);
 
     // 遍历controller
