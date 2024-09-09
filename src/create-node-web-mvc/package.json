@@ -1,6 +1,6 @@
 {
   "name":"create-node-web-mvc",
-  "version": "1.2.8",
+  "version": "1.2.9",
   "bin": {
     "create-node-web-mvc":"./src/index.js"
   },
