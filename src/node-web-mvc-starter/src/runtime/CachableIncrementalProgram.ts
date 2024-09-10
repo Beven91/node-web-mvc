@@ -6,6 +6,7 @@ import { resolveTSConfig } from './tsc';
 
 const cacheDir = path.resolve('node_modules/.ncache/');
 const manifestFile = path.join(cacheDir, 'manifest.json');
+const configName = 'tsconfig.json';
 
 export default class CachableIncrementalProgram {
   private readonly data: Record<string, any>;
@@ -50,7 +51,7 @@ export default class CachableIncrementalProgram {
       tsBuildInfoFile: path.join(cacheDir, './tsBuildInfo.json'),
       outDir: path.join(cacheDir, 'dist'),
     };
-    const { parsedCommandLine } = resolveTSConfig(project, selfOptions, false, true);
+    const { parsedCommandLine, configFile } = resolveTSConfig(project, selfOptions, false, true);
     this.parsedCommandLine = parsedCommandLine;
     this.host = ts.createIncrementalCompilerHost(parsedCommandLine.options);
     this.formatHost = ts.createCompilerHost(parsedCommandLine.options);
@@ -64,6 +65,11 @@ export default class CachableIncrementalProgram {
   }
 
   private filterFiles(files: string[]) {
+    const configHash = this.formatHost.createHash(JSON.stringify(this.parsedCommandLine.options));
+    if (this.data[configName] != configHash) {
+      // 如果配置发生变更，则需要全部重新编译
+      return files;
+    }
     return files.filter((file) => {
       if (!this.data[file]) {
         return true;
@@ -83,6 +89,7 @@ export default class CachableIncrementalProgram {
     files.map((file) => {
       this.updateFileVersion(file);
     });
+    this.data[configName] = this.formatHost.createHash(JSON.stringify(this.parsedCommandLine.options));
     fs.writeFileSync(this.filePath, JSON.stringify(manifest, null, 2));
   }
 
