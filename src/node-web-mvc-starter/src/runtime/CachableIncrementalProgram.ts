@@ -28,6 +28,10 @@ export default class CachableIncrementalProgram {
 
   public isInitialized: boolean;
 
+  public get cacheDir() {
+    return cacheDir;
+  }
+
   constructor(project: string) {
     this.data = {};
     this.isInitialized = false;
@@ -41,13 +45,14 @@ export default class CachableIncrementalProgram {
   private initProgram(project: string) {
     const selfOptions: ts.CompilerOptions = {
       inlineSourceMap: true,
+      sourceMap: false,
       incremental: true,
       tsBuildInfoFile: path.join(cacheDir, './tsBuildInfo.json'),
       outDir: path.join(cacheDir, 'dist'),
     };
-    const { parsedCommandLine } = resolveTSConfig(project, selfOptions, false);
-    this.host = ts.createIncrementalCompilerHost(parsedCommandLine.options);
+    const { parsedCommandLine } = resolveTSConfig(project, selfOptions, false, true);
     this.parsedCommandLine = parsedCommandLine;
+    this.host = ts.createIncrementalCompilerHost(parsedCommandLine.options);
     this.formatHost = ts.createCompilerHost(parsedCommandLine.options);
     const fileNames = this.filterFiles(parsedCommandLine.fileNames);
     this.isCacheInit = fileNames.length !== parsedCommandLine.fileNames.length;

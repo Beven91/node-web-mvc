@@ -40,7 +40,11 @@ export function logError(errorCode: number, errorMessage: string, file: string, 
   console.error(`${fileName}:${row}:${col} - ${type} ${code} ${errorMessage}`);
 }
 
-export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['compilerOptions'], log = true) {
+function joinDir(base: string, name: string) {
+  return path.isAbsolute(name) ? name : path.join(base, name);
+}
+
+export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['compilerOptions'], log = true, dev = false) {
   // 查找 `tsconfig.json` 的路径
   const configPath = ts.findConfigFile(project || './', ts.sys.fileExists, 'tsconfig.json');
 
@@ -76,6 +80,11 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
 
   compilerOptions.rootDir = compilerOptions.rootDir || '';
   compilerOptions.outDir = compilerOptions.outDir || '';
+  const outDir = joinDir(path.dirname(configPath), configFile.config.compilerOptions.outDir);
+  const rootDir = joinDir(path.dirname(configPath), configFile.config.compilerOptions.rootDir);
+  if (dev) {
+    compilerOptions.sourceRoot = path.relative(outDir, rootDir);
+  }
 
   if (compilerOptions.types) {
     compilerOptions.types = compilerOptions.types.map((name) => {
@@ -102,6 +111,8 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
 
 
   return {
+    outDir,
+    rootDir,
     configPath,
     configFile,
     parsedCommandLine,
@@ -109,9 +120,7 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
 }
 
 export function tsc(project: string, extendOptions: ConfigOptions['compilerOptions']) {
-  const { configFile, configPath, parsedCommandLine } = resolveTSConfig(project, extendOptions);
-  const rootDir = path.join(path.dirname(configPath), configFile.config.compilerOptions.rootDir);
-  const outDir = path.join(path.dirname(configPath), configFile.config.compilerOptions.outDir);
+  const { configFile, configPath, parsedCommandLine, rootDir, outDir } = resolveTSConfig(project, extendOptions);
   removeDist(outDir);
 
   // 创建程序对象

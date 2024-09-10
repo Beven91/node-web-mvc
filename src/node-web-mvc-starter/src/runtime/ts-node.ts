@@ -19,6 +19,9 @@ export function registerTs(project: string) {
       program.emitHotUpdate(filename);
     }
     const id = program.getOutFileName(filename);
+    if (!fs.existsSync(id)) {
+      throw new Error('Cache crashed, Please remove ' + program.cacheDir);
+    }
     const source = fs.readFileSync(id).toString('utf-8');
     (module as any)._compile(source, filename);
     if (!program.isInitialized) {
