@@ -83,7 +83,7 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
   const outDir = joinDir(path.dirname(configPath), configFile.config.compilerOptions.outDir);
   const rootDir = joinDir(path.dirname(configPath), configFile.config.compilerOptions.rootDir);
   if (dev) {
-    compilerOptions.sourceRoot = path.relative(outDir, rootDir);
+    compilerOptions.sourceRoot = rootDir;
   }
 
   if (compilerOptions.types) {

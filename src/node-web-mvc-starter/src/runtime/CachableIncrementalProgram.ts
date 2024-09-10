@@ -9,7 +9,7 @@ const manifestFile = path.join(cacheDir, 'manifest.json');
 const configName = 'tsconfig.json';
 
 export default class CachableIncrementalProgram {
-  private readonly data: Record<string, any>;
+  private data: Record<string, any>;
 
   private formatHost: ts.CompilerHost;
 
@@ -51,7 +51,7 @@ export default class CachableIncrementalProgram {
       tsBuildInfoFile: path.join(cacheDir, './tsBuildInfo.json'),
       outDir: path.join(cacheDir, 'dist'),
     };
-    const { parsedCommandLine, configFile } = resolveTSConfig(project, selfOptions, false, true);
+    const { parsedCommandLine } = resolveTSConfig(project, selfOptions, false, true);
     this.parsedCommandLine = parsedCommandLine;
     this.host = ts.createIncrementalCompilerHost(parsedCommandLine.options);
     this.formatHost = ts.createCompilerHost(parsedCommandLine.options);
@@ -84,9 +84,13 @@ export default class CachableIncrementalProgram {
   }
 
   private saveManifest(program: ts.Program) {
+    this.data = {};
     const manifest = this.data;
     const files = program.getSourceFiles();
     files.map((file) => {
+      if (file.fileName.endsWith('.d.ts')) {
+        return;
+      }
       this.updateFileVersion(file);
     });
     this.data[configName] = this.formatHost.createHash(JSON.stringify(this.parsedCommandLine.options));
@@ -122,7 +126,7 @@ export default class CachableIncrementalProgram {
     this.onFinished(emitResult, this.program.getSourceFile(filename));
   }
 
-  onFinished(emitResult: ts.EmitResult, sourceFile?: ts.SourceFile) {
+  private onFinished(emitResult: ts.EmitResult, sourceFile?: ts.SourceFile) {
     const program = this.program.getProgram();
     const allDiagnostics = ts.getPreEmitDiagnostics(program, sourceFile).concat(emitResult.diagnostics);
     if (allDiagnostics?.length > 0) {
@@ -147,10 +151,11 @@ export default class CachableIncrementalProgram {
     clearTimeout(this.timerId);
     this.timerId = setTimeout(() => {
       this.isInitialized = true;
-      this.onFinished(emitResult);
       if (this.isCacheInit) {
         // 如果是使用缓存，在此时进行增量编译
         this.emitHotUpdate('');
+      } else {
+        this.onFinished(emitResult);
       }
     }, 16);
   }
