@@ -1,5 +1,5 @@
 import path from 'path';
-import { CorsRegistry, HandlerInterceptorRegistry, PathMatchConfigurer, ResourceHandlerRegistry, ViewResolverRegistry, WebMvcConfigurationSupport, Configuration } from 'node-web-mvc';
+import { CorsRegistry, HandlerInterceptorRegistry, PathMatchConfigurer, ResourceHandlerRegistry, ViewResolverRegistry, WebMvcConfigurationSupport, Configuration, WorkerResourceResolver } from 'node-web-mvc';
 import AdminInterceptor from './interceptor/AdminInterceptor';
 import EncodeInterceptor from './interceptor/EncodeInterceptor';
 import EjsViewResolver from './resolvers/EjsViewResolver';
@@ -43,6 +43,11 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
     registry
       .addResourceHandler('/media/**')
       .addResourceLocations(dir);
+
+    registry
+      .addResourceHandler('/worker/**')
+      .resourceChain(true)
+      .addResolver(new WorkerResourceResolver(require.resolve('./worker')));
   }
 
 
