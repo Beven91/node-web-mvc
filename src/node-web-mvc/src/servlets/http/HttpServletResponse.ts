@@ -65,7 +65,13 @@ export default class HttpServletResponse {
   }
 
   private writeStatus() {
-    if (!this.nativeResponse.headersSent) {
+    if (this.nativeResponse.headersSent) {
+      return;
+    }
+    if (!this.tempStatusCode) {
+      const OK = HttpStatus.OK;
+      this.nativeResponse.writeHead(OK.code, OK.message);
+    } else {
       this.nativeResponse.writeHead(this.tempStatusCode, this.tempStatusMessage);
     }
   }

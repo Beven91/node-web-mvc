@@ -8,9 +8,9 @@ import Middlewares from '../models/Middlewares';
 import HandlerInterceptor from './HandlerInterceptor';
 
 export default class MiddlewareInterceptor extends HandlerInterceptor {
-  private middlewares: Array<Middleware>;
+  private middlewares: Middleware[];
 
-  constructor(...middlewares: Array<Middleware>) {
+  constructor(...middlewares: Middleware[]) {
     super();
     this.middlewares = middlewares || [];
   }

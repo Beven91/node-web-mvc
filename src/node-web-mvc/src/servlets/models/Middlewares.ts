@@ -8,7 +8,7 @@ import HttpServletRequest from '../http/HttpServletRequest';
 import HttpServletResponse from '../http/HttpServletResponse';
 
 export default class Middlewares {
-  private middlewares: Array<Middleware>;
+  private middlewares: Middleware[];
 
   public execute<T>(req: HttpServletRequest, resp: HttpServletResponse, fallback?: () => T | Promise<T>) {
     return new Promise<T>((resolve, reject) => {

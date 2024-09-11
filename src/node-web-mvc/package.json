@@ -43,7 +43,8 @@
     "reflect-metadata": "^0.1.13"
   },
   "devDependencies": {
-    "rimraf": "6.0.1"
+    "rimraf": "6.0.1",
+    "shared-types":"workspace:*"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org"

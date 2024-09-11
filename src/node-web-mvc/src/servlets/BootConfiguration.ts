@@ -72,7 +72,7 @@ export default class BootConfiguration {
 
   getExcludeScan(): string[] {
     const fileOrDirs = this.annoConfigs.reduce((v, item) => v.concat(item.excludeScan), []).filter(Boolean);
-    return this.resolvePaths(fileOrDirs);
+    return (fileOrDirs);
   }
 
   getLaunchLogOff(): boolean {

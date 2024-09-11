@@ -10,12 +10,12 @@ import Middlewares from '../models/Middlewares';
 import { Middleware } from '../../interface/declare';
 
 export default class MiddlewareResourceResolver implements ResourceResolver {
-  private middlewares: Array<Middleware>;
+  private middlewares: Middleware[];
 
   /**
    * @param configId webpack配置文件
    */
-  constructor(...middlewares: Array<Middleware>) {
+  constructor(...middlewares: Middleware[]) {
     this.middlewares = middlewares || [];
   }
 
