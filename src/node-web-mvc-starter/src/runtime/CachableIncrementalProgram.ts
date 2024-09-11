@@ -42,7 +42,7 @@ export default class CachableIncrementalProgram {
       this.data = JSON.parse(fs.readFileSync(manifestFile).toString('utf-8'));
     }
     this.initProgram(project);
-    (global as MyGlobal).node_web_mvc_starter_resolve_file = this.getOutFileName.bind(this);
+    (global as MyGlobal).nodeWebMvcStarterResolveFile = this.getOutFileName.bind(this);
   }
 
   private initProgram(project: string) {
