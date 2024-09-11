@@ -2,10 +2,7 @@
 import path from 'path';
 import fs from 'fs';
 import CachableIncrementalProgram from './CachableIncrementalProgram';
-
-interface MyGlobal extends NodeJS.Global {
-  NODE_MVC_STARTER_TIME?: number
-}
+import { MyGlobal } from 'shared-types';
 
 export function registerTs(project: string) {
   const myGlobal = global as MyGlobal;
@@ -37,5 +34,7 @@ export function tsNode(entry: string) {
     console.log('error: required entry file, example: \'node-web-mvc-starter dev index.ts\'');
     process.exit();
   }
-  require(id);
+  if (fs.lstatSync(entry).isFile()) {
+    require(id);
+  }
 }

@@ -3,6 +3,7 @@ import path from 'path';
 import ts from 'typescript';
 import { createTransformers } from '../transformers';
 import { resolveTSConfig } from './tsc';
+import type { MyGlobal } from 'shared-types';
 
 const cacheDir = path.resolve('node_modules/.ncache/');
 const manifestFile = path.join(cacheDir, 'manifest.json');
@@ -41,6 +42,7 @@ export default class CachableIncrementalProgram {
       this.data = JSON.parse(fs.readFileSync(manifestFile).toString('utf-8'));
     }
     this.initProgram(project);
+    (global as MyGlobal).node_web_mvc_starter_resolve_file = this.getOutFileName.bind(this);
   }
 
   private initProgram(project: string) {

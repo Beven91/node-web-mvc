@@ -1,4 +1,3 @@
-
 export default class Colors {
   static red(message: string) {
     return `\x1b[31m${message}\x1b[39m`;
