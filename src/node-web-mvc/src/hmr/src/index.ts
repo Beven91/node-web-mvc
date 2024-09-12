@@ -28,6 +28,11 @@ export declare class HotOptions {
    * 排除目录或者文件
    */
   exclude?: RegExp;
+
+  /**
+   * 是否解除node_modules限制
+   */
+  includeNodeModules?: boolean;
 }
 
 class HotReload {
@@ -83,10 +88,14 @@ class HotReload {
     }
     const runtime = {};
     return fs.watch(cwd, { recursive: true }, (type, filename) => {
-      if (!/node_module/.test(filename) && /\.(ts|js)$/.test(filename)) {
+      const isNodeModules = this.options.includeNodeModules !== true && /node_module/.test(filename);
+      if (!isNodeModules && /\.(ts|js)$/.test(filename)) {
         const id = path.join(cwd, filename).replace(/^[A-Z]:/, (a) => a.toUpperCase());
-        clearTimeout(runtime[type]);
-        runtime[type] = setTimeout(() => this.hotWatch(type, id), this.reloadTimeout);
+        clearTimeout(runtime[id]);
+        runtime[id] = setTimeout(() => {
+          delete runtime[id];
+          this.hotWatch(type, id);
+        }, this.reloadTimeout);
       }
     });
   }

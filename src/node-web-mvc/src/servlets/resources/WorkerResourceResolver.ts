@@ -8,21 +8,33 @@ import HttpServletRequest from '../http/HttpServletRequest';
 import type { MyGlobal } from 'shared-types';
 import WorkerIncomingMessage from './WorkerIncomingMessage';
 import HttpServletResponse from '../http/HttpServletResponse';
-import HttpStatus from '../http/HttpStatus';
 import { WorkerResponseValue } from './WorkerServerResponse';
+import type { WorkDataInfo } from './WorkerHotEntry';
+
+interface ExtWorkerOptions extends WorkerOptions {
+  workerData?: WorkDataInfo
+}
 
 export default class WorkerResourceResolver implements ResourceResolver {
   private worker: Worker;
 
-  constructor(workderJs: string) {
-    const options: WorkerOptions = {};
+  constructor(workerJs: string) {
+    const options: ExtWorkerOptions = {};
     const myGlobal = global as MyGlobal;
     options.env = process.env;
-    if (myGlobal.nodeWebMvcStarterResolveFile && path.extname(workderJs) == '.ts') {
+    options.workerData = {
+      workerJs: workerJs,
+    };
+    if (myGlobal.nodeWebMvcStarter && path.extname(workerJs) == '.ts') {
       // 如果是开发模式
-      workderJs = myGlobal.nodeWebMvcStarterResolveFile(workderJs);
+      workerJs = myGlobal.nodeWebMvcStarter.resolveOutputFile(workerJs);
+      options.workerData.workerJs = workerJs;
+      options.workerData.hot = {
+        cwd: [ myGlobal.nodeWebMvcStarter.outDir ],
+        includeNodeModules: true,
+      };
     }
-    this.worker = new Worker(workderJs, options);
+    this.worker = new Worker(require.resolve('./WorkerHotEntry'), options);
   }
 
   private setResponseHeaders(response: HttpServletResponse, value: WorkerResponseValue) {
