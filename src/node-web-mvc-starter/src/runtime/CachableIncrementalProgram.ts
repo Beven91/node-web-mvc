@@ -5,7 +5,8 @@ import { createTransformers } from '../transformers';
 import { resolveTSConfig } from './tsc';
 import type { MyGlobal } from 'shared-types';
 
-const cacheDir = path.resolve('node_modules/.ncache/');
+const suffix = process.env.NCACHE_NAME || '';
+const cacheDir = path.resolve('node_modules/.ncache/' + suffix);
 const manifestFile = path.join(cacheDir, 'manifest.json');
 const configName = 'tsconfig.json';
 
@@ -42,7 +43,6 @@ export default class CachableIncrementalProgram {
       this.data = JSON.parse(fs.readFileSync(manifestFile).toString('utf-8'));
     }
     this.initProgram(project);
-    (global as MyGlobal).nodeWebMvcStarterResolveFile = this.getOutFileName.bind(this);
   }
 
   private initProgram(project: string) {
@@ -53,7 +53,7 @@ export default class CachableIncrementalProgram {
       tsBuildInfoFile: path.join(cacheDir, './tsBuildInfo.json'),
       outDir: path.join(cacheDir, 'dist'),
     };
-    const { parsedCommandLine } = resolveTSConfig(project, selfOptions, false, true);
+    const { parsedCommandLine, outDir, rootDir } = resolveTSConfig(project, selfOptions, false, true);
     this.parsedCommandLine = parsedCommandLine;
     this.host = ts.createIncrementalCompilerHost(parsedCommandLine.options);
     this.formatHost = ts.createCompilerHost(parsedCommandLine.options);
@@ -63,6 +63,16 @@ export default class CachableIncrementalProgram {
       rootNames: fileNames,
       options: parsedCommandLine.options,
       host: this.host,
+    });
+    (global as MyGlobal).nodeWebMvcStarter = {
+      resolveOutputFile: this.getOutFileName.bind(this),
+      outDir: outDir,
+    };
+    fs.watch(rootDir, { recursive: true }, (type, filePath) => {
+      const id = path.join(rootDir, filePath);
+      if (!require.cache[id] || this.program.getSourceFile(id)) {
+        this.emitHotUpdate(id);
+      }
     });
   }
 

@@ -1,4 +1,7 @@
 export interface MyGlobal {
-  nodeWebMvcStarterResolveFile?: (filename: string) => string
   NODE_MVC_STARTER_TIME?: number
+  nodeWebMvcStarter?: {
+    outDir: string
+    resolveOutputFile: (filename: string) => string
+  }
 }
