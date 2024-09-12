@@ -1,3 +1,4 @@
+import Cache from '../http/Cache';
 import ResourceResolver from './ResourceResolver';
 import ResourceTransformer from './ResourceTransformer';
 
@@ -10,7 +11,8 @@ export default class ResourceChainRegistration {
 
   readonly transformers: Array<ResourceTransformer>;
 
-  constructor(cacheResources, cache) {
+  constructor(cacheResources: boolean, cache?: Cache) {
+    // 暂不实现CachingResourceResolver
     this.resolvers = [];
     this.transformers = [];
   }

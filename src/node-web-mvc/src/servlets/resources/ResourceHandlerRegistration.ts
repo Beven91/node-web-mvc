@@ -2,6 +2,7 @@
  * @module ResourceHandlerRegistration
  * @description
  */
+import Cache from '../http/Cache';
 import CacheControl from '../http/CacheControl';
 import ResourceChainRegistration from './ResourceChainRegistration';
 
@@ -55,7 +56,7 @@ export default class ResourceHandlerRegistration {
     return this;
   }
 
-  resourceChain(cacheResources, cache?) {
+  resourceChain(cacheResources: boolean, cache?: Cache) {
     this.resourceChainRegistration = new ResourceChainRegistration(cacheResources, cache);
     return this.resourceChainRegistration;
   }
