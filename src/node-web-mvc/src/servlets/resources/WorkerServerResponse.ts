@@ -1,11 +1,17 @@
 import { OutgoingHttpHeader, ServerResponse } from 'http';
-import WorkerIncomingMessage, { getRawValues } from './WorkerIncomingMessage';
-import { parentPort } from 'worker_threads';
+import WorkerIncomingMessage from './WorkerIncomingMessage';
 import { OutgoingHttpHeaders } from 'http2';
+import WorkerSocket from './WorkerSocket';
+import WorkerInvoker from './WorkerInvoker';
 
 export interface WorkerResponseValue {
   id: string
-  type: 'write' | 'write-head' | 'finish' | 'ignored' | 'error'
+  type: 'write' | 'write-head' | 'finish' | 'ignored' | 'error' | 'invoke'
+  invoke?: {
+    target: string
+    method: string
+    args: any[]
+  },
   error?: Error
   statusCode?: number
   encoding?: BufferEncoding
@@ -14,72 +20,58 @@ export interface WorkerResponseValue {
 }
 
 export default class WorkerServerResponse extends ServerResponse {
-  private readonly request: WorkerIncomingMessage;
-
   private isHeaderSent: boolean;
 
-  private getAllHeaders() {
-    const outHeaders = this.getHeaders();
-    const headers: Record<string, any> = {};
-    Object.keys(outHeaders).forEach((name) => {
-      headers[name] = outHeaders[name];
-    });
-    return headers;
-  }
+  private invoker: WorkerInvoker;
 
-  writeTo(type: WorkerResponseValue['type'], data: any, headers: OutgoingHttpHeaders | OutgoingHttpHeader[], statusCode: number, encoding: BufferEncoding) {
-    data = data ? Buffer.from(data) : undefined;
-    const value = { id: this.request.requestId, statusCode, buffer: data, type, encoding } as WorkerResponseValue;
-    if (!this.headersSent) {
-      this.isHeaderSent = true;
-      const allHeaders = this.getAllHeaders();
-      const useHeaders = headers instanceof Array ? getRawValues(headers as string[]) : headers;
-      if (useHeaders) {
-        Object.keys(useHeaders).forEach((name) => {
-          allHeaders[name] = useHeaders[name];
-        });
-      }
-      value.headers = allHeaders;
-    }
-    parentPort.postMessage(value, [ value.buffer?.buffer ].filter(Boolean));
-  }
-
-  write(chunk: any, cb?: (error: Error | null | undefined) => void): boolean;
-  write(chunk: any, encoding: BufferEncoding, cb?: (error: Error | null | undefined) => void): boolean;
-  write(chunk: any, arg1: any, cb?: (error: Error) => void) {
-    const encoding = typeof arg1 === 'string' ? arg1 : undefined;
-    const callback = typeof arg1 == 'function' ? arg1 : cb;
-    this.writeTo('write', chunk, undefined, undefined, encoding as BufferEncoding);
-    callback?.();
+  write(chunk: Uint8Array | string, arg1: any, cb?: (error: Error) => void) {
+    this.socket.write(chunk, arg1, cb);
+    this.isHeaderSent = true;
     return true;
   }
 
   writeHead(statusCode: number, statusMessage?: string, headers?: OutgoingHttpHeaders | OutgoingHttpHeader[]): this;
   writeHead(statusCode: number, headers?: OutgoingHttpHeaders | OutgoingHttpHeader[]): this;
   writeHead(statusCode: number, statusMessage?: unknown, headers?: unknown): this {
-    this.statusCode = statusCode;
-    this.statusMessage = typeof statusMessage == 'string' ? statusMessage : '';
-    const vHeaders = typeof statusMessage == 'object' ? statusMessage : headers;
-    this.writeTo('write-head', null, vHeaders as any, statusCode, undefined);
+    this.invoker.invoke('response', 'writeHead', [ statusCode, statusMessage, headers ]);
+    this.isHeaderSent = true;
     return this;
   }
 
-  end(cb?: () => void): this;
-  end(chunk: any, cb?: () => void): this;
-  end(chunk: any, encoding: BufferEncoding, cb?: () => void): this;
-  end(chunk?: any, arg1?: unknown, cb?: any): this {
-    const encoding = typeof arg1 === 'string' ? arg1 : undefined;
-    const callback = typeof arg1 == 'function' ? arg1 : cb;
-    this.writeTo('finish', chunk, undefined, this.statusCode, encoding as BufferEncoding);
-    callback?.();
+  end(chunk?: any, arg1?: any, cb?: any): this {
+    this.socket.end(chunk, arg1, cb);
+    this.isHeaderSent = true;
+    return this;
+  }
+
+  setHeader(name: string, value: number | string | ReadonlyArray<string>): this {
+    this.invoker.invoke('response', 'setHeader', [ name, value ]);
+    super.setHeader(name, value);
     return this;
   }
 
   constructor(req: WorkerIncomingMessage) {
     super(req);
-    this.request = req;
+    this.assignSocket(new WorkerSocket(req.workerPort, 'responseSocket'));
+    this.invoker = new WorkerInvoker(req.workerPort);
     Object.defineProperty(this, 'headersSent', {
-      get: ()=> this.isHeaderSent,
+      get: () => this.isHeaderSent,
     });
+  }
+
+  addListener(event: string, listener: (...args) => void): this {
+    super.addListener(event, listener);
+    this.invoker.addEventListener('response', this, event, listener);
+    return this;
+  }
+
+  once(event: string, listener: (...args: any[]) => void): this {
+    super.once(event, listener);
+    this.invoker.addEventListener('response', this, event, listener, true);
+    return this;
+  }
+
+  on(event: string, listener: (...args: any[]) => void): this {
+    return this.addListener('response', listener);
   }
 }

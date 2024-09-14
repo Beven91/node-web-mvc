@@ -4,8 +4,9 @@
  */
 import { parentPort } from 'worker_threads';
 import { Middleware } from '../../interface/declare';
-import WorkerIncomingMessage, { WorkerRequestValue } from './WorkerIncomingMessage';
-import WorkerServerResponse, { WorkerResponseValue } from './WorkerServerResponse';
+import WorkerIncomingMessage, { } from './WorkerIncomingMessage';
+import WorkerServerResponse from './WorkerServerResponse';
+import { WorkerRequestValue } from './WorkerInvoker';
 
 export default class WorkerResourceRunner {
   private readonly middlewares: Middleware[];
@@ -15,19 +16,17 @@ export default class WorkerResourceRunner {
     parentPort.on('message', this.onRequest.bind(this));
   }
 
-  private sendResponse(value: WorkerResponseValue) {
-    parentPort.postMessage(value as WorkerResponseValue, [ value.buffer ].filter(Boolean));
-  }
 
   private async onRequest(info: WorkerRequestValue) {
+    const port = info.port;
     try {
       const request = new WorkerIncomingMessage(info);
       const response = new WorkerServerResponse(request);
       await new Promise((resolve, reject) => {
         const middlewares = [
           ...this.middlewares,
-          // 404 处理
-          () => this.sendResponse({ id: info.id, type: 'ignored' }),
+          // 404
+          () => port.postMessage({ type: 'finished' }),
         ];
         const handler = middlewares.reverse().reduce((next: any, middleware) => {
           return () => {
@@ -41,7 +40,7 @@ export default class WorkerResourceRunner {
         handler(request, response, resolve);
       });
     } catch (ex) {
-      this.sendResponse({ id: info.id, error: ex, type: 'error' });
+      port.postMessage({ type: 'error', error: ex });
     }
   }
 }

@@ -137,6 +137,7 @@ class HotReload {
    */
   handleReload(id) {
     id = this.renderId(id);
+    // 当前逻辑不可删除，用于保证不会把没有引用的文件加载进来
     const old = require.cache[id] as NodeHotModule;
     if (!old) {
       // 如果模块已删除，则直接掠过

@@ -1,19 +1,19 @@
 import { IncomingMessage } from 'http';
-import { Socket } from 'net';
+import WorkerSocket, { } from './WorkerSocket';
+import WorkerInvoker, { WorkerRequestValue } from './WorkerInvoker';
 
-export function getRawValues(raw:string[]) {
+export function getRawValues(raw: string[]) {
   const data: Record<string, string> = {};
-  for (let n=0; n< raw.length; n+=2) {
-    data[raw[n]] = raw[n+1];
+  for (let n = 0; n < raw.length; n += 2) {
+    data[raw[n]] = raw[n + 1];
   }
   return data;
 }
 
 export default class WorkerIncomingMessage extends IncomingMessage {
-  aborted: boolean;
   complete: boolean;
-  connection: Socket;
-  socket: Socket;
+  connection: WorkerSocket;
+  socket: WorkerSocket;
 
   httpVersion: string;
   httpVersionMajor: number;
@@ -24,13 +24,17 @@ export default class WorkerIncomingMessage extends IncomingMessage {
   method?: string | undefined;
   url?: string | undefined;
 
-  public readonly requestId: string;
+  readableEncoding: BufferEncoding;
+
+  workerPort: MessagePort;
+
+  invoker: WorkerInvoker;
 
   constructor(options: WorkerRequestValue) {
-    super(null);
+    super(new WorkerSocket(options.port, 'requestSocket', options.request.socket.address));
     const meta = options.request;
-    this.requestId = options.id;
     this.url = meta.url;
+    this.workerPort = options.port;
     this.method = meta.method;
     this.rawHeaders = meta.rawHeaders;
     this.rawTrailers = meta.rawTrailers;
@@ -39,24 +43,25 @@ export default class WorkerIncomingMessage extends IncomingMessage {
     this.httpVersionMinor = meta.httpVersionMinor;
     this.headers = getRawValues(this.rawHeaders);
     this.trailers = getRawValues(this.rawTrailers);
+    Object.defineProperty(this, 'readableEncoding', { value: this.readableEncoding });
+    this.invoker = new WorkerInvoker(options.port);
   }
 
-  static serialize(req: IncomingMessage) {
-    return {
-      url: req.url,
-      method: req.method,
-      rawHeaders: req.rawHeaders,
-      rawTrailers: req.rawTrailers,
-      httpVersion: req.httpVersion,
-      httpVersionMajor: req.httpVersionMajor,
-      httpVersionMinor: req.httpVersionMinor,
-    };
+  addListener(event: string, listener: (...args) => void): this {
+    super.addListener(event, listener);
+    this.invoker.addEventListener('request', this, event, listener);
+    return this;
+  }
+
+  once(event: string, listener: (...args: any[]) => void): this {
+    super.once(event, listener);
+    this.invoker.addEventListener('request', this, event, listener, true);
+    return this;
+  }
+
+  on(event: string, listener: (...args: any[]) => void): this {
+    return this.addListener(event, listener);
   }
 }
 
-export interface WorkerRequestValue {
-  // 唯一的请求id
-  id: string
-  // 原始请求对象
-  request: ReturnType<typeof WorkerIncomingMessage.serialize>
-}
+

@@ -29,6 +29,10 @@ export default class CachableIncrementalProgram {
 
   private isCacheInit: boolean;
 
+  private rootDir: string;
+
+  private outDir: string;
+
   public isInitialized: boolean;
 
   public get cacheDir() {
@@ -66,14 +70,11 @@ export default class CachableIncrementalProgram {
     });
     (global as MyGlobal).nodeWebMvcStarter = {
       resolveOutputFile: this.getOutFileName.bind(this),
+      rootDir: rootDir,
       outDir: outDir,
     };
-    fs.watch(rootDir, { recursive: true }, (type, filePath) => {
-      const id = path.join(rootDir, filePath);
-      if (!require.cache[id] || this.program.getSourceFile(id)) {
-        this.emitHotUpdate(id);
-      }
-    });
+    this.rootDir = rootDir;
+    this.outDir = outDir;
   }
 
   private filterFiles(files: string[]) {
@@ -138,6 +139,15 @@ export default class CachableIncrementalProgram {
     this.onFinished(emitResult, this.program.getSourceFile(filename));
   }
 
+  private watch() {
+    fs.watch(this.rootDir, { recursive: true }, (type, filePath) => {
+      const id = path.join(this.rootDir, filePath);
+      if (!require.cache[id] || this.program.getSourceFile(id)) {
+        this.emitHotUpdate(id);
+      }
+    });
+  }
+
   private onFinished(emitResult: ts.EmitResult, sourceFile?: ts.SourceFile) {
     const program = this.program.getProgram();
     const allDiagnostics = ts.getPreEmitDiagnostics(program, sourceFile).concat(emitResult.diagnostics);
@@ -162,6 +172,9 @@ export default class CachableIncrementalProgram {
   tryOnInitEmitFinished(emitResult: ts.EmitResult) {
     clearTimeout(this.timerId);
     this.timerId = setTimeout(() => {
+      if (!this.isInitialized) {
+        this.watch();
+      }
       this.isInitialized = true;
       if (this.isCacheInit) {
         // 如果是使用缓存，在此时进行增量编译
@@ -173,8 +186,7 @@ export default class CachableIncrementalProgram {
   }
 
   getOutFileName(filename: string) {
-    const parsedCommandLine = this.parsedCommandLine;
-    const name = path.relative(parsedCommandLine.options.rootDir, filename);
-    return path.join(parsedCommandLine.options.outDir, name.replace('.ts', '.js'));
+    const name = path.relative(this.rootDir, filename);
+    return path.join(this.outDir, name.replace('.ts', '.js'));
   }
 }

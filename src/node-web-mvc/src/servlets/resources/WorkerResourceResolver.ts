@@ -1,25 +1,19 @@
 import path from 'path';
-import { Worker, WorkerOptions } from 'worker_threads';
+import { Worker } from 'worker_threads';
 import ResourceResolver from './ResourceResolver';
 import Resource from './Resource';
 import ResourceResolverChain from './ResourceResolverChain';
-import { randomUUID } from 'crypto';
 import HttpServletRequest from '../http/HttpServletRequest';
 import type { MyGlobal } from 'shared-types';
-import WorkerIncomingMessage from './WorkerIncomingMessage';
-import HttpServletResponse from '../http/HttpServletResponse';
 import { WorkerResponseValue } from './WorkerServerResponse';
-import type { WorkDataInfo } from './WorkerHotEntry';
+import WorkerInvoker, { ResolverWorker, RessolverWorkerOptions, WorkerResponseData } from './WorkerInvoker';
 
-interface ExtWorkerOptions extends WorkerOptions {
-  workerData?: WorkDataInfo
-}
 
 export default class WorkerResourceResolver implements ResourceResolver {
-  private worker: Worker;
+  private worker: ResolverWorker;
 
   constructor(workerJs: string) {
-    const options: ExtWorkerOptions = {};
+    const options: RessolverWorkerOptions = {};
     const myGlobal = global as MyGlobal;
     options.env = process.env;
     options.workerData = {
@@ -27,64 +21,45 @@ export default class WorkerResourceResolver implements ResourceResolver {
     };
     if (myGlobal.nodeWebMvcStarter && path.extname(workerJs) == '.ts') {
       // 如果是开发模式
-      workerJs = myGlobal.nodeWebMvcStarter.resolveOutputFile(workerJs);
-      options.workerData.workerJs = workerJs;
-      options.workerData.hot = {
-        cwd: [ myGlobal.nodeWebMvcStarter.outDir ],
-        includeNodeModules: true,
-      };
+      options.workerData.dev = true;
+      options.workerData.rootDir = myGlobal.nodeWebMvcStarter.rootDir;
+      options.workerData.outDir = myGlobal.nodeWebMvcStarter.outDir;
     }
-    this.worker = new Worker(require.resolve('./WorkerHotEntry'), options);
-  }
-
-  private setResponseHeaders(response: HttpServletResponse, value: WorkerResponseValue) {
-    Object.keys(value.headers || {}).forEach((name) => {
-      response.setHeader(name, value.headers[name]);
-    });
+    this.worker = new Worker(require.resolve('./WorkerEntry'), options);
   }
 
   private sendRequest(request: HttpServletRequest) {
     return new Promise<WorkerResponseValue>((resolve, reject) => {
-      const id = randomUUID();
+      const { port1, port2 } = new MessageChannel();
       const response = request.servletContext.response;
-      const onFinished = (value: WorkerResponseValue) => {
-        if (value.id != id) return;
-        // 设置返回头信息
-        this.setResponseHeaders(response, value);
+      const onFinished = (ev: MessageEvent) => {
+        const value = ev.data as WorkerResponseData;
         switch (value.type) {
-          case 'write':
-            // 如果写出内容
-            response.write(Buffer.from(value.buffer));
+          case 'invoke':
+            WorkerInvoker.onInvoke(value, port1, request.nativeRequest, response.nativeResponse);
             return;
-          case 'write-head':
-            if (value.statusCode) {
-              response.setStatus(value.statusCode);
-            }
+          case 'bind-event':
+            WorkerInvoker.bindEventListener(value, port1, request.nativeRequest, response.nativeResponse);
             return;
           case 'error':
             reject(value.error);
             break;
-          case 'finish':
-            if (value.statusCode) {
-              response.setStatus(value.statusCode);
-            }
-            if (value.buffer) {
-              response.end(Buffer.from(value.buffer), value.encoding);
-            } else {
-              response.end();
-            }
-          default:
-            resolve(value);
+          case 'finished':
+            resolve(null);
             break;
         }
-        // 移除本次请求事件监听
-        this.worker.off('message', onFinished);
+        // 关闭消息通道
+        port1.close();
+        port2.close();
       };
-      this.worker.on('message', onFinished);
-      this.worker.postMessage({
-        id: id,
-        request: WorkerIncomingMessage.serialize(request.nativeRequest),
-      });
+      port1.addEventListener('message', onFinished);
+      this.worker.postMessage(
+        {
+          request: WorkerInvoker.serializeRequest(request.nativeRequest),
+          port: port2,
+        },
+        [ port2 as any ]
+      );
     });
   }
 
