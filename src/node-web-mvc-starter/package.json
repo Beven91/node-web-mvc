@@ -1,7 +1,7 @@
 {
   "name": "node-web-mvc-starter",
   "description": "node-web-mvc ts starter",
-  "version": "1.4.3",
+  "version": "1.4.4",
   "peerDependencies": {
     "typescript": "*"
   },
