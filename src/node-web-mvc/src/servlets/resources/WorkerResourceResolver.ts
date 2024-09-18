@@ -50,8 +50,6 @@ export default class WorkerResourceResolver implements ResourceResolver {
               return;
             }
         }
-        request.nativeRequest.removeAllListeners();
-        response.nativeResponse.removeAllListeners();
         // 关闭消息通道
         port1.close();
         port2.close();
