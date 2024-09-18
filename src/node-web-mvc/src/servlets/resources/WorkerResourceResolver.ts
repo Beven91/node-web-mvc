@@ -35,9 +35,6 @@ export default class WorkerResourceResolver implements ResourceResolver {
       const onFinished = (ev: MessageEvent) => {
         const value = ev.data as WorkerResponseData;
         switch (value.type) {
-          case 'invoke':
-            WorkerInvoker.onInvoke(value, port1, request.nativeRequest, response.nativeResponse);
-            return;
           case 'bind-event':
             WorkerInvoker.bindEventListener(value, port1, request.nativeRequest, response.nativeResponse);
             return;
@@ -47,7 +44,14 @@ export default class WorkerResourceResolver implements ResourceResolver {
           case 'finished':
             resolve(null);
             break;
+          case 'invoke':
+            WorkerInvoker.onInvoke(value, port1, request.nativeRequest, response.nativeResponse);
+            if (!(value.invoke.method == 'end' && value.invoke.target == 'response')) {
+              return;
+            }
         }
+        request.nativeRequest.removeAllListeners();
+        response.nativeResponse.removeAllListeners();
         // 关闭消息通道
         port1.close();
         port2.close();

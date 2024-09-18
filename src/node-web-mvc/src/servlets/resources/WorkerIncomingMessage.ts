@@ -48,19 +48,26 @@ export default class WorkerIncomingMessage extends IncomingMessage {
   }
 
   addListener(event: string, listener: (...args) => void): this {
-    super.addListener(event, listener);
-    this.invoker.addEventListener('request', this, event, listener);
+    this.invoker.addEventListener('request', event, listener);
     return this;
   }
 
   once(event: string, listener: (...args: any[]) => void): this {
-    super.once(event, listener);
-    this.invoker.addEventListener('request', this, event, listener, true);
+    this.invoker.addEventListener('request', event, listener, true);
     return this;
   }
 
   on(event: string, listener: (...args: any[]) => void): this {
-    return this.addListener(event, listener);
+    if (event == 'data') {
+      process.nextTick(()=> this.addListener(event, listener));
+    } else {
+      this.addListener(event, listener);
+    }
+    return this;
+  }
+
+  read(size?: number) {
+    return this.invoker.invoke('request', 'read', [ size ]);
   }
 }
 

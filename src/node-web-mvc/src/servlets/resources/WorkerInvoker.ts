@@ -4,7 +4,7 @@ import { IncomingMessage, ServerResponse } from 'http';
 import { TransferListItem, Worker, WorkerOptions } from 'worker_threads';
 
 export interface WorkerResponseData {
-  type: 'finished' | 'error' | 'invoke' | 'callback' | 'bind-event' | 'remove-event' | 'event'
+  type: 'finished' | 'error' | 'invoke' | 'callback' | 'bind-event' | 'remove-event'
   error?: Error
   event?: {
     id: string
@@ -140,6 +140,9 @@ export default class WorkerInvoker {
       case 'requestSocket.unref':
         socket.unref();
         callback();
+      case 'request.read':
+        request.read(args[0]);
+        break;
       default:
         callback();
         break;
@@ -156,9 +159,10 @@ export default class WorkerInvoker {
     const event = info.event;
     const id = event.id;
     const obj = mappings[event.target] as EventEmitter;
-    const handler = this.bindCallback(port, id, 'event:' + event.name);
+    const name = `event:${event.target}.${event.name}`;
+    const handler = this.bindCallback(port, id, name);
     obj.addListener(event.name, handler);
-    const onRemove = (info: MessageEvent)=>{
+    const onRemove = (info: MessageEvent) => {
       const data = info.data as WorkerResponseData;
       if (data.type == 'remove-event' && data.event?.id == event.id) {
         obj.removeListener(event.name, handler);
@@ -201,15 +205,15 @@ export default class WorkerInvoker {
     });
   }
 
-  addEventListener(target: InvokeTargetType, object: EventEmitter, event: string, handler: (...args: any) => void, once?: boolean) {
+  addEventListener(target: InvokeTargetType, event: string, handler: (...args: any) => void, once?: boolean) {
     if (!handler) {
       return;
     }
     const id = `${event}_${randomUUID()}`;
     const invokeHandler = (e: MessageEvent) => {
       const data = (e.data || {}) as WorkerResponseData;
-      if (data.type == 'event' && data.callbackId == id) {
-        object.emit(event, ...data.callbackValues);
+      if (data.type == 'callback' && data.callbackId == id) {
+        handler(...data.callbackValues);
         once && this.removeEventListener(target, event, id, handler);
       }
     };

@@ -61,13 +61,13 @@ export default class WorkerServerResponse extends ServerResponse {
 
   addListener(event: string, listener: (...args) => void): this {
     super.addListener(event, listener);
-    this.invoker.addEventListener('response', this, event, listener);
+    this.invoker.addEventListener('response', event, listener);
     return this;
   }
 
   once(event: string, listener: (...args: any[]) => void): this {
     super.once(event, listener);
-    this.invoker.addEventListener('response', this, event, listener, true);
+    this.invoker.addEventListener('response', event, listener, true);
     return this;
   }
 
