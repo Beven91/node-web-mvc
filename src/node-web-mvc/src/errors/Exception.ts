@@ -5,6 +5,8 @@ export default class Exception extends Error {
   constructor(message?: string, data?: any) {
     super(message);
     this.name = this.constructor.name;
-    this.data = data;
+    if (data) {
+      this.data = data;
+    }
   }
 }

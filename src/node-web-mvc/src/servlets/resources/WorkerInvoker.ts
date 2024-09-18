@@ -72,7 +72,7 @@ export default class WorkerInvoker {
     this.port = port;
   }
 
-  static bindCallback(port: ResponseMessagePort, id: string) {
+  static bindCallback(port: ResponseMessagePort, id: string, name: string) {
     return (...values) => {
       const transfer = values.filter((m) => m instanceof Uint8Array).map((m) => m.buffer);
       port.postMessage(
@@ -89,7 +89,7 @@ export default class WorkerInvoker {
   static onInvoke(info: WorkerResponseData, port: MessagePort, request: IncomingMessage, response: ServerResponse) {
     const invoke = info.invoke;
     const name = invoke.target + '.' + invoke.method;
-    const callback = this.bindCallback(port, invoke.id);
+    const callback = this.bindCallback(port, invoke.id, name);
     const args = invoke.args;
     const socket = invoke.target == 'responseSocket' ? response.socket : request.socket;
     switch (name) {
@@ -156,7 +156,7 @@ export default class WorkerInvoker {
     const event = info.event;
     const id = event.id;
     const obj = mappings[event.target] as EventEmitter;
-    const handler = this.bindCallback(port, id);
+    const handler = this.bindCallback(port, id, 'event:' + event.name);
     obj.addListener(event.name, handler);
     const onRemove = (info: MessageEvent)=>{
       const data = info.data as WorkerResponseData;
