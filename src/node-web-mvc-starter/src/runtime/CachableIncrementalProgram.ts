@@ -101,9 +101,6 @@ export default class CachableIncrementalProgram {
     const manifest = this.data;
     const files = program.getSourceFiles();
     files.map((file) => {
-      if (file.fileName.endsWith('.d.ts')) {
-        return;
-      }
       this.updateFileVersion(file);
     });
     this.data[configName] = this.formatHost.createHash(JSON.stringify(this.parsedCommandLine.options));
