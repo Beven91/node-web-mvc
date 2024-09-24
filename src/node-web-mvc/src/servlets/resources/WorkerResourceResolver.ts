@@ -67,7 +67,7 @@ export default class WorkerResourceResolver implements ResourceResolver {
 
   async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, next: ResourceResolverChain): Promise<Resource> {
     const response = await this.sendRequest(request);
-    if (response.statusCode == 404) {
+    if (response?.statusCode == 404) {
       return next.resolveResource(request, requestPath, locations);
     }
     return null;
