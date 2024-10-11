@@ -51,6 +51,7 @@ export default class WorkerResourceResolver implements ResourceResolver {
             }
         }
         // 关闭消息通道
+        port1.removeEventListener('message', onFinished);
         port1.close();
         port2.close();
       };
