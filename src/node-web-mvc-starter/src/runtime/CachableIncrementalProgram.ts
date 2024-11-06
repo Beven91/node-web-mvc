@@ -111,11 +111,14 @@ export default class CachableIncrementalProgram {
     return this.program.emit(undefined, undefined, undefined, undefined, createTransformers(this.program.getProgram(), false));
   }
 
-  emitHotUpdate(filename: string) {
+  emitHotUpdate(filename: string, isRemoved = false) {
     const oldProgram = this.program;
     const host = this.host;
     const files = this.parsedCommandLine.fileNames;
-    if (filename && files.indexOf(filename) < 0) {
+    const idx = files.indexOf(filename);
+    if (isRemoved) {
+      idx > -1 && files.splice(idx, 1);
+    } else if (filename && idx < 0) {
       files.push(filename);
     }
     // 如果是热更新
@@ -144,8 +147,9 @@ export default class CachableIncrementalProgram {
         return;
       }
       const id = path.join(this.rootDir, filePath);
+      const isRemoved = !fs.existsSync(id);
       if (!require.cache[id] || this.program.getSourceFile(id)) {
-        this.emitHotUpdate(id);
+        this.emitHotUpdate(id, isRemoved);
       }
     });
   }
