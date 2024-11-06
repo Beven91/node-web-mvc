@@ -8,7 +8,7 @@
   "devDependencies": {
     "@types/node": "^16.11.7",
     "typescript": "^5.3.3",
-    "node-web-mvc-starter": "^1.4.2"
+    "node-web-mvc-starter": "^1.4.7"
   },
   "dependencies": {
     "node-web-mvc": "^3.3.21",
