@@ -137,7 +137,12 @@ export default class CachableIncrementalProgram {
   }
 
   private watch() {
+    const extensions = [ '.ts', '.tsx', '.d.ts', '.cts', '.d.cts', '.mts', '.d.mts' ];
     fs.watch(this.rootDir, { recursive: true }, (type, filePath) => {
+      if (/node_modules/i.test(filePath) || extensions.indexOf(path.extname(filePath)) < 0) {
+        // 不监听node_modules变化
+        return;
+      }
       const id = path.join(this.rootDir, filePath);
       if (!require.cache[id] || this.program.getSourceFile(id)) {
         this.emitHotUpdate(id);
