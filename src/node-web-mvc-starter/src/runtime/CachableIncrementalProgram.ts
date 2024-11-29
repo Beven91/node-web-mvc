@@ -92,6 +92,14 @@ export default class CachableIncrementalProgram {
     });
   }
 
+  private needHotUpdate(filename: string) {
+    if (!filename || !fs.existsSync(this.getOutFileName(filename))) {
+      return true;
+    }
+    const hash = this.formatHost.createHash(ts.sys.readFile(filename));
+    return this.data[filename] !== hash;
+  }
+
   private updateFileVersion(sourceFile: ts.SourceFile) {
     this.data[sourceFile.fileName] = this.formatHost.createHash(sourceFile.getFullText());
   }
@@ -120,6 +128,9 @@ export default class CachableIncrementalProgram {
       idx > -1 && files.splice(idx, 1);
     } else if (filename && idx < 0) {
       files.push(filename);
+    }
+    if (!this.needHotUpdate(filename)) {
+      return;
     }
     // 如果是热更新
     this.program = ts.createIncrementalProgram({
