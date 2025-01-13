@@ -114,6 +114,7 @@ class HotReload {
           index > -1 ? module.children.splice(index, 1) : undefined;
           this.invokeHook('created', m);
           this.invokeHook('postend', m, m);
+          this.invokeHook('done', m, m);
         } else {
           this.handleReload(filename);
         }
