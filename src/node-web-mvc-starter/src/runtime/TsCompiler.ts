@@ -131,6 +131,8 @@ export default class TsCompiler {
    * @returns 返回编译后文件的完整路径
    */
   compile(filename: string, isRemoved = false): string {
+    // 防止windows 下path.join和ts的路径不一致
+    filename = filename.replace(/\\/g, '/');
     const oldProgram = this.program;
     const host = this.host;
     const files = this.parsedCommandLine.fileNames;
@@ -153,7 +155,7 @@ export default class TsCompiler {
         ...host,
         // 重写getSourceFile 用于控制热更新时能获取最新的源文件内容
         getSourceFile(name, v) {
-          if (name == filename) {
+          if (filename == name) {
             const sourceFile = host.getSourceFile(name, v);
             const version = (sourceFile as any).version;
             if (status == 'dist-delete') {
@@ -181,7 +183,7 @@ export default class TsCompiler {
         // 不监听node_modules变化
         return;
       }
-      const id = path.join(this.rootDir, filePath);
+      const id = path.join(this.rootDir, filePath).replace(/\\/g, '/');
       const isRemoved = !fs.existsSync(id);
       if (!require.cache[id] || this.program.getSourceFile(id)) {
         this.compile(id, isRemoved);
