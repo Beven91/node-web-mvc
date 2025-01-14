@@ -10,6 +10,12 @@ export function registerTs(project: string) {
   const program = new TsCompiler(project);
   program.init();
 
+  process.on('message', (ev)=> {
+    if (ev.type === 'RESET_NODE_MVC_STARTER_TIME') {
+      myGlobal.NODE_MVC_STARTER_TIME = performance.now();
+    }
+  });
+
   // 注册ts扩展模块
   require.extensions['.ts'] = function(module, filename: string) {
     const id = program.compile(filename);
