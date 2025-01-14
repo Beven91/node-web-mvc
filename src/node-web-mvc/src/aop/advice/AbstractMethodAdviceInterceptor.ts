@@ -13,5 +13,5 @@ export default abstract class AbstractMethodAdviceInterceptor<T extends Function
     this.handler = handler;
   }
 
-  abstract invoke(invocation: MethodInvocation): object
+  abstract invoke(invocation: MethodInvocation): object;
 }

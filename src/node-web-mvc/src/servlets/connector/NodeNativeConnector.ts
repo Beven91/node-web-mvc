@@ -21,7 +21,7 @@ export default class NodeNativeConnector implements HandlerConnector {
   }
 
   connect(handler: ServletHandler, config: NodeServerOptions) {
-    return new Promise<void>((resolve, reject) => {
+    return new Promise<http.Server>((resolve, reject) => {
       const server = this.createServer(config, (req, res) => {
         Object.defineProperty(req, 'path', { value: req.url });
         handler(req, res, (err) => {
@@ -37,7 +37,7 @@ export default class NodeNativeConnector implements HandlerConnector {
         socket.end('HTTP/1.1 400 Bad Request\r\n\r\n');
       });
       server.listen(config.port, () => {
-        resolve();
+        resolve(server as http.Server);
       });
       server.on('error', reject);
     });

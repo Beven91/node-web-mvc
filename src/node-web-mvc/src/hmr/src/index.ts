@@ -5,8 +5,10 @@ import path from 'path';
 import fs from 'fs';
 import HotModule from './HotModule';
 import Module from 'module';
+import crypto from 'crypto';
 import ListReplacement from './updater/ListReplacement';
 import createHotUpdater from './updater/index';
+import HotUpdaterReleaseManager from './HotUpdaterReleaseManager';
 
 type Hooks = HotModule['hooks'];
 type HookTypeKeys = keyof Hooks;
@@ -39,13 +41,6 @@ class HotReload {
   ListReplacement = ListReplacement;
 
   /**
-   * 创建一个数据热更新器
-   */
-  createHotUpdater<T>(data, now, old) {
-    return createHotUpdater<T>(data, now, old);
-  }
-
-  /**
    * 热更新配置
    */
   options: HotOptions;
@@ -62,8 +57,18 @@ class HotReload {
 
   private isHotUpdating = false;
 
+  private allHash: Record<string, string>;
+
   constructor() {
     this.hotModules = new Map<string, HotModule>();
+    this.allHash = {};
+  }
+
+  /**
+   * 创建一个数据热更新器
+   */
+  createHotUpdater<T>(data, now, old) {
+    return createHotUpdater<T>(data, now, old);
   }
 
   /**
@@ -136,12 +141,19 @@ class HotReload {
    * 文件改动时，处理热更新
    * @param id
    */
-  handleReload(id) {
-    id = this.renderId(id);
+  handleReload(file: string) {
+    const id = this.renderId(file);
     // 当前逻辑不可删除，用于保证不会把没有引用的文件加载进来
     const old = require.cache[id] as NodeHotModule;
-    if (!old) {
+    const hash = this.allHash[id];
+    const newHash = this.makeHash(file);
+    if (!old || hash === newHash) {
       // 如果模块已删除，则直接掠过
+      return;
+    }
+    if (old.hot?.hooks?.accept?.count > 0) {
+      // 如果模块自定义了accept 则直接执行accept后返回
+      old.hot.hooks.accept.invoke(null, old);
       return;
     }
     const start = Date.now();
@@ -160,8 +172,6 @@ class HotReload {
     // 加载依赖
     dependencies.filter(Boolean).forEach((dependency) => this.tryReload(dependency));
     const now = require.cache[id] as NodeHotModule;
-    // 执行accept
-    this.invokeHook('accept', now, old);
     // 执行done
     this.invokeHook('done', now, old);
     const end = new Date();
@@ -256,6 +266,18 @@ class HotReload {
     return topReasons.concat(findDependencies(old));
   }
 
+  makeHash(file: string) {
+    const hash = this.createHash(file);
+    const id = this.renderId(file);
+    this.allHash[id] = hash;
+    return hash;
+  }
+
+  createHash(file: string) {
+    const content = fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+    return crypto.createHash('md5').update(content).digest('hex');
+  }
+
   /**
    * 监听改变
    */
@@ -268,15 +290,15 @@ class HotReload {
     const dirs = cwd instanceof Array ? cwd : [ cwd ];
     const watchers = dirs.map((item) => this.watch(item));
     const handleException = (e) => {
-      console.error(e);
       if (this.isHotUpdating) {
+        console.error(e);
         this.isHotUpdating = false;
         return;
       }
       throw e;
     };
     process.on('uncaughtException', handleException);
-    return {
+    const updater = {
       options,
       dirs,
       close() {
@@ -284,6 +306,12 @@ class HotReload {
         watchers.forEach((watcher) => watcher?.close?.());
       },
     };
+    HotUpdaterReleaseManager.push(() => {
+      this.hotModules.forEach((hot) => hot.clean());
+      this.hotModules.clear();
+      updater.close();
+    });
+    return updater;
   }
 }
 

@@ -3,7 +3,7 @@ import WebMvcConfigurationSupport from './config/WebMvcConfigurationSupport';
 import ModuleLoader from './util/ModuleLoader';
 import GenericApplicationContext from './context/GenericApplicationContext';
 import BeanDefinition from '../ioc/factory/BeanDefinition';
-import { IncomingMessage, ServerResponse } from 'http';
+import { IncomingMessage, Server, ServerResponse } from 'http';
 import FilterDispatcher from './filter/FilterDispatcher';
 import HttpServletRequest from './http/HttpServletRequest';
 import HttpServletResponse from './http/HttpServletResponse';
@@ -21,6 +21,7 @@ import RequestBodyReader from './http/body/RequestBodyReader';
 import ApplicationDispatcher from './http/ApplicationDispatcher';
 import BootConfiguration from './BootConfiguration';
 import Tracer from './annotations/annotation/Tracer';
+import HotUpdaterReleaseManager from '../hmr/src/HotUpdaterReleaseManager';
 
 export type ServletHandler = (request: IncomingMessage, response: ServerResponse, next: (error?: any) => any) => any;
 
@@ -174,12 +175,16 @@ export default class SpringApplication {
     const handleRequest = this.handleRequest.bind(this);
     if (connect) {
       // 自定义服务链接
-      connect(handleRequest, serverOptions);
+      connect(handleRequest, serverOptions).then(this.onConnected.bind(this));
     } else {
       // 默认使用node服务链接
-      (new NodeNativeConnector()).connect(handleRequest, serverOptions);
+      (new NodeNativeConnector()).connect(handleRequest, serverOptions).then(this.onConnected.bind(this));
     }
     return this.context;
+  }
+
+  private onConnected(server: Server) {
+    HotUpdaterReleaseManager.push(() => server.close());
   }
 }
 

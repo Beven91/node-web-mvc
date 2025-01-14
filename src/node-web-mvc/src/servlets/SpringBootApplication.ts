@@ -7,6 +7,7 @@ import ElementType from './annotations/annotation/ElementType';
 import RuntimeAnnotation from './annotations/annotation/RuntimeAnnotation';
 import Target from './annotations/Target';
 import Tracer from './annotations/annotation/Tracer';
+import HotUpdaterReleaseManager from '../hmr/src/HotUpdaterReleaseManager';
 
 interface BaseServerOptions {
   /**
@@ -90,7 +91,6 @@ export class SpringBootApplication {
     }
   }
 
-
   constructor(meta: RuntimeAnnotation) {
     const clazz = meta.ctor as any as WithMainClass;
     registerHotUpdate(meta.ctor);
@@ -105,13 +105,31 @@ export class SpringBootApplication {
 
 export default Target([ ElementType.TYPE ])(SpringBootApplication);
 
+
 function registerHotUpdate(clazz: Function) {
   if (typeof require == 'function') {
     const tracer = Tracer.getTracer(clazz);
     const mod = (require.cache[tracer.id] || (require.main.filename == tracer.id ? require.main : null)) as NodeHotModule;
     if (mod && !mod.hot) {
-      // 设定启动注解标记的类所在的文件 默认不进行热更新
-      hot.create(mod).accept(() => { });
+      hot.makeHash(mod.filename);
+      hot.create(mod)
+        .preload((old) => {
+          if (old == mod) {
+            /**
+             * 重启服务清理步骤
+             * 1. 移除所有模块缓存
+             * 2. 关闭http服务
+             */
+            // 1. 移除所有模块缓存
+            Object.keys(require.cache).forEach((key)=>{
+              delete require.cache[key];
+            });
+            // 2. 关闭http等需要释放的服务
+            HotUpdaterReleaseManager.release();
+            // 重置启动时间
+            process.emit('message', { type: 'RESET_NODE_MVC_STARTER_TIME' }, null);
+          }
+        });
     }
   }
 }
