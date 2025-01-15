@@ -115,17 +115,18 @@ function registerHotUpdate(clazz: Function) {
       hot.create(mod)
         .preload((old) => {
           if (old == mod) {
-            /**
-             * 重启服务清理步骤
-             * 1. 移除所有模块缓存
-             * 2. 关闭http服务
-             */
+            // 重启服务清理步骤
             // 1. 移除所有模块缓存
-            Object.keys(require.cache).forEach((key)=>{
+            Object.keys(require.cache).forEach((key) => {
+              const old = require.cache[key];
+              if (old.exports.default == HotUpdaterReleaseManager) {
+                console.log('ignore', key);
+                return;
+              }
               delete require.cache[key];
             });
             // 2. 关闭http等需要释放的服务
-            HotUpdaterReleaseManager.release();
+            HotUpdaterReleaseManager.destroy();
             // 重置启动时间
             process.emit('message', { type: 'RESET_NODE_MVC_STARTER_TIME' }, null);
           }

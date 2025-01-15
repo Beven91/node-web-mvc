@@ -191,6 +191,7 @@ class HotReload {
       delete old.hot;
       if (fs.existsSync(id)) {
         console.log(`Hot reload: ${id}`);
+        HotUpdaterReleaseManager.releaseFor(id);
         // 重新加载
         require(id);
       } else {
@@ -289,6 +290,7 @@ class HotReload {
     const cwd = options.cwd || path.resolve('');
     const dirs = cwd instanceof Array ? cwd : [ cwd ];
     const watchers = dirs.map((item) => this.watch(item));
+    HotUpdaterReleaseManager.install();
     const handleException = (e) => {
       if (this.isHotUpdating) {
         console.error(e);
