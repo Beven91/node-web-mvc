@@ -15,6 +15,13 @@ export default class HotUpdaterReleaseManager {
     return (file || '').toLowerCase();
   }
 
+  private static resolveDependency(stack: string) {
+    const files = (stack || '').split('\n').slice(2, 10).map((m) => {
+      return m.split('(').pop().replace(/(:\d+)+/, '').replace(/\)$/, '');
+    });
+    return files[0];
+  }
+
   /**
    * 通用拦截函数，用于拦截指定函数的返回值，与调用依赖，记录下依赖与返回值
    * @param name 要拦截的函数名
@@ -36,10 +43,8 @@ export default class HotUpdaterReleaseManager {
     const value = target[name] as any;
     const meta = Proxy.revocable(value, {
       apply(handler: Function, thisArg, args) {
-        const files = (new Error().stack || '').split('\n').slice(2, 10).map((m) => {
-          return m.split('(').pop().replace(/(:\d+)+/, '').replace(/\)$/, '');
-        });
-        const id = scope.normalizeId(files[0]);
+        const file = scope.resolveDependency(new Error().stack);
+        const id = scope.normalizeId(file);
         const returnValue = handler.apply(thisArg, args);
         if (!dependencies.has(id)) {
           dependencies.set(id, []);
@@ -72,11 +77,9 @@ export default class HotUpdaterReleaseManager {
     });
     const meta = Proxy.revocable(clazz, {
       construct(target, argArray) {
-        const files = (new Error().stack || '').split('\n').slice(2, 10).map((m) => {
-          return m.split('(').pop().replace(/(:\d+)+/, '').replace(/\)$/, '');
-        });
+        const file = scope.resolveDependency(new Error().stack);
+        const id = scope.normalizeId(file);
         const returnValue = new target(...argArray);
-        const id = scope.normalizeId(files[0]);
         if (!dependencies.has(id)) {
           dependencies.set(id, []);
         }
