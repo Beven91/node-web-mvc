@@ -8,10 +8,10 @@
   "devDependencies": {
     "@types/node": "^16.11.7",
     "typescript": "^5.3.3",
-    "node-web-mvc-starter": "^1.5.0"
+    "node-web-mvc-starter": "^1.5.2"
   },
   "dependencies": {
-    "node-web-mvc": "^3.3.27",
+    "node-web-mvc": "^3.3.28",
     "reflect-metadata": "^0.1.13"
   }
 }
