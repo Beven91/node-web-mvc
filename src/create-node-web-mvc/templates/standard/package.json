@@ -2,7 +2,7 @@
   "name": "demo",
   "version": "1.0.0",
   "scripts": {
-    "start": "node-web-mvc-starter dev ./index.ts",
+    "start": "node-web-mvc-starter dev ./src/index.ts",
     "build": "node-web-mvc-starter build"
   },
   "devDependencies": {
