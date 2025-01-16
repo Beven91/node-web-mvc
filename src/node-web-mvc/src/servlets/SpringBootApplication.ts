@@ -119,10 +119,8 @@ function registerHotUpdate(clazz: Function) {
             // 1. 移除所有模块缓存
             Object.keys(require.cache).forEach((key) => {
               const old = require.cache[key];
-              if (old.exports.default == HotUpdaterReleaseManager) {
-                console.log('ignore', key);
-                return;
-              }
+              const isHotUpdater = old.exports.default == HotUpdaterReleaseManager;
+              if (isHotUpdater) return;
               delete require.cache[key];
             });
             // 2. 关闭http等需要释放的服务

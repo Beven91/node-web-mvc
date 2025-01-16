@@ -95,7 +95,8 @@ class HotReload {
     return fs.watch(cwd, { recursive: true }, (type, filename) => {
       const isNodeModules = this.options.includeNodeModules !== true && /node_module/.test(filename);
       if (!isNodeModules && /\.(ts|js)$/.test(filename)) {
-        const id = path.join(cwd, filename).replace(/^[A-Z]:/, (a) => a.toUpperCase());
+        const filePath = fs.lstatSync(cwd).isDirectory() ? path.join(cwd, filename) : cwd;
+        const id = filePath.replace(/^[A-Z]:/, (a) => a.toUpperCase());
         clearTimeout(runtime[id]);
         runtime[id] = setTimeout(() => {
           delete runtime[id];
