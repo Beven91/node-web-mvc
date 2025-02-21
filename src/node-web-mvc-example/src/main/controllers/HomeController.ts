@@ -4,13 +4,13 @@ import { Api, ApiOperation, GetMapping, RequestMapping, RequestEntity, RequestPa
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models';
-import City from '../models/Models';
 import { demoData } from './data';
 import { MyGroup } from '../models/UserInfo';
 import GeneralResult from '../models/GeneralResult';
 import CommonResult from '../models/CommonResult';
 import Keneral from '../models/Keneral';
 import OrderModel, { OrderType } from '../models/OrderModel';
+import Address from '../models/Address';
 
 @Api({ description: '首页' })
 @RestController
@@ -85,6 +85,12 @@ export default class HomeController {
   @ApiOperation({ value: '@RequestParam 接收Array数据接收' })
   @PostMapping('/array')
   array(@RequestParam array: Array<string>): Array<string> {
+    return array;
+  }
+
+  @ApiOperation({ value: '@RequestParam 接收指定类型的Array数据接收' })
+  @PostMapping('/generic_array')
+  genericArray(@RequestBody array: Address[]): Address[] {
     return array;
   }
 

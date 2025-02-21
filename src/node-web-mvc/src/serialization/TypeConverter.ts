@@ -63,6 +63,8 @@ export default class TypeConverter {
       return value;
     } else if (clazzType.isType(TypedArray)) {
       return this.toTypedArray(value, type);
+    } else if (runtimeType?.array) {
+      return this.toArray(value, Array, { args: [ runtimeType ], clazz: Array, name: 'Array', array: true, fullName: 'Array' });
     } else {
       return this.toClass(value, type, runtimeType);
     }
