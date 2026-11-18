@@ -23,7 +23,7 @@ function parseArguments(args: any[]) {
  */
 export default function create(elementTypes: ElementType | ElementType[], annotationType: IAnnotationClazz) {
   const types = elementTypes instanceof Array ? elementTypes : [ elementTypes ];
-  const decorator = function(...params: any[]) {
+  const decorator = function(this: any, ...params: any[]) {
     const { args, ownerAnnotation } = parseArguments(Array.prototype.slice.call(params));
     if (this instanceof decorator) {
       // 如果是当做class使用,这里用于从外部继承原始的AnnotationType

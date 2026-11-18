@@ -4,6 +4,7 @@
 import path from 'path';
 import fs from 'fs';
 import HotModule from './HotModule';
+import Hook from './Hook';
 import Module from 'module';
 import crypto from 'crypto';
 import ListReplacement from './updater/ListReplacement';
@@ -81,7 +82,7 @@ class HotReload {
       mod.hot = new HotModule(id);
       this.hotModules.set(id, mod.hot);
     }
-    return this.hotModules.get(id);
+    return this.hotModules.get(id)!;
   }
 
   /**
@@ -114,7 +115,7 @@ class HotReload {
         if (!require.cache[filename]) {
           console.log('Hot created:', filename);
           require(filename);
-          const m = require.cache[filename] as NodeHotModule;
+          const m = require.cache[filename]! as NodeHotModule;
           // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
           const index = module.children.indexOf(m);
           index > -1 ? module.children.splice(index, 1) : undefined;
@@ -189,7 +190,7 @@ class HotReload {
     const parent = old.parent;
     try {
       // 将hot对象从旧的模块实例上分离
-      delete old.hot;
+      delete (old as any).hot;
       if (fs.existsSync(id)) {
         console.log(`Hot reload: ${id}`);
         HotUpdaterReleaseManager.releaseFor(id);
@@ -215,9 +216,9 @@ class HotReload {
       mod.parent = parent;
       // 从子依赖中删除掉刚刚引入的模块，防止出现错误的依赖关系
       const finded = module.children.find((m) => m.filename === id);
-      const index = module.children.indexOf(finded);
+      const index = module.children.indexOf(finded as any);
       index > -1 ? module.children.splice(index, 1) : undefined;
-      console.error('Hot reload error', ex.stack);
+      console.error('Hot reload error', (ex as Error).stack);
       return false;
     }
   }
@@ -227,9 +228,9 @@ class HotReload {
    */
   invokeHook<K extends HookTypeKeys>(name: K, ...args: Parameters<Hooks[K]['invoke']>) {
     this.hotModules.forEach((m) => {
-      const hook = m.hooks[name];
+      const hook = m.hooks[name] as Hook<any>;
       if (hook) {
-        return hook.invoke.call(hook, ...args);
+        return hook.invoke(...args);
       }
     });
   }
@@ -244,7 +245,7 @@ class HotReload {
       return topReasons;
     }
     const cache = require.cache;
-    const exclude = this.options.exclude;
+    const exclude = this.options.exclude!;
     const forMappings = {};
     const allMappings = {};
     const tryAcceptKeys = Object.keys(cache).filter((k) => !exclude.test(k));

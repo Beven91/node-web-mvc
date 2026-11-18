@@ -165,9 +165,9 @@ export default class HttpServletRequest {
 
   constructor(request: IncomingMessage, contextPath: string, createDispatcher: CreateDispatcherHandler, reader: IRequestBodyReader) {
     const protocol = (request.socket as any).encrypted ? 'https' : 'http';
-    const uRL = new URL(request.url, `${protocol}://${request.headers.host}`);
+    const uRL = new URL(request.url || '', `${protocol}://${request.headers.host}`);
     this.headers = request.headers;
-    this.method = HttpMethod[(request.method).toUpperCase()];
+    this.method = HttpMethod[(request.method || '').toUpperCase()];
     this.protocol = protocol;
     this.request = request;
     this.query = querystring.parse(uRL.search.slice(1));
@@ -175,7 +175,7 @@ export default class HttpServletRequest {
     this.port = uRL.port;
     this.path = uRL.pathname;
     this.contextPath = contextPath;
-    this.mediaType = new MediaType(this.headers['content-type']);
+    this.mediaType = new MediaType(this.headers['content-type'] || '');
     this._cookies = this.parseCookie(request.headers['cookie']);
     this.params = new Map<any, any>();
     Javascript.defineHiddenProperty(this, createDispatcherSymbol, createDispatcher);

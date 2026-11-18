@@ -24,6 +24,7 @@ import HttpHeaders from '../http/HttpHeaders';
 import MediaType from '../http/MediaType';
 import { PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE } from './HandlerMapping';
 import PathMatcher from '../util/PathMatcher';
+import StringUtils from '../../interface/StringUtils';
 
 export default class RequestMappingHandlerMapping extends AbstractHandlerMethodMapping<RequestMappingInfo> implements InitializingBean {
   constructor() {
@@ -47,7 +48,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     const requestMapping = new RequestMappingInfo(anno.value, anno.method, ensureArray(produces), anno.params, anno.headers, anno.consumes);
     const actionPaths = requestMapping.value || [];
     const controllerPaths = ensureArray(controllerAnno?.value || [ '' ]);
-    const values = [];
+    const values = [] as string[];
     if (controllerPaths.length > 0) {
       // 合并controller路由
       controllerPaths.forEach((controllerPath) => {
@@ -76,7 +77,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
   private isConsumeable(servletContext: ServletContext, mapping: RequestMappingInfo) {
     const request = servletContext.request;
     const consumes = mapping.consumes || [];
-    const contentType = request.headers['content-type'];
+    const contentType = StringUtils.emptyOf(request.headers['content-type'], '');
     if (consumes.length < 1) {
       return true;
     }
@@ -106,7 +107,7 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     request.setAttribute(PRODUCIBLE_MEDIA_TYPES_ATTRIBUTE, mediaTypes);
   }
 
-  match(registraction: MappingRegistration<RequestMappingInfo>, path: string, request: HttpServletRequest): HandlerMethod {
+  match(registraction: MappingRegistration<RequestMappingInfo>, path: string, request: HttpServletRequest): HandlerMethod | undefined {
     const mapping = registraction.getMapping();
     const handlerMethod = registraction.getHandlerMethod();
     const pathPatterns = mapping.value;
@@ -135,10 +136,13 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
       this.updateCorsConfig(corsConfig, methodCors);
       const methods = mapping.method instanceof Array ? mapping.method : [ mapping.method ];
       methods.forEach((method) => {
-        corsConfig.addAllowedMethod(method);
+        if (method) {
+          corsConfig.addAllowedMethod(method);
+        }
       });
       return corsConfig.applyPermitDefaultValues();
     }
+    return null;
   }
 
   updateCorsConfig(config: CorsConfiguration, anno: InstanceType<typeof CorsOrigin>) {
@@ -149,8 +153,9 @@ export default class RequestMappingHandlerMapping extends AbstractHandlerMethodM
     anno.methods?.forEach?.((method) => config.addAllowedMethod(method));
     config.allowCredentials = anno.allowCredentials;
     config.allowPrivateNetwork = anno.allowPrivateNetwork;
-    if (anno.maxAge >= 0) {
-      config.maxAge = anno.maxAge;
+    const maxAge = (anno.maxAge as number);
+    if (maxAge >= 0) {
+      config.maxAge = maxAge;
     }
   }
 }
@@ -173,6 +178,7 @@ function registerHotUpdate(handlerMapping: RequestMappingHandlerMapping) {
       removeKeys.forEach((item) => registration.delete(item));
     })
     .postend((latest) => {
+      if (!latest) return;
       const file = latest.filename;
       const annotations = RuntimeAnnotation.getAnnotations(RequestMapping);
       annotations.forEach((annotation) => {

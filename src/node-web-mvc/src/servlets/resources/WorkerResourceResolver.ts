@@ -4,9 +4,9 @@ import ResourceResolver from './ResourceResolver';
 import Resource from './Resource';
 import ResourceResolverChain from './ResourceResolverChain';
 import HttpServletRequest from '../http/HttpServletRequest';
-import type { MyGlobal } from 'shared-types';
 import { WorkerResponseValue } from './WorkerServerResponse';
 import WorkerInvoker, { ResolverWorker, RessolverWorkerOptions, WorkerResponseData } from './WorkerInvoker';
+import { MyGlobal } from '../../interface/MyGlobal';
 
 
 export default class WorkerResourceResolver implements ResourceResolver {
@@ -29,7 +29,7 @@ export default class WorkerResourceResolver implements ResourceResolver {
   }
 
   private sendRequest(request: HttpServletRequest) {
-    return new Promise<WorkerResponseValue>((resolve, reject) => {
+    return new Promise<WorkerResponseValue | null>((resolve, reject) => {
       const { port1, port2 } = new MessageChannel();
       const response = request.servletContext.response;
       const onFinished = (ev: MessageEvent) => {
@@ -46,7 +46,7 @@ export default class WorkerResourceResolver implements ResourceResolver {
             break;
           case 'invoke':
             WorkerInvoker.onInvoke(value, port1, request.nativeRequest, response.nativeResponse);
-            if (!(value.invoke.method == 'end' && value.invoke.target == 'response')) {
+            if (!(value.invoke?.method == 'end' && value.invoke.target == 'response')) {
               return;
             }
         }
@@ -66,15 +66,15 @@ export default class WorkerResourceResolver implements ResourceResolver {
     });
   }
 
-  async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, next: ResourceResolverChain): Promise<Resource> {
+  async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, next: ResourceResolverChain): Promise<Resource | null> {
     const response = await this.sendRequest(request);
     if (response?.statusCode == 404) {
       return next.resolveResource(request, requestPath, locations);
     }
-    return null;
+    return null as unknown as Resource;
   }
 
-  resolveUrlPath(resourcePath: string, locations: Array<Resource>, chain: ResourceResolverChain): Promise<string> {
+  resolveUrlPath(resourcePath: string, locations: Array<Resource>, chain: ResourceResolverChain): Promise<string | null> {
     return chain.resolveUrlPath(resourcePath, locations);
   }
 }

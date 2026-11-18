@@ -3,23 +3,16 @@ import EventEmitter from 'events';
 import { IncomingMessage, ServerResponse } from 'http';
 import { TransferListItem, Worker, WorkerOptions } from 'worker_threads';
 
-export interface WorkerResponseData {
-  type: 'finished' | 'error' | 'invoke' | 'callback' | 'bind-event' | 'remove-event'
-  error?: Error
-  event?: {
-    id: string
-    name: string
-    target: string
-  },
-  callbackId?: string
-  callbackValues?: any[]
-  invoke?: {
-    id: string
-    target: string
-    method: string
-    args: any[]
-  }
-}
+export type WorkerResponseData =
+  | { type: 'finished' }
+  | { type: 'error'; error: Error }
+  | { type: 'invoke'; invoke: { id: string; target: string; method: string; args: any[] } }
+  | { type: 'callback'; callbackId: string; callbackValues: any[] }
+  | { type: 'bind-event'; event: { id: string; name: string; target: string } }
+  | { type: 'remove-event'; event: { id: string; name: string; target: string } };
+
+export type WorkerInvokeData = Extract<WorkerResponseData, { type: 'invoke' }>;
+export type WorkerEventData = Extract<WorkerResponseData, { type: 'bind-event' | 'remove-event' }>;
 
 export type InvokeTargetType = 'request' | 'response' | 'responseSocket' | 'requestSocket';
 
@@ -86,12 +79,12 @@ export default class WorkerInvoker {
     };
   }
 
-  static onInvoke(info: WorkerResponseData, port: MessagePort, request: IncomingMessage, response: ServerResponse) {
+  static onInvoke(info: WorkerInvokeData, port: MessagePort, request: IncomingMessage, response: ServerResponse) {
     const invoke = info.invoke;
     const name = invoke.target + '.' + invoke.method;
     const callback = this.bindCallback(port, invoke.id, name);
     const args = invoke.args;
-    const socket = invoke.target == 'responseSocket' ? response.socket : request.socket;
+    const socket = (invoke.target == 'responseSocket' ? response.socket : request.socket)!;
     switch (name) {
       case 'response.write':
         response.write(args[0], args[1], callback);
@@ -149,7 +142,7 @@ export default class WorkerInvoker {
     }
   }
 
-  static bindEventListener(info: WorkerResponseData, port: ResponseMessagePort, request: IncomingMessage, response: ServerResponse) {
+  static bindEventListener(info: WorkerEventData, port: ResponseMessagePort, request: IncomingMessage, response: ServerResponse) {
     const mappings = {
       'response': response,
       'request': request,
@@ -185,7 +178,7 @@ export default class WorkerInvoker {
       const transfer = args.filter((m) => m instanceof Uint8Array).map((m) => m.buffer);
       const onCallback = (ev: MessageEvent) => {
         const data = ev.data as WorkerResponseData;
-        if (data.callbackId !== id && data.type == 'callback') return;
+        if (data.type !== 'callback' || data.callbackId !== id) return;
         this.port.removeEventListener('message', onCallback);
         resolve(data.callbackValues);
       };

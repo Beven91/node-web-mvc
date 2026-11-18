@@ -23,7 +23,7 @@ export default class ObjectUpdater<T> extends AbstractUpdater<T, object> {
 
   cleanUpdate(oldCtor) {
     const keys = Object.keys(this.data);
-    const removes = [];
+    const removes = [] as string[];
     keys.forEach((key) => {
       const element = this.data[key];
       if (this.needHotFn(element, oldCtor)) {

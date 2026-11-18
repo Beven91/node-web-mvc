@@ -16,10 +16,14 @@ export default class ResourceRegion {
   // 截取的内容长度
   readonly count: number;
 
+  get contentLength() {
+    return this.resource.contentLength || 1;
+  }
+
   // 结束位置
   get end() {
     const end = this.position + this.count - 1;
-    return Math.min(end, this.resource.contentLength - 1);
+    return Math.min(end, this.contentLength - 1);
   }
 
   constructor(resource: Resource, position: number, count: number) {
@@ -34,8 +38,9 @@ export default class ResourceRegion {
 
   static toResourceRegions(ranges: Array<HttpRange>, resource: Resource) {
     return ranges.map((range) => {
+      const contentLength = resource.contentLength || 1;
       const start = range.start;
-      const end = range.end === -1 ? resource.contentLength - 1 : range.end;
+      const end = range.end === -1 ? contentLength - 1 : range.end;
       const count = end - start + 1;
       return new ResourceRegion(resource, range.start, count);
     });

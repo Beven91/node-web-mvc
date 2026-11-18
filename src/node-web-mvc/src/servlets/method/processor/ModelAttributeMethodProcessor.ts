@@ -16,7 +16,7 @@ export default class ModelAttributeMethodProcessor implements HandlerMethodArgum
   private getNameForReturnValue(returnType: MethodParameter) {
     const anno = returnType.getParameterAnnotation(ModelAttribute);
     if (anno) {
-      return anno.value;
+      return anno.value || '';
     }
     return getVariableName(returnType.parameterType);
   }

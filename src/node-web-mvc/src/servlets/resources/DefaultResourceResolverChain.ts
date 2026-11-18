@@ -12,7 +12,7 @@ export default class DefaultResourceResolverChain implements ResourceResolverCha
   private readonly resolver: ResourceResolver;
 
   // 下一个执行链
-  private readonly nextChain: ResourceResolverChain;
+  private readonly nextChain: ResourceResolverChain | undefined;
 
   private get invokeable() {
     return this.resolver != null && this.nextChain != null;
@@ -23,7 +23,7 @@ export default class DefaultResourceResolverChain implements ResourceResolverCha
       this.resolver = resolvers as ResourceResolver;
       this.nextChain = chain;
     } else {
-      let chain = new DefaultResourceResolverChain(null, null);
+      let chain = new DefaultResourceResolverChain([], undefined);
       resolvers = (resolvers || []) as Array<ResourceResolver>;
       resolvers.forEach((resolver) => {
         chain = new DefaultResourceResolverChain(resolver, chain);
@@ -39,7 +39,7 @@ export default class DefaultResourceResolverChain implements ResourceResolverCha
    * @param requestPath 当前请求路径
    * @param locations 搜索范围位置
    */
-  async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>): Promise<Resource> {
+  async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>): Promise<Resource | null> {
     if (!this.invokeable) {
       return null;
     }
@@ -51,7 +51,7 @@ export default class DefaultResourceResolverChain implements ResourceResolverCha
    * @param requestPath 当前请求路径
    * @param locations 搜索范围位置
    */
-  async resolveUrlPath(resourcePath: string, locations: Array<Resource>): Promise<string> {
+  async resolveUrlPath(resourcePath: string, locations: Array<Resource>): Promise<string | null> {
     if (!this.invokeable) {
       return null;
     }

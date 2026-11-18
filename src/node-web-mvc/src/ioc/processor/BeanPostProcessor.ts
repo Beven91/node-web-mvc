@@ -4,7 +4,7 @@ export default abstract class BeanPostProcessor {
    * @param bean bean实例对象
    * @param beanName 当前bean在容器中的名称
    */
-  postProcessBeforeInitialization?(bean: object, beanName: string): object {
+  postProcessBeforeInitialization?(bean: object, beanName: string): object | null {
     return bean;
   }
 

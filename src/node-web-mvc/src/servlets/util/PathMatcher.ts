@@ -30,7 +30,7 @@ export default class PathMatcher {
    * @param pattern 规则
    * @param path 路径
    */
-  matchPattern(pattern: string, path: string): MatchResult {
+  matchPattern(pattern: string, path: string): MatchResult | null {
     const result = PathPattern.create(pattern).match(path);
     return result.matched ? result : null;
   }

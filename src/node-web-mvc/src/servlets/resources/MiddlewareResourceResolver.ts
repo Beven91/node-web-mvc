@@ -25,12 +25,12 @@ export default class MiddlewareResourceResolver implements ResourceResolver {
    * @param requestPath 当前请求路径
    * @param locations 搜索范围位置
    */
-  resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, next: ResourceResolverChain): Promise<Resource> {
+  resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, next: ResourceResolverChain): Promise<Resource | null> {
     if (this.middlewares.length < 1) {
       return next.resolveResource(request, requestPath, locations);
     }
     const invoker = new Middlewares(this.middlewares);
-    return invoker.execute<Resource>(
+    return invoker.execute<Resource | null>(
       request,
       request.servletContext.response,
       () => {
@@ -45,7 +45,7 @@ export default class MiddlewareResourceResolver implements ResourceResolver {
    * @param requestPath 当前请求路径
    * @param locations 搜索范围位置
    */
-  resolveUrlPath(resourcePath: string, locations: Array<Resource>, chain: ResourceResolverChain): Promise<string> {
+  resolveUrlPath(resourcePath: string, locations: Array<Resource>, chain: ResourceResolverChain): Promise<string | null> {
     return chain.resolveUrlPath(resourcePath, locations);
   }
 }

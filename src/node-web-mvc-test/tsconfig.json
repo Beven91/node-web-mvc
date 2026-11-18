@@ -5,7 +5,12 @@
     "rootDir": "./src/",
     "module": "CommonJS",
     "allowJs": true,
-    "diagnostics": true
+    "diagnostics": true,
+    "types": ["jest", "node"],
+    "paths": {
+      "node-web-mvc": ["../node-web-mvc/src/index.ts"],
+      "node-web-mvc-starter": ["../node-web-mvc-starter/src/index.ts"]
+    }
   },
   "exclude": [
     "dist",

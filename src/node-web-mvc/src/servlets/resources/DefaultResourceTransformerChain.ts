@@ -21,7 +21,7 @@ export default class DefaultResourceTransformerChain implements ResourceTransfor
 
   constructor(resolveChain: ResourceResolverChain, transformers: Array<ResourceTransformer> | ResourceTransformer, nextChain?: ResourceTransformerChain) {
     if (transformers instanceof Array) {
-      let chain = new DefaultResourceTransformerChain(null, null);
+      let chain = new DefaultResourceTransformerChain(null as unknown as ResourceResolverChain, null as unknown as ResourceTransformer);
       const elements = (transformers || []) as Array<ResourceTransformer>;
       elements.forEach((tramformer) => {
         chain = new DefaultResourceTransformerChain(resolveChain, tramformer, chain);
@@ -32,7 +32,7 @@ export default class DefaultResourceTransformerChain implements ResourceTransfor
     } else {
       this.resolveCahin = resolveChain;
       this.tramformer = transformers;
-      this.nextChain = nextChain;
+      this.nextChain = nextChain!;
     }
   }
 

@@ -15,7 +15,7 @@ export default abstract class HandlerAdapter {
   /**
    * 当supports返回true 时，用于执行当前action的函数
    */
-  abstract handle(servletContext: ServletContext, handler): Promise<ModelAndView>;
+  abstract handle(servletContext: ServletContext, handler): Promise<ModelAndView | null | undefined>;
 
   /**
    * 返回上次修改时间，可以返回-1表示不支持

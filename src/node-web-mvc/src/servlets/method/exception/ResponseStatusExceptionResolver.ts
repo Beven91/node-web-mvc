@@ -8,7 +8,7 @@ import HandlerMethod from '../HandlerMethod';
 import HandlerExceptionResolver from './HandlerExceptionResolver';
 
 export default class ResponseStatusExceptionResolver implements HandlerExceptionResolver {
-  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView> {
+  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView | null> {
     try {
       if (error instanceof ResponseStatusException) {
         return this.resolveResponseStatusException(servletContext, handler, error);

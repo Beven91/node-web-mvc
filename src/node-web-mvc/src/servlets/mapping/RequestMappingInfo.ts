@@ -15,7 +15,7 @@ export default class RequestMappingInfo {
   /** string
    * 当前路由能处理的Http请求类型
    */
-  public readonly method: Map<HttpMethodKeys, boolean>;
+  public readonly method: Record<HttpMethodKeys, boolean>;
 
   /**
    * 当前路由设置的返回内容类型
@@ -30,12 +30,12 @@ export default class RequestMappingInfo {
   /**
    * 当前路由需要的请求头信息
    */
-  public readonly headers: Map<string, string>;
+  public readonly headers: Record<string, string>;
 
   /**
    * 当前路由需要的请求参数
    */
-  public readonly params: Map<string, any>;
+  public readonly params: Record<string, any>;
 
   /**
    * 标准化传入的信息
@@ -58,13 +58,13 @@ export default class RequestMappingInfo {
    * @param {Array} consumes 当前请求能处理的请求类型 例如: ['application/json'] ['application/octstream']
    * @param {String}
   */
-  constructor(value: string | string[], method: HttpMethodKeys | HttpMethodKeys[], produces: string[], params: Map<string, any>, headers: Map<string, string>, consumes: string | string[]) {
-    this.method = {} as Map<HttpMethodKeys, boolean>;
+  constructor(value: string | string[], method: HttpMethodKeys | HttpMethodKeys[] | undefined, produces: string[], params: Record<string, any> | undefined, headers: Record<string, string> | undefined, consumes: string | string[] | undefined) {
+    this.method = {} as Record<HttpMethodKeys, boolean>;
     this.value = ensureArray(value);
-    this.consumes = typeof consumes === 'string' ? [ consumes ] : consumes;
-    this.produces = produces;
-    this.params = params;
-    this.headers = headers;
+    this.consumes = ensureArray(consumes);
+    this.produces = ensureArray(produces);
+    this.params = params || {} as Record<string, any>;
+    this.headers = headers || {} as Record<string, string>;
     const methods = ensureArray(method || [ 'GET', 'POST', 'DELETE', 'PUT', 'PATCH', 'OPTIONS' ]);
     methods.forEach((k) => {
       this.method[k.toUpperCase()] = true;

@@ -10,14 +10,14 @@ export default class ModelAndView {
   /**
    * 视图名称
    */
-  public view: string | View;
+  public view: string | View | undefined;
 
   /**
    * 视图使用的模型数据
    */
   public model: any;
 
-  public status: HttpStatus;
+  public status: HttpStatus | undefined;
 
   /**
    * 用来标识当前数据视图是否已清空
@@ -54,7 +54,7 @@ export default class ModelAndView {
    */
   clear() {
     this.cleared = true;
-    this.view = null;
+    this.view = undefined;
     this.model = null;
   }
 

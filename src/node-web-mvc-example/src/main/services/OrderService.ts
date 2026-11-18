@@ -17,7 +17,7 @@ export default class OrderService {
   }
 
   getOrderName() {
-    return 'orderInfoResponse orderId=' + this.orderModel.orderId;
+    return 'orderName: ' + this.orderModel.orderId;
   }
 
   sayHello() {

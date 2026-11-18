@@ -19,12 +19,13 @@ function createImportDeclaration(node: ts.ImportDeclaration, name: ts.Identifier
     case 4:
       {
         const createImportDeclaration = originCreateImportDeclaration as v4CreateImportDeclaration;
+        const importClause = node.importClause!;
         return createImportDeclaration(
           v4Node.decorators,
           v4Node.modifiers,
           ts.factory.updateImportClause(
-            node.importClause,
-            node.importClause.isTypeOnly,
+            importClause,
+            importClause.isTypeOnly,
             name,
             ts.factory.createNamedImports(
               namedBindings
@@ -36,11 +37,12 @@ function createImportDeclaration(node: ts.ImportDeclaration, name: ts.Identifier
     default:
       {
         const createImportDeclaration = originCreateImportDeclaration as v5CreateImportDeclaration;
+        const importClause = node.importClause!;
         return createImportDeclaration(
           node.modifiers as any as ts.Modifier[],
           ts.factory.updateImportClause(
-            node.importClause,
-            node.importClause.isTypeOnly,
+            importClause,
+            importClause.isTypeOnly,
             name,
             ts.factory.createNamedImports(
               namedBindings
@@ -61,7 +63,7 @@ function createImportSpecifier(propertyName: ts.Identifier, name: ts.Identifier,
     case 4:
       return v4CreateImportSpecifier(propertyName, name);
     default:
-      return v5CreateImportSpecifier(isTypeOnly, propertyName, name);
+      return v5CreateImportSpecifier(!!isTypeOnly, propertyName, name);
   }
 }
 

@@ -1,6 +1,7 @@
 
 import path from 'path';
 import process from 'process';
+import StringUtils from '../../../interface/StringUtils';
 
 const tracerSymbol = Symbol('tracer');
 
@@ -10,7 +11,8 @@ export default class Tracer {
 
   constructor(error: Error) {
     if (error) {
-      const dependencies = error.stack.split('\n').slice(2, 10).map((m) => {
+      const stack = StringUtils.emptyOf(error.stack, '');
+      const dependencies = stack.split('\n').slice(2, 10).map((m) => {
         return m.split('(').pop().replace(/(:\d+)+/, '').replace(/\)$/, '');
       });
       this.id = dependencies[0];
@@ -33,7 +35,7 @@ export default class Tracer {
     }
   }
 
-  static getTracer(clazz: Function) {
+  static getTracer(clazz: Function | null) {
     if (clazz) {
       return clazz[tracerSymbol] as Tracer;
     }
@@ -42,13 +44,13 @@ export default class Tracer {
   static getClassPath(id: string, suffix?: string) {
     const root = process.cwd();
     const ext = path.extname(id);
-    const prefix = id.split(root).pop().replace(ext, '');
+    const prefix = StringUtils.emptyOf(id.split(root).pop(), '').replace(ext, '');
     return suffix ? `${prefix}#${suffix}` : prefix;
   }
 
   static getFullName(clazz: Function, suffix?: string) {
     if (!clazz) {
-      return suffix;
+      return StringUtils.emptyOf(suffix, '');
     }
     const id = this.getTracer(clazz)?.id;
     return this.getClassPath(id || clazz.name, suffix).replace(/\//g, '.').replace(/^\./, '');

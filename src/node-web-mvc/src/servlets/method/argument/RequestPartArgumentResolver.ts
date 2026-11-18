@@ -13,12 +13,12 @@ export default class RequestPartArgumentResolver implements HandlerMethodArgumen
   async resolveArgument(parameter: MethodParameter, servletContext: ServletContext) {
     const request = servletContext.request;
     const anno = parameter.getParameterAnnotation(RequestPart);
-    const contentType = request.getHeaderSingleValue(HttpHeaders.CONTENT_TYPE);
+    const contentType = request.getHeaderSingleValue(HttpHeaders.CONTENT_TYPE) || '';
     if (contentType.indexOf('multipart/') < 0) {
       throw new MultipartException(`the request doesn't contain a multipart/form-data or multipart/mixed stream `);
     }
     const name = anno.value || parameter.paramName;
     const body = await request.bodyReader.read(servletContext);
-    return body[name];
+    return body?.[name];
   }
 }

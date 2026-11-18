@@ -6,8 +6,8 @@
     "build":"node-web-mvc-starter build"
   },
   "dependencies": {
-    "node-web-mvc-starter": "workspace:*",
-    "node-web-mvc": "workspace:*",
+    "node-web-mvc-starter": "*",
+    "node-web-mvc": "*",
     "xml2js": "^0.4.23"
   }
 }

@@ -8,7 +8,7 @@ import { UrlBasedViewResolver, View, HttpServletRequest } from 'node-web-mvc';
 import EjsView from './EjsView';
 
 export default class EjsViewResolver extends UrlBasedViewResolver {
-  internalResolve(viewName: string, model: any, request: HttpServletRequest): View {
+  internalResolve(viewName: string, model: any, request: HttpServletRequest): View | null {
     console.log('viewName====>', viewName);
     const file = path.join(viewName);
     if (fs.existsSync(file)) {

@@ -8,7 +8,7 @@ export default class UrlBasedCorsConfigurationSource extends CorsConfigurationSo
 
   private corsConfigurations: Map<string, CorsConfiguration>;
 
-  getCorsConfiguration(request: HttpServletRequest): CorsConfiguration {
+  getCorsConfiguration(request: HttpServletRequest): CorsConfiguration | undefined | null {
     if (this.corsConfigurations?.size < 1) {
       return null;
     }
@@ -18,6 +18,7 @@ export default class UrlBasedCorsConfigurationSource extends CorsConfigurationSo
         return config;
       }
     }
+    return null;
   }
 
 

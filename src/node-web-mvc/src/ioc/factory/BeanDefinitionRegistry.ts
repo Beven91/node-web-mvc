@@ -12,12 +12,12 @@ export interface BeanDefinitionRegistry {
    * 获取指定名称的的bean定义
    * @param beanKey
    */
-  getBeanDefinition(beanName: string): BeanDefinition
+  getBeanDefinition(beanName: string): BeanDefinition | undefined
 
   /**
    * 移除bean定义
    */
-  removeBeanDefinition(beanName: string): BeanDefinition
+  removeBeanDefinition(beanName: string): BeanDefinition | undefined
 
   /**
    * 获取所有已注册的bean定义key

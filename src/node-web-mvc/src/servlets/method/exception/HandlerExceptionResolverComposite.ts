@@ -14,12 +14,13 @@ export default class HandlerExceptionResolverComposite implements HandlerExcepti
     return this.exceptionResolvers || [];
   }
 
-  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView> {
+  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView | null> {
     for (const resolver of this.getExceptionResolvers()) {
       const mv = await resolver.resolveException(servletContext, handler, error);
       if (mv) {
         return mv;
       }
     }
+    return null;
   }
 }

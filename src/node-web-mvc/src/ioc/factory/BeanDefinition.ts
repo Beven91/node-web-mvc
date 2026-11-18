@@ -12,14 +12,14 @@ export interface BeanTypeClazz {
 }
 
 export default class BeanDefinition {
-  private beanType: ClazzType;
+  private beanType: ClazzType | null;
 
   /**
    * 对应的函数
    */
-  public readonly method: Function;
+  public readonly method: Function | null;
 
-  public readonly methodClazz: ClazzType;
+  public readonly methodClazz: ClazzType | null;
 
   /**
    * 当前bean作用域类型
@@ -38,7 +38,7 @@ export default class BeanDefinition {
     return this.beanType;
   }
 
-  static toBeanName(name: string | Function) {
+  static toBeanName(name: string | Function | null | undefined) {
     if (typeof name === 'string' || name == null || name === undefined) {
       return name as string;
     }
@@ -51,7 +51,7 @@ export default class BeanDefinition {
    * @param clazz bean构造函数
    * @param scope 作用域
    */
-  constructor(clazz: Function, method: Function, scope: ScopeType) {
+  constructor(clazz: Function, method: Function | null, scope: ScopeType) {
     // 表示是函数创建bean
     this.beanType = method ? null : clazz as ClazzType;
     this.methodClazz = method ? clazz as ClazzType : null;

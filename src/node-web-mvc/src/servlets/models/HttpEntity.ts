@@ -10,9 +10,9 @@ import { RequestHeaders } from '../../interface/declare';
 export default class HttpEntity<T = any, H = RequestHeaders> {
   public headers: H;
 
-  public body: T;
+  public body: T | null;
 
-  constructor(data: T, headers: H) {
+  constructor(data: T | null, headers: H | undefined) {
     this.body = data;
     this.headers = (headers || {}) as H;
   }

@@ -15,7 +15,7 @@ export enum OrderType {
 export default class OrderModel extends BaseOrder {
   constructor() {
     super();
-    this.orderId = 10086;
+    this.orderId = 10088;
     this.orderType = OrderType.STMP;
   }
 

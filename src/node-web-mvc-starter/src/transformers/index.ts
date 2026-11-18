@@ -14,12 +14,12 @@ export function createTransformers(program: ts.Program, isProd: boolean) {
     // 编译前转换器
     before: [
       (context) => enhanceTypeTransformer(context, program),
-      ...(isProd ? prodTransfermers.before : []),
+      ...(isProd ? prodTransfermers.before || [] : []),
     ],
     // 编译后转换器
     after: [
       // (context) => enhanceTypeAfterTranformer(context, program),
-      ...(isProd ? prodTransfermers.after : []),
+      ...(isProd ? prodTransfermers.after || [] : []),
     ],
   };
   return transformers;

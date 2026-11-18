@@ -40,7 +40,7 @@ export default class DispatcherServlet {
     this.initStrategies();
   }
 
-  getHandler(servletContext: ServletContext): HandlerExecutionChain {
+  getHandler(servletContext: ServletContext): HandlerExecutionChain | undefined {
     for (const handlerMapping of this.handlerMappings) {
       const executionChain = handlerMapping.getHandler(servletContext);
       if (executionChain) {
@@ -86,7 +86,7 @@ export default class DispatcherServlet {
    * @param handler
    */
   getHandlerAdapter(handler): HandlerAdapter {
-    return this.handlerAdapters.find((adapter) => adapter.supports(handler));
+    return this.handlerAdapters.find((adapter) => adapter.supports(handler))!;
   }
 
   async doService(servletContext: ServletContext) {
@@ -102,8 +102,8 @@ export default class DispatcherServlet {
   }
 
   async doDispatch(servletContext: ServletContext): Promise<void> {
-    let handler = null;
-    const runtime = { error: null, mv: null } as { mv: ModelAndView, error: Error };
+    let handler;
+    const runtime = {} as { mv?: ModelAndView | null, error?: Error | undefined };
     const mappedHandler = this.getHandler(servletContext);
     const request = servletContext.request;
     const response = servletContext.response;
@@ -118,13 +118,13 @@ export default class DispatcherServlet {
         return;
       }
       handler = mappedHandler.getHandler();
-      // 获取handler当前执行适配器
+      // 获取handler当前执行适配器 如果没有ha 让其直接排除异常好了
       const ha = this.getHandlerAdapter(handler);
       // 304处理
       if (request.method == HttpMethod.GET || request.method == HttpMethod.HEAD) {
         const validation = new HttpRequestValidation(request, response);
         const lastModified = ha.getLastModified(request, handler);
-        if (validation.checkNotModified(null, lastModified)) {
+        if (validation.checkNotModified('', lastModified)) {
           return;
         }
       }
@@ -134,8 +134,7 @@ export default class DispatcherServlet {
       await mappedHandler.applyPostHandle(mv);
       runtime.mv = mv;
     } catch (ex) {
-      ex = Normalizer.normalizeError(ex);
-      runtime.error = ex;
+      runtime.error = Normalizer.normalizeError(ex);
     }
     try {
       if (!response.headersSent && response.hasError) {
@@ -165,7 +164,7 @@ export default class DispatcherServlet {
     return mv.isEmpty() ? null : mv;
   }
 
-  async processDispatchResult(error: Error, mv: ModelAndView, servletContext: ServletContext, handler: HandlerMethod) {
+  async processDispatchResult(error: Error | undefined, mv: ModelAndView | null | undefined, servletContext: ServletContext, handler: HandlerMethod) {
     if (error) {
       // 处理异常
       mv = await this.handleException(error, servletContext, handler);

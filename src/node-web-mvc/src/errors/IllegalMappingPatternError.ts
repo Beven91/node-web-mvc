@@ -5,7 +5,7 @@ export default class IllegalMappingPatternError extends Exception {
     super();
     const indicator = '^';
     const count = pattern.indexOf('**');
-    const empty = [];
+    const empty = [] as string[];
     for (let i=0; i<count; i++) {
       empty.push(' ');
     }

@@ -18,4 +18,8 @@ export default {
   isEmpty(v: any) {
     return v === null || v === undefined || v === '';
   },
+
+  emptyOf(v: any, defaultValue: string) {
+    return this.isEmpty(v) ? defaultValue : v;
+  },
 };

@@ -21,7 +21,7 @@ export default class InternalErrorHandler {
     const isExtendErrorAttributes = (m: RuntimeAnnotation) => Javascript.createTyper(m.ctor).isType(ErrorAttributes);
     const MyErrorAttributes = RuntimeAnnotation.getAnnotations(Component).find(isExtendErrorAttributes)?.ctor;
     if (MyErrorAttributes) {
-      this.errorAttributes = beanFactory.getBean(MyErrorAttributes);
+      this.errorAttributes = beanFactory.getBean(MyErrorAttributes) || new DefaultErrorAttributes();
     } else {
       this.errorAttributes = new DefaultErrorAttributes();
     }

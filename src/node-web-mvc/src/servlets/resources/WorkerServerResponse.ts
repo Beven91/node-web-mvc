@@ -24,10 +24,13 @@ export default class WorkerServerResponse extends ServerResponse {
 
   private invoker: WorkerInvoker;
 
-  write(chunk: Uint8Array | string, arg1: any, cb?: (error: Error) => void) {
-    this.socket.write(chunk, arg1, cb);
-    this.isHeaderSent = true;
-    return true;
+  write(chunk: Uint8Array | string, arg1: any, cb?: (error: Error | undefined) => void) {
+    if (this.socket) {
+      this.socket.write(chunk, arg1, cb);
+      this.isHeaderSent = true;
+      return true;
+    }
+    return false;
   }
 
   writeHead(statusCode: number, statusMessage?: string, headers?: OutgoingHttpHeaders | OutgoingHttpHeader[]): this;
@@ -39,8 +42,11 @@ export default class WorkerServerResponse extends ServerResponse {
   }
 
   end(chunk?: any, arg1?: any, cb?: any): this {
-    this.socket.end(chunk, arg1, cb);
-    this.isHeaderSent = true;
+    if (this.socket) {
+      this.socket.end(chunk, arg1, cb);
+      this.isHeaderSent = true;
+    }
+
     return this;
   }
 

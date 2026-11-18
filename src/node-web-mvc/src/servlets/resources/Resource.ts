@@ -14,7 +14,7 @@ export interface InputStream extends Readable {
 }
 
 export default class Resource {
-  readonly stat: fs.Stats;
+  readonly stat: fs.Stats | null;
 
   /**
    * 获取当前文件明
@@ -80,6 +80,8 @@ export default class Resource {
    */
   pipe(response: ServerResponse, start?: number, end?: number) {
     return new Promise((resolve, reject) => {
+      start = start === undefined ? -1 : start;
+      end = end === undefined ? -1 : end;
       const stream = start > 0 ? this.getInputRangeStream(start, end) : this.getInputStream();
       const destory = () => {
         stream.close();

@@ -33,7 +33,7 @@ export default class ViewRender {
       return mv.view;
     }
     for (const resolver of viewResolvers) {
-      const view = resolver.resolveViewName(mv.view, mv.model, request);
+      const view = resolver.resolveViewName(mv.view || '', mv.model, request);
       if (view) {
         return view;
       }

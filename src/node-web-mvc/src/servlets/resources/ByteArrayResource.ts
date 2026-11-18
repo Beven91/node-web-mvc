@@ -7,13 +7,13 @@ export default class ByteArrayResource extends Resource {
 
   public readonly description: string;
 
-  private readonly mimeType: MediaType;
+  private readonly mimeType: MediaType | null;
 
   constructor(buffer: Buffer, mediaType?: MediaType, description?: string) {
-    super(null);
+    super('');
     this.byteArray = buffer;
-    this.mimeType = mediaType;
-    this.description = description;
+    this.mimeType = mediaType || null;
+    this.description = description || '';
   }
 
   public getByteArray() {
@@ -24,7 +24,7 @@ export default class ByteArrayResource extends Resource {
     return this.byteArray.length;
   }
 
-  get mediaType(): MediaType {
+  get mediaType() {
     return this.mimeType;
   }
 

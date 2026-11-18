@@ -11,7 +11,7 @@ export default class BeanNameViewResolver implements ViewResolver {
     this.beanFactory = beanFactory;
   }
 
-  resolveViewName(viewName: string, model: any, request: HttpServletRequest): View {
+  resolveViewName(viewName: string, model: any, request: HttpServletRequest): View | null {
     const beanFactory = this.beanFactory;
     if (!beanFactory.isTypeMatch(viewName, View)) {
       return null;

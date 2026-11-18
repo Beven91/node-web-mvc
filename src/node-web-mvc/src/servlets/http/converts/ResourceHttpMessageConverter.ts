@@ -35,7 +35,7 @@ export default class ResourceHttpMessageConverter extends AbstractHttpMessageCon
     }
     if (!(resource instanceof GzipResource)) {
       // 由于gzip下，默认不希望将整个返回内容加载到内存，采用流式返回（且因为该方案无法获取压缩后大小，所以不设置content-length)
-      response.setHeader(HttpHeaders.CONTENT_LENGTH, resource.contentLength);
+      response.setHeader(HttpHeaders.CONTENT_LENGTH, resource.contentLength!);
     } else {
       response.setHeader(HttpHeaders.TRANSFER_ENCODING, 'chunked');
     }

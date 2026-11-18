@@ -28,7 +28,7 @@ export default class RequestParamMapMethodArgumentResolver implements HandlerMet
 
   async resolveMultipartFile(name: string, servletContext: ServletContext) {
     const body = await servletContext.request.bodyReader.read(servletContext);
-    const value = body[name];
+    const value = body?.[name];
     if (isMultipartFiles(value)) {
       return value;
     }

@@ -47,8 +47,8 @@ export default class DateTimeTextProvider {
     return cache.get(key);
   }
 
-  static getLocaleInfo(locale: Locale) {
-    return this.getAndRegister(locale) || this.getAndRegister(Locale.ENGLISH);
+  static getLocaleInfo(locale: Locale): DateTimeLocale {
+    return this.getAndRegister(locale) || this.getAndRegister(Locale.ENGLISH) as DateTimeLocale;
   }
 
   static getMonth(raw: number, locale: Locale, full: boolean) {

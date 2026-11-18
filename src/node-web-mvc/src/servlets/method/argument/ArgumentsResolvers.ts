@@ -26,6 +26,7 @@ import HttpEntityMethodProcessor from '../processor/HttpEntityMethodProcessor';
 import DataValidator from '../../../validation/DataValidator';
 import TypeConverter from '../../../serialization/TypeConverter';
 import { ClazzType } from '../../../interface/declare';
+import Normalizer from '../../../errors/Normalizer';
 
 const converter = new TypeConverter();
 
@@ -65,10 +66,10 @@ export default class ArgumentsResolvers {
    * 获取要执行函数的参数值信息
    */
   async resolveArguments(servletContext: ServletContext, handler: HandlerMethod): Promise<any[]> {
-    let parameter: MethodParameter;
+    let parameter: MethodParameter | undefined = undefined;
     try {
       const signParameters = handler.parameters;
-      const args = [];
+      const args = [] as any[];
       for (let i = 0, k = signParameters.length; i < k; i++) {
         parameter = signParameters[i];
         const anno = parameter.getParameterAnnotation(ParamAnnotation);
@@ -95,13 +96,15 @@ export default class ArgumentsResolvers {
       }
       return args;
     } catch (ex) {
+      const error = Normalizer.normalizeError(ex);
+      const paramName = parameter?.paramName || '';
       if (ex instanceof ValueConvertError) {
-        return Promise.reject(new ArgumentConvertError(parameter?.paramName, ex));
+        return Promise.reject(new ArgumentConvertError(paramName, ex));
       }
       if (ex instanceof Error && ex.constructor !== Error) {
-        return Promise.reject(ex);
+        return Promise.reject(error);
       }
-      return Promise.reject(new ArgumentResolvError(ex, parameter?.paramName));
+      return Promise.reject(new ArgumentResolvError(error, paramName));
     }
   }
 
@@ -111,9 +114,9 @@ export default class ArgumentsResolvers {
    * @param { ServletContext } servletContext 当前请求上下文
    */
   resolveArgument(parameter: MethodParameter, servletContext: ServletContext): any {
-    const registerResolvers = [].concat(this.registerResolvers, this.fallbackResolvers);
+    const registerResolvers = ([] as HandlerMethodArgumentResolver[]).concat(this.registerResolvers, this.fallbackResolvers);
     const resolver = registerResolvers.find((resolver) => resolver.supportsParameter(parameter, servletContext));
-    if (resolver === null) {
+    if (!resolver) {
       throw new IllegalArgumentException('Unsupported parameter type [' + Object.prototype.toString.call(parameter.parameterType) + ']. supportsParameter should be called first.');
     }
     return resolver.resolveArgument(parameter, servletContext);

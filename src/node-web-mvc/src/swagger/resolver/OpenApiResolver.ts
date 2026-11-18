@@ -35,7 +35,7 @@ export default class OpenApiResolver implements ResourceResolver {
     return resource;
   }
 
-  resolveUrlPath(resourcePath: string, locations: Resource[], chain: ResourceResolverChain): Promise<string> {
+  resolveUrlPath(resourcePath: string, locations: Resource[], chain: ResourceResolverChain): Promise<string | null> {
     return chain.resolveUrlPath(resourcePath, locations);
   }
 }

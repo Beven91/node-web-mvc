@@ -15,7 +15,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
 
   private readonly corsLookup: Map<HandlerMethod, CorsConfiguration>;
 
-  protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod;
+  protected abstract match(registraction: MappingRegistration<T>, lookupPath: string, request: HttpServletRequest): HandlerMethod | undefined;
 
   constructor() {
     super();
@@ -63,7 +63,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
   /**
    * 根据请求查找对应的HandlerMethod
    */
-  lookupHandlerMethod(lookupPath: string, request: HttpServletRequest): HandlerMethod {
+  lookupHandlerMethod(lookupPath: string, request: HttpServletRequest): HandlerMethod | undefined {
     for (const registration of this.registrations.values()) {
       const handler = this.match(registration, lookupPath, request);
       // 如果没有找到，则继续查找
@@ -102,7 +102,7 @@ export default abstract class AbstractHandlerMethodMapping<T> extends AbstractHa
     return corsConfig;
   }
 
-  initCorsConfiguration(beanType: ClazzType, method: Function) {
+  initCorsConfiguration(beanType: ClazzType, method: Function): CorsConfiguration | null {
     // 子类重写实现
     return null;
   }

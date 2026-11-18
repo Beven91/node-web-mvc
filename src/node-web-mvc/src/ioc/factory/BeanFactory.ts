@@ -31,13 +31,13 @@ export interface BeanFactory extends BeanDefinitionRegistry {
    * @param beanType bean类型
    * @param args 构造函数参数值
    */
-  getBean<T = any>(beanType: ClazzType | string): T
+  getBean<T = any>(beanType: ClazzType | string): T | null
 
   /**
    * 根据bean获取对应的beanType
    * @param name bean定义名
    */
-  getType(beanName: string): Function
+  getType(beanName: string): Function | null | undefined
 
   /**
    * 获取指定类型的所有实例包括继承关系

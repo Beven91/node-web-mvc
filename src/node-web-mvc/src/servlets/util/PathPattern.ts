@@ -12,7 +12,7 @@ export default class PathPattern {
     if (!cache.get(pattern)) {
       cache.set(pattern, new PathPattern(pattern));
     }
-    return cache.get(pattern);
+    return cache.get(pattern) as PathPattern;
   }
 
   private readonly regexp: RegExp;

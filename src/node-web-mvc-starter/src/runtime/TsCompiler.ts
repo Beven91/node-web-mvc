@@ -3,7 +3,6 @@ import path from 'path';
 import ts from 'typescript';
 import { createTransformers } from '../transformers';
 import { resolveTSConfig } from './tsc';
-import type { MyGlobal } from 'shared-types';
 
 const suffix = process.env.NCACHE_NAME || '';
 const cacheDir = path.resolve('node_modules/.ncache/' + suffix);
@@ -73,7 +72,7 @@ export default class TsCompiler {
    * @returns {String[]} 需要增量编译的文件
    */
   private findIncrementFiles(files: string[]) {
-    const configHash = this.formatHost.createHash(JSON.stringify(this.parsedCommandLine.options));
+    const configHash = this.formatHost.createHash?.(JSON.stringify(this.parsedCommandLine.options));
     if (this.data[configName] != configHash) {
       // 如果配置发生变更，则需要全部重新编译
       return files;
@@ -82,7 +81,7 @@ export default class TsCompiler {
       if (!this.data[file]) {
         return true;
       }
-      const hash = this.formatHost.createHash(ts.sys.readFile(file));
+      const hash = this.formatHost.createHash?.(ts.sys.readFile(file) || '');
       return this.data[file] !== hash;
     });
   }
@@ -100,7 +99,7 @@ export default class TsCompiler {
       // 如果目标文件不存在，则需删除tsBuildInfo.json，用以达到重新构建的目的
       return 'dist-delete';
     }
-    const hash = this.formatHost.createHash(ts.sys.readFile(filename));
+    const hash = this.formatHost.createHash?.(ts.sys.readFile(filename) || '');
     if (this.data[filename] !== hash) {
       return 'change';
     }
@@ -207,7 +206,7 @@ export default class TsCompiler {
     }
     if (sourceFile) {
       // 增量写出manifest
-      this.data[sourceFile.fileName] = this.formatHost.createHash(sourceFile.getFullText());
+      this.data[sourceFile.fileName] = this.formatHost.createHash?.(sourceFile.getFullText());
       clearTimeout(this.saveTimerId);
       this.saveTimerId = setTimeout(() => {
         fs.writeFileSync(this.filePath, JSON.stringify(this.data, null, 2));
@@ -217,9 +216,9 @@ export default class TsCompiler {
       const manifest = this.data;
       const files = program.getSourceFiles();
       files.map((file) => {
-        this.data[file.fileName] = this.formatHost.createHash(file.getFullText());
+        this.data[file.fileName] = this.formatHost.createHash?.(file.getFullText());
       });
-      this.data[configName] = this.formatHost.createHash(JSON.stringify(this.parsedCommandLine.options));
+      this.data[configName] = this.formatHost.createHash?.(JSON.stringify(this.parsedCommandLine.options));
       fs.writeFileSync(this.filePath, JSON.stringify(manifest, null, 2));
     }
   }

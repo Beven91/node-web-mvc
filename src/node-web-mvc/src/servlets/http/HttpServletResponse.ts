@@ -193,7 +193,11 @@ export default class HttpServletResponse {
   end(content?: string | Buffer, encoding?: BufferEncoding) {
     const buffer = this.createBuffer(content);
     this.write(buffer, encoding);
-    this.nativeResponse.end(undefined, encoding);
+    if (encoding) {
+      this.nativeResponse.end(undefined, encoding);
+    } else {
+      this.nativeResponse.end(undefined);
+    }
   }
 
   /**
@@ -203,7 +207,7 @@ export default class HttpServletResponse {
    * @param mediaType 媒体类型
    * @param encoding 编码
    */
-  async fullResponse(content: string | Buffer, mediaType: MediaType, encoding?: BufferEncoding) {
+  async fullResponse(content: string | Buffer, mediaType: MediaType | null, encoding?: BufferEncoding) {
     const buffer = this.createBuffer(content);
     if (mediaType) {
       this.setHeader(HttpHeaders.CONTENT_TYPE, mediaType.toString());
@@ -222,7 +226,7 @@ export default class HttpServletResponse {
 
   getLastModifiedTime() {
     const n = this.getHeaderValue(HttpHeaders.LAST_MODIFIED)[0];
-    const date = new Date(n);
+    const date = new Date(n!);
     return date;
   }
 

@@ -22,7 +22,7 @@ export default class MapUpdater<T> extends AbstractUpdater<T, Map<any, T>> {
 
   cleanUpdate(oldCtor) {
     const elements = this.data;
-    const removes = [];
+    const removes = [] as string[];
     elements.forEach((element, key) => {
       if (this.needHotFn(element, oldCtor)) {
         removes.push(key);

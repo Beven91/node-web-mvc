@@ -103,7 +103,7 @@ export function resolveTSConfig(project: string, extendOptions?: ConfigOptions['
 
   if (parsedCommandLine.errors?.length > 0) {
     parsedCommandLine.errors.map((m) => {
-      logError(m.code, m.messageText.toString(), m.file?.fileName || configPath, m.start, m.length);
+      logError(m.code, m.messageText.toString(), m.file?.fileName || configPath, m.start as number, m.length as number);
     });
     console.error(parsedCommandLine.errors.map((m) => m.messageText).join('\n'));
     process.exit(1);

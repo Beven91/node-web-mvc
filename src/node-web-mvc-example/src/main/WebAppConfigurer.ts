@@ -44,10 +44,10 @@ export default class WebAppConfigurer extends WebMvcConfigurationSupport {
       .addResourceHandler('/media/**')
       .addResourceLocations(dir);
 
-    registry
-      .addResourceHandler('/worker/**')
-      .resourceChain(true)
-      .addResolver(new WorkerResourceResolver(require.resolve('./worker')));
+    // registry
+    //   .addResourceHandler('/worker/**')
+    //   .resourceChain(true)
+    //   .addResolver(new WorkerResourceResolver(require.resolve('./worker')));
   }
 
 

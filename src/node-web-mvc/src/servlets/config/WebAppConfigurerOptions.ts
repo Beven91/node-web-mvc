@@ -91,7 +91,7 @@ export default class WebAppConfigurerOptions extends ApplicationContextAware {
     this.applicationContext = context;
   }
 
-  constructor(a: WebAppConfigurerOptions) {
+  constructor(a?: WebAppConfigurerOptions) {
     super();
     const options = a || {} as WebAppConfigurerOptions;
     this.resource = options.resource;

@@ -6,10 +6,14 @@ import path from 'path';
 import fs from 'fs';
 import MediaType from '../MediaType';
 
+
+interface MediaRuntimeInfo {
+  mimeTypes?: Record<string, MediaType>
+}
+
 const file = path.join(__dirname, '../../../../mime.type');
 
-const runtime = {
-  mimeTypes: null,
+const runtime: MediaRuntimeInfo = {
 };
 
 export default class MediaTypeFactory {
@@ -26,7 +30,9 @@ export default class MediaTypeFactory {
         const mediaType = segments.shift();
         const exts = (segments.find((s) => !!s) || '').split(' ').filter((s) => !!s);
         exts.forEach((ext) => {
-          mediaTypes['.' + ext] = new MediaType(mediaType);
+          if (mediaType) {
+            mediaTypes['.' + ext] = new MediaType(mediaType);
+          }
         });
       }
     });
@@ -47,7 +53,7 @@ export default class MediaTypeFactory {
    * 获取指定文件的媒体类型
    * @param filename
    */
-  static getMediaType(filename: string): MediaType {
+  static getMediaType(filename: string): MediaType | null {
     if (!filename) {
       return null;
     }

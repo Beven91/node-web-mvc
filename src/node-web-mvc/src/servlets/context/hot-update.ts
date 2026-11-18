@@ -3,11 +3,11 @@ import RuntimeAnnotation, { } from '../annotations/annotation/RuntimeAnnotation'
 import Component from '../../ioc/annotations/Component';
 import Tracer from '../annotations/annotation/Tracer';
 import BeanDefinition from '../../ioc/factory/BeanDefinition';
-import AbstractBeanFactory from '../../ioc/factory/AbstractBeanFactory';
+import { BeanFactory } from '../../ioc/factory/BeanFactory';
 
 // 开发模式热更新
 export default function hotUpdate(
-  getBeanFactory: () => AbstractBeanFactory,
+  getBeanFactory: () => BeanFactory,
   registerWithAnnotation: (annotation: RuntimeAnnotation) => void,
   createSingletonBeans: () => void
 ) {
@@ -21,6 +21,9 @@ export default function hotUpdate(
       const beanFactory = getBeanFactory();
       for (const key of beanFactory.getBeanDefinitionNames()) {
         const definition = beanFactory.getBeanDefinition(key);
+        if (!definition) {
+          continue;
+        }
         const tracer = Tracer.getTracer(definition.clazz || definition.methodClazz);
         if (tracer?.isDependency?.(old.filename)) {
           // 记录需要移除的内容

@@ -19,7 +19,10 @@ const runtimeAnnotations: Array<RuntimeAnnotation> = [];
 
 type GetTargetAnnotationType<T> = T extends { NativeAnnotation: abstract new (...args: any) => infer A } ? A : T extends abstract new (...args: any[]) => infer A ? A : T;
 
-const isMatchType = (m: RuntimeAnnotation, clazz: Function) => {
+const isMatchType = (m: RuntimeAnnotation, clazz: Function | null | undefined) => {
+  if (!clazz) {
+    return false;
+  }
   if (m.ctor === clazz) {
     return true;
   }
@@ -107,7 +110,7 @@ export default class RuntimeAnnotation<A = any> implements IRuntimeAnnotation {
    */
   get paramTypes() {
     const paramTypes = (Reflect.getMetadata('design:paramtypes', this.target, this.name) || []) as [];
-    return paramTypes.map((paramType, i)=>{
+    return paramTypes.map((paramType, i) => {
       return getRuntimeType('design:paramtypes', this.target, this.name, i);
     });
   }
@@ -214,8 +217,10 @@ export default class RuntimeAnnotation<A = any> implements IRuntimeAnnotation {
    * @param {Function} clazz 被修饰的类
    */
   static getAnnotation<C extends IAnnotationOrClazz>(annotationType: C, clazz?: Function): RuntimeAnnotation<C> {
-    // eslint-disable-next-line prefer-rest-params
-    return this.getAnnotations.call(this, ...arguments)[0];
+    if (arguments.length === 1) {
+      return this.getAnnotations(annotationType)[0];
+    }
+    return this.getAnnotations(annotationType, clazz)[0];
   }
 
   /**
@@ -335,7 +340,7 @@ export default class RuntimeAnnotation<A = any> implements IRuntimeAnnotation {
     });
   }
 
-  constructor(meta: any, NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, ownerAnnotation?: RuntimeAnnotation) {
+  constructor(meta: any, NativeAnnotation: IAnnotationClazz, elementTypes: ElementType[], initializer: any, ownerAnnotation?: RuntimeAnnotation | null) {
     const [ target, name, descritpor ] = meta;
 
     if (ownerAnnotation && ownerAnnotation instanceof RuntimeAnnotation) {

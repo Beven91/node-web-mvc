@@ -36,13 +36,13 @@ export default class ResourceRegionHttpMessageConverter extends AbstractHttpMess
   }
 
   async writeRegion(region: ResourceRegion, response: HttpServletResponse) {
-    if (!region?.resource) {
+    if (!region?.resource || !region.resource.contentLength) {
       return;
     }
     const resource = region.resource;
     const start = region.position;
     let end = region.end;
-    const resourceLength = resource.contentLength;
+    const resourceLength = resource.contentLength!;
     end = Math.min(end, resourceLength - 1);
     const rangeLength = end - start + 1;
     const nativeResponse = response.nativeResponse;

@@ -19,7 +19,7 @@ export default abstract class InstantiationAwareBeanPostProcessor extends BeanPo
    * @param beanName 当前bean在容器中的名称
    * @returns 如果返回了对象，则用于代替默认的实例对象
    */
-  postProcessBeforeInstantiation(beanClass: ClazzType, beanName: string): object {
+  postProcessBeforeInstantiation(beanClass: ClazzType, beanName: string): object | null {
     return null;
   }
 

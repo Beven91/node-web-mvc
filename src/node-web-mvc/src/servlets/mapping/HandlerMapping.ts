@@ -16,7 +16,7 @@ export default interface HandlerMapping {
    * 根据当前请求上下文对象获取 处理器执行链
    * @param context
    */
-  getHandler(context: ServletContext): HandlerExecutionChain
+  getHandler(context: ServletContext): HandlerExecutionChain | null
 
   /**
    * 判断，当前是否使用路径匹配

@@ -2,23 +2,23 @@ import IllegalArgumentException from '../../errors/IllegalArgumentException';
 import { equalsIgnoreCase, isEmpty } from '../util/ApiUtils';
 
 export class BaseCorsOptions {
-  origins: string[];
+  origins: string[] = [];
 
-  originPatterns: RegExp[];
+  originPatterns: RegExp[] = [];
 
   // 跨域允许传递的请求头
-  allowedHeaders: string[];
+  allowedHeaders: string[] = [];
 
   // 跨域允许返回的返回头
-  exposedHeaders: string[];
+  exposedHeaders: string[] = [];
 
   // 跨域允许的请求方式
-  methods: string[];
+  methods: string[] = [];
 
   // 跨域允许的认证模式
-  allowCredentials: boolean;
+  allowCredentials: boolean | undefined;
 
-  allowPrivateNetwork: boolean;
+  allowPrivateNetwork: boolean | undefined;
 
   maxAge: number;
 }
@@ -30,11 +30,11 @@ export default class CorsConfiguration extends BaseCorsOptions {
   constructor(options?: Partial<BaseCorsOptions>) {
     super();
     if (options) {
-      this.origins = options.origins;
-      this.originPatterns = options.originPatterns;
-      this.allowedHeaders = options.allowedHeaders;
-      this.exposedHeaders = options.exposedHeaders;
-      this.methods = options.methods;
+      this.origins = options.origins || [];
+      this.originPatterns = options.originPatterns || [];
+      this.allowedHeaders = options.allowedHeaders || [];
+      this.exposedHeaders = options.exposedHeaders || [];
+      this.methods = options.methods || [];
       this.allowCredentials = options.allowCredentials;
       this.allowPrivateNetwork = options.allowPrivateNetwork;
     }
@@ -46,8 +46,7 @@ export default class CorsConfiguration extends BaseCorsOptions {
   }
 
   validateAllowCredentials() {
-    if (this.allowCredentials == true &&
-      this.origins != null && this.origins.indexOf(CorsConfiguration.ALL) > -1) {
+    if (this.allowCredentials == true && this.origins.indexOf(CorsConfiguration.ALL) > -1) {
       throw new IllegalArgumentException(
         'When allowCredentials is true, allowedOrigins cannot contain the special value "*" ' +
         'since that cannot be set on the "Access-Control-Allow-Origin" response header. ' +
@@ -57,8 +56,7 @@ export default class CorsConfiguration extends BaseCorsOptions {
   }
 
   validateAllowPrivateNetwork() {
-    if (this.allowPrivateNetwork == true &&
-      this.origins != null && this.origins.indexOf(CorsConfiguration.ALL) > -1) {
+    if (this.allowPrivateNetwork == true && this.origins.indexOf(CorsConfiguration.ALL) > -1) {
       throw new IllegalArgumentException(
         'When allowPrivateNetwork is true, allowedOrigins cannot contain the special value "*" ' +
         'as it is not recommended from a security perspective. ' +
@@ -68,8 +66,9 @@ export default class CorsConfiguration extends BaseCorsOptions {
   }
 
   private merge(items: any[], from?: any[]) {
-    const set = new Set([].concat(items, from).filter(Boolean));
-    const elements = [];
+    const initElements = [] as any[];
+    const set = new Set(initElements.concat(items, from).filter(Boolean));
+    const elements = [] as any[];
     set.forEach((m) => elements.push(m));
     return elements;
   }
@@ -77,28 +76,24 @@ export default class CorsConfiguration extends BaseCorsOptions {
   addAllowedOrigin(origin: string) {
     if (origin) {
       origin = origin.replace(/\/$/, '');
-      this.origins = this.origins || [];
       this.origins.push(origin);
     }
   }
 
   addAllowedMethod(method: string) {
     if (method) {
-      this.methods = this.methods || [];
       this.methods.push(method);
     }
   }
 
   addAllowedHeader(header: string) {
     if (header) {
-      this.allowedHeaders = this.allowedHeaders || [];
       this.allowedHeaders.push(header);
     }
   }
 
   addAllowedOriginPattern(pattern: RegExp) {
     if (pattern) {
-      this.originPatterns = this.originPatterns || [];
       this.originPatterns.push(pattern);
     }
   }
@@ -153,7 +148,7 @@ export default class CorsConfiguration extends BaseCorsOptions {
     if (isEmpty(requestMethod)) {
       return null;
     }
-    if (this.methods?.length < 1) {
+    if (this.methods.length < 1) {
       return [ requestMethod ];
     }
     const matched = this.methods.find((m) => equalsIgnoreCase(m, requestMethod));
@@ -163,18 +158,18 @@ export default class CorsConfiguration extends BaseCorsOptions {
   }
 
   checkHeaders(requestHeaders: string[]) {
-    if (requestHeaders == null) {
+    if (!requestHeaders) {
       return null;
     }
     if (requestHeaders.length < 1) {
       return [];
     }
-    if (this.allowedHeaders?.length < 1) {
+    if (this.allowedHeaders.length < 1) {
       return null;
     }
     const allowHeaders = this.allowedHeaders;
     if (allowHeaders.indexOf(CorsConfiguration.ALL) > -1) {
-      return [].concat(requestHeaders);
+      return ([] as any[]).concat(requestHeaders);
     }
     const headers = requestHeaders.filter((m) => {
       return !!allowHeaders.find((a) => equalsIgnoreCase(m, a));
@@ -185,10 +180,10 @@ export default class CorsConfiguration extends BaseCorsOptions {
 
   applyPermitDefaultValues() {
     const ALL = CorsConfiguration.ALL;
-    if (this.origins == null) {
+    if (this.origins.length < 1) {
       this.origins = [ ALL ];
     }
-    if (this.allowedHeaders == null) {
+    if (this.allowedHeaders.length < 1) {
       this.allowedHeaders = [
         ALL,
       ];

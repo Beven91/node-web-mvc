@@ -1,8 +1,0 @@
-{
-  "name": "demo-api",
-  "script": "src/index",
-  "env": {
-    "NODE_ENV": "production",
-    "RUN_ENV": ""
-  }
-}

@@ -19,7 +19,7 @@ export default abstract class AbstractHttpMessageConverter<T> implements HttpMes
     return this.supportedMediaTypes;
   }
 
-  private matchMediaType(mediaType: MediaType) {
+  private matchMediaType(mediaType: MediaType | null) {
     if (!mediaType) {
       return true;
     }
@@ -30,7 +30,7 @@ export default abstract class AbstractHttpMessageConverter<T> implements HttpMes
     return this.supports(clazz) && this.matchMediaType(mediaType);
   }
 
-  canWrite(clazz: JsDataType, mediaType: MediaType): boolean {
+  canWrite(clazz: JsDataType, mediaType: MediaType | null): boolean {
     return this.supports(clazz) && this.matchMediaType(mediaType);
   }
 

@@ -32,7 +32,7 @@ export default function enhanceProdTransformer(context: ExtTransformationContext
               ts.factory.updateObjectLiteralExpression(
                 arg,
                 [
-                  ...arg.properties.filter((m) => getNodeText(m.name) !== 'hot'),
+                  ...arg.properties.filter((m) => getNodeText(m.name!) !== 'hot'),
                   ts.factory.createPropertyAssignment('isDist', ts.factory.createTrue()),
                 ]),
             ]

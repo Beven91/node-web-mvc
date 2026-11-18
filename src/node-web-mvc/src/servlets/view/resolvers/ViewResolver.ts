@@ -14,5 +14,5 @@ export default interface ViewResolver {
    * @param {Object} model 视图数据
    * @param {HttpServletRequest} request 当前http请求实例
    */
-  resolveViewName(viewName: string, model: any, request: HttpServletRequest): View
+  resolveViewName(viewName: string, model: any, request: HttpServletRequest): View | null
 }

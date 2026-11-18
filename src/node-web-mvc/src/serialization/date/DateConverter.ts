@@ -30,7 +30,7 @@ export default class DateConverter {
     return {
       exp: exp || '',
       key,
-      handler: parsers[key as ParserTypes],
+      handler: parsers[key as string],
     };
   }
 
@@ -40,7 +40,7 @@ export default class DateConverter {
    * @param pattern 日期格式
    * @returns
    */
-  parse(raw: string): Date {
+  parse(raw: string): Date | null {
     if (!raw) return null;
     const record = {} as Record<ParserTypes, string>;
     const expressions = this.pattern.replace(patternRegexp, (match: string) => `\n${match}\n`).split('\n').filter((m) => m !== '').map((m) => m.replace(/'/g, ''));

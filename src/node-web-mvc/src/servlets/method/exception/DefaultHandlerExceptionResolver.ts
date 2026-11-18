@@ -14,7 +14,7 @@ export default class DefaultHandlerExceptionResolver implements HandlerException
     return errorTypes.find((errorType) => errorType && error instanceof errorType);
   }
 
-  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView> {
+  async resolveException(servletContext: ServletContext, handler: HandlerMethod, error: Error): Promise<ModelAndView | null> {
     if (this.isType(error, ArgumentResolvError, ValueConvertError, ParameterRequiredError)) {
       servletContext.response.sendError(HttpStatus.BAD_REQUEST);
       return new ModelAndView();

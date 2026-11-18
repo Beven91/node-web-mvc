@@ -34,7 +34,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
 
   protected appContext: AbstractApplicationContext;
 
-  protected corsConfigurationSource: CorsConfigurationSource;
+  protected corsConfigurationSource: CorsConfigurationSource | null;
 
   private order: number;
 
@@ -125,7 +125,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
    * 根据当前请求对象获取 处理器执行链
    * @param context 请求上下文对象
    */
-  getHandler(context: ServletContext): HandlerExecutionChain {
+  getHandler(context: ServletContext): HandlerExecutionChain | null {
     const handler = this.getHandlerInternal(context) || this.getDefaultHandler();
     if (!handler) {
       return null;
@@ -144,7 +144,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
   /**
    * 根据当前request请求对象，获取对应的处理器
    */
-  protected abstract getHandlerInternal(context: ServletContext): object;
+  protected abstract getHandlerInternal(context: ServletContext): object | null;
 
   protected initLookupPath(request: HttpServletRequest) {
     const url = this.urlPathHelper.getServletPath(request);
@@ -177,7 +177,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
     return this.order = value;
   }
 
-  private findCorsConfigurationSource(handler: object) : CorsConfigurationSource {
+  private findCorsConfigurationSource(handler: object) : CorsConfigurationSource | null {
     if (handler instanceof HandlerExecutionChain) {
       handler = handler.getHandler() as any;
     }
@@ -189,7 +189,7 @@ export default abstract class AbstractHandlerMapping extends ApplicationContextA
 
   private getCorsHandlerExecutionChain(chain: HandlerExecutionChain, handler: object, context: ServletContext) {
     const request = context.request;
-    const corsConfig = this.getCorsConfiguration(handler, request);
+    const corsConfig = this.getCorsConfiguration(handler, request)!;
     if (CorsUtils.isPreFlightRequest(request)) {
       // 如果是预请求
       const preFlightHandler = new PreFlightHandler(corsConfig, this.corsProcessor);

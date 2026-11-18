@@ -71,8 +71,9 @@ export default class CacheControl {
   }
 
   toString() {
-    const values = [];
-    if (this.maxAge >= 0) {
+    const values = [] as string[];
+    const maxAge = this.maxAge as number;
+    if (maxAge >= 0) {
       values.push(`max-age=${this.maxAge}`);
     }
     if (this.noCache) {

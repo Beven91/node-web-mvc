@@ -2,6 +2,7 @@ import BeanCreationException from '../../errors/BeanCreationException';
 import BeanPropertyCreationException from '../../errors/BeanPropertyCreationException';
 import Exception from '../../errors/Exception';
 import LoopDependenciesException, { DependencyBeanDefinition } from '../../errors/LoopDependenciesException';
+import Normalizer from '../../errors/Normalizer';
 import Javascript from '../../interface/Javascript';
 import { ClazzType } from '../../interface/declare';
 import ElementType from '../../servlets/annotations/annotation/ElementType';
@@ -47,7 +48,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * 根据bean名称获取对应的定义
    * @param beanName bean类型
    */
-  abstract getBeanDefinition(beanName: string): BeanDefinition;
+  abstract getBeanDefinition(beanName: string): BeanDefinition | undefined;
 
   /**
    * 注册一个bean
@@ -59,7 +60,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   /**
    * 移除bean定义
    */
-  abstract removeBeanDefinition(beanName: string): BeanDefinition;
+  abstract removeBeanDefinition(beanName: string): BeanDefinition | undefined;
 
   /**
    * 获取所有已注册的bean定义key
@@ -119,10 +120,10 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
   /**
    * 获取指定bean实例
    */
-  getBean<T = any>(name: ClazzType | string): T {
+  getBean<T = any>(name: ClazzType | string): T | null {
     const beanName = BeanDefinition.toBeanName(name);
     const definition = this.getBeanDefinition(beanName);
-    let instance: T = null;
+    let instance: T = null as T;
     if (definition) {
       instance = this.doGetBean<T>(definition, beanName);
       // throw new BeanDefinitionNotfoundException(name);
@@ -173,7 +174,8 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
         return beanInstance;
       }
     } catch (ex) {
-      throw new BeanCreationException(definition, beanName, `BeanPostProcessor before instantiation of bean failed`, ex);
+      const error = Normalizer.normalizeError(ex);
+      throw new BeanCreationException(definition, beanName, `BeanPostProcessor before instantiation of bean failed`, error);
     }
     return this.doCreateBean(definition, beanName);
   }
@@ -199,7 +201,8 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       if (ex instanceof Exception) {
         throw ex;
       }
-      throw new BeanCreationException(definition, beanName, `Unexpected exception during bean creation`, ex);
+      const error = Normalizer.normalizeError(ex);
+      throw new BeanCreationException(definition, beanName, `Unexpected exception during bean creation`, error);
     } finally {
       // 创建实例成功后，重置检测变量
       this.createChains.pop();
@@ -211,19 +214,21 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
       return this.createInstanceByMethod(definition);
     }
     const Bean = definition.clazz;
-    return new Bean();
+    if (Bean) {
+      return new Bean();
+    }
   }
 
   private createInstanceByMethod(definition: BeanDefinition) {
     let instance = {};
-    const ownerClazz = definition.methodClazz;
+    const ownerClazz = definition.methodClazz!;
     const clazzBeanName = BeanDefinition.toBeanName(ownerClazz);
     if (this.getBeanDefinition(clazzBeanName) !== definition) {
       // 需要先创建类实例
-      instance = this.getBean(clazzBeanName);
+      instance = this.getBean(clazzBeanName) || {};
     }
     // 创建函数bean
-    const handler = definition.method;
+    const handler = definition.method!;
     const annotations = RuntimeAnnotation.getAnnotations([ Qualifier, Autowired ], ownerClazz);
     const parameters = annotations.filter((m) => m.elementType == ElementType.PARAMETER && m.method == handler);
     const values = parameters.map((parameter) => {
@@ -242,7 +247,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
 
   private resolveBeforeInstantiation(definition: BeanDefinition, beanName: string) {
     const targetType = definition.clazz;
-    // 1.1 实例化bean
+    // 1.1 实例化bean（method bean 没有 clazz，跳过前置实例化）
     let beanInstance = this.applyBeanPostProcessorsBeforeInstantiation(targetType, beanName);
     if (beanInstance) {
       // 1.2 执行初始化结束事件
@@ -257,7 +262,10 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
    * @param beanName 当前bean名称
    * @returns 返回预创建创建的实例如果有的话
    */
-  private applyBeanPostProcessorsBeforeInstantiation(targetType: ClazzType, beanName: string) {
+  private applyBeanPostProcessorsBeforeInstantiation(targetType: ClazzType | null, beanName: string) {
+    if (!targetType) {
+      return null;
+    }
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
     for (const processor of processors) {
       const instance = processor.postProcessBeforeInstantiation(targetType, beanName);
@@ -293,7 +301,7 @@ export default abstract class AbstractBeanFactory implements BeanFactory {
     const processors = this.getProcessors(InstantiationAwareBeanPostProcessor);
     let beanInstance = instance;
     for (const processor of processors) {
-      const current = processor.postProcessBeforeInitialization(beanInstance, beanName);
+      const current = processor.postProcessBeforeInitialization?.(beanInstance, beanName);
       if (current) {
         beanInstance = current;
       }

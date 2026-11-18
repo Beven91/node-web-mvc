@@ -27,7 +27,7 @@ export default class ConfigurationBeanPostProcessor extends InstantiationAwareBe
     this.beanFactory = beanFactory;
   }
 
-  postProcessBeforeInitialization(beanType: ClazzType, beanName: string): object {
+  postProcessBeforeInitialization(beanType: ClazzType, beanName: string): object | null {
     return null;
   }
 

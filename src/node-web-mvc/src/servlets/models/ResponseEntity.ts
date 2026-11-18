@@ -31,7 +31,7 @@ export default class ResponseEntity<T = any> extends HttpEntity<T, ResponseHeade
       this.responseStatus = data;
     } else {
       this.body = data;
-      this.responseStatus = status;
+      this.responseStatus = status!;
     }
   }
 }

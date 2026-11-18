@@ -79,7 +79,7 @@ export default class SpringApplication {
   /**
    * 顶层异常兜底
    */
-  private onError(status: HttpStatus, res: HttpServletResponse, ex: Error) {
+  private onError(status: HttpStatus, res: HttpServletResponse, ex: Error | null) {
     const response = res.nativeResponse;
     ex && console.error(ex);
     if (!res.headersSent) {
@@ -149,11 +149,11 @@ export default class SpringApplication {
     const serverOptions = this.bootConfig.getServerOptions();
     const base = serverOptions.base || '/';
     const configurer = this.configurer;
-    if (nativeRequest.url.indexOf(base) !== 0) {
+    if (nativeRequest.url?.indexOf(base) !== 0) {
       return next();
     }
     const filterAdapter = this.filterAdapter;
-    const reader = new RequestBodyReader(configurer.multipart);
+    const reader = new RequestBodyReader(configurer.multipart!);
     const createDispatcher = (path: string) => new ApplicationDispatcher(filterAdapter, path);
     const request = new HttpServletRequest(nativeRequest, base, createDispatcher, reader);
     const response = new HttpServletResponse(nativeResponse);
@@ -194,7 +194,8 @@ function registerHotUpdate(app: SpringApplication, refreshLifecycle: SpringAppli
     .clean()
     .postend((m) => {
       const tracer = Tracer.getTracer(app.configurer.constructor);
-      if (tracer?.id === m.filename) {
+      const filename = m?.filename;
+      if (filename && tracer?.id === filename) {
         app.context?.getBeanFactory()?.destory?.();
         // 如果是配置文件更新，则需要重新初始化(并非重启服务，而是刷新掉上下文)
         refreshLifecycle();

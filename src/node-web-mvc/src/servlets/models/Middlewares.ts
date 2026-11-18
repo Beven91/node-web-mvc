@@ -16,7 +16,7 @@ export default class Middlewares {
       const response = resp.nativeResponse;
       const middlewares = [
         ...this.middlewares,
-        () => resolve(fallback?.()),
+        () => resolve(fallback?.() as any),
       ];
       const handler = middlewares.reverse().reduce((next: any, middleware) => {
         return () => {

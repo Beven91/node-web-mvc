@@ -32,7 +32,7 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    * 根据bean名称获取对应的定义
    * @param beanName bean类型
    */
-  getBeanDefinition(beanName: string): BeanDefinition {
+  getBeanDefinition(beanName: string): BeanDefinition | undefined {
     return this.beanDefinitions.get(beanName);
   }
 
@@ -58,8 +58,8 @@ export default class DefaultListableBeanFactory extends AbstractBeanFactory {
    * 注册组件的Bean注解定义
    * @param clazz
    */
-  private registerComponentBeanAnnotations(clazz: ClazzType) {
-    if (this.registerdBeanType.has(clazz)) {
+  private registerComponentBeanAnnotations(clazz: ClazzType | null) {
+    if (!clazz || this.registerdBeanType.has(clazz)) {
       return;
     }
     this.registerdBeanType.set(clazz, true);

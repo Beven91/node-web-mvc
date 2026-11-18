@@ -5,16 +5,16 @@ import ResourceResolver from './ResourceResolver';
 import ResourceResolverChain from './ResourceResolverChain';
 
 export default class PathResourceResolver implements ResourceResolver {
-  async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, nextChain: ResourceResolverChain): Promise<Resource> {
+  async resolveResource(request: HttpServletRequest, requestPath: string, locations: Array<Resource>, nextChain: ResourceResolverChain): Promise<Resource | null> {
     return this.getResource(requestPath, locations);
   }
 
-  async resolveUrlPath(resourcePath: string, locations: Array<Resource>, chain: ResourceResolverChain): Promise<string> {
+  async resolveUrlPath(resourcePath: string, locations: Array<Resource>, chain: ResourceResolverChain): Promise<string | null> {
     const resource = this.getResource(resourcePath, locations);
     return resource ? resource.url : null;
   }
 
-  private getResource(resourcePath: string, locations: Array<Resource>): Resource {
+  private getResource(resourcePath: string, locations: Array<Resource>): Resource | null {
     const segments = (resourcePath).split('/');
     const first = segments.shift();
     for (const location of locations) {

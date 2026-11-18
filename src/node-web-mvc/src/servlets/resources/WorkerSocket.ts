@@ -12,15 +12,15 @@ export default class WorkerSocket extends Socket {
 
   private type: string;
 
-  address(): AddressInfo | {} {
-    return this.myAddress || {};
+  address(): AddressInfo {
+    return (this.myAddress || {}) as AddressInfo;
   }
 
   constructor(port: MessagePort, type: 'requestSocket' | 'responseSocket', address?: AddressInfo | {}) {
     super();
     this.invoker = new WorkerInvoker(port);
     this.type = type;
-    this.myAddress = address;
+    this.myAddress = address as AddressInfo;
   }
 
   private invoke(name: string, args: any[]) {
@@ -40,9 +40,9 @@ export default class WorkerSocket extends Socket {
   end(chunk: Uint8Array | string, cb?: () => void): this;
   end(chunk: Uint8Array | string, encoding: BufferEncoding, cb?: () => void): this;
   end(chunk?: any, arg1?: any, cb?: any): this {
-    let callback: () => void;
-    let encoding: BufferEncoding;
-    let buffer: Uint8Array | string;
+    let callback: (() => void) | undefined;
+    let encoding: BufferEncoding | undefined;
+    let buffer: Uint8Array | string | undefined;
     switch (arguments.length) {
       case 1:
         callback = cb;

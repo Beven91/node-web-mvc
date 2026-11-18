@@ -12,12 +12,16 @@ if (data.dev) {
     cwd: [ process.cwd() ],
   });
   hot.create(module).preend(() => {
-    parentPort.removeAllListeners('message');
+    parentPort?.removeAllListeners('message');
   });
 
   const resolveJsFile = (filename: string) => {
-    const name = path.relative(data.rootDir, filename);
-    return path.join(data.outDir, name.replace('.ts', '.js'));
+    if (data.rootDir && data.outDir) {
+      const name = path.relative(data.rootDir, filename);
+      return path.join(data.outDir, name.replace('.ts', '.js'));
+    } else {
+      return '';
+    }
   };
 
   require.extensions['.ts'] = function(m, filename) {

@@ -45,7 +45,7 @@ export const hasDecorator = (node: WithModifiersNode, decorators: Record<string,
   return !!node.modifiers?.find?.((m) => isDecorator(m, decorators));
 };
 
-export function findParent<T extends ts.Node>(node: ts.Node, match: (current: ts.Node) => boolean): T {
+export function findParent<T extends ts.Node>(node: ts.Node, match: (current: ts.Node) => boolean): T | undefined {
   let current = node;
   while (current) {
     if (match(current)) {
@@ -80,7 +80,7 @@ function makeImportIdentifier(symbol: ts.Symbol, gContext: GenerateContext) {
   }
 }
 
-function isRuntimeType(type: ts.Type) {
+function isRuntimeType(type: ts.Type | null) {
   if (!type?.symbol) {
     return false;
   }
@@ -92,7 +92,10 @@ function isRuntimeType(type: ts.Type) {
 
 function getAliasQualifiedName(typeName: ts.EntityName, gContext: GenerateContext): ts.EntityName {
   const symbol = gContext.checker.getSymbolAtLocation(typeName);
-  const declaration = symbol.declarations[0];
+  const declaration = symbol?.declarations?.[0];
+  if (!declaration) {
+    return typeName;
+  }
   if (ts.isTypeAliasDeclaration(declaration)) {
     if (ts.isTypeReferenceNode(declaration.type)) {
       return getAliasQualifiedName(declaration.type.typeName, gContext);
@@ -104,7 +107,7 @@ function getAliasQualifiedName(typeName: ts.EntityName, gContext: GenerateContex
   return typeName;
 }
 
-export function getDeclareType(node: ts.EntityName, gContext: GenerateContext): DeclareTypeInfo {
+export function getDeclareType(node: ts.EntityName, gContext: GenerateContext): DeclareTypeInfo | null {
   const typeChecker = gContext.checker;
   const symbol = typeChecker.getSymbolAtLocation(node);
   if (!symbol) return null;
@@ -123,7 +126,7 @@ export function getDeclareType(node: ts.EntityName, gContext: GenerateContext): 
   };
 }
 
-function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, meta: ReturnType<typeof getDeclareType>, gContext: GenerateContext, isArray: boolean, isRoot: boolean, parameterName?: string) {
+function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, meta: DeclareTypeInfo, gContext: GenerateContext, isArray: boolean, isRoot: boolean, parameterName?: string) {
   const properties: ts.ObjectLiteralElementLike[] = [];
   const name = meta.identifier.getText();
   properties.push(ts.factory.createPropertyAssignment('name', ts.factory.createStringLiteral(name)));
@@ -145,8 +148,9 @@ function createTypeDefinitionByIdentifier(typeNode: ts.NodeWithTypeArguments, me
   if (isArray) {
     properties.push(ts.factory.createPropertyAssignment('array', ts.factory.createTrue()));
   }
-  const args = typeNode.typeArguments?.map?.((m, i) => createTypeDefinition(m, gContext, false, false, meta.typeParameters?.[i])).filter(Boolean);
-  if (args?.length > 0) {
+  let args = typeNode.typeArguments?.map?.((m, i) => createTypeDefinition(m, gContext, false, false, meta.typeParameters?.[i])).filter(Boolean) as ts.Expression[];
+  args = (args || []) as ts.Expression[];
+  if (args.length > 0) {
     const typeArguments = ts.factory.createArrayLiteralExpression(args);
     properties.push(ts.factory.createPropertyAssignment('args', typeArguments));
   }
@@ -168,6 +172,7 @@ function createBasicType(name: string, identifier: string, parameterName: string
 }
 
 function createTokenType(tokenNode: ts.TypeNode, parameterName?: string) {
+  parameterName = parameterName || '';
   switch (tokenNode.kind) {
     case ts.SyntaxKind.StringKeyword:
       return createBasicType('string', 'String', parameterName);
@@ -184,10 +189,13 @@ function createTokenType(tokenNode: ts.TypeNode, parameterName?: string) {
   }
 }
 
-function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, isArray?: boolean, isRoot?: boolean, parameterName?: string): ts.Expression {
+function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, isArray?: boolean, isRoot?: boolean, parameterName?: string): ts.Expression | null {
+  isArray = !!isArray;
+  isRoot = !!isRoot;
   if (ts.isTypeReferenceNode(typeNode)) {
     // 类型引用
     const meta = getDeclareType(typeNode.typeName, gContext);
+    if (!meta) return null;
     return createTypeDefinitionByIdentifier(typeNode, meta, gContext, isArray, isRoot, parameterName);
   } else if (ts.isTypeQueryNode(typeNode)) {
     const meta: DeclareTypeInfo = {
@@ -200,7 +208,7 @@ function createTypeDefinition(typeNode: ts.TypeNode, gContext: GenerateContext, 
     return createTypeDefinitionByIdentifier(typeNode, meta, gContext, isArray, isRoot, parameterName);
   } else if (ts.isUnionTypeNode(typeNode)) {
     const types = ts.factory.createArrayLiteralExpression(
-      typeNode.types.map((m) => createTypeDefinition(m, gContext))
+      typeNode.types.map((m) => createTypeDefinition(m, gContext)).filter(Boolean) as ts.Expression[]
     );
     // 联合类型
     return ts.factory.createObjectLiteralExpression([
@@ -221,19 +229,20 @@ export function createRuntimeTypeArguments(typeNode: ts.TypeNode, gContext: Gene
   return [
     ts.factory.createStringLiteral('design:runtimetype'),
     type,
-  ].filter(Boolean);
+  ].filter(Boolean) as ts.Expression[];
 }
 
 export function replaceToRuntimeImportDeclaration(node: ts.ImportDeclaration, checker: ts.TypeChecker) {
   const namedBindings: ts.ImportSpecifier[] = [];
-  let name: ts.Identifier = undefined;
+  let name: ts.Identifier;
   if (node.importClause) {
-    node.importClause.namedBindings?.forEachChild((child: ts.ImportSpecifier) => {
+    node.importClause.namedBindings?.forEachChild((item) => {
+      const child = item as ts.ImportSpecifier;
       const info = checker.getTypeAtLocation(child);
       const type = info.symbol ? checker.getDeclaredTypeOfSymbol(info.symbol) : null;
       if (isRuntimeType(type)) {
         namedBindings.push(
-          compact.createImportSpecifier(child.propertyName, child.name)
+          compact.createImportSpecifier(child.propertyName!, child.name)
         );
       }
     });
@@ -245,7 +254,7 @@ export function replaceToRuntimeImportDeclaration(node: ts.ImportDeclaration, ch
       name = node.importClause.name;
     }
   }
-  return compact.createImportDeclaration(node, name, namedBindings);
+  return compact.createImportDeclaration(node, name!, namedBindings);
 }
 
 export function createRequireStatement(moduleName: string, request: string) {

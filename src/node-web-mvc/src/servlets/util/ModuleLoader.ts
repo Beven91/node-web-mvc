@@ -19,7 +19,7 @@ export default class ModuleLoader {
    * @param cache 缓存清单，如果文件已经加载过，则跳过加载，
    * 这里主要用解决windows下目录大小写导致同个模块存在两份。
    */
-  constructor(dir: string, cache: object, exclude: string[]) {
+  constructor(dir: string, cache: object, exclude: string[] | undefined) {
     this.exclude = exclude || [];
     this.load(dir, cache || {});
   }

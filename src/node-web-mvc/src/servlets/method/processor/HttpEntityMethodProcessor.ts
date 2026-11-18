@@ -20,16 +20,16 @@ export default class HttpEntityMethodProcessor extends AbstractMessageConverterM
     return returnType.isParamAssignableOf(ResponseEntity);
   }
 
-  handleReturnValue(entity: ResponseEntity, returnType: MethodParameter, servletContext: ServletContext): Promise<void> {
+  async handleReturnValue(entity: ResponseEntity, returnType: MethodParameter, servletContext: ServletContext): Promise<void> {
     const response = servletContext.response;
     const headers = entity.headers;
     const responseStatus = entity.responseStatus;
     // 合并Http返回头
     Object.keys(entity.headers).forEach((key) => {
       if (key.toLowerCase() === 'vary') {
-        response.addHeader(key, headers[key]);
+        response.addHeader(key, headers[key] || '');
       } else {
-        response.setHeader(key, entity.headers[key]);
+        response.setHeader(key, entity.headers[key] || '');
       }
     });
     // 设置返回头
@@ -67,7 +67,7 @@ export default class HttpEntityMethodProcessor extends AbstractMessageConverterM
     }
     const runtimeType = parameter.getParameterGenericTypeOf(1);
     const type = runtimeType || Object;
-    let data = null;
+    let data;
     if (request.hasBody) {
       data = this.readWithMessageConverters(servletContext, type);
     }

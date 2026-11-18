@@ -2,9 +2,9 @@ import HttpStatus from '../http/HttpStatus';
 import View from '../view/View';
 
 export default class ModelAndViewContainer {
-  public status: HttpStatus;
+  public status: HttpStatus | undefined;
 
-  public view: View | string;
+  public view: View | string | undefined;
 
   public redirect: Record<string, any> = {};
 

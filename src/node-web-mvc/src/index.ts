@@ -238,6 +238,8 @@ export { default as JsonSerialize } from './serialization/JsonSerialize';
 export { default as JsonSerializer } from './serialization/JsonSerializer';
 export { default as DateConverter } from './serialization/date/DateConverter';
 export { default as DateTimeTextProvider } from './serialization/date/DateTimeTextProvider';
+export { default as Exception } from './errors/Exception';
+export { default as PathPattern } from './servlets/util/PathPattern';
 
 hot.create(module).accept(()=>{
 });

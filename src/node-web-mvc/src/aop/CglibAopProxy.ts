@@ -63,7 +63,7 @@ export default class CglibAopProxy {
       const handler = anno.method.bind(instance);
       const functionPointcut = new FunctionExpressionPointcut();
       const advisor = new DefaultPointcutAdvisor();
-      functionPointcut.setExpression(anno.nativeAnnotation.value);
+      functionPointcut.setExpression(anno.nativeAnnotation.value!);
       advisor.setPointcut(functionPointcut);
       advisor.setAdvice(new Interceptor(handler));
       this.addAdvisor(advisor);

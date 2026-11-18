@@ -19,13 +19,13 @@ export default class RequestBodyReader implements IRequestBodyReader {
     ];
   }
 
-  read(servletContext: ServletContext): Promise<Record<string, any>> {
+  read(servletContext: ServletContext): Promise<Record<string, any> | null> {
     const request = servletContext.request;
     const mediaType = servletContext.request.mediaType;
     const reader = this.readers.find((m) => m.supports(mediaType));
     const length = request.nativeRequest.readableLength;
     if (!reader) {
-      return null;
+      return Promise.resolve(null);
     }
     if (!isNaN(length) && length > Number(this.config.maxRequestSize)) {
       // 如果请求超出限制

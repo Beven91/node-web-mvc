@@ -87,7 +87,7 @@ export default class HandlerMethod {
       this.bean = isType ? null : bean;
       this.beanType = isType ? bean : bean.constructor;
       this.parameters = this.initMethodParameters();
-      this.beanFactory = beanFactory;
+      this.beanFactory = beanFactory!;
       this.evaluateResponseStatus();
     }
   }

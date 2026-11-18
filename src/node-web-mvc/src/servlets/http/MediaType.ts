@@ -69,7 +69,7 @@ export default class MediaType {
     return mimeTypes.find((m) => m.type.toLowerCase() == this.type.toLowerCase() && m.subtype.toLowerCase() == this.subtype.toLowerCase());
   }
 
-  public isCompatibleWith(other: MediaType) {
+  public isCompatibleWith(other: MediaType | null) {
     if (!other) return false;
     const thisSuffix = this.subTypeSuffix;
     const otherSuffix = other.subTypeSuffix;
@@ -99,8 +99,8 @@ export default class MediaType {
   constructor(mediaType: string, sub?: string, parameters?: Parameters) {
     if (arguments.length === 1) {
       const parts = (mediaType || '').split(';');
-      const segments = parts.shift().split('/');
-      this.type = segments.shift().toLowerCase().trim();
+      const segments = (parts.shift() || '').split('/');
+      this.type = (segments.shift() || '').toLowerCase().trim();
       this.subtype = segments.join('/').toLowerCase().trim();
       this.parameters = {};
       parts.forEach((part) => {
@@ -115,7 +115,7 @@ export default class MediaType {
   }
 
   isEmpty() {
-    return !this.type&& !this.subtype;
+    return !this.type && !this.subtype;
   }
 
   toString() {

@@ -53,7 +53,7 @@ function copyResourceAndDirectories(dir: string, targetDir: string, exclude: str
   }
 
   // 递归读取目录下的文件
-  const files = host.readDirectory(dir, undefined, [
+  const files = host.readDirectory?.(dir, undefined, [
     '**/*.ts',
     '**/*.tsx',
     '**/*.js',
@@ -61,7 +61,7 @@ function copyResourceAndDirectories(dir: string, targetDir: string, exclude: str
     'tsconfig.json',
     targetDir,
     ...exclude,
-  ]);
+  ]) || [];
   for (const filePath of files) {
     const file = path.relative(dir, filePath);
     const targetFilePath = path.join(targetDir, file);

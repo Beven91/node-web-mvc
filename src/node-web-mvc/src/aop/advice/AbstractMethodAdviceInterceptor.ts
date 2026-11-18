@@ -1,8 +1,10 @@
 import { MethodInvocation } from '../invocation/MethodInvocation';
 import MethodInterceptor from './MethodInterceptor';
 
+export type AdviceBaseHandler = (...args: any) => any;
 export interface NewableMethodAdviceInterceptor {
-  new(handler: Function): AbstractMethodAdviceInterceptor
+  // eslint-disable-next-line
+  new(handler: AdviceBaseHandler): AbstractMethodAdviceInterceptor
 }
 
 export default abstract class AbstractMethodAdviceInterceptor<T extends Function = Function> extends MethodInterceptor {

@@ -22,7 +22,7 @@ export default {
     if (isEmpty(origin)) {
       return false;
     }
-    const uRL = new URL(origin, `xx://127.0.0.0`);
+    const uRL = new URL(origin!, `xx://127.0.0.0`);
     const isSameOrigin = (
       // 协议相等
       isEqual(request.protocol, uRL.protocol.replace(':', '')) &&

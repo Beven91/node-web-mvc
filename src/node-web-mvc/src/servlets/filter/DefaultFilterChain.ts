@@ -3,6 +3,12 @@ import HttpServletResponse from '../http/HttpServletResponse';
 import Filter from './Filter';
 import FilterChain from './FilterChain';
 
+interface ChainPromiseDefer {
+  promise: Promise<any>
+  resolve: ((data: any) => void)
+  reject: ((ex: any) => void)
+}
+
 export default class DefaultFilterChain implements FilterChain {
   private readonly filters: Filter[];
 
@@ -11,7 +17,7 @@ export default class DefaultFilterChain implements FilterChain {
   public doFilter: FilterChain['doFilter'];
 
   private createDefer() {
-    const runtime = { promise: null, resolve: null, reject: null };
+    const runtime = {} as ChainPromiseDefer;
     runtime.promise = new Promise((resolve, reject) => {
       runtime.resolve = resolve;
       runtime.reject = reject;

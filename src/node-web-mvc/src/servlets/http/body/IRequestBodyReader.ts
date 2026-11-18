@@ -1,5 +1,5 @@
 import ServletContext from '../ServletContext';
 
 export interface IRequestBodyReader {
-  read(servletContext: ServletContext): Promise<Record<string, any>>;
+  read(servletContext: ServletContext): Promise<Record<string, any> | null>;
 }

@@ -81,7 +81,7 @@ export default abstract class AbstractApplicationContext {
     const keys = beanFactory.getBeanDefinitionNames();
     for (const key of keys) {
       const definition = beanFactory.getBeanDefinition(key);
-      if (definition.scope == 'singleton') {
+      if (definition?.scope == 'singleton') {
         beanFactory.getBean(key);
       }
     }

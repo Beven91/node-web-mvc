@@ -2,7 +2,6 @@
 import path from 'path';
 import fs from 'fs';
 import TsCompiler from './TsCompiler';
-import { MyGlobal } from 'shared-types';
 
 export function registerTs(project: string) {
   const myGlobal = global as MyGlobal;

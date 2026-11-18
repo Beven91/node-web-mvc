@@ -159,7 +159,7 @@ export default class OpenApiModel {
       deprecated: false,
       operationId: operationId,
       tags: utags,
-      summary: apiOperation?.value,
+      summary: apiOperation?.value || '',
       description: apiOperation?.notes,
       parameters: parameters.filter((m) => this.isNotBodyParameter(m)),
       requestBody: this.buildOperationConsumes(action, parameters, consumes),
@@ -219,8 +219,9 @@ export default class OpenApiModel {
           $ref: null,
         },
       };
-    }).filter(Boolean);
+    });
     return finalParameters.map((parameter) => {
+      if (!parameter) return;
       const info = parameter.example && buildRuntimeType(parameter.example?.constructor, null);
       const typeInfo = definition.typemappings.make(parameter.dataType || info);
       return {
@@ -231,7 +232,7 @@ export default class OpenApiModel {
         example: emptyOf(parameter.example, undefined),
         schema: typeInfo,
       } as ApiOperationParameter;
-    }).filter(Boolean);
+    }).filter(Boolean) as ApiOperationParameter[];
   }
 
   private isMultipartFile(schema: ApiOperationParameter['schema']) {
@@ -286,7 +287,7 @@ export default class OpenApiModel {
   }
 
   private buildOperationProduces(returnType: any, mapping: RequestMappingInfo, definition: Schemas) {
-    const produces = mapping.produces?.length < 1 ? [ '*/*' ] : mapping.produces;
+    const produces = mapping.produces.length < 1 ? [ '*/*' ] : mapping.produces;
     const contents = {};
     produces.forEach((name) => {
       const schema = returnType ? definition.typemappings.make(returnType) : undefined;

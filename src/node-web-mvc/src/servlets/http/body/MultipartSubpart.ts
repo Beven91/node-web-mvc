@@ -52,7 +52,7 @@ export default class MultipartSubpart {
     this.tempRaw = [];
     this.size = 0;
     this.status = 'boundary';
-    this.mediaRoot = config.mediaRoot;
+    this.mediaRoot = config.mediaRoot!;
     this.maxFileSize = Number(config.maxFileSize);
     this.chunkSize = Math.max(8192, boundary.length + 10);
   }
@@ -91,11 +91,12 @@ export default class MultipartSubpart {
     }
   }
 
-   finish(encoding: BufferEncoding) {
+  finish(encoding: BufferEncoding) {
     if (this.writter) {
       const tempPath = this.writter.path.toString();
-      const promise = new Promise((resolve)=>{
-        this.writter.end(resolve);
+      const writter = this.writter;
+      const promise = new Promise((resolve) => {
+        writter.end(resolve);
       });
       return {
         content: new MultipartFile(this.filename, tempPath, this.mediaType, this.size, this.mediaRoot),

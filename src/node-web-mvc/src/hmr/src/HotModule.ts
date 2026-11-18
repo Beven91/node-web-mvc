@@ -7,7 +7,7 @@ import Hook from './Hook';
 
 export type HookTypes = 'accept' | 'pre' | 'preend' | 'created' | 'postend';
 
-export type OnChangedHandler = (now: NodeHotModule, old: NodeHotModule) => void;
+export type OnChangedHandler = (now: NodeHotModule | null, old: NodeHotModule) => void;
 
 export default class HotModule {
   /**

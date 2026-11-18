@@ -26,7 +26,7 @@ export default class MultipartBodyReader extends AbstractBodyReader {
     }
     const startBoundary = `--${boundary}`;
     const toString = (buffer: Buffer) => buffer.toString(mediaType.charset);
-    return new Promise((resolve, reject) => {
+    return new Promise<Record<string, any>>((resolve, reject) => {
       let subpart = new MultipartSubpart(startBoundary, this.multipart, []);
       const formValues = {} as Record<string, any>;
       const promises: Promise<any>[] = [];

@@ -13,7 +13,7 @@ export default class WorkerResourceRunner {
 
   constructor(...middlewares: Middleware[]) {
     this.middlewares = middlewares;
-    parentPort.on('message', this.onRequest.bind(this));
+    parentPort?.on('message', this.onRequest.bind(this));
   }
 
 
@@ -40,7 +40,7 @@ export default class WorkerResourceRunner {
         handler(request, response, resolve);
       });
     } catch (ex) {
-      port.postMessage({ type: 'error', error: ex });
+      port.postMessage({ type: 'error', error: ex as Error });
     }
   }
 }

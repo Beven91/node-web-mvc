@@ -129,7 +129,7 @@ export default class AnnotationIndexer {
     }
   }
 
-  static getPropertyAnnotation(clazz: Function, name: string, annotationType: IAnnotationOrClazz) {
+  static getPropertyAnnotation(clazz: Function, name: string, annotationType: IAnnotationOrClazz | undefined) {
     const indexer = this.getIndexer(clazz);
     const property = indexer?.properties?.[name];
     if (property) {
@@ -137,7 +137,7 @@ export default class AnnotationIndexer {
     }
   }
 
-  static getParameterAnnotation(clazz: Function, methodKey: string | Function, paramName: string, annotationType: IAnnotationOrClazz) {
+  static getParameterAnnotation(clazz: Function, methodKey: string | Function, paramName: string, annotationType: IAnnotationOrClazz | undefined) {
     const parameter = this.getMethodIndexer(clazz, methodKey)?.parameters?.[paramName];
     if (parameter) {
       return this.findAnnotation(parameter, annotationType);
@@ -154,9 +154,9 @@ export default class AnnotationIndexer {
     if (len == 1) {
       return annotations[0];
     } else if (info.get(cacheKey)) {
-      return info.get(cacheKey)[0];
+      return info.get(cacheKey)![0];
     } else {
-      return annotations.find((m) => this.isAnnotationTypeOf(m, annotationType));
+      return annotations.find((m) => this.isAnnotationTypeOf(m, annotationType!));
     }
   }
 
@@ -169,7 +169,7 @@ export default class AnnotationIndexer {
     if (len == 1) {
       return annotations;
     } else {
-      return annotations.filter((m) => this.isAnnotationTypeOf(m, annotationType));
+      return annotations.filter((m) => this.isAnnotationTypeOf(m, annotationType!));
     }
   }
 

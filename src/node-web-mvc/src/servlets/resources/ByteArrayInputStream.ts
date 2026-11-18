@@ -1,8 +1,7 @@
 import { Readable, ReadableOptions } from 'stream';
-import fs from 'fs';
 
 export default class ByteArrayInputStream extends Readable {
-  private bytesArray: Buffer;
+  private bytesArray: Buffer | null;
 
   private pos: number;
 
@@ -16,7 +15,10 @@ export default class ByteArrayInputStream extends Readable {
     this.bytesArray = null;
   }
 
-  _read(size?: number) {
+  _read(size: number) {
+    if (!this.bytesArray) {
+      return;
+    }
     if (this.pos >= this.bytesArray.length) {
       this.push(null);
       return;

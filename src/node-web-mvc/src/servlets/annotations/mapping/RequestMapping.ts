@@ -28,12 +28,12 @@ export class RequestMapping {
   /**
    * 当前路由需要的请求头信息
    */
-  headers?: Map<string, string>;
+  headers?: Record<string, string>;
 
   /**
    * 当前路由需要的请求参数
    */
-  params?: Map<string, any>;
+  params?: Record<string, any>;
 
   static getMappingInfo(clazz: Function, method: string) {
     const anno = RuntimeAnnotation.getMethodAnnotation(clazz, method, RequestMapping);

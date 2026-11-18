@@ -21,11 +21,11 @@ export default class HttpRange {
   static getRanges(request: HttpServletRequest) {
     const range = request.getHeader(HttpHeaders.RANGE);
     if (!range) {
-      return null;
+      return [];
     }
     const segments = range.toString().split('=');
-    const unit = segments.shift();
-    const ranges = segments.pop().split(',');
+    const unit = segments.shift() || '';
+    const ranges = (segments.pop() || '').split(',');
     return ranges.map((range) => {
       const numbers = range.split('-');
       return new HttpRange(unit, numbers[0], numbers[1]);

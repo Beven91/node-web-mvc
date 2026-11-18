@@ -129,6 +129,9 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
       return new Resource(url);
     });
     const resource = await this.resourceResolverChain.resolveResource(request, resourcePath, locations);
+    if (!resource) {
+      return null;
+    }
     return this.resourceTransformerChain.transform(request, resource);
   }
 
@@ -152,7 +155,7 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
       throw new HttpRequestMethodNotSupportedException(request.method, this.allowHeaders);
     }
     const validation = new HttpRequestValidation(request, response);
-    if (validation.checkNotModified(null, resource.lastModified)) {
+    if (validation.checkNotModified('', resource.lastModified!)) {
       return;
     }
     return resource;
@@ -164,7 +167,7 @@ export default class ResourceHttpRequestHandler implements HttpRequestHandler {
   setHeaders(response: HttpServletResponse, resource: Resource) {
     // 设置content-length
     if (!(resource instanceof GzipResource)) {
-      response.setHeader(HttpHeaders.CONTENT_LENGTH, resource.contentLength);
+      response.setHeader(HttpHeaders.CONTENT_LENGTH, resource.contentLength!);
     }
     // 设置media-type
     if (resource.mediaType) {

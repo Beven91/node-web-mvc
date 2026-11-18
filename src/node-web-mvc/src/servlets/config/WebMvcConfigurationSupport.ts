@@ -144,7 +144,7 @@ export default class WebMvcConfigurationSupport extends WebAppConfigurerOptions 
   private getCorsConfigurations() {
     if (!this.corsConfigurations) {
       const registry = new CorsRegistry();
-      this.addCorsMappings(registry);
+      this.addCorsMappings?.(registry);
       this.corsConfigurations = registry.getCorsConfigurations();
     }
     return this.corsConfigurations;

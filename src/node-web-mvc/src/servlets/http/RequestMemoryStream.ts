@@ -6,17 +6,17 @@ import { Writable } from 'stream';
 import { IncomingMessage } from 'http';
 
 export default class RequestMemoryStream extends Writable {
-  private readBuffers: Buffer;
+  private readBuffers: Buffer | null;
 
   static readBody(request: IncomingMessage) {
     return new Promise<Buffer>((resolve, reject) => {
-      new RequestMemoryStream(request, (data: Buffer, ex: Error) => {
-        ex ? reject(ex) : resolve(data);
+      new RequestMemoryStream(request, (data, ex) => {
+        ex ? reject(ex) : resolve(data!);
       });
     });
   }
 
-  constructor(request: IncomingMessage, handler: (chunks: Buffer, ex?: Error) => void) {
+  constructor(request: IncomingMessage, handler: (chunks: Buffer | null, ex?: Error) => void) {
     super();
     this.readBuffers = Buffer.from([]);
     request.pipe(this);

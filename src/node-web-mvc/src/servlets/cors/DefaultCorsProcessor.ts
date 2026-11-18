@@ -6,7 +6,6 @@ import CorsProcessor from './CorsProcessor';
 import HttpStatus from '../http/HttpStatus';
 import HttpServletRequest from '../http/HttpServletRequest';
 
-
 export default class DefaultCorsProcessor implements CorsProcessor {
   private tryAddVaryHeaders(response: HttpServletResponse) {
     response.addHeader(HttpHeaders.VARY, HttpHeaders.ORIGIN, true);
@@ -49,6 +48,9 @@ export default class DefaultCorsProcessor implements CorsProcessor {
     if (value instanceof Array) {
       return value;
     }
+    if (!value) {
+      return [];
+    }
     return value.toString().split(',');
   }
 
@@ -74,7 +76,7 @@ export default class DefaultCorsProcessor implements CorsProcessor {
 
   async handleInternal(request: HttpServletRequest, response: HttpServletResponse, config: CorsConfiguration, isPreFlightRequest: boolean) {
     const requestOrigin = request.getHeaderValue(HttpHeaders.ORIGIN)?.[0];
-    const allowOrigin = this.checkOrigin(config, requestOrigin);
+    const allowOrigin = this.checkOrigin(config, requestOrigin || '');
 
     // 校验origin
     if (allowOrigin == null) {
@@ -92,8 +94,8 @@ export default class DefaultCorsProcessor implements CorsProcessor {
 
     // 校验请求头
     const requestHeaders = this.getHeadersToUse(request, isPreFlightRequest);
-    const allowHeaders = this.checkHeaders(config, requestHeaders);
-    if (isPreFlightRequest && allowHeaders == null) {
+    const allowHeaders = this.checkHeaders(config, requestHeaders) || [];
+    if (isPreFlightRequest && allowHeaders.length < 1) {
       this.rejectResponse(response);
       return false;
     }

@@ -14,6 +14,8 @@ import JsonDeserialize from './JsonDeserialize';
 import JsonFormat from './JsonFormat';
 import { MetaRuntimeTypeInfo } from '../servlets/annotations/annotation/type';
 import ConvertPropertyTypeError from '../errors/ConvertPropertyTypeError';
+import Normalizer from '../errors/Normalizer';
+import ConvertTypeError from '../errors/ConvertTypeError';
 
 export const TypedArray = (Uint8Array.prototype as any).__proto__.constructor;
 
@@ -25,7 +27,8 @@ export default class TypeConverter {
       }
       return new type(...args);
     } catch (ex) {
-      throw new SerializationCreateInstanceError(type, ex.message);
+      const error = Normalizer.normalizeError(ex);
+      throw new SerializationCreateInstanceError(type, error.message);
     }
   }
 
@@ -133,6 +136,9 @@ export default class TypeConverter {
     if (dataType === Object && (typeof data !== 'object' || !data)) {
       return data;
     }
+    if (typeof data !== 'object') {
+      throw new ConvertTypeError(data, dataType);
+    }
     const instance = this.createInstance(dataType);
     const keys = Object.keys(data);
     for (const key of keys) {
@@ -145,7 +151,7 @@ export default class TypeConverter {
       try {
         instance[key] = this.handlePropertyValue(dataType, key, value);
       } catch (ex) {
-        throw new ConvertPropertyTypeError(key, ex);
+        throw new ConvertPropertyTypeError(key, Normalizer.normalizeError(ex));
       }
     }
     return instance;

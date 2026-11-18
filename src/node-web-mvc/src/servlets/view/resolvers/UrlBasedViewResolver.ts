@@ -38,7 +38,7 @@ export default class UrlBasedViewResolver implements ViewResolver {
      * @param {Object} model 视图数据
      * @param {HttpServletRequest} request 当前http请求实例
      */
-  resolveViewName(viewName: string, model: any, request: HttpServletRequest): View {
+  resolveViewName(viewName: string, model: any, request: HttpServletRequest): View | null {
     if (IS_REDIRECT.test(viewName)) {
       return new RedirectView(viewName.replace(IS_REDIRECT, ''));
     } else if (IS_FORWARD.test(viewName)) {
@@ -49,7 +49,7 @@ export default class UrlBasedViewResolver implements ViewResolver {
     return this.internalResolve(name, model, request);
   }
 
-  internalResolve(viewName: string, model: any, request: HttpServletRequest): View {
+  internalResolve(viewName: string, model: any, request: HttpServletRequest): View | null {
     return null;
   }
 }

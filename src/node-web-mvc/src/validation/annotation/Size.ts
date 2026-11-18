@@ -41,7 +41,7 @@ class Size extends Constraints {
       return true;
     }
     const size = this.getSize(value, context);
-    return size >= this.min && size <= this.max;
+    return size >= this.min! && size <= this.max!;
   }
 }
 

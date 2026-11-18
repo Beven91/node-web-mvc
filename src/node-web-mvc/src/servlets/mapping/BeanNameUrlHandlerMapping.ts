@@ -23,7 +23,7 @@ export default class BeanNameUrlHandlerMapping extends AbstractHandlerMapping {
     this.setDefaultHandler(null);
   }
 
-  protected getHandlerInternal(context: ServletContext): object {
+  protected getHandlerInternal(context: ServletContext): object | null {
     const request = context.request;
     const registrations = this.registry.registrations;
     const lookupPath = this.initLookupPath(request);
@@ -32,6 +32,7 @@ export default class BeanNameUrlHandlerMapping extends AbstractHandlerMapping {
         return new ResourceHttpRequestHandler(registration, this.resource);
       }
     }
+    return null;
   }
 
   match(mapping: ResourceHandlerRegistration, path: string, request: HttpServletRequest): boolean {
@@ -44,5 +45,6 @@ export default class BeanNameUrlHandlerMapping extends AbstractHandlerMapping {
         return true;
       }
     }
+    return false;
   }
 }

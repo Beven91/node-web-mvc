@@ -4,6 +4,17 @@ import SpringBootApplication, { NodeServerOptions } from './SpringBootApplicatio
 import path from 'path';
 
 const isProduction = process.env.NODE_ENV === 'production';
+const arrayContact = (items: string[], source: string | string[] | undefined)=> {
+  if (!source) {
+    return items;
+  }
+  if (source instanceof Array) {
+    return items.concat(source);
+  } else {
+    items.push(source);
+    return items;
+  }
+};
 
 export default class BootConfiguration {
   private readonly annoConfigs: InstanceType<typeof SpringBootApplication>[];
@@ -28,7 +39,7 @@ export default class BootConfiguration {
   }
 
   getScanBasePackages(): string[] {
-    const scanBasePackages = this.annoConfigs.reduce((v, item) => v.concat(item.scanBasePackages), []).filter(Boolean);
+    const scanBasePackages = this.annoConfigs.reduce((v, item) => arrayContact(v, item.scanBasePackages), [] as string[]).filter(Boolean);
     if (scanBasePackages.length < 1) {
       return [ process.cwd() ];
     } else {
@@ -36,7 +47,7 @@ export default class BootConfiguration {
     }
   }
 
-  getHotOptions(): HotOptions {
+  getHotOptions(): HotOptions | null {
     if (isProduction) {
       // 生产模式无论如何禁止热更新
       return null;
@@ -71,12 +82,12 @@ export default class BootConfiguration {
   }
 
   getExcludeScan(): string[] {
-    const fileOrDirs = this.annoConfigs.reduce((v, item) => v.concat(item.excludeScan), []).filter(Boolean);
+    const fileOrDirs = this.annoConfigs.reduce((v, item) => arrayContact(v, item.excludeScan), [] as string[]).filter(Boolean);
     return (fileOrDirs);
   }
 
   getLaunchLogOff(): boolean {
-    return this.annoConfigs[0]?.launchLogOff;
+    return !!this.annoConfigs[0]?.launchLogOff;
   }
 
   getPort(): number {

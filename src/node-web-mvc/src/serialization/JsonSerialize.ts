@@ -10,7 +10,7 @@ class JsonSerialize {
 
   using: typeof JsonSerializer;
 
-  getSerializer(): JsonSerializer {
+  getSerializer(): JsonSerializer | null {
     if (!this.using) {
       return null;
     }

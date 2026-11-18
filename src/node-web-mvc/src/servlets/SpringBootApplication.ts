@@ -87,7 +87,7 @@ export class SpringBootApplication {
 
   protected onInitialize() {
     if (this.isDist) {
-      this.hot = null;
+      this.hot = undefined;
     }
   }
 
@@ -109,7 +109,7 @@ export default Target([ ElementType.TYPE ])(SpringBootApplication);
 function registerHotUpdate(clazz: Function) {
   if (typeof require == 'function') {
     const tracer = Tracer.getTracer(clazz);
-    const mod = (require.cache[tracer.id] || (require.main.filename == tracer.id ? require.main : null)) as NodeHotModule;
+    const mod = (require.cache[tracer?.id || ''] || (require.main?.filename == tracer?.id ? require.main : null)) as NodeHotModule;
     if (mod && !mod.hot) {
       hot.makeHash(mod.filename);
       hot.create(mod)
@@ -119,7 +119,7 @@ function registerHotUpdate(clazz: Function) {
             // 1. 移除所有模块缓存
             Object.keys(require.cache).forEach((key) => {
               const old = require.cache[key];
-              const isHotUpdater = old.exports.default == HotUpdaterReleaseManager;
+              const isHotUpdater = old?.exports.default == HotUpdaterReleaseManager;
               if (isHotUpdater) return;
               delete require.cache[key];
             });

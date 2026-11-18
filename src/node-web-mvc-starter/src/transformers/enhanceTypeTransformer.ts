@@ -51,7 +51,7 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
         // 如果是action，则开始生成返回类型
         const typeName = node.type?.getText?.();
         if (typeName) {
-          node = generateFunctionRuntimeReturnType(node.type, node, gContext);
+          node = generateFunctionRuntimeReturnType(node.type!, node, gContext);
         }
         return ts.visitEachChild(node, (cNode) => visitMethodParameterAndReturn(cNode, gContext, declaration), context);
       }
@@ -63,7 +63,7 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
       if (ts.isParameter(node)) {
         const typeName = node.type?.getText?.();
         if (typeName) {
-          return generateParameterRuntimeType(node.type, node, gContext);
+          return generateParameterRuntimeType(node.type!, node, gContext);
         }
       }
       return node;
@@ -72,10 +72,10 @@ export default function enhanceTypeTransformer(context: ExtTransformationContext
 
     // 遍历类属性
     const visitProperties = (node: ts.Node, gContext: GenerateContext) => {
-      if (ts.isPropertyDeclaration(node) && node.modifiers?.length > 0) {
+      if (ts.isPropertyDeclaration(node) && (node.modifiers?.length as number)> 0) {
         const typeName = node.type?.getText?.();
         if (typeName) {
-          return generatePropertyRuntimeType(node.type, node, gContext);
+          return generatePropertyRuntimeType(node.type!, node, gContext);
         }
       }
       return node;

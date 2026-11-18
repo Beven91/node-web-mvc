@@ -17,7 +17,8 @@ export default class HotUpdaterReleaseManager {
 
   private static resolveDependency(stack: string) {
     const files = (stack || '').split('\n').slice(2, 10).map((m) => {
-      return m.split('(').pop().replace(/(:\d+)+/, '').replace(/\)$/, '');
+      const str = m.split('(').pop() || '';
+      return str.replace(/(:\d+)+/, '').replace(/\)$/, '');
     });
     return files[0];
   }
@@ -43,13 +44,13 @@ export default class HotUpdaterReleaseManager {
     const value = target[name] as any;
     const meta = Proxy.revocable(value, {
       apply(handler: Function, thisArg, args) {
-        const file = scope.resolveDependency(new Error().stack);
+        const file = scope.resolveDependency(new Error().stack || '');
         const id = scope.normalizeId(file);
         const returnValue = handler.apply(thisArg, args);
         if (!dependencies.has(id)) {
           dependencies.set(id, []);
         }
-        dependencies.get(id).push(returnValue);
+        dependencies.get(id)!.push(returnValue);
         // console.log('call method', name);
         return returnValue;
       },
@@ -77,13 +78,13 @@ export default class HotUpdaterReleaseManager {
     });
     const meta = Proxy.revocable(clazz, {
       construct(target, argArray) {
-        const file = scope.resolveDependency(new Error().stack);
+        const file = scope.resolveDependency(new Error().stack || '');
         const id = scope.normalizeId(file);
         const returnValue = new target(...argArray);
         if (!dependencies.has(id)) {
           dependencies.set(id, []);
         }
-        dependencies.get(id).push(returnValue);
+        dependencies.get(id)!.push(returnValue);
         // console.log('create instance', target.name);
         return returnValue;
       },

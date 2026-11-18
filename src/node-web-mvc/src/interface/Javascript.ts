@@ -3,7 +3,7 @@
  * @description 处理javascript相关兼容
  */
 
-const empty: { __proto__?: object } = {};
+const empty: { __proto__: object } = {} as any;
 const protoKeys = Reflect.ownKeys(empty.__proto__).reduce((map, k) => (map[k] = true, map), {});
 const symbol = Symbol('@parameters');
 const isClassSymbol = Symbol('isClass');
@@ -31,7 +31,7 @@ export default class Javascript {
     return handler[symbol];
   }
 
-  static createTyper(childType: Function) {
+  static createTyper(childType: Function | null | undefined) {
     return {
       type: childType,
       isExtendOf: (parentType: Function) => {

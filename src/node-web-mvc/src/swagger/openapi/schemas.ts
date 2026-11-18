@@ -40,8 +40,8 @@ export default class Schemas {
     // 构建属性
     const properties = this.buildApiModelProperties(clazzType, fillRuntimeType);
     return schemas[modelName] = {
-      title: anno.value,
-      description: anno.description,
+      title: anno.value || '',
+      description: anno.description || '',
       properties: properties,
       // allOf: parentModel && [
       //   {
@@ -98,23 +98,28 @@ export default class Schemas {
     //   console.warn('OpenApi: Cannot found ref:' + type2.name);
     //   return;
     // }
-    Object.keys(model.properties).map((key: string) => {
+    Object.keys(model.properties).forEach((key: string) => {
       const item = model.properties[key] as ApiModelPropertyInfo;
       const itemRuntimeType = item.runtimeType;
+      if (!itemRuntimeType) {
+        return;
+      }
+      const runtimeTypeArgs = runtimeType.args || [];
+      const itemRuntimeTypeArgs = itemRuntimeType.args || [];
       if (itemRuntimeType.tp) {
         // 如果是泛型填充类型
-        const fillType = runtimeType.args.find((m) => m.at == itemRuntimeType.name);
-        const newFillType:MetaRuntimeTypeInfo = {
+        const fillType = runtimeTypeArgs.find((m) => m.at == itemRuntimeType.name) as MetaRuntimeTypeInfo;
+        const newFillType: MetaRuntimeTypeInfo = {
           ...fillType,
-          fullName: fillType?.name,
+          fullName: fillType?.name || '',
         };
         properties[key] = fillType ? this.typemappings.make(newFillType) : item;
-      } else if (itemRuntimeType.args?.length > 0) {
-        const newArgs = itemRuntimeType.args.map((m, i) => {
+      } else if (itemRuntimeTypeArgs.length > 0) {
+        const newArgs = itemRuntimeTypeArgs.map((m, i) => {
           if (!m.tp) {
             return m;
           }
-          return runtimeType.args.find((r)=>r.at == m.name) || m;
+          return runtimeTypeArgs.find((r) => r.at == m.name) || m;
         });
         // 如果当前属性为泛型
         const newRuntimeType: MetaRuntimeTypeInfo = {
