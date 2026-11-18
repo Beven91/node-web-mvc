@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "outDir": "./dist/",
-    "rootDir": "./src/",
+    "rootDir": "..",
     "module": "CommonJS",
     "allowJs": true,
     "diagnostics": true,
@@ -12,6 +12,7 @@
       "node-web-mvc-starter": ["../node-web-mvc-starter/src/index.ts"]
     }
   },
+  "include": ["src"],
   "exclude": [
     "dist",
     "node_modules",

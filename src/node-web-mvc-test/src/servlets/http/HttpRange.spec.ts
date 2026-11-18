@@ -1,0 +1,45 @@
+import HttpRange from '../../../../node-web-mvc/src/servlets/http/HttpRange';
+
+describe('HttpRange', () => {
+  describe('getRanges', () => {
+    it('无 Range 头返回空数组', () => {
+      const request = { getHeader: () => null } as any;
+      const ranges = HttpRange.getRanges(request);
+      expect(ranges).toEqual([]);
+    });
+
+    it('bytes=0-499 解析正确', () => {
+      const request = { getHeader: () => 'bytes=0-499' } as any;
+      const ranges = HttpRange.getRanges(request);
+      expect(ranges).toHaveLength(1);
+      expect(ranges[0].unit).toBe('bytes');
+      expect(ranges[0].start).toBe(0);
+      expect(ranges[0].end).toBe(499);
+    });
+
+    it('bytes=500- 无尾范围解析', () => {
+      const request = { getHeader: () => 'bytes=500-' } as any;
+      const ranges = HttpRange.getRanges(request);
+      expect(ranges).toHaveLength(1);
+      expect(ranges[0].start).toBe(500);
+      expect(ranges[0].end).toBe(-1);
+    });
+
+    it('bytes=-500 后缀范围解析', () => {
+      const request = { getHeader: () => 'bytes=-500' } as any;
+      const ranges = HttpRange.getRanges(request);
+      expect(ranges).toHaveLength(1);
+      // '' split('-') → ['', '500'], Number('') = 0, Number('500') = 500
+      expect(ranges[0].start).toBe(0);
+      expect(ranges[0].end).toBe(500);
+    });
+
+    it('多段范围解析', () => {
+      const request = { getHeader: () => 'bytes=0-499,500-999' } as any;
+      const ranges = HttpRange.getRanges(request);
+      expect(ranges).toHaveLength(2);
+      expect(ranges[0].start).toBe(0);
+      expect(ranges[1].start).toBe(500);
+    });
+  });
+});
