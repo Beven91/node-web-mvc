@@ -87,7 +87,6 @@ export default class WorkerInvoker {
         transfer: buffer as ArrayBuffer,
       };
     }
-    console.log('池化>>>');
     // 池化的 Buffer，创建副本避免影响同一 pool 中的其他 Buffer
     const copiedBuffer = buffer.slice(val.byteOffset, val.byteOffset + val.byteLength);
     return {
