@@ -15,7 +15,7 @@ class Scope {
   scope: ScopeType;
 
   @AliasFor('scope')
-  value: string;
+  value: ScopeType;
 }
 
 /**
