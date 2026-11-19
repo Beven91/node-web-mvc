@@ -44,16 +44,31 @@ describe('ModelAndView', () => {
   });
 
   describe('wasCleared', () => {
-    // 注意：wasCleared() 存在已知源码 bug——this.isEmpty 是函数而非调用结果
-    // this.isEmpty 作为函数总是 truthy，所以 cleared=true 时返回函数引用
-    it('未清空前返回 undefined（cleared=false 时 falsy）', () => {
+    // BUG：wasCleared() 中 this.isEmpty 是方法引用而非调用结果
+    // return this.cleared && this.isEmpty;
+    // this.isEmpty 作为函数引用始终 truthy
+    it('未清空前（cleared=undefined）返回 undefined（falsy）', () => {
       expect(new ModelAndView('index').wasCleared()).toBeUndefined();
     });
 
-    it('清空后返回 isEmpty 函数引用', () => {
+    it('清空后返回的是 isEmpty 函数引用而非布尔值', () => {
       const mav = new ModelAndView('index', { a: 1 });
       mav.clear();
-      expect(typeof mav.wasCleared()).toBe('function');
+      const result = mav.wasCleared();
+      // BUG: 应返回 true，但实际返回 isEmpty 函数
+      expect(typeof result).toBe('function');
+      // 因为 this.isEmpty 是函数引用，始终 truthy
+      // cleared=true && function → function (truthy 但不是 boolean)
+      expect(result).toBeTruthy();
+    });
+
+    it('bug 影响：wasCleared() 永远不会返回 false（因为函数引用始终 truthy）', () => {
+      const mav = new ModelAndView();
+      mav.clear();
+      // 即使 model 非空（被 clear 设为 null），wasCleared 仍返回函数引用
+      const result = mav.wasCleared();
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe('function');
     });
   });
 

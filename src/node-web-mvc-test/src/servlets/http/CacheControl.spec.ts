@@ -2,9 +2,19 @@ import CacheControl from '../../../../node-web-mvc/src/servlets/http/CacheContro
 
 describe('CacheControl', () => {
   describe('toString', () => {
-    it('max-age', () => {
-      const cc = new CacheControl({ maxAge: 3600 } as CacheControl);
-      expect(cc.toString()).toContain('max-age=3600');
+    it('maxAge=0 时输出 max-age=0（语义问题：0 应表示不缓存）', () => {
+      // BUG: maxAge >= 0 判断导致 maxAge=0 时输出 max-age=0
+      // 在 HTTP 语义中 max-age=0 表示"立即过期/不缓存"
+      // 但如果用户未设置 maxAge（即 undefined），则 undefined >= 0 为 false 跳过
+      // 所以这个边界：用户显式设置 maxAge=0 会导致输出，可能是预期行为
+      const cc = new CacheControl({ maxAge: 0 } as CacheControl);
+      expect(cc.toString()).toContain('max-age=0');
+    });
+
+    it('maxAge 为负数时不输出', () => {
+      const cc = new CacheControl({ maxAge: -1 } as CacheControl);
+      expect(cc.toString()).not.toContain('max-age');
+      expect(cc.toString()).toBe('');
     });
 
     it('no-cache', () => {

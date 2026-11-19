@@ -144,8 +144,8 @@ describe('HandlerMethod', () => {
 
     it('可手动赋值', () => {
       const hm = createHandlerMethod();
-      hm.argumentValues = [1, 'hello'];
-      expect(hm.argumentValues).toEqual([1, 'hello']);
+      hm.argumentValues = [ 1, 'hello' ];
+      expect(hm.argumentValues).toEqual([ 1, 'hello' ]);
     });
   });
 

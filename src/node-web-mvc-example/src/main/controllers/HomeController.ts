@@ -1,6 +1,6 @@
 
 import path from 'path';
-import { Api, ApiOperation, GetMapping, RequestMapping, RequestEntity, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders, Valid, ServletRequest, Validated } from 'node-web-mvc';
+import { Api, ApiOperation, GetMapping, RequestMapping, RequestEntity, RequestParam, RequestHeader, ApiImplicitParams, RequestBody, PostMapping, PathVariable, Autowired, MultipartFile, ResponseFile, RestController, CorsOrigin, ResponseEntity, HttpStatus, HttpHeaders, Valid, ServletRequest, Validated, Scope } from 'node-web-mvc';
 import UserId from '../annotations/UserId';
 import OrderService from '../services/OrderService';
 import { UserInfo } from '../models';
