@@ -6,7 +6,7 @@ import { SpringApplication, SpringBootApplication } from 'node-web-mvc';
   server: {
     port: 8088,
   },
-  excludeScan: [ 'dist/', '/WEB-INF/', 'worker.ts', '' ],
+  excludeScan: [ 'dist/', '/WEB-INF/', 'worker.ts' ],
   scanBasePackages: './',
 })
 export default class DemoApplication {

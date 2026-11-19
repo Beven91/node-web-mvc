@@ -53,7 +53,7 @@ export default class ModuleLoader {
     children.forEach((name) => {
       const id = path.isAbsolute(name) ? name: path.join(dir, name);
       const ext = path.extname(name);
-      if (fs.lstatSync(id).isFile() && !allowExtensions[ext] || id.indexOf('/node_modules/') > -1 || id.indexOf('.d.ts') > 0) {
+      if (fs.lstatSync(id).isFile() && !allowExtensions[ext] || id.indexOf(path.sep + 'node_modules' + path.sep) > -1 || id.indexOf('.d.ts') > 0) {
         return;
       }
       if (this.isExclude(id)) {
