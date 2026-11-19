@@ -1,6 +1,6 @@
 {
   "name": "node-web-mvc",
-  "version": "3.3.31",
+  "version": "3.3.32",
   "description": "node spring mvc",
   "main": "./dist/index.js",
   "directories": {
