@@ -65,12 +65,56 @@ export default class WorkerInvoker {
     this.port = port;
   }
 
+  /**
+   * 智能序列化 Buffer/Uint8Array
+   * 检测是否池化：如果 Buffer 占满整个 ArrayBuffer，直接 transfer（零拷贝）
+   * 否则使用 slice 创建副本（避免池化风险）
+   */
+  static serializeBuffer(val: Uint8Array): { serialized: any; transfer: ArrayBuffer | null } {
+    const buffer = val.buffer;
+    // 检测是否池化：Buffer 占满整个 ArrayBuffer 说明不是池化的
+    const isNotPooled = val.byteOffset === 0 && val.byteLength === buffer.byteLength;
+
+    if (isNotPooled) {
+      // 非池化，直接 transfer（零拷贝）
+      return {
+        serialized: {
+          __type: 'Uint8Array',
+          buffer,
+          byteOffset: 0,
+          byteLength: val.byteLength,
+        },
+        transfer: buffer as ArrayBuffer,
+      };
+    }
+    console.log('池化>>>');
+    // 池化的 Buffer，创建副本避免影响同一 pool 中的其他 Buffer
+    const copiedBuffer = buffer.slice(val.byteOffset, val.byteOffset + val.byteLength);
+    return {
+      serialized: {
+        __type: 'Uint8Array',
+        buffer: copiedBuffer,
+        byteOffset: 0,
+        byteLength: val.byteLength,
+      },
+      transfer: copiedBuffer as ArrayBuffer,
+    };
+  }
+
   static bindCallback(port: ResponseMessagePort, id: string, name: string) {
     return (...values) => {
-      const transfer = values.filter((m) => m instanceof Uint8Array).map((m) => m.buffer);
+      const transfer: ArrayBuffer[] = [];
+      const serializedValues = values.map((val) => {
+        if (val instanceof Uint8Array) {
+          const { serialized, transfer: buf } = this.serializeBuffer(val);
+          if (buf) transfer.push(buf);
+          return serialized;
+        }
+        return val;
+      });
       port.postMessage(
         {
-          callbackValues: values,
+          callbackValues: serializedValues,
           callbackId: id,
           type: 'callback',
         },
@@ -79,11 +123,26 @@ export default class WorkerInvoker {
     };
   }
 
+  /**
+   * 反序列化从 Worker 线程传递过来的参数
+   * 将 { __type: 'Uint8Array', buffer, byteOffset, byteLength } 转换回 Buffer
+   */
+  static deserializeArgs(args: any[]): any[] {
+    return args.map((arg) => {
+      if (arg && typeof arg === 'object' && arg.__type === 'Uint8Array') {
+        // 从 ArrayBuffer 重建 Buffer
+        return Buffer.from(arg.buffer, arg.byteOffset, arg.byteLength);
+      }
+      return arg;
+    });
+  }
+
   static onInvoke(info: WorkerInvokeData, port: MessagePort, request: IncomingMessage, response: ServerResponse) {
     const invoke = info.invoke;
     const name = invoke.target + '.' + invoke.method;
     const callback = this.bindCallback(port, invoke.id, name);
-    const args = invoke.args;
+    // 反序列化参数
+    const args = this.deserializeArgs(invoke.args);
     const socket = (invoke.target == 'responseSocket' ? response.socket : request.socket)!;
     switch (name) {
       case 'response.write':
@@ -175,7 +234,15 @@ export default class WorkerInvoker {
   invoke(target: InvokeTargetType, method: string, args: any[]) {
     return new Promise((resolve, reject) => {
       const id = randomUUID();
-      const transfer = args.filter((m) => m instanceof Uint8Array).map((m) => m.buffer);
+      const transfer: ArrayBuffer[] = [];
+      const serializedArgs = args.map((arg) => {
+        if (arg instanceof Uint8Array) {
+          const { serialized, transfer: buf } = WorkerInvoker.serializeBuffer(arg);
+          if (buf) transfer.push(buf);
+          return serialized;
+        }
+        return arg;
+      });
       const onCallback = (ev: MessageEvent) => {
         const data = ev.data as WorkerResponseData;
         if (data.type !== 'callback' || data.callbackId !== id) return;
@@ -190,7 +257,7 @@ export default class WorkerInvoker {
             id: id,
             target,
             method,
-            args,
+            args: serializedArgs,
           },
         },
         transfer
@@ -206,7 +273,9 @@ export default class WorkerInvoker {
     const invokeHandler = (e: MessageEvent) => {
       const data = (e.data || {}) as WorkerResponseData;
       if (data.type == 'callback' && data.callbackId == id) {
-        handler(...data.callbackValues);
+        // 反序列化回调值
+        const values = WorkerInvoker.deserializeArgs(data.callbackValues);
+        handler(...values);
         once && this.removeEventListener(target, event, id, handler);
       }
     };

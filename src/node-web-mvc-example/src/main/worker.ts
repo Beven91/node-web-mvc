@@ -1,4 +1,5 @@
 import { WorkerResourceRunner } from 'node-web-mvc';
+import fs from 'fs'
 
 console.log('init worker=====>');
 
@@ -12,6 +13,6 @@ new WorkerResourceRunner(
     response.setHeader('AA', 'aaaa');
     response.writeHead(200, 'OK');
     response.write('Hello World sssi am lost kkkkkkkk999 ');
-    response.end('aaaa');
+    response.end(Buffer.from('aaaaa'));
   },
 );
